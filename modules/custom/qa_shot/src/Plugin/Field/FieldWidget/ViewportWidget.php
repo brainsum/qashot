@@ -72,7 +72,7 @@ class ViewportWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element['name'] = [
       '#type' => 'textfield',
-      '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
+      '#default_value' => isset($items[$delta]->name) ? $items[$delta]->name : NULL,
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
       '#maxlength' => $this->getFieldSetting('max_name_length'),
@@ -83,7 +83,7 @@ class ViewportWidget extends WidgetBase {
 
     $element['width'] = [
       '#type' => 'number',
-      '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
+      '#default_value' => isset($items[$delta]->width) ? $items[$delta]->width : NULL,
       '#min' => $this->getFieldSetting('min_width'),
       '#max' => $this->getFieldSetting('max_width'),
       '#title' => $this->t('Width'),
@@ -92,13 +92,13 @@ class ViewportWidget extends WidgetBase {
 
     $element['height'] = [
       '#type' => 'number',
-      '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
+      '#default_value' => isset($items[$delta]->height) ? $items[$delta]->height : NULL,
       '#min' => $this->getFieldSetting('min_height'),
       '#max' => $this->getFieldSetting('max_height'),
       '#title' => $this->t('Height'),
       '#required' => $element['#required']
       ];
-
+    
     return $element;
   }
 
