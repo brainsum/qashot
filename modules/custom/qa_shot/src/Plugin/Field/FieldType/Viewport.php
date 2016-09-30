@@ -124,8 +124,8 @@ class Viewport extends FieldItemBase {
     $height = $this->get('height')->getValue();
 
     return  $name === NULL || $name === '' ||
-            $width === NULL ||
-            $height === NULL;
+            $width === NULL || $width === '' ||
+            $height === NULL || $height === '';
   }
 
 }

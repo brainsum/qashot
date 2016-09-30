@@ -14,11 +14,7 @@ label: Viewport
 description: 'Set a unique name and the desired resolution. Supported resolutions range from 480x320 up to 3840x2400.'
 required: true
 translatable: false
-default_value:
-  -
-    name: Desktop
-    width: '1366'
-    height: '768'
+default_value: {  }
 default_value_callback: ''
 settings: {  }
 field_type: qa_shot_viewport
