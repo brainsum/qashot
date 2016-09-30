@@ -1,0 +1,5 @@
+entity.qa_shot_test.add_form:
+  route_name: entity.qa_shot_test.add_form
+  title: 'Add QAShot Test'
+  appears_on:
+    - entity.qa_shot_test.collection

@@ -1,0 +1,23 @@
+uuid: 68e022d2-616f-4d5a-99b8-c00bd72baeef
+langcode: en
+status: true
+dependencies:
+  module:
+    - qa_shot
+id: qa_shot_test.field_viewport
+field_name: field_viewport
+entity_type: qa_shot_test
+type: qa_shot_viewport
+settings:
+  max_name_length: 40
+  min_width: 480
+  max_width: 3840
+  min_height: 320
+  max_height: 2400
+module: qa_shot
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,22 @@
+add qashot test entities:
+  title: 'Create new QAShot Test entities'
+
+administer qashot test entities:
+  title: 'Administer QAShot Test entities'
+  description: 'Allow to access the administration form to configure QAShot Test entities.'
+  restrict access: true
+
+delete qashot test entities:
+  title: 'Delete QAShot Test entities'
+
+edit qashot test entities:
+  title: 'Edit QAShot Test entities'
+
+access qashot test overview:
+  title: 'Access the QAShot Test overview page'
+
+view published qashot test entities:
+  title: 'View published QAShot Test entities'
+
+view unpublished qashot test entities:
+  title: 'View unpublished QAShot Test entities'

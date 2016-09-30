@@ -1,0 +1,34 @@
+uuid: 63e20978-b6e3-4d60-a398-eed831d1fc6e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.qa_shot_test.qa_shot_test.field_viewport
+  module:
+    - qa_shot
+    - user
+id: qa_shot_test.qa_shot_test.default
+targetEntityType: qa_shot_test
+bundle: qa_shot_test
+mode: default
+content:
+  field_viewport:
+    weight: 1
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: qa_shot_viewport
+  name:
+    label: above
+    type: string
+    weight: -4
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  user_id:
+    label: hidden
+    type: author
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

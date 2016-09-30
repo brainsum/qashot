@@ -1,0 +1,13 @@
+# QAShot Test menu items definition
+entity.qa_shot_test.collection:
+  title: 'QAShot Test list'
+  route_name: entity.qa_shot_test.collection
+  description: 'List QAShot Test entities'
+  parent: system.admin_structure
+  weight: 100
+
+qa_shot_test.admin.structure.settings:
+  title: QAShot Test settings
+  description: 'Configure QAShot Test entities'
+  route_name: qa_shot_test.settings
+  parent: system.admin_structure

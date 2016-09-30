@@ -1,0 +1,36 @@
+uuid: f2c86afb-55f8-4f20-b635-9ff80c441a97
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.qa_shot_test.qa_shot_test.field_viewport
+  module:
+    - qa_shot
+id: qa_shot_test.qa_shot_test.default
+targetEntityType: qa_shot_test
+bundle: qa_shot_test
+mode: default
+content:
+  field_viewport:
+    weight: 6
+    settings:
+      size: 40
+      placeholder: ''
+    third_party_settings: {  }
+    type: qa_shot_viewport
+  name:
+    type: string_textfield
+    weight: -4
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  user_id:
+    type: entity_reference_autocomplete
+    weight: 5
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

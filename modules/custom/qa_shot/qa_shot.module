@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains qa_shot.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function qa_shot_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the qa_shot module.
+    case 'help.page.qa_shot':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Module for test management.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
