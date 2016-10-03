@@ -45,3 +45,6 @@ core/phpunit.xml
 # Docker related files and directories
 docker-compose.yml
 docker-runtime
+
+# Drupal modules
+modules/examples
