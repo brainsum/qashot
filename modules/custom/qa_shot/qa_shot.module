@@ -35,7 +35,7 @@ function qa_shot_qa_shot_test_insert(Drupal\Core\Entity\EntityInterface $entity)
  */
 function qa_shot_qa_shot_test_update(Drupal\Core\Entity\EntityInterface $entity) {
   // @todo: Regenerate BackstopJS config
-  _qa_shot_generate_backstop_config($entity);
+  // _qa_shot_generate_backstop_config($entity);
 }
 
 /**
@@ -104,11 +104,12 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
 
   // @todo: create basic onBefore.js and onReady.js
 
-  if (FALSE === _qa_shot_run_backstop_command("reference", $configPath)) {
-    dpm("Running the {command} command has failed.");
+  $command = "reference";
+  if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
+    dpm("Running the " . $command . " command has failed.");
   }
 
-  // return $pathToFile; // @todo ?
+  return TRUE; // @todo return file path maybe
 }
 
 function _qa_shot_run_backstop_command($command, $configurationPath) {
