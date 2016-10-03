@@ -70,6 +70,21 @@ class ScenarioWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    // @todo: Label should be unique for an entity
+    // So QAShot test id: 1 can have only one label value with "Opening page"
+    // But QAShot test id: 2 can have a label value with "Opening page" as well
+    $element['label'] = [
+      '#type' => 'url',
+      '#default_value' => isset($items[$delta]->label) ? $items[$delta]->label : NULL,
+      '#size' => $this->getSetting('size'),
+      '#placeholder' => $this->getSetting('placeholder'),
+      '#maxlength' => $this->getFieldSetting('max_label_length'),
+      '#title' => $this->t('Label'),
+      '#description' => 'A unique name to identify the scenario, ' . $this->getFieldSetting('max_label_length') . ' characters at most.',
+      '#required' => $element['#required']
+    ];
+
+    // @todo: referenceUrl and testUrl should be a unique par for a single entity (same id example like for label)
     $element['referenceUrl'] = [
       '#type' => 'url',
       '#default_value' => isset($items[$delta]->referenceUrl) ? $items[$delta]->referenceUrl : NULL,

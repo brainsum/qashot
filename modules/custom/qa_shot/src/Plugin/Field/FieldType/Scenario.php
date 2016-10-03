@@ -27,7 +27,8 @@ class Scenario extends FieldItemBase {
    */
   public static function defaultStorageSettings() {
     return [
-      'max_url_length' => 80 // BackstopJS has some bugs with very long file names.
+      'max_label_length' => 80, // BackstopJS has some bugs with very long file names.
+      'max_url_length' => 255
     ] + parent::defaultStorageSettings();
   }
 
@@ -37,6 +38,18 @@ class Scenario extends FieldItemBase {
   public static function propertyDefinitions(
     FieldStorageDefinitionInterface $field_definition
   ) {
+    // Prevent early t() calls by using the TranslatableMarkup.
+    $properties['label'] = DataDefinition::create('string')
+      ->setLabel(new TranslatableMarkup('Label'))
+      ->setDescription("A label to help identify the scenario.")
+      ->addConstraint(
+        'Length',
+        [
+          'max' => $field_definition->getSetting('max_label_length')
+        ]
+      )
+      ->setRequired(TRUE);
+
     // Prevent early t() calls by using the TranslatableMarkup.
     $properties['referenceUrl'] = DataDefinition::create('uri')
       ->setLabel(new TranslatableMarkup('Reference URL'))
@@ -72,6 +85,12 @@ class Scenario extends FieldItemBase {
   ) {
     $schema = [
       'columns' => [
+        'label' => [
+          'description' => "The label for the scenario.",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+        ],
         'referenceUrl' => [
           'description' => "The URL of the reference site.",
           'type' => 'varchar',
@@ -98,9 +117,11 @@ class Scenario extends FieldItemBase {
   public function isEmpty() {
     $referenceUrl = $this->get('referenceUrl')->getValue();
     $testUrl = $this->get('testUrl')->getValue();
+    $label = $this->get('label')->getValue();
 
     return  $referenceUrl === NULL || $referenceUrl === '' ||
-    $testUrl === NULL || $testUrl === '';
+            $label === NULL || $label === '' ||
+            $testUrl === NULL || $testUrl === '';
   }
 
 }

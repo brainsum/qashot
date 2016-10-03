@@ -10,6 +10,7 @@ entity_type: qa_shot_test
 type: qa_shot_scenario
 settings:
   max_url_length: 80
+  max_label_length: 80
 module: qa_shot
 locked: false
 cardinality: -1
