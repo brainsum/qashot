@@ -48,3 +48,6 @@ docker-runtime
 
 # Drupal modules
 modules/examples
+
+# Custom folders
+qa_test_data
