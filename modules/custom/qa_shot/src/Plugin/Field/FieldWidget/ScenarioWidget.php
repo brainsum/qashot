@@ -87,7 +87,7 @@ class ScenarioWidget extends WidgetBase {
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
       '#maxlength' => $this->getFieldSetting('max_url_length'),
-      '#title' => $this->t('Reference URL'),
+      '#title' => $this->t('Test URL'),
       '#description' => 'The URL of the site to test.',
       '#required' => $element['#required']
     ];
