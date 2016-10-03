@@ -109,4 +109,6 @@ class ScenarioWidget extends WidgetBase {
 
     return $element;
   }
+
+  //@todo: public function validate
 }

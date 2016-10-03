@@ -22,3 +22,31 @@ function qa_shot_help($route_name, RouteMatchInterface $route_match) {
     default:
   }
 }
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function qa_shot_qa_shot_test_insert(Drupal\Core\Entity\EntityInterface $entity) {
+  // @todo: Generate BackstopJS config
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function qa_shot_qa_shot_test_update(Drupal\Core\Entity\EntityInterface $entity) {
+  // @todo: Regenerate BackstopJS config
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function qa_shot_qa_shot_test_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  // @todo: Delete BackstopJS config
+}
+
+/**
+ * Implements hook_cron().
+ */
+function qa_shot_cron() {
+  // @todo: run scheduled tests
+}
