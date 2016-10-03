@@ -35,6 +35,7 @@ function qa_shot_qa_shot_test_insert(Drupal\Core\Entity\EntityInterface $entity)
  */
 function qa_shot_qa_shot_test_update(Drupal\Core\Entity\EntityInterface $entity) {
   // @todo: Regenerate BackstopJS config
+  _qa_shot_generate_backstop_config($entity);
 }
 
 /**
@@ -42,6 +43,106 @@ function qa_shot_qa_shot_test_update(Drupal\Core\Entity\EntityInterface $entity)
  */
 function qa_shot_qa_shot_test_delete(Drupal\Core\Entity\EntityInterface $entity) {
   // @todo: Delete BackstopJS config
+}
+
+/**
+ * Function that takes an entity and creates a BackstopJS configuration json file.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $entity) {
+  $configAsArray = _qa_shot_map_entity_to_backstop_config_array($entity);
+  $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+  $configAsJSON = json_encode($configAsArray, $jsonConfig);
+
+  dpm($configAsJSON);
+
+  // return $pathToFile; // @todo ?
+}
+
+/**
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ * @return array
+ */
+function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityInterface $entity) {
+  // @todo: get these from global settings
+  $privateDataBasePath = "privateFiles/entity_id/revision_id/";
+  $publicDataBasePath = "privateFiles/entity_id/revision_id/";
+
+  $debugMode = true;
+
+  $mapConfigToArray = array(
+    "id" => $entity->id(), // @todo: maybe id + revision id
+    "viewports" => array(),
+    "scenarios" => array(),
+    "paths" => array(
+      "bitmaps_reference" => $privateDataBasePath . "reference",
+      "bitmaps_test" => $privateDataBasePath . "test",
+      "casper_scripts" => $privateDataBasePath . "casper_scripts",
+      "html_report" => $publicDataBasePath . "html_report",
+      "ci_report" => $publicDataBasePath . "ci_report",
+    ),
+    "onBeforeScript" => "onBefore.js",
+    "onReadyScript" => "onReady.js",
+    "engine" => "phantomjs",
+    "report" => [
+      //"CLI",
+      "browser"
+    ],
+    "casperFlags" => [
+      "--ignore-ssl-errors=true",
+      "--ssl-protocol=any",
+    ],
+    "debug" => false,
+  );
+
+  foreach ($entity->field_viewport as $viewport) {
+    $mapConfigToArray["viewports"][] = _qa_shot_map_viewport_to_array($viewport);
+  }
+
+  foreach ($entity->field_scenario as $scenario) {
+    $mapConfigToArray["scenarios"][] = _qa_shot_map_scenario_to_array($scenario);
+  }
+
+  if ($debugMode === true) {
+    $mapConfigToArray['debug'] = true;
+    $mapConfigToArray['casperFlags'][] = "--verbose";
+  }
+
+  return $mapConfigToArray;
+}
+
+/**
+ * Converts the values of a scenarios field to a scenario array.
+ *
+ * @param $scenario
+ * @return array
+ */
+function _qa_shot_map_scenario_to_array($scenario) {
+  return array(
+    "label" => $scenario->label,
+    "url" => $scenario->referenceUrl,
+    "referenceUrl" => $scenario->testUrl,
+    "readyEvent" => null,
+    "delay" => 5000,
+    "misMatchThreshold" => 0.0,
+    "selectors" => [ "document" ],
+    "removeSelectors" => [ "#twitter-widget-0", "#twitter-widget-1", ".captcha", "#sliding-popup" ],
+  );
+}
+
+/**
+ * Converts the values of a viewport field to a viewport array.
+ *
+ * @param $viewport
+ * @return array
+ */
+function _qa_shot_map_viewport_to_array($viewport) {
+  return array(
+    "name" => (string) $viewport->name,
+    "width" => (int) $viewport->width,
+    "height" => (int) $viewport->height,
+  );
 }
 
 /**
