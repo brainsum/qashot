@@ -46,44 +46,167 @@ function qa_shot_qa_shot_test_delete(Drupal\Core\Entity\EntityInterface $entity)
 }
 
 /**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function qa_shot_qa_shot_test_view(
+  array &$build,
+  \Drupal\Core\Entity\EntityInterface $entity,
+  \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display,
+  $view_mode
+) {
+  _qa_shot_generate_backstop_config($entity);
+}
+
+/**
  * Function that takes an entity and creates a BackstopJS configuration json file.
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $entity) {
-  $configAsArray = _qa_shot_map_entity_to_backstop_config_array($entity);
+  $drupalRootPath = realpath("."); // Absolute path to drupal root
+  // @todo: cd to this, run backstop from there
+  dpm($drupalRootPath, "drupalRootPath");
+
+  $privateDataPath = "qa_test_data/" . $entity->id() . "/"; // @todo: revision id .  ."/";
+  $publicDataPath = "qa_test_data/" . $entity->id() . "/"; // @todo: revision id .  ."/";
+
+  $configAsArray = _qa_shot_map_entity_to_backstop_config_array($entity, $privateDataPath, $publicDataPath);
+  //dpm($configAsArray);
   $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
   $configAsJSON = json_encode($configAsArray, $jsonConfig);
 
-  dpm($configAsJSON);
+  //dpm($configAsJSON);
+  //$configPath = $drupalRootPath . "/" . $privateDataPath . "/backstop.json";
+  $configPath = $privateDataPath . "backstop.json";
+
+  // Write config to file
+  // @todo: maybe use drupal functions
+
+  // create_revision_folder
+  // create_config_file
+  // create_casper_json_content
+  //
+
+  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath)) {
+    dpm("Creating the qa_test_data/entityId folder failed.");
+    return FALSE;
+  }
+
+  if (FALSE === _qa_shot_create_backstop_config_file($drupalRootPath . "/" . $configPath, $jsonConfig)) {
+    dpm("Creating the qa_test_data/entityId/backstop.json file failed.");
+    return FALSE;
+  }
+
+  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"])) {
+    dpm("Creating the qa_test_data/entityId/casper_scripts folder failed.");
+    return FALSE;
+  }
+
+  // @todo: create basic onBefore.js and onReady.js
+
+  if (FALSE === _qa_shot_run_backstop_command("reference", $configPath)) {
+    dpm("Running the {command} command has failed.");
+  }
 
   // return $pathToFile; // @todo ?
 }
 
+function _qa_shot_run_backstop_command($command, $configurationPath) {
+  if (!in_array($command, array("reference", "test", "openReport"))) {
+    return FALSE;
+  }
+
+  $backstopCommand = 'backstop ' . $command . ' --configPath=' . $configurationPath;
+
+  $backstopResult = shell_exec($backstopCommand);
+
+  if ($backstopResult === NULL) {
+    return FALSE;
+  }
+
+  if (($resultFile = fopen(dirname($configurationPath) . "/result.txt", "w")) === FALSE) {
+    return FALSE;
+  }
+
+  if (fwrite($resultFile, $backstopResult) === FALSE) {
+    return FALSE;
+  }
+
+  if (fclose($resultFile) === FALSE) {
+    return FALSE;
+  }
+
+  if (($resultFile = file_get_contents(dirname($configurationPath) . "/result.txt")) !== FALSE) {
+    dpm($resultFile, "result file content");
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * @param $configurationPath
+ * @param $jsonString
+ * @return bool
+ */
+function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
+  // @todo: maybe return array with successFlag and message for verbosity
+  if (($configFile = fopen($configurationPath, "w")) === FALSE) {
+    return FALSE;
+  }
+
+  if (fwrite($configFile, $jsonString) === FALSE) {
+    return FALSE;
+  }
+
+  if (fclose($configFile) === FALSE) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * @param $dirToCreate
+ *  Path of the directory to be created.
+ * @return bool
+ *  Whether the folder exists or creating it succeeded.
+ */
+function _qa_shot_create_folder_for_entity($dirToCreate) {
+  if (is_dir($dirToCreate)) {
+    return TRUE;
+  }
+
+  // Create parents as well
+  return mkdir($dirToCreate, 0755, TRUE);
+}
+
 /**
  * @param \Drupal\Core\Entity\EntityInterface $entity
+ *  The QAShot Test entity.
+ * @param $privateDataPath
+ *  Path to the private filesystem.
+ * @param $publicDataPath
+ *  Path to the public filesystem.
  * @return array
+ *  A backstop config as an array.
  */
-function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityInterface $entity) {
-  // @todo: get these from global settings
-  $privateDataBasePath = "privateFiles/entity_id/revision_id/";
-  $publicDataBasePath = "privateFiles/entity_id/revision_id/";
+function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityInterface $entity, $privateDataPath, $publicDataPath) {
+  // @todo: get these field values global settings
 
-  $debugMode = true;
-
-  $mapConfigToArray = array(
+  $mapConfigToArray = [
     "id" => $entity->id(), // @todo: maybe id + revision id
-    "viewports" => array(),
-    "scenarios" => array(),
-    "paths" => array(
-      "bitmaps_reference" => $privateDataBasePath . "reference",
-      "bitmaps_test" => $privateDataBasePath . "test",
-      "casper_scripts" => $privateDataBasePath . "casper_scripts",
-      "html_report" => $publicDataBasePath . "html_report",
-      "ci_report" => $publicDataBasePath . "ci_report",
-    ),
-    "onBeforeScript" => "onBefore.js",
-    "onReadyScript" => "onReady.js",
+    "viewports" => [],
+    "scenarios" => [],
+    "paths" => [
+      "bitmaps_reference" => $privateDataPath . "reference",
+      "bitmaps_test" => $privateDataPath . "test",
+      "casper_scripts" => $privateDataPath . "casper_scripts",
+      "html_report" => $publicDataPath . "html_report",
+      "ci_report" => $publicDataPath . "ci_report",
+    ],
+    // "onBeforeScript" => "onBefore.js",
+    // "onReadyScript" => "onReady.js",
     "engine" => "phantomjs",
     "report" => [
       //"CLI",
@@ -91,10 +214,10 @@ function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityI
     ],
     "casperFlags" => [
       "--ignore-ssl-errors=true",
-      "--ssl-protocol=any",
+      "--ssl-protocol=any"
     ],
     "debug" => false,
-  );
+  ];
 
   foreach ($entity->field_viewport as $viewport) {
     $mapConfigToArray["viewports"][] = _qa_shot_map_viewport_to_array($viewport);
@@ -104,6 +227,7 @@ function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityI
     $mapConfigToArray["scenarios"][] = _qa_shot_map_scenario_to_array($scenario);
   }
 
+  $debugMode = true;
   if ($debugMode === true) {
     $mapConfigToArray['debug'] = true;
     $mapConfigToArray['casperFlags'][] = "--verbose";
@@ -120,14 +244,17 @@ function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityI
  */
 function _qa_shot_map_scenario_to_array($scenario) {
   return array(
-    "label" => $scenario->label,
-    "url" => $scenario->referenceUrl,
-    "referenceUrl" => $scenario->testUrl,
+    "label" => (string) $scenario->label,
+    "url" => (string) $scenario->referenceUrl,
+    "referenceUrl" => (string) $scenario->testUrl,
     "readyEvent" => null,
     "delay" => 5000,
     "misMatchThreshold" => 0.0,
     "selectors" => [ "document" ],
     "removeSelectors" => [ "#twitter-widget-0", "#twitter-widget-1", ".captcha", "#sliding-popup" ],
+    "hideSelectors" => [],
+    "onBeforeScript" => "onBefore.js",
+    "onReadyScript" => "onReady.js",
   );
 }
 
