@@ -77,7 +77,7 @@ class ViewportWidget extends WidgetBase {
       '#placeholder' => $this->getSetting('placeholder'),
       '#maxlength' => $this->getFieldSetting('max_name_length'),
       '#title' => $this->t('Name'),
-      '#description' => 'Name of the Viewport, e.g: Desktop, Mobile',
+      '#description' => 'Name of the Viewport, e.g: Desktop, Mobile, ' . $this->getSetting('size') . ' characters at most.',
       '#required' => $element['#required']
     ];
 

@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.qa_shot_test.qa_shot_test.field_scenario
     - field.field.qa_shot_test.qa_shot_test.field_viewport
   module:
     - qa_shot
@@ -11,6 +12,13 @@ targetEntityType: qa_shot_test
 bundle: qa_shot_test
 mode: default
 content:
+  field_scenario:
+    weight: 7
+    settings:
+      size: 80
+      placeholder: ''
+    third_party_settings: {  }
+    type: qa_shot_scenario
   field_viewport:
     weight: 6
     settings:

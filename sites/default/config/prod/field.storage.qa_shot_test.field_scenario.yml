@@ -1,0 +1,19 @@
+uuid: 4d5e1580-534c-4cf4-92ba-5a419ee01c4e
+langcode: en
+status: true
+dependencies:
+  module:
+    - qa_shot
+id: qa_shot_test.field_scenario
+field_name: field_scenario
+entity_type: qa_shot_test
+type: qa_shot_scenario
+settings:
+  max_url_length: 80
+module: qa_shot
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
