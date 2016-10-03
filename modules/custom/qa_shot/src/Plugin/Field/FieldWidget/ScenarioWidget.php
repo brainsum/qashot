@@ -70,11 +70,10 @@ class ScenarioWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    // @todo: Label should be unique for an entity
     // So QAShot test id: 1 can have only one label value with "Opening page"
     // But QAShot test id: 2 can have a label value with "Opening page" as well
     $element['label'] = [
-      '#type' => 'url',
+      '#type' => 'textfield',
       '#default_value' => isset($items[$delta]->label) ? $items[$delta]->label : NULL,
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
@@ -84,7 +83,6 @@ class ScenarioWidget extends WidgetBase {
       '#required' => $element['#required']
     ];
 
-    // @todo: referenceUrl and testUrl should be a unique par for a single entity (same id example like for label)
     $element['referenceUrl'] = [
       '#type' => 'url',
       '#default_value' => isset($items[$delta]->referenceUrl) ? $items[$delta]->referenceUrl : NULL,
@@ -110,5 +108,31 @@ class ScenarioWidget extends WidgetBase {
     return $element;
   }
 
-  //@todo: public function validate
+  /**
+   * Validate the fields and convert them into a single value as text.
+   */
+  public function validate($element, FormStateInterface $form_state) {
+    // @todo: Label should be unique for an entity
+    // @todo: referenceUrl and testUrl should be a unique par for a single entity (same id example like for label)
+    /*
+    // Validate each of the textfield entries.
+    $values = array();
+    foreach (array('r', 'g', 'b') as $colorfield) {
+      $values[$colorfield] = $element[$colorfield]['#value'];
+      // If they left any empty, we'll set the value empty and quit.
+      if (strlen($values[$colorfield]) == 0) {
+        $form_state->setValueForElement($element, '');
+        return;
+      }
+      // If they gave us anything that's not hex, reject it.
+      if ((strlen($values[$colorfield]) != 2) || !ctype_xdigit($values[$colorfield])) {
+        $form_state->setError($element[$colorfield], $form_state, t("Saturation value must be a 2-digit hexadecimal value between 00 and ff."));
+      }
+    }
+
+    // Set the value of the entire form element.
+    $value = strtolower(sprintf('#%02s%02s%02s', $values['r'], $values['g'], $values['b']));
+    $form_state->setValueForElement($element, $value);
+    */
+  }
 }
