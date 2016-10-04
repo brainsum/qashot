@@ -54,7 +54,7 @@ function qa_shot_qa_shot_test_view(
   \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display,
   $view_mode
 ) {
-  _qa_shot_generate_backstop_config($entity);
+  dpm(_qa_shot_generate_backstop_config($entity) ? "SUCCESS" : "FAIL");
 }
 
 /**
@@ -70,6 +70,8 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
   $privateDataPath = "qa_test_data/" . $entity->id() . "/"; // @todo: revision id .  ."/";
   $publicDataPath = "qa_test_data/" . $entity->id() . "/"; // @todo: revision id .  ."/";
 
+  $templateFolder = $drupalRootPath . "/qa_test_data/template";
+
   $configAsArray = _qa_shot_map_entity_to_backstop_config_array($entity, $privateDataPath, $publicDataPath);
   //dpm($configAsArray);
   $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
@@ -82,17 +84,12 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
   // Write config to file
   // @todo: maybe use drupal functions
 
-  // create_revision_folder
-  // create_config_file
-  // create_casper_json_content
-  //
-
-  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath)) {
+  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $privateDataPath)) {
     dpm("Creating the qa_test_data/entityId folder failed.");
     return FALSE;
   }
 
-  if (FALSE === _qa_shot_create_backstop_config_file($drupalRootPath . "/" . $configPath, $jsonConfig)) {
+  if (FALSE === _qa_shot_create_backstop_config_file($drupalRootPath . "/" . $configPath, $configAsJSON)) {
     dpm("Creating the qa_test_data/entityId/backstop.json file failed.");
     return FALSE;
   }
@@ -102,7 +99,10 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
     return FALSE;
   }
 
-  // @todo: create basic onBefore.js and onReady.js
+  if (FALSE === _qa_shot_copy_template_data($templateFolder . "/casper_scripts", $drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"])) {
+    dpm("Copying the template files failed.");
+    return FALSE;
+  }
 
   $command = "reference";
   if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
@@ -125,7 +125,7 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
     return FALSE;
   }
 
-  if (($resultFile = fopen(dirname($configurationPath) . "/result.txt", "w")) === FALSE) {
+  if (($resultFile = fopen(dirname($configurationPath) . "/result-" . $command . ".txt", "w")) === FALSE) {
     return FALSE;
   }
 
@@ -137,12 +137,41 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
     return FALSE;
   }
 
-  if (($resultFile = file_get_contents(dirname($configurationPath) . "/result.txt")) !== FALSE) {
+  if (($resultFile = file_get_contents(dirname($configurationPath) . "/result-" . $command . ".txt")) !== FALSE) {
     dpm($resultFile, "result file content");
     return TRUE;
   }
 
   return FALSE;
+}
+
+/**
+ * @param $src
+ * @param $target
+ * @return bool
+ */
+function _qa_shot_copy_template_data($src, $target) {
+  dpm($src, "copy src");
+  dpm($target, "copy target");
+
+  if (($fileList = scandir($src)) === FALSE) {
+    dpm("scandir failed");
+    return FALSE;
+  }
+
+  // @todo: scandir target, if file is there and they are the same, skip the file
+
+  $result = TRUE;
+
+  foreach ($fileList as $file) {
+    if (strpos($file, ".js") === FALSE) {
+      continue;
+    }
+
+    $result |= copy($src . "/" . $file, $target . "/" . $file);
+  }
+
+  return $result;
 }
 
 /**
@@ -153,16 +182,21 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
 function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
   // @todo: maybe return array with successFlag and message for verbosity
   if (($configFile = fopen($configurationPath, "w")) === FALSE) {
+    dpm("failed to open config file to write");
     return FALSE;
   }
 
   if (fwrite($configFile, $jsonString) === FALSE) {
+    dpm("failed to write config file");
     return FALSE;
   }
 
   if (fclose($configFile) === FALSE) {
+    dpm("failed to close config file");
     return FALSE;
   }
+
+  dpm("config write success");
 
   return TRUE;
 }
@@ -174,12 +208,15 @@ function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
  *  Whether the folder exists or creating it succeeded.
  */
 function _qa_shot_create_folder_for_entity($dirToCreate) {
+  dpm($dirToCreate, "path of dir");
   if (is_dir($dirToCreate)) {
+    dpm("dir is there");
     return TRUE;
   }
 
+  dpm("creating dir");
   // Create parents as well
-  return mkdir($dirToCreate, 0755, TRUE);
+  return mkdir($dirToCreate, 0775, TRUE);
 }
 
 /**
