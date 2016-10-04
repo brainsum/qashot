@@ -3,6 +3,8 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.qa_shot_test.qa_shot_test.field_configuration_path
+    - field.field.qa_shot_test.qa_shot_test.field_html_report_path
     - field.field.qa_shot_test.qa_shot_test.field_scenario
     - field.field.qa_shot_test.qa_shot_test.field_viewport
   module:
@@ -13,14 +15,14 @@ bundle: qa_shot_test
 mode: default
 content:
   field_scenario:
-    weight: 7
+    weight: 3
     settings:
       size: 80
       placeholder: ''
     third_party_settings: {  }
     type: qa_shot_scenario
   field_viewport:
-    weight: 6
+    weight: 2
     settings:
       size: 40
       placeholder: ''
@@ -28,17 +30,19 @@ content:
     type: qa_shot_viewport
   name:
     type: string_textfield
-    weight: -4
+    weight: 0
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
   user_id:
     type: entity_reference_autocomplete
-    weight: 5
+    weight: 1
     settings:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  field_configuration_path: true
+  field_html_report_path: true

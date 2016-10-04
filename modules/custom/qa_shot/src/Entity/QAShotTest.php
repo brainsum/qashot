@@ -175,6 +175,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
+      ->setRequired(TRUE)
       ->setDescription(t('The name of the QAShot Test entity.'))
       ->setSettings(array(
         'max_length' => 50,
@@ -208,5 +209,4 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
     return $fields;
   }
-
 }

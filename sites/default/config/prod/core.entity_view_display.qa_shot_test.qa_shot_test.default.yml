@@ -3,6 +3,8 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.qa_shot_test.qa_shot_test.field_configuration_path
+    - field.field.qa_shot_test.qa_shot_test.field_html_report_path
     - field.field.qa_shot_test.qa_shot_test.field_scenario
     - field.field.qa_shot_test.qa_shot_test.field_viewport
   module:
@@ -14,13 +16,13 @@ bundle: qa_shot_test
 mode: default
 content:
   field_scenario:
-    weight: 2
+    weight: 3
     label: above
     settings: {  }
     third_party_settings: {  }
     type: qa_shot_scenario
   field_viewport:
-    weight: 1
+    weight: 2
     label: above
     settings: {  }
     third_party_settings: {  }
@@ -28,14 +30,16 @@ content:
   name:
     label: above
     type: string
-    weight: -4
+    weight: 0
     settings:
       link_to_entity: false
     third_party_settings: {  }
   user_id:
     label: hidden
     type: author
-    weight: 0
+    weight: 1
     settings: {  }
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  field_configuration_path: true
+  field_html_report_path: true

@@ -24,18 +24,67 @@ function qa_shot_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
+ * Implements hook_cron().
+ */
+function qa_shot_cron() {
+  // @todo: run scheduled tests
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function qa_shot_form_alter(
+  &$form,
+  \Drupal\Core\Form\FormStateInterface $form_state,
+  $form_id
+) {
+  if (in_array($form_id, ["qa_shot_test_edit_form"])) {
+    $form['actions']['run'] = array(
+      '#type' => 'submit',
+      '#value' => t('Run Test'),
+      '#weight' => $form['actions']['submit']['#weight'] + 1,
+      // '#ajax' => ['callback' => [$this, 'ajaxCallback']],
+      '#submit' => array("qa_shot_qa_shot_test_run_handler")
+    );
+  }
+}
+
+function qa_shot_qa_shot_test_run_handler(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $entity = $form_state->getFormObject()->getEntity();
+
+  if (empty($entity->field_configuration_path->getValue())) {
+    dpm("Configuration path not saved in entity.");
+    return;
+  }
+
+  $command = "reference";
+  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->getValue())) {
+    dpm("Running the " . $command . " command has failed.");
+    return;
+  }
+
+  $command = "test";
+  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->getValue())) {
+    dpm("Running the " . $command . " command has failed.");
+    return;
+  }
+
+}
+
+/**
  * Implements hook_ENTITY_TYPE_insert().
  */
 function qa_shot_qa_shot_test_insert(Drupal\Core\Entity\EntityInterface $entity) {
-  // @todo: Generate BackstopJS config
+  $genResult = _qa_shot_initialize_backstop_environment($entity);
+  dpm($genResult["success"] ? "SUCCESS" : "FAIL");
 }
 
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
 function qa_shot_qa_shot_test_update(Drupal\Core\Entity\EntityInterface $entity) {
-  // @todo: Regenerate BackstopJS config
-  // _qa_shot_generate_backstop_config($entity);
+  $genResult = _qa_shot_initialize_backstop_environment($entity);
+  dpm($genResult["success"] ? "SUCCESS" : "FAIL");
 }
 
 /**
@@ -43,6 +92,14 @@ function qa_shot_qa_shot_test_update(Drupal\Core\Entity\EntityInterface $entity)
  */
 function qa_shot_qa_shot_test_delete(Drupal\Core\Entity\EntityInterface $entity) {
   // @todo: Delete BackstopJS config
+  $drupalRootPath = realpath("."); // Absolute path to drupal root
+  // @todo: cd to this, run backstop from there
+
+  $privateDataPath = "qa_test_data/" . $entity->id(); // @todo: . "/" . revision id;
+  $publicDataPath = "qa_test_data/" . $entity->id(); // @todo: . "/" . revision id;
+
+  dpm(_qa_shot_remove_directory($drupalRootPath . "/" . $privateDataPath) ? "PrivateFolder removed" : "Private folder not removed");
+  dpm(_qa_shot_remove_directory($drupalRootPath . "/" . $publicDataPath) ? "PubFolder removed" : "Pub folder not removed");
 }
 
 /**
@@ -54,15 +111,50 @@ function qa_shot_qa_shot_test_view(
   \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display,
   $view_mode
 ) {
-  dpm(_qa_shot_generate_backstop_config($entity) ? "SUCCESS" : "FAIL");
+  // @todo: save paths in the entity
+
+  /*
+  $command = "reference";
+  if (FALSE === _qa_shot_run_backstop_command($command, $genResult["data"]["configPath"])) {
+    dpm("Running the " . $command . " command has failed.");
+  } else {
+    $command = "test";
+    if (FALSE === _qa_shot_run_backstop_command($command, $genResult["data"]["configPath"])) {
+      dpm("Running the " . $command . " command has failed.");
+    }
+  }*/
+
+  //dpm($genResult["data"]["reportPath"], "report path");
+  dpm(array(
+    "entity_conf_path" => $entity->field_configuration_path->value,
+    "entity_report_path" => $entity->field_html_report_path->value
+  ), "entity");
+  /*
+    $command = "openReport";
+    if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
+      dpm("Running the " . $command . " command has failed.");
+      return FALSE;
+    }
+  */
+
+  // @todo: major cleanup and restructuring of the files
+  // @todo: store paths in db
+
+  // dpm($entity->getBackstopConfigurationPath(), "config path from entity");
 }
 
 /**
- * Function that takes an entity and creates a BackstopJS configuration json file.
+ * Function that initializes a backstop configuration for the entity.
+ *    Creates the folder for the entity,
+ *    Creates the backstop.json file,
+ *    Copies template files to the proper directories,
+ *    Saves some data to the entity.
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
+ *
+ * @return array
  */
-function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $entity) {
+function _qa_shot_initialize_backstop_environment(Drupal\Core\Entity\EntityInterface $entity) {
   $drupalRootPath = realpath("."); // Absolute path to drupal root
   // @todo: cd to this, run backstop from there
   dpm($drupalRootPath, "drupalRootPath");
@@ -81,52 +173,45 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
   //$configPath = $drupalRootPath . "/" . $privateDataPath . "/backstop.json";
   $configPath = $privateDataPath . "/backstop.json";
 
+  $return = array(
+    "success" => FALSE,
+    "data" => array()
+  );
+
   // Write config to file
   // @todo: maybe use drupal functions
 
   if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $privateDataPath . "/")) {
     dpm("Creating the qa_test_data/entityId folder failed.");
-    return FALSE;
+    return $return;
   }
 
   if (FALSE === _qa_shot_create_backstop_config_file($drupalRootPath . "/" . $configPath, $configAsJSON)) {
     dpm("Creating the qa_test_data/entityId/backstop.json file failed.");
-    return FALSE;
+    return $return;
   }
+
+  $entity->field_configuration_path->setValue($configPath);
 
   if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"])) {
     dpm("Creating the qa_test_data/entityId/casper_scripts folder failed.");
-    return FALSE;
+    return $return;
   }
 
   if (FALSE === _qa_shot_copy_template_data($templateFolder . "/casper_scripts", $drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"])) {
     dpm("Copying the template files failed.");
-    return FALSE;
+    return $return;
   }
 
-  $command = "reference";
-  if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
-    dpm("Running the " . $command . " command has failed.");
-    return FALSE;
-  }
+  $return["success"] = TRUE;
+  $return["data"]["configPath"] = $configPath;
+  $return["data"]["reportPath"] = $drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html";
 
-  $command = "test";
-  if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
-    dpm("Running the " . $command . " command has failed.");
-    return FALSE;
-  }
+  $entity->field_html_report_path->setValue($drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html");
 
-/*
-  $command = "openReport";
-  if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
-    dpm("Running the " . $command . " command has failed.");
-    return FALSE;
-  }
-*/
+  $entity->save();
 
-  dpm($drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html", "report path");
-
-  return TRUE; // @todo return file path maybe, or array
+  return $return;
 }
 
 function _qa_shot_run_backstop_command($command, $configurationPath) {
@@ -339,8 +424,28 @@ function _qa_shot_map_viewport_to_array($viewport) {
 }
 
 /**
- * Implements hook_cron().
+ * @param $dir
+ * @return bool
  */
-function qa_shot_cron() {
-  // @todo: run scheduled tests
+function _qa_shot_remove_directory($dir) {
+  if (!is_dir($dir)) {
+    return TRUE;
+  }
+
+  $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+  $files = new RecursiveIteratorIterator($it,
+    RecursiveIteratorIterator::CHILD_FIRST);
+
+  $result = TRUE;
+
+  foreach($files as $file) {
+    if ($file->isDir()){
+      $result |= rmdir($file->getRealPath());
+    } else {
+      $result |= unlink($file->getRealPath());
+    }
+  }
+  $result |= rmdir($dir);
+
+  return $result;
 }
