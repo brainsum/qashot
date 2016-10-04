@@ -67,8 +67,8 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
   // @todo: cd to this, run backstop from there
   dpm($drupalRootPath, "drupalRootPath");
 
-  $privateDataPath = "qa_test_data/" . $entity->id() . "/"; // @todo: revision id .  ."/";
-  $publicDataPath = "qa_test_data/" . $entity->id() . "/"; // @todo: revision id .  ."/";
+  $privateDataPath = "qa_test_data/" . $entity->id(); // @todo: . "/" . revision id;
+  $publicDataPath = "qa_test_data/" . $entity->id(); // @todo: . "/" . revision id;
 
   $templateFolder = $drupalRootPath . "/qa_test_data/template";
 
@@ -79,12 +79,12 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
 
   //dpm($configAsJSON);
   //$configPath = $drupalRootPath . "/" . $privateDataPath . "/backstop.json";
-  $configPath = $privateDataPath . "backstop.json";
+  $configPath = $privateDataPath . "/backstop.json";
 
   // Write config to file
   // @todo: maybe use drupal functions
 
-  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $privateDataPath)) {
+  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $privateDataPath . "/")) {
     dpm("Creating the qa_test_data/entityId folder failed.");
     return FALSE;
   }
@@ -107,15 +107,38 @@ function _qa_shot_generate_backstop_config(Drupal\Core\Entity\EntityInterface $e
   $command = "reference";
   if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
     dpm("Running the " . $command . " command has failed.");
+    return FALSE;
   }
 
-  return TRUE; // @todo return file path maybe
+  $command = "test";
+  if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
+    dpm("Running the " . $command . " command has failed.");
+    return FALSE;
+  }
+
+/*
+  $command = "openReport";
+  if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
+    dpm("Running the " . $command . " command has failed.");
+    return FALSE;
+  }
+*/
+
+  dpm($drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html", "report path");
+
+  return TRUE; // @todo return file path maybe, or array
 }
 
 function _qa_shot_run_backstop_command($command, $configurationPath) {
   if (!in_array($command, array("reference", "test", "openReport"))) {
     return FALSE;
   }
+
+  /**
+   * @todo: real-time output:
+   *    http://stackoverflow.com/questions/1281140/run-process-with-realtime-output-in-php
+   *    http://stackoverflow.com/questions/20614557/php-shell-exec-update-output-as-script-is-running
+   */
 
   $backstopCommand = 'backstop ' . $command . ' --configPath=' . $configurationPath;
 
@@ -181,6 +204,10 @@ function _qa_shot_copy_template_data($src, $target) {
  */
 function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
   // @todo: maybe return array with successFlag and message for verbosity
+  // @todo: maybe throw exceptions
+
+  //@todo: check if file exists, if yes, check if it's the same as the new one.
+  //        if yes, skip
   if (($configFile = fopen($configurationPath, "w")) === FALSE) {
     dpm("failed to open config file to write");
     return FALSE;
@@ -216,6 +243,7 @@ function _qa_shot_create_folder_for_entity($dirToCreate) {
 
   dpm("creating dir");
   // Create parents as well
+
   return mkdir($dirToCreate, 0775, TRUE);
 }
 
@@ -237,11 +265,11 @@ function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityI
     "viewports" => [],
     "scenarios" => [],
     "paths" => [
-      "bitmaps_reference" => $privateDataPath . "reference",
-      "bitmaps_test" => $privateDataPath . "test",
-      "casper_scripts" => $privateDataPath . "casper_scripts",
-      "html_report" => $publicDataPath . "html_report",
-      "ci_report" => $publicDataPath . "ci_report",
+      "bitmaps_reference" => $privateDataPath . "/reference",
+      "bitmaps_test" => $privateDataPath . "/test",
+      "casper_scripts" => $privateDataPath . "/casper_scripts",
+      "html_report" => $publicDataPath . "/html_report",
+      "ci_report" => $publicDataPath . "/ci_report",
     ],
     // "onBeforeScript" => "onBefore.js",
     // "onReadyScript" => "onReady.js",
@@ -265,7 +293,7 @@ function _qa_shot_map_entity_to_backstop_config_array(Drupal\Core\Entity\EntityI
     $mapConfigToArray["scenarios"][] = _qa_shot_map_scenario_to_array($scenario);
   }
 
-  $debugMode = true;
+  $debugMode = false;
   if ($debugMode === true) {
     $mapConfigToArray['debug'] = true;
     $mapConfigToArray['casperFlags'][] = "--verbose";
