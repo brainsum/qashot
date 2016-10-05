@@ -230,6 +230,7 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
    */
 
   $backstopCommand = 'backstop ' . $command . ' --configPath=' . $configurationPath;
+  // @todo: use escapeshellarg for good measure
   exec($backstopCommand, $execOutput, $status);
 
   dpm($status, "exec status");
