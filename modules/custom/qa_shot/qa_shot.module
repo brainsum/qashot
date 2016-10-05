@@ -58,13 +58,13 @@ function qa_shot_qa_shot_test_run_handler(&$form, \Drupal\Core\Form\FormStateInt
   }
 
   $command = "reference";
-  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->getValue())) {
+  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->value)) {
     dpm("Running the " . $command . " command has failed.");
     return;
   }
 
   $command = "test";
-  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->getValue())) {
+  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->value)) {
     dpm("Running the " . $command . " command has failed.");
     return;
   }
@@ -215,7 +215,7 @@ function _qa_shot_initialize_backstop_environment(Drupal\Core\Entity\EntityInter
 }
 
 function _qa_shot_run_backstop_command($command, $configurationPath) {
-  if (!in_array($command, array("reference", "test", "openReport"))) {
+  if (!in_array($command, array("reference", "test"))) {
     return FALSE;
   }
 
@@ -227,8 +227,12 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
 
   $backstopCommand = 'backstop ' . $command . ' --configPath=' . $configurationPath;
 
-  $backstopResult = shell_exec($backstopCommand);
+  $backstopResult = exec($backstopCommand, $execOutput, $status);
 
+  dpm($status, "exec status");
+  /*
+  kint($execOutput, "exec output");
+  */
   if ($backstopResult === NULL) {
     return FALSE;
   }
