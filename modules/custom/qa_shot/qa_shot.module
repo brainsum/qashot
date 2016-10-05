@@ -8,6 +8,7 @@
 use \Drupal\Core\Routing\RouteMatchInterface;
 use \Drupal\Core\Form\FormStateInterface;
 use \Drupal\Core\Entity\EntityInterface;
+use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 
 /**
  * Implements hook_help().
@@ -141,8 +142,8 @@ function qa_shot_qa_shot_test_delete(EntityInterface $entity) {
  */
 function qa_shot_qa_shot_test_view(
   array &$build,
-  \Drupal\Core\Entity\EntityInterface $entity,
-  \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display,
+  EntityInterface $entity,
+  EntityViewDisplayInterface $display,
   $view_mode
 ) {
   // @todo: save paths in the entity
@@ -193,6 +194,8 @@ function _qa_shot_initialize_backstop_environment(EntityInterface $entity) {
 
   // Write config to file.
   // @todo: maybe use drupal functions
+  // @todo: Check if folders exist, if yes, do nothing
+  // @todo: Check if files exist, if yes, check if they are the same or not
 
   $privateTestBaseFolder = $drupalRootPath . "/" . $privateDataPath . "/";
   if (FALSE === _qa_shot_create_folder_for_entity($privateTestBaseFolder)) {
@@ -216,10 +219,12 @@ function _qa_shot_initialize_backstop_environment(EntityInterface $entity) {
   if (empty($entity)) {
     throw new \Exception("The QAShot Test entity is empty!");
   }
-
+  /*
+  // @todo: This causes segmentation faults.
   $entity->field_configuration_path->setValue($configPath);
   $entity->field_html_report_path->setValue($drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html");
   $entity->save();
+   */
 }
 
 /**
@@ -251,6 +256,9 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
   dpm($status, "exec status");
 
   if ($status !== 0) {
+    // @todo: Test command gives exit 1 if the compare fails.
+    // Search this line: "Bitmap file generation completed."
+    // And/Or this line: "COMMAND | Executing core for `report`".
     dpm($execOutput, "Output of exec.");
 
     return FALSE;
@@ -296,9 +304,8 @@ function _qa_shot_copy_template_data($src, $target) {
 function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
   // @todo: maybe return array with successFlag and message for verbosity
   // @todo: maybe throw exceptions
-
-  //@todo: check if file exists, if yes, check if it's the same as the new one.
-  //        if yes, skip
+  // @todo: check if file exists, if yes, check if it's the same as the new one.
+  // if yes, skip
   if (($configFile = fopen($configurationPath, "w")) === FALSE) {
     dpm("failed to open config file to write");
     return FALSE;
