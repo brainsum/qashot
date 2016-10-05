@@ -38,9 +38,9 @@ function qa_shot_theme($existing, $type, $theme, $path) {
     'qa_shot__qa_shot_test__run' => [
       'template' => 'qa_shot_test--run',
       'variables' => [
-        'entity_label' => NULL
-      ]
-    ]
+        'entity_label' => NULL,
+      ],
+    ],
   ];
 }
 

@@ -13,7 +13,20 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\qa_shot\Entity\QAShotTest;
 
+/**
+ * Class QAShotController.
+ */
 class QAShotController extends ControllerBase {
+
+  /**
+   * Route controller for the "Run" route.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *   Route match object.
+   *
+   * @return array
+   *   The configured template.
+   */
   public function entityRunPage(RouteMatchInterface $route_match) {
     $entityId = $route_match->getParameters()->get("qa_shot_test");
 
@@ -23,10 +36,8 @@ class QAShotController extends ControllerBase {
 
     // @todo: if we come here via the edit form "Run Test" button,
     // automatically start the test
-
     // if just opening, show list of previous results:
-    //    Time, Who started it, pass/fail, html report link
-
+    // Time, Who started it, pass/fail, html report link
     $entity = QAShotTest::load($entityId);
 
     $output = [];
@@ -39,4 +50,5 @@ class QAShotController extends ControllerBase {
 
     return $output;
   }
+
 }
