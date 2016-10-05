@@ -31,6 +31,20 @@ function qa_shot_cron() {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function qa_shot_theme($existing, $type, $theme, $path) {
+  return [
+    'qa_shot__qa_shot_test__run' => [
+      'template' => 'qa_shot_test--run',
+      'variables' => [
+        'entity_label' => NULL
+      ]
+    ]
+  ];
+}
+
+/**
  * Implements hook_form_alter().
  */
 function qa_shot_form_alter(

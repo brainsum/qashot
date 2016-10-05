@@ -15,19 +15,26 @@ use Drupal\qa_shot\Entity\QAShotTest;
 
 class QAShotController extends ControllerBase {
   public function entityRunPage(RouteMatchInterface $route_match) {
-    $output = [];
-
     $entityId = $route_match->getParameters()->get("qa_shot_test");
 
-    // @todo: create template/form for Run page
     if (empty($entityId)) {
       return ['#markup' => "Invalid entity."];
     }
 
+    // @todo: if we come here via the edit form "Run Test" button,
+    // automatically start the test
+
+    // if just opening, show list of previous results:
+    //    Time, Who started it, pass/fail, html report link
+
     $entity = QAShotTest::load($entityId);
 
+    $output = [];
+    $output['#theme'] = 'qa_shot__qa_shot_test__run';
+
     if ($entity && $entity instanceof EntityInterface) {
-      $output = ['#markup' => $entity->label()];
+      $output['#entity'] = $entity;
+      // $output = ['#markup' => $entity->label()];
     }
 
     return $output;
