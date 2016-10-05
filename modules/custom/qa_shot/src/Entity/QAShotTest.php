@@ -49,6 +49,7 @@ use Drupal\user\UserInterface;
  *     "edit-form" = "/admin/structure/qa_shot_test/{qa_shot_test}/edit",
  *     "delete-form" = "/admin/structure/qa_shot_test/{qa_shot_test}/delete",
  *     "collection" = "/admin/structure/qa_shot_test",
+ *     "run" = "/admin/structure/qa_shot_test/{qa_shot_test}/run"
  *   },
  *   field_ui_base_route = "qa_shot_test.settings"
  * )

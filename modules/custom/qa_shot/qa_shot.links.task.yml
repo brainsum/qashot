@@ -19,3 +19,10 @@ entity.qa_shot_test.delete_form:
   title: Delete
   weight: 10
 
+entity.qa_shot_test.run:
+  route_name:  entity.qa_shot_test.run
+  base_route:  entity.qa_shot_test.canonical
+  title: Run
+  weight: 15
+#  class: \Drupal\Core\Menu\LocalTaskDefault
+#  deriver: \Drupal\qa_shot\Plugin\Derivative\QAShotLocalTasks

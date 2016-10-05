@@ -1,0 +1,12 @@
+#route_callbacks:
+#  - '\Drupal\qa_shot\Routing\QAShotRoutes::getEntityRunRoute'
+
+entity.qa_shot_test.run:
+  path: 'admin/structure/qa_shot_test/{qa_shot_test}/run'
+  defaults:
+    _controller: '\Drupal\qa_shot\Controller\QAShotController::entityRunPage'
+    _title: 'Run test'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'edit qashot test entities'
