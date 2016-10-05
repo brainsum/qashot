@@ -99,16 +99,24 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
  * Implements hook_ENTITY_TYPE_insert().
  */
 function qa_shot_qa_shot_test_insert(EntityInterface $entity) {
-  $genResult = _qa_shot_initialize_backstop_environment($entity);
-  dpm($genResult["success"] ? "SUCCESS" : "FAIL");
+  try {
+    _qa_shot_initialize_backstop_environment($entity);
+  }
+  catch (\Exception $exception) {
+    dpm($exception, "Exception at entity insert.");
+  }
 }
 
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
 function qa_shot_qa_shot_test_update(EntityInterface $entity) {
-  $genResult = _qa_shot_initialize_backstop_environment($entity);
-  dpm($genResult["success"] ? "SUCCESS" : "FAIL");
+  try {
+    _qa_shot_initialize_backstop_environment($entity);
+  }
+  catch (\Exception $exception) {
+    dpm($exception, "Exception at entity update.");
+  }
 }
 
 /**
@@ -139,29 +147,11 @@ function qa_shot_qa_shot_test_view(
 ) {
   // @todo: save paths in the entity
 
-  /*
-  $command = "reference";
-  if (FALSE === _qa_shot_run_backstop_command($command, $genResult["data"]["configPath"])) {
-    dpm("Running the " . $command . " command has failed.");
-  } else {
-    $command = "test";
-    if (FALSE === _qa_shot_run_backstop_command($command, $genResult["data"]["configPath"])) {
-      dpm("Running the " . $command . " command has failed.");
-    }
-  }*/
-
-  //dpm($genResult["data"]["reportPath"], "report path");
+  // dpm($genResult["data"]["reportPath"], "report path");
   dpm(array(
     "entity_conf_path" => $entity->field_configuration_path->value,
-    "entity_report_path" => $entity->field_html_report_path->value
+    "entity_report_path" => $entity->field_html_report_path->value,
   ), "entity");
-  /*
-    $command = "openReport";
-    if (FALSE === _qa_shot_run_backstop_command($command, $configPath)) {
-      dpm("Running the " . $command . " command has failed.");
-      return FALSE;
-    }
-  */
 
   // @todo: major cleanup and restructuring of the files
   // @todo: store paths in db
@@ -178,15 +168,13 @@ function qa_shot_qa_shot_test_view(
  *    Copies template files to the proper directories,
  *    Saves some data to the entity.
  *
- * @param \Drupal\Core\Entity\EntityInterface $entity
+ * @throws \Exception
  *
- * @return array
+ * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function _qa_shot_initialize_backstop_environment(EntityInterface $entity) {
   // Absolute path to drupal root.
   $drupalRootPath = realpath(".");
-  // @todo: cd to this, run backstop from there
-  dpm($drupalRootPath, "drupalRootPath");
 
   // @todo: . "/" . revision id; to both paths.
   $privateDataPath = "qa_test_data/" . $entity->id();
@@ -203,43 +191,35 @@ function _qa_shot_initialize_backstop_environment(EntityInterface $entity) {
   // $configPath = $drupalRootPath . "/" . $privateDataPath . "/backstop.json"; //.
   $configPath = $privateDataPath . "/backstop.json";
 
-  $return = array(
-    "success" => FALSE,
-    "data" => array(),
-  );
-
   // Write config to file.
   // @todo: maybe use drupal functions
 
-  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $privateDataPath . "/")) {
-    dpm("Creating the qa_test_data/entityId folder failed.");
-    return $return;
+  $privateTestBaseFolder = $drupalRootPath . "/" . $privateDataPath . "/";
+  if (FALSE === _qa_shot_create_folder_for_entity($privateTestBaseFolder)) {
+    throw new \Exception("Creating the private base folder at " . $privateTestBaseFolder . " for the entity failed.");
   }
 
-  if (FALSE === _qa_shot_create_backstop_config_file($drupalRootPath . "/" . $configPath, $configAsJSON)) {
-    dpm("Creating the qa_test_data/entityId/backstop.json file failed.");
-    return $return;
+  $privateConfigurationFile = $drupalRootPath . "/" . $configPath;
+  if (FALSE === _qa_shot_create_backstop_config_file($privateConfigurationFile, $configAsJSON)) {
+    throw new \Exception("Creating the configuration file at " . $privateConfigurationFile . " failed.");
   }
 
-  if (FALSE === _qa_shot_create_folder_for_entity($drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"])) {
-    dpm("Creating the qa_test_data/entityId/casper_scripts folder failed.");
-    return $return;
+  $privateCasperFolder = $drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"];
+  if (FALSE === _qa_shot_create_folder_for_entity($privateCasperFolder)) {
+    throw new \Exception("Creating the folder for casper scripts at " . $privateCasperFolder . " failed.");
   }
 
   if (FALSE === _qa_shot_copy_template_data($templateFolder . "/casper_scripts", $drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"])) {
-    dpm("Copying the template files failed.");
-    return $return;
+    throw new \Exception("Copying the template casper scripts failed.");
   }
 
-  $return["success"] = TRUE;
-  $return["data"]["configPath"] = $configPath;
-  $return["data"]["reportPath"] = $drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html";
+  if (empty($entity)) {
+    throw new \Exception("The QAShot Test entity is empty!");
+  }
 
   $entity->field_configuration_path->setValue($configPath);
   $entity->field_html_report_path->setValue($drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html");
   $entity->save();
-
-  return $return;
 }
 
 /**
