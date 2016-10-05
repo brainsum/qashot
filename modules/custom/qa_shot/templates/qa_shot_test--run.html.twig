@@ -1,5 +1,10 @@
 <div class="muh-custom-class">
-    {# @var entity \Drupal\qa_shot\Entity\QAShotTest #}
-    <label>{{ entity.label }}</label>
-    {{ entity }}
+    <label>{{ entity.name.value }}</label>
+    <p>
+    {% if entity.field_html_report_path is empty %}
+        No test report found.
+    {% else %}
+        <a href="{{ entity.field_html_report_path.value }}">Latest HTML Report</a>
+    {% endif %}
+    </p>
 </div>
