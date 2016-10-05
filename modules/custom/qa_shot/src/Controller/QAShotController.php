@@ -11,13 +11,20 @@ namespace Drupal\qa_shot\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\qa_shot\Entity\QAShotTest;
 
 class QAShotController extends ControllerBase {
   public function entityRunPage(RouteMatchInterface $route_match) {
     $output = [];
 
-    $parameter_name = $route_match->getRouteObject()->getOption('_qa_shot_test_entity_type_id'); // @todo: maybe qa_shot_test_run
-    $entity = $route_match->getParameter($parameter_name);
+    $entityId = $route_match->getParameters()->get("qa_shot_test");
+
+    // @todo: create template/form for Run page
+    if (empty($entityId)) {
+      return ['#markup' => "Invalid entity."];
+    }
+
+    $entity = QAShotTest::load($entityId);
 
     if ($entity && $entity instanceof EntityInterface) {
       $output = ['#markup' => $entity->label()];
