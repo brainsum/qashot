@@ -11,18 +11,16 @@ entity.qa_shot_test.canonical:
 entity.qa_shot_test.edit_form:
   route_name: entity.qa_shot_test.edit_form
   base_route: entity.qa_shot_test.canonical
-  title: Edit
+  title: 'Edit'
 
 entity.qa_shot_test.delete_form:
   route_name:  entity.qa_shot_test.delete_form
   base_route:  entity.qa_shot_test.canonical
-  title: Delete
+  title: 'Delete'
   weight: 10
 
 entity.qa_shot_test.run:
   route_name:  entity.qa_shot_test.run
   base_route:  entity.qa_shot_test.canonical
-  title: Run
+  title: 'Run'
   weight: 15
-#  class: \Drupal\Core\Menu\LocalTaskDefault
-#  deriver: \Drupal\qa_shot\Plugin\Derivative\QAShotLocalTasks
