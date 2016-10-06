@@ -12,6 +12,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\qa_shot\Entity\QAShotTest;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class QAShotController.
@@ -23,11 +24,13 @@ class QAShotController extends ControllerBase {
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   Route match object.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The HTTP request.
    *
    * @return array
    *   The configured template.
    */
-  public function entityRunPage(RouteMatchInterface $route_match) {
+  public function entityRunPage(RouteMatchInterface $route_match, Request $request) {
     $entityId = $route_match->getParameters()->get("qa_shot_test");
 
     if (empty($entityId)) {
@@ -40,17 +43,16 @@ class QAShotController extends ControllerBase {
     // Time, Who started it, pass/fail, html report link
     $entity = QAShotTest::load($entityId);
     // kint($drupalRootPath = realpath("."), "realpath"); //.
-    if ($this->redirectRouteIsValid()) {
+    if ($this->isRedirectRouteValid($request)) {
       // If we come from a valid route, run the tests.
       _qa_shot_run_test_for_entity($entity);
-      // Unset the referer, so we can safely reload the page.
-      \Drupal::request()->headers->set("referer", NULL);
     }
 
     $output = [];
     $output['#theme'] = 'qa_shot__qa_shot_test__run';
 
     if ($entity && $entity instanceof EntityInterface) {
+      $entity->set("field_html_report_path", "file://" . $entity->get("field_html_report_path")->value);
       $output['#entity'] = $entity;
       // $output = ['#markup' => $entity->label()];
     }
@@ -64,9 +66,10 @@ class QAShotController extends ControllerBase {
    * @return bool
    *   TRUE, if we should run the tests, FALSE otherwise.
    */
-  private function redirectRouteIsValid() {
-    if (!empty($refererURL = \Drupal::request()->headers->get("referer"))) {
-      $host = \Drupal::request()->getHttpHost();
+  private function isRedirectRouteValid(Request &$request) {
+    kint($request->headers->get("referer"));
+    if (!empty($refererURL = $request->headers->get("referer"))) {
+      $host = $request->getHttpHost();
       $internalReferer = substr($refererURL, (strpos($refererURL, $host) + strlen($host) + 1));
       $refererRoute = \Drupal::pathValidator()->getUrlIfValid($internalReferer)->getRouteName();
 
@@ -74,6 +77,9 @@ class QAShotController extends ControllerBase {
 
       // @todo: Maybe use path instead of route.
       if ("entity.qa_shot_test.edit_form" === $refererRoute) {
+        // Unset the referer, so we can safely reload the page.
+        // @todo: FIXME, unset not working
+        $request->headers->remove("referer");
         return TRUE;
       }
     }
