@@ -39,6 +39,13 @@ class QAShotController extends ControllerBase {
     // if just opening, show list of previous results:
     // Time, Who started it, pass/fail, html report link
     $entity = QAShotTest::load($entityId);
+    // kint($drupalRootPath = realpath("."), "realpath"); //.
+    if ($this->redirectRouteIsValid()) {
+      // If we come from a valid route, run the tests.
+      _qa_shot_run_test_for_entity($entity);
+      // Unset the referer, so we can safely reload the page.
+      \Drupal::request()->headers->set("referer", NULL);
+    }
 
     $output = [];
     $output['#theme'] = 'qa_shot__qa_shot_test__run';
@@ -49,6 +56,29 @@ class QAShotController extends ControllerBase {
     }
 
     return $output;
+  }
+
+  /**
+   * Helper function to decide whether we need to run the test on page access.
+   *
+   * @return bool
+   *   TRUE, if we should run the tests, FALSE otherwise.
+   */
+  private function redirectRouteIsValid() {
+    if (!empty($refererURL = \Drupal::request()->headers->get("referer"))) {
+      $host = \Drupal::request()->getHttpHost();
+      $internalReferer = substr($refererURL, (strpos($refererURL, $host) + strlen($host) + 1));
+      $refererRoute = \Drupal::pathValidator()->getUrlIfValid($internalReferer)->getRouteName();
+
+      kint($host, $internalReferer, $refererRoute);
+
+      // @todo: Maybe use path instead of route.
+      if ("entity.qa_shot_test.edit_form" === $refererRoute) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
 }

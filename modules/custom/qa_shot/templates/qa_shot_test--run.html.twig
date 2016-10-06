@@ -4,6 +4,7 @@
     {% if entity.field_html_report_path is empty %}
         No test report found.
     {% else %}
+        {# @todo: this gives a url prepended by hostname #}
         <a href="{{ entity.field_html_report_path.value }}">Latest HTML Report</a>
     {% endif %}
     </p>

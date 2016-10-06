@@ -80,9 +80,15 @@ function qa_shot_form_alter(
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  */
 function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state) {
+  /** @var QAShotTest $entity */
   $entity = $form_state->getFormObject()->getEntity();
 
-  _qa_shot_run_test_for_entity($entity);
+  $form_state->setRedirect(
+    "entity.qa_shot_test.run",
+    [
+      "qa_shot_test" => $entity->id(),
+    ]
+  );
 }
 
 /**
@@ -119,30 +125,6 @@ function _qa_shot_run_test_for_entity(EntityInterface $entity) {
     return;
   }
 }
-
-/*
- * Implements hook_ENTITY_TYPE_presave().
- */
-/*
-function qa_shot_qa_shot_test_presave(EntityInterface $entity) {
-  if (!empty($entity->original)) {
-    // When updating.
-    try {
-      // @todo: maybe not needed, check/create only before running
-      _qa_shot_initialize_backstop_environment($entity);
-    }
-    catch (\Exception $exception) {
-      dpm($exception, "Exception at entity insert.");
-    }
-
-    $msg = "conf: " . $entity->get("field_configuration_path")->value .
-      " report: " . $entity->get("field_html_report_path")->value;
-
-    \Drupal::logger('debugging_presave_hook')
-      ->debug($msg);
-  }
-}
-*/
 
 /**
  * Implements hook_ENTITY_TYPE_delete().
@@ -203,6 +185,7 @@ function _qa_shot_initialize_backstop_environment(EntityInterface &$entity) {
   // Absolute path to drupal root.
   $drupalRootPath = realpath(".");
 
+  // @todo: refactor
   // @todo: . "/" . revision id; to both paths.
   $privateDataPath = "qa_test_data/" . $entity->id();
   $publicDataPath = "qa_test_data/" . $entity->id();
@@ -213,9 +196,7 @@ function _qa_shot_initialize_backstop_environment(EntityInterface &$entity) {
   $configPath = $privateDataPath . "/backstop.json";
 
   // Write config to file.
-  // @todo: maybe use drupal functions
-  // @todo: Check if folders exist, if yes, do nothing
-  // @todo: Check if files exist, if yes, check if they are the same or not
+  // @todo: maybe use drupal functions for file handling
 
   $privateTestBaseFolder = $drupalRootPath . "/" . $privateDataPath . "/";
   if (FALSE === _qa_shot_create_folder_for_entity($privateTestBaseFolder)) {
@@ -265,9 +246,7 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
   }
 
   // @todo: send this to the background, don't hold up UI
-  // @todo: create rout {entity}/run or smth
-  // @todo /run should output current run / last run info, or smth
-
+  // @todo: add some kind of semaphore to prevent running a test several times at the same time
   /*
    * @todo: real-time output:
    *    http://stackoverflow.com/questions/1281140/run-process-with-realtime-output-in-php
@@ -275,8 +254,7 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
    *    http://stackoverflow.com/questions/20107147/php-reading-shell-exec-live-output
    */
 
-  $backstopCommand = 'backstop ' . $command . ' --configPath=' . $configurationPath;
-  // @todo: use escapeshellarg for good measure
+  $backstopCommand = escapeshellcmd('backstop ' . $command . ' --configPath=' . $configurationPath);
   exec($backstopCommand, $execOutput, $status);
 
   dpm($status, "exec status");
@@ -300,6 +278,7 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
  * @return bool
  */
 function _qa_shot_copy_template_data($src, $target) {
+  // @todo: use exceptions
   dpm($src, "copy src");
   dpm($target, "copy target");
 
@@ -330,8 +309,7 @@ function _qa_shot_copy_template_data($src, $target) {
  * @return bool
  */
 function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
-  // @todo: maybe return array with successFlag and message for verbosity
-  // @todo: maybe throw exceptions
+  // @todo: throw exceptions
   // @todo: check if file exists, if yes, check if it's the same as the new one.
   // if yes, skip
   if (($configFile = fopen($configurationPath, "w")) === FALSE) {
