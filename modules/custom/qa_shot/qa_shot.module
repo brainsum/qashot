@@ -9,6 +9,9 @@ use \Drupal\Core\Routing\RouteMatchInterface;
 use \Drupal\Core\Form\FormStateInterface;
 use \Drupal\Core\Entity\EntityInterface;
 use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use \Drupal\qa_shot\Entity\QAShotTest;
+use Drupal\qa_shot\Plugin\Field\FieldType\Viewport;
+use Drupal\qa_shot\Plugin\Field\FieldType\Scenario;
 
 /**
  * Implements hook_help().
@@ -71,11 +74,33 @@ function qa_shot_form_alter(
 }
 
 /**
+ * Handler function for the "Run test" button.
+ *
  * @param $form
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  */
 function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state) {
   $entity = $form_state->getFormObject()->getEntity();
+
+  _qa_shot_run_test_for_entity($entity);
+}
+
+/**
+ * Helper function for running a complete testcase.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function _qa_shot_run_test_for_entity(EntityInterface $entity) {
+  if (empty($entity) || !($entity instanceof QAShotTest)) {
+    drupal_set_message(t("Trying to run test for an empty or invalid entity."), "error");
+  }
+
+  try {
+    _qa_shot_initialize_backstop_environment($entity);
+  }
+  catch (\Exception $exception) {
+    dpm($exception, "Exception at entity insert.");
+  }
 
   if (empty($entity->field_configuration_path->getValue())) {
     dpm("Configuration path not saved in entity.");
@@ -83,42 +108,41 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
   }
 
   $command = "reference";
-  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->value)) {
+  if (FALSE === _qa_shot_run_backstop_command($command, $entity->get("field_configuration_path")->value)) {
     dpm("Running the " . $command . " command has failed.");
     return;
   }
 
   $command = "test";
-  if (FALSE === _qa_shot_run_backstop_command($command, $entity->field_configuration_path->value)) {
+  if (FALSE === _qa_shot_run_backstop_command($command, $entity->get("field_configuration_path")->value)) {
     dpm("Running the " . $command . " command has failed.");
     return;
   }
-
 }
 
-/**
- * Implements hook_ENTITY_TYPE_insert().
+/*
+ * Implements hook_ENTITY_TYPE_presave().
  */
-function qa_shot_qa_shot_test_insert(EntityInterface $entity) {
-  try {
-    _qa_shot_initialize_backstop_environment($entity);
-  }
-  catch (\Exception $exception) {
-    dpm($exception, "Exception at entity insert.");
-  }
-}
+/*
+function qa_shot_qa_shot_test_presave(EntityInterface $entity) {
+  if (!empty($entity->original)) {
+    // When updating.
+    try {
+      // @todo: maybe not needed, check/create only before running
+      _qa_shot_initialize_backstop_environment($entity);
+    }
+    catch (\Exception $exception) {
+      dpm($exception, "Exception at entity insert.");
+    }
 
-/**
- * Implements hook_ENTITY_TYPE_update().
- */
-function qa_shot_qa_shot_test_update(EntityInterface $entity) {
-  try {
-    _qa_shot_initialize_backstop_environment($entity);
-  }
-  catch (\Exception $exception) {
-    dpm($exception, "Exception at entity update.");
+    $msg = "conf: " . $entity->get("field_configuration_path")->value .
+      " report: " . $entity->get("field_html_report_path")->value;
+
+    \Drupal::logger('debugging_presave_hook')
+      ->debug($msg);
   }
 }
+*/
 
 /**
  * Implements hook_ENTITY_TYPE_delete().
@@ -158,6 +182,7 @@ function qa_shot_qa_shot_test_view(
   // @todo: store paths in db
 
   // dpm($entity->getBackstopConfigurationPath(), "config path from entity");//.
+
 }
 
 /**
@@ -169,27 +194,22 @@ function qa_shot_qa_shot_test_view(
  *    Copies template files to the proper directories,
  *    Saves some data to the entity.
  *
- * @throws \Exception
- *
  * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The QAShot Test entity.
+ *
+ * @throws \Exception
  */
-function _qa_shot_initialize_backstop_environment(EntityInterface $entity) {
+function _qa_shot_initialize_backstop_environment(EntityInterface &$entity) {
   // Absolute path to drupal root.
   $drupalRootPath = realpath(".");
 
   // @todo: . "/" . revision id; to both paths.
   $privateDataPath = "qa_test_data/" . $entity->id();
   $publicDataPath = "qa_test_data/" . $entity->id();
-
   $templateFolder = $drupalRootPath . "/qa_test_data/template";
-
   $configAsArray = _qa_shot_map_entity_to_backstop_config_array($entity, $privateDataPath, $publicDataPath);
-  // dpm($configAsArray);//.
   $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
   $configAsJSON = json_encode($configAsArray, $jsonConfig);
-
-  // dpm($configAsJSON); //.
-  // $configPath = $drupalRootPath . "/" . $privateDataPath . "/backstop.json"; //.
   $configPath = $privateDataPath . "/backstop.json";
 
   // Write config to file.
@@ -216,20 +236,26 @@ function _qa_shot_initialize_backstop_environment(EntityInterface $entity) {
     throw new \Exception("Copying the template casper scripts failed.");
   }
 
-  if (empty($entity)) {
-    throw new \Exception("The QAShot Test entity is empty!");
+  if (empty($entity) || $entity->getEntityTypeId() != 'qa_shot_test') {
+    throw new \Exception("The entity is empty or its type is not QAShot Test!");
   }
-  /*
-  // @todo: This causes segmentation faults.
-  $entity->field_configuration_path->setValue($configPath);
-  $entity->field_html_report_path->setValue($drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html");
-  $entity->save();
-   */
+
+  $reportPath = $drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html";
+
+  if (
+    $entity->get("field_configuration_path")->value !== $configPath ||
+    $entity->get("field_html_report_path")->value !== $reportPath
+  ) {
+    $entity->set("field_configuration_path", $configPath);
+    $entity->set("field_html_report_path", $reportPath);
+    $entity->save();
+  }
 }
 
 /**
  * @param $command
  * @param $configurationPath
+ *
  * @return bool
  */
 function _qa_shot_run_backstop_command($command, $configurationPath) {
@@ -270,6 +296,7 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
 /**
  * @param $src
  * @param $target
+ *
  * @return bool
  */
 function _qa_shot_copy_template_data($src, $target) {
@@ -299,6 +326,7 @@ function _qa_shot_copy_template_data($src, $target) {
 /**
  * @param $configurationPath
  * @param $jsonString
+ *
  * @return bool
  */
 function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
@@ -327,31 +355,33 @@ function _qa_shot_create_backstop_config_file($configurationPath, $jsonString) {
 }
 
 /**
- * @param $dirToCreate
+ * Creates a directory at the given path.
+ *
+ * @param string $dirToCreate
  *   Path of the directory to be created.
+ *
  * @return bool
  *   Whether the folder exists or creating it succeeded.
  */
 function _qa_shot_create_folder_for_entity($dirToCreate) {
-  dpm($dirToCreate, "path of dir");
   if (is_dir($dirToCreate)) {
-    dpm("dir is there");
     return TRUE;
   }
 
-  dpm("creating dir");
-  // Create parents as well
-
+  // Create directory and parents as well.
   return mkdir($dirToCreate, 0775, TRUE);
 }
 
 /**
+ * Helper function which maps the entity fields to an array.
+ *
  * @param \Drupal\Core\Entity\EntityInterface $entity
  *   The QAShot Test entity.
  * @param string $privateDataPath
  *   Path to the private filesystem.
  * @param string $publicDataPath
  *   Path to the public filesystem.
+ *
  * @return array
  *   A backstop config as an array.
  */
@@ -401,12 +431,13 @@ function _qa_shot_map_entity_to_backstop_config_array(EntityInterface $entity, $
 }
 
 /**
- * Converts the values of a scenarios field to a scenario array.
+ * Maps the values of a scenario field to an array.
  *
- * @param $scenario
+ * @param Scenario $scenario
+ *
  * @return array
  */
-function _qa_shot_map_scenario_to_array($scenario) {
+function _qa_shot_map_scenario_to_array(Scenario $scenario) {
   return array(
     "label" => (string) $scenario->label,
     "url" => (string) $scenario->referenceUrl,
@@ -414,8 +445,15 @@ function _qa_shot_map_scenario_to_array($scenario) {
     "readyEvent" => NULL,
     "delay" => 5000,
     "misMatchThreshold" => 0.0,
-    "selectors" => ["document"],
-    "removeSelectors" => ["#twitter-widget-0", "#twitter-widget-1", ".captcha", "#sliding-popup"],
+    "selectors" => [
+      "document",
+    ],
+    "removeSelectors" => [
+      "#twitter-widget-0",
+      "#twitter-widget-1",
+      ".captcha",
+      "#sliding-popup",
+    ],
     "hideSelectors" => [],
     "onBeforeScript" => "onBefore.js",
     "onReadyScript" => "onReady.js",
@@ -423,21 +461,23 @@ function _qa_shot_map_scenario_to_array($scenario) {
 }
 
 /**
- * Converts the values of a viewport field to a viewport array.
+ * Maps a viewport field to an array.
  *
- * @param $viewport
+ * @param Viewport $viewport
+ *
  * @return array
  */
-function _qa_shot_map_viewport_to_array($viewport) {
+function _qa_shot_map_viewport_to_array(Viewport $viewport) {
   return array(
-    "name" => (string) $viewport->name,
+    "name" => (string) $viewport->getName(),
     "width" => (int) $viewport->width,
     "height" => (int) $viewport->height,
   );
 }
 
 /**
- * @param $dir
+ * @param string $dir
+ *
  * @return bool
  */
 function _qa_shot_remove_directory($dir) {
