@@ -45,5 +45,8 @@ core/phpunit.xml
 # Drupal modules
 modules/examples
 
-# Custom folders
+# Custom ignores
 qa_test_data
+startup.sh
+shutdown.sh
+tmp
