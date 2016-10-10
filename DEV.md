@@ -1,6 +1,6 @@
 # Cheatsheet
 
-[Pygmy|https://docs.amazee.io/local_docker_development/pygmy.html]
+[Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html)
 * pygmy up
     * Starts every dependency container.
 * pygmy addkey \[~/.ssh/id_rsa\]
