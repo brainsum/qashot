@@ -5,11 +5,7 @@
         No test report found.
     {% else %}
         {# @todo: this is for testing only, proper way needed for serving this page for opening #}
-        <a href="" target="_blank">Latest HTML Report</a>
-
-        <br /> Latest report:
-        <br/>
-        {{ entity.field_html_report_path.value }}
+        <a href="{{ html_report_url }}" target="_blank">Latest HTML Report</a>
     {% endif %}
     </p>
 </div>

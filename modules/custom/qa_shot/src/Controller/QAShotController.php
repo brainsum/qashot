@@ -42,7 +42,6 @@ class QAShotController extends ControllerBase {
     // if just opening, show list of previous results:
     // Time, Who started it, pass/fail, html report link
     $entity = QAShotTest::load($entityId);
-    // kint($drupalRootPath = realpath("."), "realpath"); //.
     if ($this->isRedirectRouteValid($request)) {
       // If we come from a valid route, run the tests.
       _qa_shot_run_test_for_entity($entity);
@@ -52,7 +51,8 @@ class QAShotController extends ControllerBase {
     $output['#theme'] = 'qa_shot__qa_shot_test__run';
 
     if ($entity && $entity instanceof EntityInterface) {
-      $entity->set("field_html_report_path", "file://" . $entity->get("field_html_report_path")->value);
+      $reportUrl = file_create_url($entity->get('field_html_report_path')->value);
+      $output['#html_report_url'] = $reportUrl;
       $output['#entity'] = $entity;
       // $output = ['#markup' => $entity->label()];
     }
