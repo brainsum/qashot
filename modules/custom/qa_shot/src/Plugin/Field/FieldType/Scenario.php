@@ -2,11 +2,8 @@
 
 namespace Drupal\qa_shot\Plugin\Field\FieldType;
 
-use Drupal\Component\Utility\Random;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
 
@@ -22,13 +19,15 @@ use Drupal\Core\TypedData\DataDefinition;
  * )
  */
 class Scenario extends FieldItemBase {
+
   /**
    * {@inheritdoc}
    */
   public static function defaultStorageSettings() {
     return [
-      'max_label_length' => 80, // BackstopJS has some bugs with very long file names.
-      'max_url_length' => 255
+      // BackstopJS has some bugs with very long file names.
+      'max_label_length' => 80,
+      'max_url_length' => 255,
     ] + parent::defaultStorageSettings();
   }
 
@@ -45,7 +44,7 @@ class Scenario extends FieldItemBase {
       ->addConstraint(
         'Length',
         [
-          'max' => $field_definition->getSetting('max_label_length')
+          'max' => $field_definition->getSetting('max_label_length'),
         ]
       )
       ->setRequired(TRUE);
@@ -57,7 +56,7 @@ class Scenario extends FieldItemBase {
       ->addConstraint(
         'Length',
         [
-          'max' => $field_definition->getSetting('max_url_length')
+          'max' => $field_definition->getSetting('max_url_length'),
         ]
       )
       ->setRequired(TRUE);
@@ -69,7 +68,7 @@ class Scenario extends FieldItemBase {
       ->addConstraint(
         'Length',
         [
-          'max' => $field_definition->getSetting('max_url_length')
+          'max' => $field_definition->getSetting('max_url_length'),
         ]
       )
       ->setRequired(TRUE);
@@ -102,12 +101,12 @@ class Scenario extends FieldItemBase {
           'type' => 'varchar',
           'length' => 255,
           'not null' => TRUE,
-        ]
+        ],
       ],
     ];
 
     // We allow the user to input 80 character long URLs only
-    // We allow 255 character long URLs in the DB for some future proofing
+    // We allow 255 character long URLs in the DB for some future proofing.
     return $schema;
   }
 
@@ -119,9 +118,9 @@ class Scenario extends FieldItemBase {
     $testUrl = $this->get('testUrl')->getValue();
     $label = $this->get('label')->getValue();
 
-    return  $referenceUrl === NULL || $referenceUrl === '' ||
-            $label === NULL || $label === '' ||
-            $testUrl === NULL || $testUrl === '';
+    return $referenceUrl === NULL || $referenceUrl === '' ||
+           $label === NULL || $label === '' ||
+           $testUrl === NULL || $testUrl === '';
   }
 
 }
