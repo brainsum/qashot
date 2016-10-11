@@ -12,6 +12,8 @@ use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use \Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Plugin\Field\FieldType\Viewport;
 use Drupal\qa_shot\Plugin\Field\FieldType\Scenario;
+use Drupal\Core\StreamWrapper\PrivateStream;
+use Drupal\Core\StreamWrapper\PublicStream;
 
 /**
  * Implements hook_help().
@@ -45,6 +47,7 @@ function qa_shot_theme($existing, $type, $theme, $path) {
       'template' => 'qa_shot_test--run',
       'variables' => [
         'entity' => NULL,
+        'html_report_url' => NULL,
       ],
     ],
   ];
@@ -105,7 +108,7 @@ function _qa_shot_run_test_for_entity(EntityInterface $entity) {
     _qa_shot_initialize_backstop_environment($entity);
   }
   catch (\Exception $exception) {
-    dpm($exception, "Exception at entity insert.");
+    dpm($exception->getMessage(), "Exception at entity insert.");
   }
 
   if (empty($entity->field_configuration_path->getValue())) {
@@ -124,23 +127,24 @@ function _qa_shot_run_test_for_entity(EntityInterface $entity) {
     dpm("Running the " . $command . " command has failed.");
     return;
   }
+
 }
 
 /**
  * Implements hook_ENTITY_TYPE_delete().
  */
 function qa_shot_qa_shot_test_delete(EntityInterface $entity) {
-  // @todo: Delete BackstopJS config
-  // Absolute path to drupal root.
-  $drupalRootPath = realpath(".");
-  // @todo: cd to this, run backstop from there
+  // @todo: move this to a config
+  $customDataBase = "qa_test_data";
 
   // @todo: . "/" . revision id; to both paths!
-  $privateDataPath = "qa_test_data/" . $entity->id();
-  $publicDataPath = "qa_test_data/" . $entity->id();
+  $privateDataPath = PrivateStream::basePath() . "/" . $customDataBase . "/" . $entity->id();
+  $publicDataPath = PublicStream::basePath() . "/" . $customDataBase . "/" . $entity->id();
 
-  dpm(_qa_shot_remove_directory($drupalRootPath . "/" . $privateDataPath) ? "PrivateFolder removed" : "Private folder not removed");
-  dpm(_qa_shot_remove_directory($drupalRootPath . "/" . $publicDataPath) ? "PubFolder removed" : "Pub folder not removed");
+  $removeResult = _qa_shot_remove_directory($privateDataPath);
+  dpm($removeResult ? "PrivateFolder removed" : "Private folder not removed");
+  $removeResult = _qa_shot_remove_directory($publicDataPath);
+  dpm($removeResult ? "PubFolder removed" : "Pub folder not removed");
 }
 
 /**
@@ -156,15 +160,14 @@ function qa_shot_qa_shot_test_view(
 
   // dpm($genResult["data"]["reportPath"], "report path");
   dpm(array(
-    "entity_conf_path" => $entity->field_configuration_path->value,
-    "entity_report_path" => $entity->field_html_report_path->value,
+    "entity_conf_path" => $entity->get('field_configuration_path')->value,
+    "entity_report_path" => $entity->get('field_html_report_path')->value,
   ), "entity");
 
   // @todo: major cleanup and restructuring of the files
   // @todo: store paths in db
 
   // dpm($entity->getBackstopConfigurationPath(), "config path from entity");//.
-
 }
 
 /**
@@ -182,46 +185,56 @@ function qa_shot_qa_shot_test_view(
  * @throws \Exception
  */
 function _qa_shot_initialize_backstop_environment(EntityInterface &$entity) {
-  // Absolute path to drupal root.
-  $drupalRootPath = realpath(".");
-
-  // @todo: refactor
-  // @todo: . "/" . revision id; to both paths.
-  $privateDataPath = "qa_test_data/" . $entity->id();
-  $publicDataPath = "qa_test_data/" . $entity->id();
-  $templateFolder = $drupalRootPath . "/qa_test_data/template";
-  $configAsArray = _qa_shot_map_entity_to_backstop_config_array($entity, $privateDataPath, $publicDataPath);
-  $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-  $configAsJSON = json_encode($configAsArray, $jsonConfig);
-  $configPath = $privateDataPath . "/backstop.json";
-
-  // Write config to file.
-  // @todo: maybe use drupal functions for file handling
-
-  $privateTestBaseFolder = $drupalRootPath . "/" . $privateDataPath . "/";
-  if (FALSE === _qa_shot_create_folder_for_entity($privateTestBaseFolder)) {
-    throw new \Exception("Creating the private base folder at " . $privateTestBaseFolder . " for the entity failed.");
-  }
-
-  $privateConfigurationFile = $drupalRootPath . "/" . $configPath;
-  if (FALSE === _qa_shot_create_backstop_config_file($privateConfigurationFile, $configAsJSON)) {
-    throw new \Exception("Creating the configuration file at " . $privateConfigurationFile . " failed.");
-  }
-
-  $privateCasperFolder = $drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"];
-  if (FALSE === _qa_shot_create_folder_for_entity($privateCasperFolder)) {
-    throw new \Exception("Creating the folder for casper scripts at " . $privateCasperFolder . " failed.");
-  }
-
-  if (FALSE === _qa_shot_copy_template_data($templateFolder . "/casper_scripts", $drupalRootPath . "/" . $configAsArray["paths"]["casper_scripts"])) {
-    throw new \Exception("Copying the template casper scripts failed.");
-  }
-
   if (empty($entity) || $entity->getEntityTypeId() != 'qa_shot_test') {
     throw new \Exception("The entity is empty or its type is not QAShot Test!");
   }
 
-  $reportPath = $drupalRootPath . "/" . $configAsArray["paths"]["html_report"] . "/index.html";
+  $customDataBase = "qa_test_data";
+
+  /** @var \Drupal\Core\File\FileSystem $fs */
+  $fs = \Drupal::service('file_system');
+
+  // @todo: refactor
+  // @todo: . "/" . revision id; to both paths.
+  $privateEntityData = PrivateStream::basePath() . "/" . $customDataBase . "/" . $entity->id();
+  $publicEntityData = PublicStream::basePath() . "/" . $customDataBase . "/" . $entity->id();
+  $templateFolder = PrivateStream::basePath() . "/" . $customDataBase . "/template";
+  $configPath = $privateEntityData . "/backstop.json";
+
+  $configAsArray = _qa_shot_map_entity_to_backstop_config_array($entity, $privateEntityData, $publicEntityData);
+  $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+  $configAsJSON = json_encode($configAsArray, $jsonConfig);
+
+  $privateCasperFolder = $configAsArray["paths"]["casper_scripts"];
+  $reportPath = $configAsArray["paths"]["html_report"] . "/index.html";
+
+  dpm(array(
+    "privateEntityData" => $privateEntityData,
+    "publicEntityData" => $publicEntityData,
+    "templates" => $templateFolder,
+    "config" => $configPath,
+    "casperFolder" => $privateCasperFolder,
+    "reportFolder" => $reportPath,
+    "entityCasperScripts" => $configAsArray["paths"]["casper_scripts"],
+  ), "new paths");
+
+  // @todo: maybe use drupal functions for file handling
+  // @todo: This was $privateTestBaseFolder
+  if (FALSE === _qa_shot_create_folder_for_entity($privateEntityData)) {
+    throw new \Exception("Creating the private base folder at " . $privateEntityData . " for the entity failed.");
+  }
+  // @todo: this was $privateConfigurationFile
+  if (FALSE === _qa_shot_create_backstop_config_file($configPath, $configAsJSON)) {
+    throw new \Exception("Creating the configuration file at " . $configPath . " failed.");
+  }
+
+  if (FALSE === _qa_shot_create_folder_for_entity($privateCasperFolder)) {
+    throw new \Exception("Creating the folder for casper scripts at " . $privateCasperFolder . " failed.");
+  }
+
+  if (FALSE === _qa_shot_copy_template_data($templateFolder . "/casper_scripts", $configAsArray["paths"]["casper_scripts"])) {
+    throw new \Exception("Copying the template casper scripts failed.");
+  }
 
   if (
     $entity->get("field_configuration_path")->value !== $configPath ||
@@ -253,8 +266,10 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
    *    http://stackoverflow.com/questions/20614557/php-shell-exec-update-output-as-script-is-running
    *    http://stackoverflow.com/questions/20107147/php-reading-shell-exec-live-output
    */
+  // @todo: add backstop to path ( /var/www/drupal/.nvm/versions/node/v6.3.0/bin )
+  // @todo: add python to path
 
-  $backstopCommand = escapeshellcmd('backstop ' . $command . ' --configPath=' . $configurationPath);
+  $backstopCommand = escapeshellcmd('/var/www/drupal/.nvm/versions/node/v6.3.0/bin/backstop ' . $command . ' --configPath=' . $configurationPath);
   exec($backstopCommand, $execOutput, $status);
 
   dpm($status, "exec status");
@@ -372,8 +387,8 @@ function _qa_shot_map_entity_to_backstop_config_array(EntityInterface $entity, $
     "viewports" => [],
     "scenarios" => [],
     "paths" => [
-      "bitmaps_reference" => $privateDataPath . "/reference",
-      "bitmaps_test" => $privateDataPath . "/test",
+      "bitmaps_reference" => $publicDataPath . "/reference",
+      "bitmaps_test" => $publicDataPath . "/test",
       "casper_scripts" => $privateDataPath . "/casper_scripts",
       "html_report" => $publicDataPath . "/html_report",
       "ci_report" => $publicDataPath . "/ci_report",
@@ -417,9 +432,9 @@ function _qa_shot_map_entity_to_backstop_config_array(EntityInterface $entity, $
  */
 function _qa_shot_map_scenario_to_array(Scenario $scenario) {
   return array(
-    "label" => (string) $scenario->label,
-    "url" => (string) $scenario->referenceUrl,
-    "referenceUrl" => (string) $scenario->testUrl,
+    "label" => (string) $scenario->get("label")->getValue(),
+    "url" => (string) $scenario->get("referenceUrl")->getValue(),
+    "referenceUrl" => (string) $scenario->get("testUrl")->getValue(),
     "readyEvent" => NULL,
     "delay" => 5000,
     "misMatchThreshold" => 0.0,
@@ -447,9 +462,9 @@ function _qa_shot_map_scenario_to_array(Scenario $scenario) {
  */
 function _qa_shot_map_viewport_to_array(Viewport $viewport) {
   return array(
-    "name" => (string) $viewport->getName(),
-    "width" => (int) $viewport->width,
-    "height" => (int) $viewport->height,
+    "name" => (string) $viewport->get("name")->getValue(),
+    "width" => (int) $viewport->get("width")->getValue(),
+    "height" => (int) $viewport->get("height")->getValue(),
   );
 }
 
