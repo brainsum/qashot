@@ -71,7 +71,7 @@ class ScenarioWidget extends WidgetBase {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     // So QAShot test id: 1 can have only one label value with "Opening page"
-    // But QAShot test id: 2 can have a label value with "Opening page" as well
+    // But QAShot test id: 2 can have a label value with "Opening page" as well.
     $element['label'] = [
       '#type' => 'textfield',
       '#default_value' => isset($items[$delta]->label) ? $items[$delta]->label : NULL,
@@ -80,7 +80,7 @@ class ScenarioWidget extends WidgetBase {
       '#maxlength' => $this->getFieldSetting('max_label_length'),
       '#title' => $this->t('Label'),
       '#description' => 'A unique name to identify the scenario, ' . $this->getFieldSetting('max_label_length') . ' characters at most.',
-      '#required' => $element['#required']
+      '#required' => $element['#required'],
     ];
 
     $element['referenceUrl'] = [
@@ -91,7 +91,7 @@ class ScenarioWidget extends WidgetBase {
       '#maxlength' => $this->getFieldSetting('max_url_length'),
       '#title' => $this->t('Reference URL'),
       '#description' => 'The URL of the reference site.',
-      '#required' => $element['#required']
+      '#required' => $element['#required'],
     ];
 
     $element['testUrl'] = [
@@ -102,7 +102,7 @@ class ScenarioWidget extends WidgetBase {
       '#maxlength' => $this->getFieldSetting('max_url_length'),
       '#title' => $this->t('Test URL'),
       '#description' => 'The URL of the site to test.',
-      '#required' => $element['#required']
+      '#required' => $element['#required'],
     ];
 
     return $element;

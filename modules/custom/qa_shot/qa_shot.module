@@ -90,6 +90,11 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
     "entity.qa_shot_test.run",
     [
       "qa_shot_test" => $entity->id(),
+    ],
+    [
+      'query' => [
+        'start_now' => TRUE,
+      ],
     ]
   );
 }
@@ -266,10 +271,10 @@ function _qa_shot_run_backstop_command($command, $configurationPath) {
    *    http://stackoverflow.com/questions/20614557/php-shell-exec-update-output-as-script-is-running
    *    http://stackoverflow.com/questions/20107147/php-reading-shell-exec-live-output
    */
-  // @todo: add backstop to path ( /var/www/drupal/.nvm/versions/node/v6.3.0/bin )
-  // @todo: add python to path
 
-  $backstopCommand = escapeshellcmd('/var/www/drupal/.nvm/versions/node/v6.3.0/bin/backstop ' . $command . ' --configPath=' . $configurationPath);
+  // @todo: FIXME.
+  // @todo: Get node version from .amazee.yml and add /var/www/drupal/.nvm/versions/node/v{node_vresion}/bin to path.
+  $backstopCommand = escapeshellcmd('/var/www/drupal/.nvm/versions/node/v6.5.0/bin/backstop ' . $command . ' --configPath=' . $configurationPath);
   exec($backstopCommand, $execOutput, $status);
 
   dpm($status, "exec status");
@@ -433,8 +438,8 @@ function _qa_shot_map_entity_to_backstop_config_array(EntityInterface $entity, $
 function _qa_shot_map_scenario_to_array(Scenario $scenario) {
   return array(
     "label" => (string) $scenario->get("label")->getValue(),
-    "url" => (string) $scenario->get("referenceUrl")->getValue(),
-    "referenceUrl" => (string) $scenario->get("testUrl")->getValue(),
+    "referenceUrl" => (string) $scenario->get("referenceUrl")->getValue(),
+    "url" => (string) $scenario->get("testUrl")->getValue(),
     "readyEvent" => NULL,
     "delay" => 5000,
     "misMatchThreshold" => 0.0,

@@ -1,4 +1,4 @@
-sitegroup: nogroup
+sitegroup: qashot
 deploy_tasks:
   development:
     before_deploy:
@@ -15,4 +15,4 @@ deploy_tasks:
       - drush -y updb --cache-clear=0
       - drush -y cr
 versions:
-  node: 6.3.0
+  node: 6.5.0
