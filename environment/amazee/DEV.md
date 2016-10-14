@@ -1,7 +1,7 @@
 # Amazee.io docker info
 * The user drupal (3201) is the one who runs the scripts, not www-data
-* @todo: At startup, add this to path:
-    * /var/www/drupal/.nvm/versions/node/v6.3.0/bin
+* @todo: At startup, add this to the PHP environment/path:
+    * NVM_BIN
     * This is needed for BackstopJS
 * @todo: At startap, add a symlink
     * ln -s /usr/bin/python2.7 /usr/bin/python
