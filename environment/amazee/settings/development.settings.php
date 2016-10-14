@@ -24,6 +24,11 @@ $config['system.performance']['css']['preprocess'] = 0;
 // Aggregate JavaScript files on.
 $config['system.performance']['js']['preprocess'] = 0;
 
+// Disable render caches,
+// necessary for twig files to be reloaded on every page view.
+$settings['cache']['bins']['render'] = 'cache.backend.null';
+$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.null';
+
 // Stage file proxy URL from production URL.
 if (getenv('AMAZEEIO_PRODUCTION_URL')) {
   $config['stage_file_proxy.settings']['origin'] = getenv('AMAZEEIO_PRODUCTION_URL');

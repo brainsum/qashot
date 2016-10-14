@@ -16,7 +16,7 @@ printf "To continue, please choose an environment:\n"
 # Data arrays.
 # @note: These need to be updated in parallel!
 SUPPORTED_OPTIONS=( "amazee.io" )
-SCRIPTS=( "./environment/amazee/setup.sh" )
+SCRIPTS=( "./environment/amazee/" )
 
 # Display options.
 for i in "${!SUPPORTED_OPTIONS[@]}"
@@ -49,5 +49,17 @@ done
 
 printf "\n"
 
+ORIG_PWD=$(pwd)
+
 # Run the required script.
-bash "${SCRIPTS[$((CHOICE-1))]}"
+cd "${SCRIPTS[$((CHOICE-1))]}"
+printf "Navigating to ${SCRIPTS[$((CHOICE-1))]} \n"
+
+sudo bash "setup.sh" \
+    && printf "\n${GREEN}Setup successful!${NO_COLOR}\n" \
+    || printf "\n${RED}Setup failed!${NO_COLOR} \n"
+
+cd ${ORIG_PWD}
+
+# For security reasons, invalidate sudo session.
+sudo -k
