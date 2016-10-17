@@ -6,6 +6,7 @@
 * @todo: At startap, add a symlink
     * ln -s /usr/bin/python2.7 /usr/bin/python
     * This is needed for CasperJS, which is needed for BackstopJS
+* @see: https://docs.amazee.io/step_by_step_guides/get_your_drupal_site_running_on_amazeeio.html    
 
 # Cheatsheet
 
