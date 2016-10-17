@@ -63,3 +63,8 @@ cd ${ORIG_PWD}
 
 # For security reasons, invalidate sudo session.
 sudo -k
+
+# Setup end.
+printf "Setup has finished! \n"
+printf "${RED}ATTENTION!${NO_COLOR} You probably should restart your computer. \n"
+printf "You can use the environment with the startup.sh script after that. \n"
