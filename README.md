@@ -17,5 +17,6 @@ https://docs.google.com/document/d/1GUmDacF-VSw-e1HvzOzaq_Su_Cz0FszPX-_8dr53tnw/
 3. npm install -g backstopjs
 4. $config_directories['sync'] = 'sites/default/config/prod';
 5. drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y
-6. drush cim -y
+6. drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'
+7. drush cim -y
 
