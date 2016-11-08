@@ -16,9 +16,10 @@ https://docs.google.com/document/d/1GUmDacF-VSw-e1HvzOzaq_Su_Cz0FszPX-_8dr53tnw/
 2. drush site-install --db-url=mysql://$AMAZEEIO_DB_USERNAME:$AMAZEEIO_DB_PASSWORD@localhost/drupal
 3. npm install -g backstopjs
 4. Update sites/default/settings.php
-4.1. $settings['file_private_path'] = '../private_files';
-4.2. $config_directories['sync'] = 'sites/default/config/prod';
+  * $settings['file_private_path'] = '../private_files';
+  * $config_directories['sync'] = 'sites/default/config/prod';
 5. drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y
 6. drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'
 7. drush cim -y
+8. mkdir ../private_files; chmod go+w ../private_files
 
