@@ -49,3 +49,4 @@ modules/examples
 startup.sh
 shutdown.sh
 private_files
+!private_files/qa_test_data/template
