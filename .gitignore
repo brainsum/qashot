@@ -46,7 +46,6 @@ core/phpunit.xml
 modules/examples
 
 # Custom ignores
-qa_test_data
 startup.sh
 shutdown.sh
-tmp
+private_files
