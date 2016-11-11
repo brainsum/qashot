@@ -6,6 +6,9 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NO_COLOR='\033[0m'
 
+echo "Update in progress, DO NOT USE!";
+exit 0;
+
 # Greeter text.
 printf "\n\n"
 printf "Hi!\n"
