@@ -47,8 +47,6 @@
     * drush status
     
 ## Drupal    
-* If everything is ok, you can open the url in a browser:
-    * qashot.docker.amazee.io
 * Next, install the site regularly and import the configuration
     * composer install
     * drush site-install --db-url=mysql://$AMAZEEIO_DB_USERNAME:$AMAZEEIO_DB_PASSWORD@localhost/drupal
@@ -58,7 +56,9 @@
     * drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y
     * drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'
     * drush cim -y
-    
+* If everything is ok, you can open the url in a browser:
+    * qashot.docker.amazee.io
+        
 # Usage
 * The site URL is this
     * qashot.docker.amazee.io
