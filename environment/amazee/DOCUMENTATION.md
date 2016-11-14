@@ -52,7 +52,7 @@
 * Next,
     * If you have a database dump you can import it with drush 
         * See the "for reference" link at the top of this document
-    * If you don1t have a database dump, install the site regularly
+    * If you don't have a database dump, install the site regularly
         * composer install
         * drush site-install --db-url=mysql://$AMAZEEIO_DB_USERNAME:$AMAZEEIO_DB_PASSWORD@localhost/drupal
         * Update sites/default/settings.php
