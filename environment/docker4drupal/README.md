@@ -37,7 +37,7 @@ if (getenv("DOCKER_ENVIRONMENT") == "docker4drupal") {
         1. \- ./docker-runtime/mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
         1. mkdir docker-runtime/mariadb-init
         1. Copy your dump (.sql file) to the created _docker-runtime/mariadb-init_ directory
-1. docker-compose up -d
+1. docker-compose up -d && docker-compose ps
 
 ## Drupal install
 1. docker-compose exec --user 33 php bash
