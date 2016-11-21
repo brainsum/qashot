@@ -22,7 +22,7 @@
         "drupal/core": "~8.0",
         "drush/drush": "~8.0",
         "drupal/console": "~1.0",
-        "drupal/maxlength": "1.0-beta1"
+        "drupal/maxlength": "~1.0"
     },
     "require-dev": {
         "drupal/devel": "1.x-dev",
