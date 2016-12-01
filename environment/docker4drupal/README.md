@@ -35,9 +35,11 @@ if (getenv("DOCKER_ENVIRONMENT") == "docker4drupal") {
 1. NOTE: If you wish to import a DB
     1. Uncomment this from the docker-compose.yml mariadb / volumes
         1. \- ./docker-runtime/mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
-        1. mkdir docker-runtime/mariadb-init
-        1. Copy your dump (.sql file) to the created _docker-runtime/mariadb-init_ directory
-1. docker-compose up -d && docker-compose ps
+    1. mkdir docker-runtime/mariadb-init
+    1. Copy your dump (.sql file) to the created _docker-runtime/mariadb-init_ directory
+1. To start the containers use this command from the project root (where the docker-compose.yml is located)
+    1. docker-compose up -d && docker-compose ps
+    1. Note: docker-compose ps is just a sanity check command, so you can see if every container could start or not
 
 ## Drupal install
 1. docker-compose exec --user 33 php bash
