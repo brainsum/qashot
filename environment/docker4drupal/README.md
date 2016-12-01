@@ -32,7 +32,7 @@ if (getenv("DOCKER_ENVIRONMENT") == "docker4drupal") {
 1. sudo chgrp 33 web/sites/default/files -R
 1. sudo chgrp 33 private_files -R
     * Note: 33 is the UID and GID of the www-data user inside the docker container. If your host has this user with the same IDs, then you can replace the numbers with www-data.
-1. NOTE: If you wish to import a DB
+1. Optional: If you wish to import a DB
     1. Uncomment this from the docker-compose.yml mariadb / volumes
         1. \- ./docker-runtime/mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
     1. mkdir docker-runtime/mariadb-init
