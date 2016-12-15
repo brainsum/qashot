@@ -26,7 +26,7 @@ if (getenv("DOCKER_ENVIRONMENT") == "docker4drupal") {
     );
 }
 ```
-1. cd /path/tp/cloned/repo/
+1. cd /path/to/cloned/repo/
 1. find private_files -type d -exec chmod 2775 {} \;
 1. find web/sites/default/files -type d -exec chmod 2775 {} \;
 1. sudo chgrp 33 web/sites/default/files -R
