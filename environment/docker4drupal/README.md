@@ -1,5 +1,9 @@
 # Setup
 
+## Preface
+This guide is about docker4drupal v1.2.0. The newest one, 1.3.0 is NOT COMPATIBLE with it.
+See https://github.com/wodby/docker4drupal/tree/1.2.0 for the relevant d4d readme.
+
 ## Requirements
 1. docker
 1. docker-compose
