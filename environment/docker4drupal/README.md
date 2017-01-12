@@ -44,7 +44,7 @@ if (getenv("DOCKER_ENVIRONMENT") == "docker4drupal") {
 1. To start the containers use this command from the project root (where the docker-compose.yml is located)
     1. docker-compose up -d && docker-compose ps
     1. Note: docker-compose ps is just a sanity check command, so you can see if every container could start or not
-    1. Alternatively you can include the "production" overrides and run it on port 80 aith autorestart: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    1. Alternatively you can include the "production" overrides and run it on port 80 with autorestart: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ## Drupal install
 1. docker-compose exec --user 33 php bash
