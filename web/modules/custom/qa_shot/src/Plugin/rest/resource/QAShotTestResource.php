@@ -4,10 +4,8 @@ namespace Drupal\qa_shot\Plugin\rest\resource;
 
 use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\rest\ResourceResponse;
-use Drupal\rest\Annotation\RestResource;
 use Drupal\rest\Plugin\ResourceBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -41,9 +39,9 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
   /**
    * The entity type manager.
    *
-   * @var EntityStorageInterface
+   * @var \Drupal\Core\Entity\EntityStorageInterface
    */
-  protected $entityStorage;
+  protected $testStorage;
 
   /**
    * The config factory.
@@ -107,7 +105,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
 
     // @todo: handle the thrown \Drupal\Component\Plugin\Exception\PluginNotFoundException .
     $this->entityType = $entity_type_manager->getDefinition($plugin_definition['entity_type']);
-    $this->entityStorage = $entity_type_manager->getStorage('qa_shot_test');
+    $this->testStorage = $entity_type_manager->getStorage('qa_shot_test');
     $this->configFactory = $config_factory;
   }
 
@@ -141,7 +139,8 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       );
     }
 
-    $entity = $this->entityStorage->load($qaShotTest);
+    /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
+    $entity = $this->testStorage->load($qaShotTest);
 
     if (NULL === $entity) {
       throw new NotFoundHttpException(
