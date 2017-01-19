@@ -20,7 +20,5 @@ web/sites/*/settings.local.php
 web/sites/*/services.yml
 
 # Custom ignores
-startup.sh
-shutdown.sh
 !private_files/qa_test_data/template
 docker-runtime/*
