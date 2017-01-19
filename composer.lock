@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d8a0244dfdcc14b6331cfb9b3308e3f5",
+    "content-hash": "831dc9899bddc1ec0e8cf9ccc1547c49",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -1562,67 +1562,6 @@
             "homepage": "https://www.drupal.org/project/maxlength",
             "support": {
                 "source": "http://cgit.drupalcode.org/maxlength"
-            }
-        },
-        {
-            "name": "drupal/restui",
-            "version": "1.13.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupal.org/project/restui",
-                "reference": "8.x-1.13"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/restui-8.x-1.13.zip",
-                "reference": "8.x-1.13",
-                "shasum": "808fc735bd9f80069fe1353b7b0f8390d294ff28"
-            },
-            "require": {
-                "drupal/core": "^8.2.0"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "branch-alias": {
-                    "dev-1.x": "1.x-dev"
-                },
-                "drupal": {
-                    "version": "8.x-1.13",
-                    "datestamp": "1478790974"
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0+"
-            ],
-            "authors": [
-                {
-                    "name": "Juampy NR",
-                    "homepage": "https://www.drupal.org/u/juampynr"
-                },
-                {
-                    "name": "Clemens Tolboom",
-                    "homepage": "https://www.drupal.org/u/clemens.tolboom"
-                },
-                {
-                    "name": "Eduardo García",
-                    "homepage": "https://www.drupal.org/u/enzo"
-                },
-                {
-                    "name": "See other contributors",
-                    "homepage": "https://www.drupal.org/node/1938140/committers"
-                }
-            ],
-            "description": "Provides a user interface to manage REST resources",
-            "homepage": "https://www.drupal.org/project/restui",
-            "keywords": [
-                "rest",
-                "restdata",
-                "webservice"
-            ],
-            "support": {
-                "source": "https://cgit.drupalcode.org/restui",
-                "issues": "https://www.drupal.org/project/issues/restui"
             }
         },
         {
@@ -5369,6 +5308,62 @@
             "time": "2017-01-15 20:54:32"
         },
         {
+            "name": "drupal/restui",
+            "version": "dev-1.x",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupal.org/project/restui",
+                "reference": "dd9d0bf438da8c16a62a4d79aea96b65bd231900"
+            },
+            "require": {
+                "drupal/core": "^8.2.0"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.x": "1.x-dev"
+                },
+                "drupal": {
+                    "version": "8.x-1.13+3-dev",
+                    "datestamp": "1482507483"
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Juampy NR",
+                    "homepage": "https://www.drupal.org/u/juampynr"
+                },
+                {
+                    "name": "Clemens Tolboom",
+                    "homepage": "https://www.drupal.org/u/clemens.tolboom"
+                },
+                {
+                    "name": "Eduardo García",
+                    "homepage": "https://www.drupal.org/u/enzo"
+                },
+                {
+                    "name": "See other contributors",
+                    "homepage": "https://www.drupal.org/node/1938140/committers"
+                }
+            ],
+            "description": "Provides a user interface to manage REST resources",
+            "homepage": "https://www.drupal.org/project/restui",
+            "keywords": [
+                "rest",
+                "restdata",
+                "webservice"
+            ],
+            "support": {
+                "source": "https://cgit.drupalcode.org/restui",
+                "issues": "https://www.drupal.org/project/issues/restui"
+            },
+            "time": "2016-12-23 15:33:09"
+        },
+        {
             "name": "drupal/toolbar_anti_flicker",
             "version": "2.5.0",
             "source": {
@@ -6301,7 +6296,8 @@
     "stability-flags": {
         "roave/security-advisories": 20,
         "drupal/devel": 20,
-        "drupal/examples": 20
+        "drupal/examples": 20,
+        "drupal/restui": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
