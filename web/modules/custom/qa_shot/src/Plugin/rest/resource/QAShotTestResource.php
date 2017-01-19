@@ -150,7 +150,10 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       );
     }
 
-    return new ResourceResponse($entity, 200);
+    $response = new ResourceResponse($entity, 200);
+    $response->addCacheableDependency($entity);
+
+    return $response;
   }
 
   public function post() {
