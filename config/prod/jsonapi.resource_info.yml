@@ -1,0 +1,4 @@
+prefix: api
+id_field: uuid
+_core:
+  default_config_hash: yMJBRJY8RAlTu5toRZvm48O0Zr9iozXz5rdBBQqUZZk
