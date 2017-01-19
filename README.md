@@ -1,6 +1,7 @@
 ## Synopsis
 
-QAShot is a Drupal 8.2 module which provides a UI to create BackstopJS configuration files.
+Note: The readme is outdated.
+QAShot is a Drupal 8.2 application which provides a UI to create BackstopJS configuration files.
 The user can also run these tests manually or schedule them to run at given times.
 
 ## Installation

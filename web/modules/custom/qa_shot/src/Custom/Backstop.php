@@ -49,8 +49,8 @@ class Backstop {
    * @throws \Exception
    */
   public static function initializeEnvironment(EntityInterface &$entity) {
-    if (empty($entity) || $entity->getEntityTypeId() != 'qa_shot_test') {
-      throw new \Exception("The entity is empty or its type is not QAShot Test!");
+    if (NULL === $entity || $entity->getEntityTypeId() !== 'qa_shot_test') {
+      throw new \Exception('The entity is empty or its type is not QAShot Test!');
     }
 
     // @todo: refactor
@@ -210,7 +210,11 @@ class Backstop {
     }
 
     // Create directory and parents as well.
-    return mkdir($dirToCreate, 0775, TRUE);
+    if (!mkdir($dirToCreate, 0775, TRUE) && !is_dir($dirToCreate)) {
+      return FALSE;
+    }
+
+    return TRUE;
   }
 
   /**
