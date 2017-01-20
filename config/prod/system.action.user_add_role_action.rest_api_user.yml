@@ -1,0 +1,14 @@
+uuid: b215b80e-3701-4279-854f-36d83c336eb6
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.rest_api_user
+  module:
+    - user
+id: user_add_role_action.rest_api_user
+label: 'Add the Rest API User role to the selected users'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: rest_api_user

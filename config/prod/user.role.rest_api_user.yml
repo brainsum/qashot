@@ -1,0 +1,18 @@
+uuid: 80ddb3f5-00f7-4376-b79c-e33249af3ec6
+langcode: en
+status: true
+dependencies: {  }
+id: rest_api_user
+label: 'Rest API User'
+weight: -8
+is_admin: null
+permissions:
+  - 'access qashot test overview'
+  - 'add qashot test entities'
+  - 'delete qashot test entities'
+  - 'edit qashot test entities'
+  - 'view published qashot test entities'
+  - 'restful delete entity:qa_shot_test'
+  - 'restful get entity:qa_shot_test'
+  - 'restful patch entity:qa_shot_test'
+  - 'restful post entity:qa_shot_test'

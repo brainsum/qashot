@@ -1,0 +1,14 @@
+uuid: a71a7b0b-1c08-4061-981f-03a0489b7e61
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.rest_api_user
+  module:
+    - user
+id: user_remove_role_action.rest_api_user
+label: 'Remove the Rest API User role from the selected users'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: rest_api_user
