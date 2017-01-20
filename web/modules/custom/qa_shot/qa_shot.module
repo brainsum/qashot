@@ -14,6 +14,8 @@ use Drupal\qa_shot\Custom\Backstop;
 
 /**
  * Implements hook_help().
+ *
+ * {@inheritdoc}
  */
 function qa_shot_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
@@ -30,6 +32,8 @@ function qa_shot_help($route_name, RouteMatchInterface $route_match) {
 
 /**
  * Implements hook_cron().
+ *
+ * {@inheritdoc}
  */
 function qa_shot_cron() {
   // @todo: run scheduled tests
@@ -37,6 +41,8 @@ function qa_shot_cron() {
 
 /**
  * Implements hook_theme().
+ *
+ * {@inheritdoc}
  */
 function qa_shot_theme($existing, $type, $theme, $path) {
   return [
@@ -53,9 +59,7 @@ function qa_shot_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_form_alter().
  *
- * @param $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- * @param $form_id
+ * {@inheritdoc}
  */
 function qa_shot_form_alter(
   &$form,
@@ -76,8 +80,7 @@ function qa_shot_form_alter(
 /**
  * Handler function for the "Run test" button.
  *
- * @param $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * {@inheritdoc}
  */
 function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state) {
   /** @var QAShotTest $entity */
@@ -98,6 +101,8 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
 
 /**
  * Implements hook_ENTITY_TYPE_delete().
+ *
+ * {@inheritdoc}
  */
 function qa_shot_qa_shot_test_delete(EntityInterface $entity) {
   $pubRemoveRes = Backstop::removePublicData($entity);
@@ -109,6 +114,8 @@ function qa_shot_qa_shot_test_delete(EntityInterface $entity) {
 
 /**
  * Implements hook_ENTITY_TYPE_view().
+ *
+ * {@inheritdoc}
  */
 function qa_shot_qa_shot_test_view(
   array &$build,
@@ -133,9 +140,39 @@ function qa_shot_qa_shot_test_view(
 }
 
 /**
+ * Implements hook_rest_relation_uri_alter().
+ */
+function qa_shot_rest_relation_uri_alter(&$uri, $context = array()) {
+  kint('qa_shot_rest_relation_uri_alter', $uri, $context);
+}
+
+/**
+ * Implements hook_rest_resource_alter().
+ */
+function qa_shot_rest_resource_alter(&$definitions) {
+  kint('qa_shot_rest_resource_alter', $definitions);
+}
+
+/**
+ * Implements hook_rest_type_uri_alter().
+ */
+function qa_shot_rest_type_uri_alter(&$uri, $context = array()) {
+  kint('qa_shot_rest_type_uri_alter', $uri, $context);
+
+}
+
+/**
+ * Implements hook_jsonapi_resources_alter().
+ */
+function qa_shot_jsonapi_resources_alter() {
+  kint('qa_shot_jsonapi_resources_alter');
+}
+
+/**
  * Helper function for running a complete testcase.
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
  */
 function _qa_shot_run_test_for_entity(EntityInterface $entity) {
   if (empty($entity) || !($entity instanceof QAShotTest)) {

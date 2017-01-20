@@ -4,12 +4,17 @@ namespace Drupal\qa_shot\Plugin\rest\resource;
 
 use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\ResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -156,8 +161,62 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     return $response;
   }
 
-  public function post() {
-    return new ResourceResponse('Placeholder.', 200);
+  /**
+   * Responds to entity POST requests and saves the new entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   *
+   * @return \Drupal\rest\ModifiedResourceResponse
+   *   The HTTP response object.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+   */
+  public function post(EntityInterface $entity = NULL) {
+    if ($entity === NULL) {
+      throw new BadRequestHttpException('No entity content received.');
+    }
+
+    if (!$entity->access('create')) {
+      throw new AccessDeniedHttpException();
+    }
+    $definition = $this->getPluginDefinition();
+    // Verify that the deserialized entity is of the type that we expect to
+    // prevent security issues.
+    if ($entity->getEntityTypeId() !== $definition['entity_type']) {
+      throw new BadRequestHttpException('Invalid entity type');
+    }
+    // POSTed entities must not have an ID set, because we always want to create
+    // new entities here.
+    if (!$entity->isNew()) {
+      throw new BadRequestHttpException('Only new entities can be created');
+    }
+
+    // Only check 'edit' permissions for fields that were actually
+    // submitted by the user. Field access makes no difference between 'create'
+    // and 'update', so the 'edit' operation is used here.
+    foreach ($entity->_restSubmittedFields as $key => $field_name) {
+      if (!$entity->get($field_name)->access('edit')) {
+        throw new AccessDeniedHttpException("Access denied on creating field '$field_name'");
+      }
+    }
+
+    // Validate the received data before saving.
+    $this->validate($entity);
+    try {
+      $entity->save();
+      $this->logger->notice('Created entity %type with ID %id.', array('%type' => $entity->getEntityTypeId(), '%id' => $entity->id()));
+
+      // 201 Created responses return the newly created entity in the response
+      // body. These responses are not cacheable, so we add no cacheability
+      // metadata here.
+      $url = $entity->toUrl('canonical', ['absolute' => TRUE])->toString(TRUE);
+      $response = new ModifiedResourceResponse($entity, 201, ['Location' => $url->getGeneratedUrl()]);
+      return $response;
+    }
+    catch (EntityStorageException $e) {
+      throw new HttpException(500, 'Internal Server Error', $e);
+    }
   }
 
   public function delete() {
