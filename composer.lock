@@ -284,16 +284,16 @@
         },
         {
             "name": "consolidation/annotated-command",
-            "version": "2.2.2",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/annotated-command.git",
-                "reference": "1f1d92807f72901e049e9df048b412c3bc3652c9"
+                "reference": "ee8e05fb0d9bdb09beb91aab781956669a5705b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/1f1d92807f72901e049e9df048b412c3bc3652c9",
-                "reference": "1f1d92807f72901e049e9df048b412c3bc3652c9",
+                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/ee8e05fb0d9bdb09beb91aab781956669a5705b2",
+                "reference": "ee8e05fb0d9bdb09beb91aab781956669a5705b2",
                 "shasum": ""
             },
             "require": {
@@ -332,7 +332,7 @@
                 }
             ],
             "description": "Initialize Symfony Console commands from annotated command class methods.",
-            "time": "2016-12-16T01:23:33+00:00"
+            "time": "2017-01-19T20:32:55+00:00"
         },
         {
             "name": "consolidation/output-formatters",
@@ -2614,12 +2614,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "74f3abd031c937d75549739e88995f1caabc4dd9"
+                "reference": "1991086b35313dd4e3c5b351f4b22760deea0910"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/74f3abd031c937d75549739e88995f1caabc4dd9",
-                "reference": "74f3abd031c937d75549739e88995f1caabc4dd9",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/1991086b35313dd4e3c5b351f4b22760deea0910",
+                "reference": "1991086b35313dd4e3c5b351f4b22760deea0910",
                 "shasum": ""
             },
             "conflict": {
@@ -2668,7 +2668,7 @@
                 "silverstripe/forum": "<=0.6.1|>=0.7,<=0.7.3",
                 "silverstripe/framework": ">=3,<3.3",
                 "silverstripe/userforms": "<3",
-                "simplesamlphp/saml2": ">=1.9,<1.9.1|>=1.10,<1.10.3|>=2.3,<2.3.3",
+                "simplesamlphp/saml2": "<1.8.1|>=1.9,<1.9.1|>=1.10,<1.10.3|>=2,<2.3.3",
                 "simplesamlphp/simplesamlphp": "<1.14.11",
                 "simplesamlphp/simplesamlphp-module-infocard": "<1.0.1",
                 "socalnick/scn-social-auth": "<1.15.2",
@@ -2737,7 +2737,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2017-01-18T01:18:40+00:00"
+            "time": "2017-01-19T15:04:18+00:00"
         },
         {
             "name": "stack/builder",
