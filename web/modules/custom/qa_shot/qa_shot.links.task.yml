@@ -1,26 +1,30 @@
 # QAShot Test routing definition
 qa_shot_test.settings_tab:
   route_name: qa_shot_test.settings
-  title: 'Settings'
   base_route: qa_shot_test.settings
+  title: 'Settings'
+  wright: 0
+
 entity.qa_shot_test.canonical:
   route_name: entity.qa_shot_test.canonical
   base_route: entity.qa_shot_test.canonical
   title: 'View'
+  weight: 1
 
 entity.qa_shot_test.edit_form:
   route_name: entity.qa_shot_test.edit_form
   base_route: entity.qa_shot_test.canonical
   title: 'Edit'
+  weight: 2
 
 entity.qa_shot_test.delete_form:
   route_name:  entity.qa_shot_test.delete_form
   base_route:  entity.qa_shot_test.canonical
   title: 'Delete'
-  weight: 10
+  weight: 3
 
 entity.qa_shot_test.run:
   route_name:  entity.qa_shot_test.run
   base_route:  entity.qa_shot_test.canonical
   title: 'Run'
-  weight: 15
+  weight: 4

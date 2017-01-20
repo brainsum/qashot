@@ -1,5 +1,5 @@
 entity.qa_shot_test.run:
-  path: 'admin/structure/qa_shot_test/{qa_shot_test}/run'
+  path: 'qa_shot_test/{qa_shot_test}/run'
   defaults:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::entityRunPage'
     _title: 'Run test'

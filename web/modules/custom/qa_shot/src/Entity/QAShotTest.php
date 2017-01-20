@@ -44,12 +44,12 @@ use Drupal\user\UserInterface;
  *     "status" = "status",
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/qa_shot_test/{qa_shot_test}",
- *     "add-form" = "/admin/structure/qa_shot_test/add",
- *     "edit-form" = "/admin/structure/qa_shot_test/{qa_shot_test}/edit",
- *     "delete-form" = "/admin/structure/qa_shot_test/{qa_shot_test}/delete",
- *     "collection" = "/admin/structure/qa_shot_test",
- *     "run" = "/admin/structure/qa_shot_test/{qa_shot_test}/run"
+ *     "canonical" = "/qa_shot_test/{qa_shot_test}",
+ *     "add-form" = "/qa_shot_test/add",
+ *     "edit-form" = "/qa_shot_test/{qa_shot_test}/edit",
+ *     "delete-form" = "/qa_shot_test/{qa_shot_test}/delete",
+ *     "collection" = "/qa_shot_test",
+ *     "run" = "/qa_shot_test/{qa_shot_test}/run"
  *   },
  *   field_ui_base_route = "qa_shot_test.settings"
  * )
@@ -210,4 +210,5 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
     return $fields;
   }
+
 }
