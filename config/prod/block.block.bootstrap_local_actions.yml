@@ -1,6 +1,6 @@
 uuid: b95b081a-292c-4c28-8c2d-1564a3ecccf4
 langcode: en
-status: true
+status: false
 dependencies:
   theme:
     - bootstrap
@@ -8,8 +8,8 @@ _core:
   default_config_hash: ffxthelqQF8xcr4GTG4HlaNNsluiHftN0pujmQpW0bQ
 id: bootstrap_local_actions
 theme: bootstrap
-region: header
-weight: 20
+region: '-1'
+weight: -6
 provider: null
 plugin: local_actions_block
 settings:

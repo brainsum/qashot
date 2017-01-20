@@ -1,0 +1,10 @@
+uuid: d5157ed3-0dbd-4175-86c8-e567d562755e
+langcode: en
+status: true
+dependencies:
+  module:
+    - qa_shot
+id: qa_shot_test.list_item
+label: 'List item'
+targetEntityType: qa_shot_test
+cache: true

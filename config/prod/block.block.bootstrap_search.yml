@@ -1,6 +1,6 @@
 uuid: 5e778917-55ea-4f94-8eee-8ba8e59b639a
 langcode: en
-status: true
+status: false
 dependencies:
   module:
     - search
@@ -10,8 +10,8 @@ _core:
   default_config_hash: F3d5hyAFunLh4PhGviJF019fHn1Z3_zy5gzsQ0tX1K0
 id: bootstrap_search
 theme: bootstrap
-region: sidebar_second
-weight: -1
+region: '-1'
+weight: -3
 provider: null
 plugin: search_form_block
 settings:

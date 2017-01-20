@@ -1,6 +1,6 @@
 uuid: 3a53286d-3ecb-45fd-8ff0-339a3bad8ba8
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.tools
@@ -12,8 +12,8 @@ _core:
   default_config_hash: f3Dd5TnUiFDjFZp9yEGJInwt6cUzs7O6SvLTFTATSlU
 id: bootstrap_tools
 theme: bootstrap
-region: sidebar_second
-weight: 0
+region: '-1'
+weight: -4
 provider: null
 plugin: 'system_menu_block:tools'
 settings:

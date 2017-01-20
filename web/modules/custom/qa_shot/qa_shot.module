@@ -62,7 +62,7 @@ function qa_shot_form_alter(
   FormStateInterface $form_state,
   $form_id
 ) {
-  if (in_array($form_id, ["qa_shot_test_edit_form"])) {
+  if ($form_id === 'qa_shot_test_edit_form') {
     $form['actions']['run'] = array(
       '#type' => 'submit',
       '#value' => t('Run Test'),
@@ -84,9 +84,9 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
   $entity = $form_state->getFormObject()->getEntity();
 
   $form_state->setRedirect(
-    "entity.qa_shot_test.run",
+    'entity.qa_shot_test.run',
     [
-      "qa_shot_test" => $entity->id(),
+      'qa_shot_test' => $entity->id(),
     ],
     [
       'query' => [
@@ -116,18 +116,20 @@ function qa_shot_qa_shot_test_view(
   EntityViewDisplayInterface $display,
   $view_mode
 ) {
-  // @todo: save paths in the entity
+  if ('full' === $view_mode) {
+    // @todo: save paths in the entity
 
-  // dpm($genResult["data"]["reportPath"], "report path");
-  dpm(array(
-    "entity_conf_path" => $entity->get('field_configuration_path')->value,
-    "entity_report_path" => $entity->get('field_html_report_path')->value,
-  ), "entity");
+    // dpm($genResult["data"]["reportPath"], "report path");
+    dpm(array(
+      "entity_conf_path" => $entity->get('field_configuration_path')->value,
+      "entity_report_path" => $entity->get('field_html_report_path')->value,
+    ), "entity");
 
-  // @todo: major cleanup and restructuring of the files
-  // @todo: store paths in db
+    // @todo: major cleanup and restructuring of the files
+    // @todo: store paths in db
 
-  // dpm($entity->getBackstopConfigurationPath(), "config path from entity");//.
+    // dpm($entity->getBackstopConfigurationPath(), "config path from entity");//.
+  }
 }
 
 /**

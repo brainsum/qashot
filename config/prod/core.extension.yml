@@ -59,7 +59,6 @@ module:
 theme:
   stable: 0
   classy: 0
-  bartik: 0
   seven: 0
   adminimal_theme: 0
   bootstrap: 0
