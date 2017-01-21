@@ -15,7 +15,7 @@ Note: This guide was only tested on Ubuntu 16.04
 1. Add this to the end of your settings.php:
 ```
 $settings['file_private_path'] = '../private_files';
-$config_directories['sync'] = '../config/prod';
+$config_directories[CONFIG_SYNC_DIRECTORY] = '../config/prod';
 
 if (getenv("DOCKER_ENVIRONMENT") == "docker4drupal") {
     $databases['default']['default'] = array(
