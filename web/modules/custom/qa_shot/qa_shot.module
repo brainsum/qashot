@@ -140,35 +140,6 @@ function qa_shot_qa_shot_test_view(
 }
 
 /**
- * Implements hook_rest_relation_uri_alter().
- */
-function qa_shot_rest_relation_uri_alter(&$uri, $context = array()) {
-  kint('qa_shot_rest_relation_uri_alter', $uri, $context);
-}
-
-/**
- * Implements hook_rest_resource_alter().
- */
-function qa_shot_rest_resource_alter(&$definitions) {
-  kint('qa_shot_rest_resource_alter', $definitions);
-}
-
-/**
- * Implements hook_rest_type_uri_alter().
- */
-function qa_shot_rest_type_uri_alter(&$uri, $context = array()) {
-  kint('qa_shot_rest_type_uri_alter', $uri, $context);
-
-}
-
-/**
- * Implements hook_jsonapi_resources_alter().
- */
-function qa_shot_jsonapi_resources_alter() {
-  kint('qa_shot_jsonapi_resources_alter');
-}
-
-/**
  * Helper function for running a complete testcase.
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity

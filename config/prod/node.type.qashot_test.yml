@@ -1,0 +1,17 @@
+uuid: 3762e001-14d2-4725-b584-0c2a2906e345
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: 'QAShot Test'
+type: qashot_test
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: true

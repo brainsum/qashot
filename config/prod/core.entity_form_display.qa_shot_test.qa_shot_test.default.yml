@@ -36,7 +36,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
   user_id:
-    type: entity_reference_autocomplete
+    type: entity_reference_autocomplete_tags
     weight: 1
     settings:
       match_operator: CONTAINS

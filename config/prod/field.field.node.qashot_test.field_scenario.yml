@@ -1,0 +1,21 @@
+uuid: ebfb7fab-30e2-4089-9fa1-e2d1e0ee2f50
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_scenario
+    - node.type.qashot_test
+  module:
+    - qa_shot
+id: node.qashot_test.field_scenario
+field_name: field_scenario
+entity_type: node
+bundle: qashot_test
+label: Scenario
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: qa_shot_scenario

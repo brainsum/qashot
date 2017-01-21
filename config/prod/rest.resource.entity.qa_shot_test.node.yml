@@ -1,14 +1,15 @@
-uuid: d0851896-889a-4c4e-a43a-426c69a4bc62
+uuid: 4d0c2834-6aa1-4d6f-b10f-2f40cc237bfd
 langcode: en
 status: true
 dependencies:
   module:
     - basic_auth
     - jsonapi
+    - node
     - qa_shot
     - user
-id: entity.qa_shot_test
-plugin_id: 'entity:qa_shot_test'
+id: entity.qa_shot_test.node
+plugin_id: 'entity:qa_shot_test:node'
 granularity: method
 configuration:
   GET:

@@ -1,0 +1,33 @@
+uuid: ddcf897f-4952-441a-b74f-47cb071f3064
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.qashot_test.field_scenario
+    - field.field.node.qashot_test.field_viewport
+    - node.type.qashot_test
+  module:
+    - qa_shot
+    - user
+id: node.qashot_test.default
+targetEntityType: node
+bundle: qashot_test
+mode: default
+content:
+  field_scenario:
+    weight: 103
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: qa_shot_scenario
+  field_viewport:
+    weight: 102
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: qa_shot_viewport
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }
