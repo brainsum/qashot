@@ -12,8 +12,8 @@ _core:
   default_config_hash: GT_zYl7I9VAILH8OxMRe-VDvFadCDHxRcnmBc5xEmf0
 id: bootstrap_main_menu
 theme: bootstrap
-region: header
-weight: -6
+region: navigation
+weight: -5
 provider: null
 plugin: 'system_menu_block:main'
 settings:
