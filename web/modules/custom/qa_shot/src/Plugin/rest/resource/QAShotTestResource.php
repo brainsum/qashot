@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\ResourceResponse;
@@ -24,12 +23,15 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Defines restful resource for the QAShot Test entities.
  *
+ * Code is based on Drupal\rest\Plugin\rest\resource\EntityResource.
+ *
  * @package Drupal\qa_shot\Plugin\rest\resource
  *
  * @RestResource(
  *   id = "entity:qa_shot_test",
  *   label = @Translation("QAShot Test Entity"),
  *   deriver = "Drupal\rest\Plugin\Deriver\EntityDeriver",
+ *   serialization_class = "Drupal\Core\Entity\Entity",
  *   uri_paths = {
  *     "canonical" = "/api/rest/v1/qa_shot_test/{qa_shot_test}",
  *     "https://www.drupal.org/link-relations/create" = "/api/rest/v1/qa_shot_test"
@@ -163,7 +165,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
   /**
    * Responds to entity POST requests and saves the new entity.
    *
-   * @param QAShotTestInterface $entity
+   * @param \Drupal\core\Entity\EntityInterface $entity
    *   The entity received in the request.
    *
    * @return \Drupal\rest\ModifiedResourceResponse
@@ -171,7 +173,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function post(QAShotTestInterface $entity) {
+  public function post(EntityInterface $entity) {
     if ($entity === NULL) {
       throw new BadRequestHttpException('No entity content received.');
     }
@@ -261,6 +263,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
   public function patch(EntityInterface $original_entity, EntityInterface $entity = NULL) {
+    // @todo
     if ($entity === NULL) {
       throw new BadRequestHttpException('No entity content received.');
     }
