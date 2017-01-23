@@ -8,13 +8,16 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Entity\Entity;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\ResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -30,8 +33,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @RestResource(
  *   id = "entity:qa_shot_test",
  *   label = @Translation("QAShot Test Entity"),
- *   deriver = "Drupal\rest\Plugin\Deriver\EntityDeriver",
- *   serialization_class = "Drupal\Core\Entity\Entity",
  *   uri_paths = {
  *     "canonical" = "/api/rest/v1/qa_shot_test/{qa_shot_test}",
  *     "https://www.drupal.org/link-relations/create" = "/api/rest/v1/qa_shot_test"
@@ -154,7 +155,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    *   The response.
    */
   public function get($qaShotTest) {
-    $entity = $this->loadEntity($qaShotTest);
+    $entity = $this->loadEntityFromId($qaShotTest);
 
     $response = new ResourceResponse($entity, 200);
     $response->addCacheableDependency($entity);
@@ -165,7 +166,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
   /**
    * Responds to entity POST requests and saves the new entity.
    *
-   * @param \Drupal\core\Entity\EntityInterface $entity
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity received in the request.
    *
    * @return \Drupal\rest\ModifiedResourceResponse
@@ -173,7 +174,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function post(EntityInterface $entity) {
+  public function post(QAShotTestInterface $entity) {
     if ($entity === NULL) {
       throw new BadRequestHttpException('No entity content received.');
     }
@@ -232,7 +233,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
   public function delete($qaShotTest) {
-    $entity = $this->loadEntity($qaShotTest);
+    $entity = $this->loadEntityFromId($qaShotTest);
 
     if (!$entity->access('delete')) {
       throw new AccessDeniedHttpException();
@@ -252,26 +253,24 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
   /**
    * Responds to entity PATCH requests.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $original_entity
+   * @param int|string $entityId
    *   The original entity object.
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity.
+   * @param QAShotTestInterface $entity
+   *   I don't know.
    *
    * @return \Drupal\rest\ModifiedResourceResponse
    *   The HTTP response object.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function patch(EntityInterface $original_entity, EntityInterface $entity = NULL) {
-    // @todo
-    if ($entity === NULL) {
-      throw new BadRequestHttpException('No entity content received.');
-    }
+  public function patch($entityId, QAShotTestInterface $entity) {
+    $original_entity = $this->loadEntityFromId($entityId);
+
     $definition = $this->getPluginDefinition();
     if ($entity->getEntityTypeId() !== $definition['entity_type']) {
       throw new BadRequestHttpException('Invalid entity type');
     }
-    if (!$original_entity->access('update')) {
+    if (!$entity->access('update')) {
       throw new AccessDeniedHttpException();
     }
 
@@ -319,7 +318,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
   /**
    * Loads an entity from its ID.
    *
-   * @param string|int $id
+   * @param string|int $entityId
    *   The ID to be loaded.
    *
    * @throws BadRequestHttpException
@@ -328,22 +327,22 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @return \Drupal\qa_shot\Entity\QAShotTest
    *   The entity.
    */
-  private function loadEntity($id) {
-    if (!is_numeric($id)) {
+  private function loadEntityFromId($entityId) {
+    if (!is_numeric($entityId)) {
       throw new BadRequestHttpException(
         t('The supplied parameter ( @param ) is not valid.', [
-          '@param' => $id,
+          '@param' => $entityId,
         ])
       );
     }
 
     /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
-    $entity = $this->testStorage->load($id);
+    $entity = $this->testStorage->load($entityId);
 
     if (NULL === $entity) {
       throw new NotFoundHttpException(
         t('The QAShot Test with ID @id was not found', array(
-          '@id' => $id,
+          '@id' => $entityId,
         ))
       );
     }
