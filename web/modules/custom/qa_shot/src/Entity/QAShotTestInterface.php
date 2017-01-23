@@ -74,4 +74,8 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    */
   public function setPublished($published);
 
+  /**
+   * {@inheritdoc}
+   */
+  public function validate();
 }

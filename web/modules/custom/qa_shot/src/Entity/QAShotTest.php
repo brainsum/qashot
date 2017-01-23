@@ -211,4 +211,11 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     return $fields;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function validate() {
+    return parent::validate();
+  }
+
 }

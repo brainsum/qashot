@@ -7,6 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
@@ -151,24 +152,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    *   The response.
    */
   public function get($qaShotTest) {
-    if (!is_numeric($qaShotTest)) {
-      throw new BadRequestHttpException(
-        t('The supplied parameter ( @param ) is not valid.', [
-          '@param' => $qaShotTest,
-        ])
-      );
-    }
-
-    /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
-    $entity = $this->testStorage->load($qaShotTest);
-
-    if (NULL === $entity) {
-      throw new NotFoundHttpException(
-        t('The QAShot Test with ID @id was not found', array(
-          '@id' => $qaShotTest,
-        ))
-      );
-    }
+    $entity = $this->loadEntity($qaShotTest);
 
     $response = new ResourceResponse($entity, 200);
     $response->addCacheableDependency($entity);
@@ -182,29 +166,12 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @param QAShotTestInterface $entity
    *   The entity received in the request.
    *
-   * @return \Drupal\rest\ResourceResponse
+   * @return \Drupal\rest\ModifiedResourceResponse
    *   The HTTP response object.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
   public function post(QAShotTestInterface $entity) {
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
-    }
-
-    try {
-      $entity->save();
-    }
-    catch (EntityStorageException $e) {
-      return new ResourceResponse($e->getMessage(), 400);
-    }
-
-
-    return new ResourceResponse($entity, 200);
-
-
-
-    /*
     if ($entity === NULL) {
       throw new BadRequestHttpException('No entity content received.');
     }
@@ -249,15 +216,169 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     catch (EntityStorageException $e) {
       throw new HttpException(500, 'Internal Server Error', $e);
     }
-    */
   }
 
-  public function delete() {
-    return new ResourceResponse('Placeholder.', 200);
+  /**
+   * Responds to entity DELETE requests.
+   *
+   * @param string $qaShotTest
+   *   The entity id.
+   *
+   * @return \Drupal\rest\ModifiedResourceResponse
+   *   The HTTP response object.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+   */
+  public function delete($qaShotTest) {
+    $entity = $this->loadEntity($qaShotTest);
+
+    if (!$entity->access('delete')) {
+      throw new AccessDeniedHttpException();
+    }
+    try {
+      $entity->delete();
+      $this->logger->notice('Deleted entity %type with ID %id.', array('%type' => $entity->getEntityTypeId(), '%id' => $entity->id()));
+
+      // DELETE responses have an empty body.
+      return new ModifiedResourceResponse(NULL, 204);
+    }
+    catch (EntityStorageException $e) {
+      throw new HttpException(500, 'Internal Server Error', $e);
+    }
   }
 
-  public function patch() {
-    return new ResourceResponse('Placeholder.', 200);
+  /**
+   * Responds to entity PATCH requests.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $original_entity
+   *   The original entity object.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   *
+   * @return \Drupal\rest\ModifiedResourceResponse
+   *   The HTTP response object.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+   */
+  public function patch(EntityInterface $original_entity, EntityInterface $entity = NULL) {
+    if ($entity === NULL) {
+      throw new BadRequestHttpException('No entity content received.');
+    }
+    $definition = $this->getPluginDefinition();
+    if ($entity->getEntityTypeId() !== $definition['entity_type']) {
+      throw new BadRequestHttpException('Invalid entity type');
+    }
+    if (!$original_entity->access('update')) {
+      throw new AccessDeniedHttpException();
+    }
+
+    // Overwrite the received properties.
+    $entity_keys = $entity->getEntityType()->getKeys();
+    foreach ($entity->_restSubmittedFields as $field_name) {
+      $field = $entity->get($field_name);
+
+      // Entity key fields need special treatment: together they uniquely
+      // identify the entity. Therefore it does not make sense to modify any of
+      // them. However, rather than throwing an error, we just ignore them as
+      // long as their specified values match their current values.
+      if (in_array($field_name, $entity_keys, TRUE)) {
+        // Unchanged values for entity keys don't need access checking.
+        if ($original_entity->get($field_name)->getValue() === $entity->get($field_name)->getValue()) {
+          continue;
+        }
+        // It is not possible to set the language to NULL as it is automatically
+        // re-initialized. As it must not be empty, skip it if it is.
+        elseif (isset($entity_keys['langcode']) && $field_name === $entity_keys['langcode'] && $field->isEmpty()) {
+          continue;
+        }
+      }
+
+      if (!$original_entity->get($field_name)->access('edit')) {
+        throw new AccessDeniedHttpException("Access denied on updating field '$field_name'.");
+      }
+      $original_entity->set($field_name, $field->getValue());
+    }
+
+    // Validate the received data before saving.
+    $this->validate($original_entity);
+    try {
+      $original_entity->save();
+      $this->logger->notice('Updated entity %type with ID %id.', array('%type' => $original_entity->getEntityTypeId(), '%id' => $original_entity->id()));
+
+      // Return the updated entity in the response body.
+      return new ModifiedResourceResponse($original_entity, 200);
+    }
+    catch (EntityStorageException $e) {
+      throw new HttpException(500, 'Internal Server Error', $e);
+    }
+  }
+
+  /**
+   * Loads an entity from its ID.
+   *
+   * @param string|int $id
+   *   The ID to be loaded.
+   *
+   * @throws BadRequestHttpException
+   * @throws NotFoundHttpException
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTest
+   *   The entity.
+   */
+  private function loadEntity($id) {
+    if (!is_numeric($id)) {
+      throw new BadRequestHttpException(
+        t('The supplied parameter ( @param ) is not valid.', [
+          '@param' => $id,
+        ])
+      );
+    }
+
+    /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
+    $entity = $this->testStorage->load($id);
+
+    if (NULL === $entity) {
+      throw new NotFoundHttpException(
+        t('The QAShot Test with ID @id was not found', array(
+          '@id' => $id,
+        ))
+      );
+    }
+
+    return $entity;
+  }
+
+  /**
+   * Verifies that the whole entity does not violate any validation constraints.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity object.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+   *   If validation errors are found.
+   */
+  protected function validate(EntityInterface $entity) {
+    // @todo Remove when https://www.drupal.org/node/2164373 is committed.
+    if (!$entity instanceof FieldableEntityInterface) {
+      return;
+    }
+    $violations = $entity->validate();
+
+    // Remove violations of inaccessible fields as they cannot stem from our
+    // changes.
+    $violations->filterByFieldAccess();
+
+    if (count($violations) > 0) {
+      $message = "Unprocessable Entity: validation failed.\n";
+      foreach ($violations as $violation) {
+        $message .= $violation->getPropertyPath() . ': ' . $violation->getMessage() . "\n";
+      }
+      // Instead of returning a generic 400 response we use the more specific
+      // 422 Unprocessable Entity code from RFC 4918. That way clients can
+      // distinguish between general syntax errors in bad serializations (code
+      // 400) and semantic errors in well-formed requests (code 422).
+      throw new HttpException(422, $message);
+    }
   }
 
 }
