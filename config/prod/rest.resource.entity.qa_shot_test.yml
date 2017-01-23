@@ -4,8 +4,8 @@ status: true
 dependencies:
   module:
     - basic_auth
-    - jsonapi
     - qa_shot
+    - serialization
     - user
 id: entity.qa_shot_test
 plugin_id: 'entity:qa_shot_test'
@@ -13,25 +13,25 @@ granularity: method
 configuration:
   GET:
     supported_formats:
-      - api_json
+      - json
     supported_auth:
       - basic_auth
       - cookie
   POST:
     supported_formats:
-      - api_json
+      - json
     supported_auth:
       - basic_auth
       - cookie
   DELETE:
     supported_formats:
-      - api_json
+      - json
     supported_auth:
       - basic_auth
       - cookie
   PATCH:
     supported_formats:
-      - api_json
+      - json
     supported_auth:
       - basic_auth
       - cookie

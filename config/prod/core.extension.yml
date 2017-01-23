@@ -26,7 +26,6 @@ module:
   help: 0
   history: 0
   image: 0
-  jsonapi: 0
   kint: 0
   link: 0
   maxlength: 0

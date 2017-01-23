@@ -7,6 +7,9 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\qa_shot\Entity\QAShotTest;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\ResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
@@ -33,6 +36,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * )
  */
 class QAShotTestResource extends ResourceBase implements DependentPluginInterface {
+
+  /**
+   * A current user instance.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
 
   /**
    * The entity type targeted by this resource.
@@ -75,7 +85,8 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       $container->get('entity_type.manager'),
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('current_user')
     );
   }
 
@@ -96,6 +107,8 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    *   A logger instance.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   *   The current user.
    */
   public function __construct(
     array $configuration,
@@ -104,7 +117,8 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     EntityTypeManagerInterface $entity_type_manager,
     array $serializer_formats,
     LoggerInterface $logger,
-    ConfigFactoryInterface $config_factory
+    ConfigFactoryInterface $config_factory,
+    AccountProxyInterface $current_user
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
 
@@ -112,6 +126,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     $this->entityType = $entity_type_manager->getDefinition($plugin_definition['entity_type']);
     $this->testStorage = $entity_type_manager->getStorage('qa_shot_test');
     $this->configFactory = $config_factory;
+    $this->currentUser = $current_user;
   }
 
   /**
@@ -164,15 +179,32 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
   /**
    * Responds to entity POST requests and saves the new entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity.
+   * @param QAShotTestInterface $entity
+   *   The entity received in the request.
    *
-   * @return \Drupal\rest\ModifiedResourceResponse
+   * @return \Drupal\rest\ResourceResponse
    *   The HTTP response object.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function post(EntityInterface $entity = NULL) {
+  public function post(QAShotTestInterface $entity) {
+    if (!$this->currentUser->hasPermission('access content')) {
+      throw new AccessDeniedHttpException();
+    }
+
+    try {
+      $entity->save();
+    }
+    catch (EntityStorageException $e) {
+      return new ResourceResponse($e->getMessage(), 400);
+    }
+
+
+    return new ResourceResponse($entity, 200);
+
+
+
+    /*
     if ($entity === NULL) {
       throw new BadRequestHttpException('No entity content received.');
     }
@@ -217,6 +249,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     catch (EntityStorageException $e) {
       throw new HttpException(500, 'Internal Server Error', $e);
     }
+    */
   }
 
   public function delete() {
