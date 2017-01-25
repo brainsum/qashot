@@ -5,7 +5,6 @@ dependencies:
   config:
     - user.role.rest_api_user
   module:
-    - null
     - basic_auth
     - qa_shot
     - rest
@@ -188,7 +187,6 @@ display:
         options: {  }
       auth:
         - basic_auth
-        - user
     cache_metadata:
       max-age: -1
       contexts:
