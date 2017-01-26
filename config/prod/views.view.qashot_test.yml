@@ -274,14 +274,15 @@ display:
         - url.query_args
         - user.roles
       tags: {  }
-  page_1:
+  frontpage_list:
     display_plugin: page
-    id: page_1
-    display_title: Page
+    id: frontpage_list
+    display_title: Frontpage
     position: 1
     display_options:
       display_extenders: {  }
       path: qashot-test
+      display_description: ''
     cache_metadata:
       max-age: 0
       contexts:
