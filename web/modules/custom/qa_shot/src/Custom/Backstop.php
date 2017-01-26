@@ -308,6 +308,15 @@ class Backstop {
       return FALSE;
     }
 
+    $checkerCommand = escapeshellcmd('pgrep -f backstop -c');
+    $res = exec($checkerCommand, $execOutput, $status);
+
+    // > 1 is used since the pgrep command gets included as well.
+    if (is_numeric($res) && (int) $res > 1) {
+      // @todo: Throw exception?
+      return FALSE;
+    }
+
     // @todo: send this to the background, don't hold up UI
     // @todo: add some kind of semaphore to prevent running a test several times at the same time
     /*
@@ -320,6 +329,7 @@ class Backstop {
     // @todo: install script ending with "sudo -k" or "-K".
     // @todo: FIXME.
     // @todo: Get node version from .amazee.yml and add /var/www/drupal/.nvm/versions/node/v6.5.0/bin to path.
+    // @todo: Add an admin form where the user can input the path.
     if (strpos(getenv("PATH"), "/var/www/drupal/.nvm/versions/node") === FALSE) {
       putenv("PATH=/var/www/drupal/.nvm/versions/node/v6.5.0/bin:" . getenv("PATH"));
     }
