@@ -1,4 +1,5 @@
 domains:
-  '/api/*/*/*': '*|POST,GET,OPTIONS,DELETE,PATCH|X-CSRF-Token,Content-Type,Authorization|true'
+  '/api/*/*/*': '*|POST,GET,OPTIONS,DELETE,PATCH|X-CSRF-Token, Content-Type, Authorization|true'
+  /session/token: '*|GET|X-CSRF-Token,Content-Type,Authorization|true'
 _core:
   default_config_hash: nCJuMn5x07t9O5N-iSHrh4M1-cEN43AOdMu32YtvYbc
