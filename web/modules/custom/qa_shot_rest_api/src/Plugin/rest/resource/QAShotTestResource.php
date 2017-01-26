@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\qa_shot\Plugin\rest\resource;
+namespace Drupal\qa_shot_rest_api\Plugin\rest\resource;
 
 use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -8,16 +8,13 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\ResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -28,11 +25,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * Code is based on Drupal\rest\Plugin\rest\resource\EntityResource.
  *
- * @package Drupal\qa_shot\Plugin\rest\resource
- *
  * @RestResource(
  *   id = "entity:qa_shot_test",
- *   label = @Translation("QAShot Test Entity"),
+ *   label = @Translation("QAShot Test Resource"),
  *   uri_paths = {
  *     "canonical" = "/api/rest/v1/qa_shot_test/{qa_shot_test}",
  *     "https://www.drupal.org/link-relations/create" = "/api/rest/v1/qa_shot_test"

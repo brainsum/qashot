@@ -35,6 +35,7 @@ module:
   page_cache: 0
   path: 0
   qa_shot: 0
+  qa_shot_rest_api: 0
   quickedit: 0
   rdf: 0
   rest: 0

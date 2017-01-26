@@ -1,0 +1,7 @@
+name: QA Shot REST API
+type: module
+description: RESTful API for the QAShot Module.
+core: 8.x
+package: QAShot
+dependencies:
+  - qa_shot

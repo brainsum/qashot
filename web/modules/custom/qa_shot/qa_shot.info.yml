@@ -2,4 +2,6 @@ name: QA Shot
 type: module
 description: Module for test management.
 core: 8.x
-package: Custom
+package: QAShot
+dependencies:
+  - rest
