@@ -12,3 +12,10 @@ qa_shot_test.admin.structure.settings:
   route_name: qa_shot_test.settings
   parent: system.admin_structure
   weight: 101
+
+qa_shot_test.add_test:
+  title: 'Add test'
+  description: 'Add a new QAShot test.'
+  route_name: entity.qa_shot_test.add_form
+  parent: main
+  weight: 100
