@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac691621888570ee33addd4c2e1bb856",
+    "content-hash": "cff2fcbd8b9b10a913a7b600cce892e4",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -284,16 +284,16 @@
         },
         {
             "name": "consolidation/annotated-command",
-            "version": "2.3.1",
+            "version": "2.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/annotated-command.git",
-                "reference": "46ad263b21517a2aafe21d4651e06c553b8309a7"
+                "reference": "3074e408160e1b81bda5483f6d2342abc872ea1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/46ad263b21517a2aafe21d4651e06c553b8309a7",
-                "reference": "46ad263b21517a2aafe21d4651e06c553b8309a7",
+                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/3074e408160e1b81bda5483f6d2342abc872ea1b",
+                "reference": "3074e408160e1b81bda5483f6d2342abc872ea1b",
                 "shasum": ""
             },
             "require": {
@@ -332,7 +332,7 @@
                 }
             ],
             "description": "Initialize Symfony Console commands from annotated command class methods.",
-            "time": "2017-01-21T06:15:21+00:00"
+            "time": "2017-01-27T01:59:21+00:00"
         },
         {
             "name": "consolidation/output-formatters",
@@ -1584,6 +1584,9 @@
                 "drupal": {
                     "version": "8.x-1.0",
                     "datestamp": "1455049439"
+                },
+                "patches_applied": {
+                    "Multivalue responses not being returned. Added Origin matching": "https://www.drupal.org/files/issues/2780297-multivalue-headers-13.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -5152,6 +5155,44 @@
             "time": "2016-12-09T21:57:53+00:00"
         },
         {
+            "name": "drupal/cors_ui",
+            "version": "dev-1.x",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupal.org/project/cors_ui",
+                "reference": "c83b78e8d32ef5f799929f50e974926c9353b194"
+            },
+            "require": {
+                "drupal/core": "^8.2.0"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.x": "1.x-dev"
+                },
+                "drupal": {
+                    "version": "8.x-1.x-dev",
+                    "datestamp": "1472806856"
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Sam152",
+                    "homepage": "https://www.drupal.org/user/1485048"
+                }
+            ],
+            "description": "A user interface for CORS handling in Drupal.",
+            "homepage": "https://www.drupal.org/project/cors_ui",
+            "support": {
+                "source": "http://cgit.drupalcode.org/cors_ui"
+            },
+            "time": "2016-09-02 08:45:47"
+        },
+        {
             "name": "drupal/devel",
             "version": "dev-1.x",
             "source": {
@@ -5747,16 +5788,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.33",
+            "version": "4.8.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "6381a99bd2a398d2994b454ad6d57c73f5a7de3d"
+                "reference": "7eb45205d27edd94bd2b3614085ea158bd1e2bca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6381a99bd2a398d2994b454ad6d57c73f5a7de3d",
-                "reference": "6381a99bd2a398d2994b454ad6d57c73f5a7de3d",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7eb45205d27edd94bd2b3614085ea158bd1e2bca",
+                "reference": "7eb45205d27edd94bd2b3614085ea158bd1e2bca",
                 "shasum": ""
             },
             "require": {
@@ -5815,7 +5856,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-01-25T19:17:47+00:00"
+            "time": "2017-01-26T16:15:36+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -6330,7 +6371,8 @@
         "roave/security-advisories": 20,
         "drupal/devel": 20,
         "drupal/examples": 20,
-        "drupal/restui": 20
+        "drupal/restui": 20,
+        "drupal/cors_ui": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
