@@ -7,6 +7,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\qa_shot\Entity\QAShotTest;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -20,8 +21,12 @@ use Symfony\Component\Serializer\Serializer;
  */
 class ApiController extends ControllerBase {
 
-  public function __construct() {
-  }
+//  public static function create(ContainerInterface $container) {
+//    return new static();
+//  }
+//
+//  public function __construct() {
+//  }
 
   /**
    * Starts a test.
@@ -95,12 +100,7 @@ class ApiController extends ControllerBase {
       return AccessResult::allowed();
     }
 
-    // Filter out every role except the rest_api_user one and count the results.
-    $hasNecessaryRoles = count(array_filter($account->getRoles(), function ($role) {
-      return $role == 'rest_api_user';
-    })) >= 1;
-
-    return AccessResult::allowedIf($hasNecessaryRoles);
+    return AccessResult::allowedIf(in_array('rest_api_user', $account->getRoles(TRUE), FALSE));
   }
 
 }

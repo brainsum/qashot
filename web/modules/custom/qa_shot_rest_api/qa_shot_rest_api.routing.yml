@@ -2,7 +2,7 @@ qa_shot_rest_api.run_test:
   path: 'api/rest/v1/qa_shot_test/{qa_shot_test}/run'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::runTest'
-  methods: [POST]
+  methods: [POST, GET]
   options:
    _auth: ['basic_auth', 'cookie']
    query:

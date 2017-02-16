@@ -22,3 +22,4 @@ web/sites/*/services.yml
 # Custom ignores
 !private_files/qa_test_data/template
 docker-runtime/*
+mariadb-init
