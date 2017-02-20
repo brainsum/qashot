@@ -11,6 +11,9 @@ use \Drupal\Core\Entity\EntityInterface;
 use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use \Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Custom\Backstop;
+use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
+use Drupal\qa_shot\Exception\BackstopBaseException;
+use Drupal\qa_shot\Exception\InvalidCommandException;
 
 /**
  * Implements hook_help().
@@ -140,14 +143,17 @@ function qa_shot_qa_shot_test_view(
 }
 
 /**
- * Helper function for running a complete testcase.
+ * Helper function for running a complete A/B test.
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
  *   The entity.
+ *
+ * @throws \Exception
+ *   Exception.
  */
 function _qa_shot_run_test_for_entity(EntityInterface $entity) {
-  if (empty($entity) || !($entity instanceof QAShotTest)) {
-    drupal_set_message(t("Trying to run test for an empty or invalid entity."), "error");
+  if (NULL === $entity || !($entity instanceof QAShotTest)) {
+    drupal_set_message(t('Trying to run test for an empty or invalid entity.'), 'error');
   }
 
   try {
@@ -155,28 +161,39 @@ function _qa_shot_run_test_for_entity(EntityInterface $entity) {
     // _qa_shot_initialize_backstop_environment($entity);
   }
   catch (\Exception $exception) {
-    dpm($exception->getMessage(), "Exception at entity insert.");
+    dpm($exception->getMessage(), 'Exception at entity insert.');
   }
 
   if (empty($entity->field_configuration_path->getValue())) {
-    dpm("Configuration path not saved in entity.");
+    drupal_set_message('Configuration path not saved in entity.', 'error');
     return;
   }
 
-  $command = "reference";
-  // $referenceResult = _qa_shot_run_backstop_command($command, $entity->get("field_configuration_path")->value);
-  $referenceResult = Backstop::runReference($entity->get("field_configuration_path")->value);
+  $command = 'reference';
+  try {
+    $referenceResult = Backstop::runReference($entity->get('field_configuration_path')->value);
+  }
+  catch (BackstopBaseException $e) {
+    drupal_set_message($e->getMessage(), 'error');
+    $referenceResult = FALSE;
+  }
+
   if (FALSE === $referenceResult) {
-    dpm("Running the " . $command . " command has failed.");
+    drupal_set_message("Running the $command command resulted in a failure.", 'error');
     return;
   }
 
-  $command = "test";
-  // $testResult = _qa_shot_run_backstop_command($command, $entity->get("field_configuration_path")->value);
-  $testResult = Backstop::runTest($entity->get("field_configuration_path")->value);
+  $command = 'test';
+  try {
+    $testResult = Backstop::runTest($entity->get('field_configuration_path')->value);
+  }
+  catch (BackstopBaseException $e) {
+    drupal_set_message($e->getMessage(), 'error');
+    $testResult = FALSE;
+  }
+
   if (FALSE === $testResult) {
-    dpm("Running the " . $command . " command has failed.");
+    drupal_set_message("Running the $command command resulted in a failure.", 'error');
     return;
   }
-
 }

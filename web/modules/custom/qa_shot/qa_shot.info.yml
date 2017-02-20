@@ -3,5 +3,3 @@ type: module
 description: Module for test management.
 core: 8.x
 package: QAShot
-dependencies:
-  - rest

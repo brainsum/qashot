@@ -3,6 +3,8 @@
 namespace Drupal\qa_shot\Custom;
 
 use \Drupal\Core\Entity\EntityInterface;
+use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
+use Drupal\qa_shot\Exception\InvalidCommandException;
 use Drupal\qa_shot\Plugin\Field\FieldType\Viewport;
 use Drupal\qa_shot\Plugin\Field\FieldType\Scenario;
 use Drupal\Core\StreamWrapper\PrivateStream;
@@ -279,42 +281,92 @@ class Backstop {
   }
 
   /**
-   * @param $configurationPath
+   * Checks whether Backstop is running or not.
    *
    * @return bool
+   *   TRUE, if a BackstopJS process is already running. FALSE otherwise.
+   */
+  public static function isRunning() {
+    $checkerCommand = escapeshellcmd('pgrep -f backstop -c');
+    $res = exec($checkerCommand, $execOutput, $status);
+
+    // > 1 is used since the pgrep command gets included as well.
+    return (is_numeric($res) && (int) $res > 1);
+  }
+
+  /**
+   * Check whether a command is valid/supported for BackstopJS.
+   *
+   * @param string $command
+   *   The command.
+   *
+   * @return bool
+   *   TRUE for valid, FALSE for invalid.
+   */
+  public static function isCommandValid($command) {
+    return in_array($command, array('reference', 'test'), FALSE);
+  }
+
+  /**
+   * Run the 'Reference' command.
+   *
+   * Executes the reference BackstopJS command to create reference
+   * screenshots according to the supplied configuration.
+   *
+   * @param string $configurationPath
+   *   Path to the configuration.
+   *
+   * @throws BackstopAlreadyRunningException
+   *   When Backstop is already running.
+   * @throws InvalidCommandException
+   *   When the supplied command is not a valid BackstopJS command.
+   *
+   * @return bool
+   *   TRUE on success, FALSE on failure.
    */
   public static function runReference($configurationPath) {
-    return self::runCommand("reference", $configurationPath);
+    return self::runCommand('reference', $configurationPath);
   }
 
   /**
-   * @param $configurationPath
+   * Run the 'Test' command.
+   *
+   * @param string $configurationPath
+   *   Path to the configuration.
+   *
+   * @throws BackstopAlreadyRunningException
+   *   When Backstop is already running.
+   * @throws InvalidCommandException
+   *   When the supplied command is not a valid BackstopJS command.
    *
    * @return bool
+   *   TRUE on success, FALSE on failure.
    */
   public static function runTest($configurationPath) {
-    return self::runCommand("test", $configurationPath);
+    return self::runCommand('test', $configurationPath);
   }
 
   /**
+   * Command runner logic.
+   *
    * @param $command
    * @param $configurationPath
+   *
+   * @throws BackstopAlreadyRunningException
+   *   When Backstop is already running.
+   * @throws InvalidCommandException
+   *   When the supplied command is not a valid BackstopJS command.
    *
    * @return bool
    */
   private static function runCommand($command, $configurationPath) {
     // @todo: use exceptions instead of return bool
-    if (!in_array($command, array("reference", "test"))) {
-      return FALSE;
+    if (!self::isCommandValid($command)) {
+      throw new InvalidCommandException("The supplied command '$command' is not valid.");
     }
 
-    $checkerCommand = escapeshellcmd('pgrep -f backstop -c');
-    $res = exec($checkerCommand, $execOutput, $status);
-
-    // > 1 is used since the pgrep command gets included as well.
-    if (is_numeric($res) && (int) $res > 1) {
-      // @todo: Throw exception?
-      return FALSE;
+    if (self::isRunning()) {
+      throw new BackstopAlreadyRunningException('BackstopJS is already running.');
     }
 
     // @todo: send this to the background, don't hold up UI
@@ -381,8 +433,8 @@ class Backstop {
       return TRUE;
     }
 
-    $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-    $files = new \RecursiveIteratorIterator($it,
+    $iterator = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new \RecursiveIteratorIterator($iterator,
       \RecursiveIteratorIterator::CHILD_FIRST);
 
     $result = TRUE;

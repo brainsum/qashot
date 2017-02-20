@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mhavelant
- * Date: 2016.10.05.
- * Time: 14:15
- */
 
 namespace Drupal\qa_shot\Controller;
 
@@ -22,7 +16,7 @@ class QAShotController extends ControllerBase {
   /**
    * Route controller for the "Run" route.
    *
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
    *   Route match object.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The HTTP request.
@@ -30,11 +24,11 @@ class QAShotController extends ControllerBase {
    * @return array
    *   The configured template.
    */
-  public function entityRunPage(RouteMatchInterface $route_match, Request $request) {
-    $entityId = $route_match->getParameters()->get("qa_shot_test");
+  public function entityRunPage(RouteMatchInterface $routeMatch, Request $request) {
+    $entityId = $routeMatch->getParameters()->get('qa_shot_test');
 
     if (empty($entityId)) {
-      return ['#markup' => "Invalid entity."];
+      return ['#markup' => 'Invalid entity.'];
     }
 
     // @todo: if we come here via the edit form "Run Test" button,
@@ -44,7 +38,12 @@ class QAShotController extends ControllerBase {
     $entity = QAShotTest::load($entityId);
     if ($request->query->get('start_now') == 1) {
       // If we come from a valid route, run the tests.
-      _qa_shot_run_test_for_entity($entity);
+      try {
+        _qa_shot_run_test_for_entity($entity);
+      }
+      catch (\Exception $e) {
+        drupal_set_message($e->getMessage(), 'error');
+      }
     }
 
     $output = [];

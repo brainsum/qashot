@@ -5,7 +5,8 @@
  or your current system user. See core/tests/README.md and
  https://www.drupal.org/node/2116263 for details.
 -->
-<phpunit bootstrap="tests/bootstrap.php" colors="true"
+
+<phpunit bootstrap="web/core/tests/bootstrap.php" colors="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutChangesToGlobalState="true"
@@ -60,10 +61,10 @@
   <!-- Filter for coverage reports. -->
   <filter>
     <whitelist>
-      <directory>./web/includes</directory>
-      <directory>./web/lib</directory>
-      <directory>./web/modules</directory>
+      <directory>./web/core/includes</directory>
+      <directory>./web/core/lib</directory>
       <directory>./web/core/modules</directory>
+      <directory>./web/modules</directory>
       <directory>./web/sites</directory>
       <!-- By definition test classes have no tests. -->
       <exclude>
