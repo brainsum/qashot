@@ -38,22 +38,10 @@
     <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="./web/sites/simpletest/browser_output"/>
   </php>
   <testsuites>
-    <!-- @todo: Add a TestSuite file for autoloading tests. -->
-    <testsuite name="qas-unit">
-      <file>./web/modules/custom/qa_shot_rest_api/src/Tests/Unit/ExampleTest.php</file>
+    <!-- @todo: Add a TestSuite file for autoloading tests? -->
+    <testsuite name="qas-api-unit">
+      <directory>./web/modules/custom/qa_shot_rest_api/src/Tests/Unit</directory>
     </testsuite>
-    <!--<testsuite name="unit">-->
-      <!--<file>./web/core/tests/TestSuites/UnitTestSuite.php</file>-->
-    <!--</testsuite>-->
-    <!--<testsuite name="kernel">-->
-      <!--<file>./web/core/tests/TestSuites/KernelTestSuite.php</file>-->
-    <!--</testsuite>-->
-    <!--<testsuite name="functional">-->
-      <!--<file>./web/core/tests/TestSuites/FunctionalTestSuite.php</file>-->
-    <!--</testsuite>-->
-    <!--<testsuite name="functional-javascript">-->
-      <!--<file>./web/core/tests/TestSuites/FunctionalJavascriptTestSuite.php</file>-->
-    <!--</testsuite>-->
   </testsuites>
   <listeners>
     <listener class="\Drupal\Tests\Listeners\DrupalStandardsListener">
