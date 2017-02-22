@@ -6,7 +6,7 @@
  https://www.drupal.org/node/2116263 for details.
 -->
 
-<phpunit bootstrap="web/core/tests/bootstrap.php" colors="true"
+<phpunit bootstrap="./web/core/tests/bootstrap.php" colors="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutChangesToGlobalState="true"
@@ -38,9 +38,10 @@
     <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="./web/sites/simpletest/browser_output"/>
   </php>
   <testsuites>
-    <!--
-       @Todo: Add custom testsuite.
-    -->
+    <!-- @todo: Add a TestSuite file for autoloading tests. -->
+    <testsuite name="qas-unit">
+      <file>./web/modules/custom/qa_shot_rest_api/src/Tests/Unit/ExampleTest.php</file>
+    </testsuite>
     <!--<testsuite name="unit">-->
       <!--<file>./web/core/tests/TestSuites/UnitTestSuite.php</file>-->
     <!--</testsuite>-->
