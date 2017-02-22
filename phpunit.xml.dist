@@ -40,7 +40,7 @@
   <testsuites>
     <!-- @todo: Add a TestSuite file for autoloading tests? -->
     <testsuite name="qas-api-unit">
-      <directory>./web/modules/custom/qa_shot_rest_api/src/Tests/Unit</directory>
+      <directory>./web/modules/custom/qa_shot_rest_api/tests/src/Unit</directory>
     </testsuite>
   </testsuites>
   <listeners>

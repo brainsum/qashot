@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\qa_shot_rest_api\Tests\Unit;
+namespace Drupal\Tests\qa_shot_rest_api\Unit;
 
 class ExampleTest extends \PHPUnit_Framework_TestCase {
 
