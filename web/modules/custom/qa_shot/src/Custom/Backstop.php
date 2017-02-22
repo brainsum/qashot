@@ -32,6 +32,69 @@ class Backstop {
    */
   private static $debugMode = FALSE;
 
+  /**
+   * Map of settings which describes the available run modes and stages.
+   *
+   * Associative array of arrays.
+   * Keys: test modes.
+   * Values: arrays of test stages.
+   *
+   * Test mode: How the test is going to run.
+   * Test stage: Which part of the test to run.
+   *
+   * @var array
+   */
+  private static $runnerSettings = [
+    'a_b' => NULL,
+    'before_after' => [
+      'before',
+      'after',
+    ],
+  ];
+
+  /**
+   * Check if the mode and stage are valid.
+   *
+   * Only returns TRUE for exact matches.
+   *
+   * @param string $mode
+   *   The runner mode.
+   * @param string $stage
+   *   The run stage.
+   *
+   * @return bool
+   *   Whether the settings are valid.
+   */
+  public static function areRunnerSettingsValid($mode, $stage) {
+    // When not a valid mode, return FALSE.
+    if (!array_key_exists($mode, self::$runnerSettings)) {
+      return FALSE;
+    }
+
+    $stages = self::$runnerSettings[$mode];
+    // When stage is null, but there are stages, return FALSE.
+    if (NULL === $stage && NULL !== $stages) {
+      return FALSE;
+    }
+
+    // If stage is invalid, return FALSE.
+    if (!in_array($stage, $stages, FALSE)) {
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Return the runner settings.
+   *
+   * @return array
+   *   The settings as an array.
+   */
+  public static function getRunnerSettings() {
+    return self::$runnerSettings;
+  }
+
   // @todo: use this
   # /** @var \Drupal\Core\File\FileSystem $fs */
   # $fs = \Drupal::service('file_system');

@@ -2,17 +2,20 @@
 
 namespace Drupal\qa_shot_rest_api\Controller;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\qa_shot\Entity\QAShotTest;
+use Drupal\qa_shot\Custom\Backstop;
+use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Controller for the custom API endpoints.
@@ -21,34 +24,99 @@ use Symfony\Component\Serializer\Serializer;
  */
 class ApiController extends ControllerBase {
 
-//  public static function create(ContainerInterface $container) {
-//    return new static();
-//  }
-//
-//  public function __construct() {
-//  }
+  /**
+   * Test entity storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  private $testStorage;
+
+  /**
+   * Serializer.
+   *
+   * @var \Symfony\Component\Serializer\SerializerInterface
+   */
+  private $serializer;
+
+  /**
+   * Create.
+   *
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('serializer')
+    );
+  }
+
+  /**
+   * Constructor.
+   */
+  public function __construct(
+    EntityTypeManagerInterface $entityTypeManager,
+    SerializerInterface $serializer
+  ) {
+    $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
+    $this->serializer = $serializer;
+  }
 
   /**
    * Starts a test.
    *
-   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
-   *   The route match.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request.
+   *
+   * @throws BadRequestHttpException
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
    */
-  public function runTest(RouteMatchInterface $routeMatch, Request $request) {
-    kint($routeMatch);
-    kint($request);
+  public function runTest(Request $request) {
+    $runnerSettings = $this->parseRunnerSettings($request);
+
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
-    /** @var Serializer $serializer */
-    $serializer = \Drupal::service('serializer');
-    $response = $serializer->serialize($entity, 'json');
+    $responseData = [
+      'runner_settings' => $runnerSettings,
+      'status' => 'possible values: queued, in progress, done, error',
+      'entity' => $entity->toArray(),
+    ];
 
-    return new JsonResponse($response);
+    return new JsonResponse($responseData);
+  }
+
+  /**
+   * Parse the runner settings from the request.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws BadRequestHttpException
+   *
+   * @return array|mixed
+   *   The parameters.
+   */
+  private function parseRunnerSettings(Request $request) {
+    $runnerSettings = [];
+
+    if (!empty($request->getContent())) {
+      $runnerSettings = json_decode($request->getContent(), TRUE);
+    }
+
+    if (empty($runnerSettings)) {
+      throw new BadRequestHttpException('The request parameters are empty.');
+    }
+
+    if (!isset($runnerSettings['test_mode'], $runnerSettings['test_stage'])) {
+      throw new BadRequestHttpException('The test_mode or test_stage required parameters are missing.');
+    }
+
+    if (!Backstop::areRunnerSettingsValid($runnerSettings['test_mode'], $runnerSettings['test_stage'])) {
+      throw new BadRequestHttpException('The requested test mode or stage is invalid.');
+    }
+
+    return $runnerSettings;
   }
 
   /**
@@ -73,7 +141,7 @@ class ApiController extends ControllerBase {
     }
 
     /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
-    $entity = QAShotTest::load($entityId);
+    $entity = $this->testStorage->load($entityId);
 
     if (NULL === $entity) {
       throw new NotFoundHttpException(
