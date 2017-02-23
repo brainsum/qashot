@@ -5,6 +5,11 @@ use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Custom\Backstop;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Drupal\qa_shot\Exception\FileCopyException;
+use Drupal\qa_shot\Exception\FileCreateException;
+use Drupal\qa_shot\Exception\FileOpenException;
+use Drupal\qa_shot\Exception\FileWriteException;
+use Drupal\qa_shot\Exception\FolderCreateException;
 use Drupal\qa_shot\Exception\InvalidEntityException;
 
 /**
@@ -53,50 +58,43 @@ class FileSystem {
    * @param string $dirToCreate
    *   Path of the directory to be created.
    *
-   * @return bool
-   *   Whether the folder exists or creating it succeeded.
+   * @throws \Drupal\qa_shot\Exception\FolderCreateException
    */
   public function createFolder($dirToCreate) {
     if (is_dir($dirToCreate)) {
-      return TRUE;
+      return;
     }
 
     // Create directory and parents as well.
     if (!mkdir($dirToCreate, 0775, TRUE) && !is_dir($dirToCreate)) {
-      return FALSE;
+      throw new FolderCreateException("Creating the $dirToCreate folder failed.");
     }
-
-    return TRUE;
   }
 
   /**
-   * @param $configurationPath
-   * @param $jsonString
+   * Create a new BackstopJS configuration file for the entity.
    *
-   * @return bool
+   * @param string $configurationPath
+   *   Path to the BackstopJS configuration file.
+   * @param string $jsonString
+   *   The json data to be written.
+   *
+   * @throws FileWriteException
+   * @throws FileOpenException
    */
-  public function createFile($configurationPath, $jsonString) {
-    // @todo: throw exceptions
+  public function createConfigFile($configurationPath, $jsonString) {
     // @todo: check if file exists, if yes, check if it's the same as the new one.
-    // if yes, skip
     if (($configFile = fopen($configurationPath, 'w')) === FALSE) {
-      dpm('failed to open config file to write');
-      return FALSE;
+      throw new FileOpenException("Opening the configuration file at $configurationPath failed.");
     }
 
     if (fwrite($configFile, $jsonString) === FALSE) {
-      dpm('failed to write config file');
-      return FALSE;
+      throw new FileWriteException("Writing the configuration file at $configurationPath failed.");
     }
 
     if (fclose($configFile) === FALSE) {
-      dpm('failed to close config file');
-      return FALSE;
+      throw new FileWriteException("Closing the configuration file at $configurationPath failed.");
     }
-
-    dpm('config write success');
-
-    return TRUE;
   }
 
   /**
@@ -143,7 +141,11 @@ class FileSystem {
    *   The QAShot Test entity.
    *
    * @throws \Drupal\qa_shot\Exception\InvalidEntityException
-   * @throws \Exception
+   * @throws \Drupal\qa_shot\Exception\FileOpenException
+   * @throws \Drupal\qa_shot\Exception\FileWriteException
+   * @throws \Drupal\qa_shot\Exception\FileCloseException
+   * @throws \Drupal\qa_shot\Exception\FileCopyException
+   * @throws \Drupal\qa_shot\Exception\FolderCreateException
    */
   public function initializeEnvironment(QAShotTestInterface $entity) {
     if (NULL === $entity || $entity->getEntityTypeId() !== 'qa_shot_test') {
@@ -158,29 +160,22 @@ class FileSystem {
     $configPath = $privateEntityData . '/backstop.json';
 
     $configAsArray = $entity->toBackstopConfigArray($privateEntityData, $publicEntityData, FALSE);
-    $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-    $configAsJSON = json_encode($configAsArray, $jsonConfig);
+    $jsonEncodeSettings = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+    $configAsJSON = json_encode($configAsArray, $jsonEncodeSettings);
 
     $privateCasperFolder = $configAsArray['paths']['casper_scripts'];
     $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
 
 
-    if (FALSE === $this->createFolder($privateEntityData)) {
-      throw new \Exception('Creating the private base folder at ' . $privateEntityData . ' for the entity failed.');
-    }
-
-    if (FALSE === $this->createFile($configPath, $configAsJSON)) {
-      throw new \Exception('Creating the configuration file at ' . $configPath . ' failed.');
-    }
-
-    if (FALSE === $this->createFolder($privateCasperFolder)) {
-      throw new \Exception('Creating the folder for casper scripts at ' . $privateCasperFolder . ' failed.');
-    }
+    $this->createFolder($privateEntityData);
+    $this->createConfigFile($configPath, $configAsJSON);
+    $this->createFolder($privateCasperFolder);
 
     if (FALSE === $this->copyTemplates($templateFolder . '/casper_scripts', $configAsArray['paths']['casper_scripts'])) {
-      throw new \Exception('Copying the template casper scripts failed.');
+      throw new FileCopyException('Copying the casper script templates failed.');
     }
 
+    // If the paths changed we save them.
     if (
       $entity->get('field_configuration_path')->value !== $configPath ||
       $entity->get('field_html_report_path')->value !== $reportPath
@@ -192,10 +187,13 @@ class FileSystem {
   }
 
   /**
+   * Remove the stored public data of the entity from the filesystem.
+   *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The QAShot Test entity.
    *
    * @return bool
+   *   Whether the removal was a success or not.
    */
   public function removePublicData(QAShotTestInterface $entity) {
     $dir = $this->publicFiles . '/' . $entity->id();
@@ -203,21 +201,27 @@ class FileSystem {
   }
 
   /**
+   * Remove the stored private data of the entity from the filesystem.
+   *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The QAShot Test entity.
    *
    * @return bool
+   *   Whether the removal was a success or not.
    */
   public function removePrivateData(QAShotTestInterface $entity) {
     $dir = $this->privateFiles . '/' . $entity->id();
     return $this->removeDirectory($dir);
   }
 
-
   /**
+   * Recursively remove a directory.
+   *
    * @param string $dir
+   *   The path of directory to be removed.
    *
    * @return bool
+   *   Whether the removal was a success or not.
    */
   public function removeDirectory($dir) {
     if (!is_dir($dir)) {

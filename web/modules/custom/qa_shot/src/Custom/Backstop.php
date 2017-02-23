@@ -2,7 +2,6 @@
 
 namespace Drupal\qa_shot\Custom;
 
-use \Drupal\Core\Entity\EntityInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
 use Drupal\qa_shot\Exception\BackstopBaseException;
@@ -14,21 +13,14 @@ use Drupal\qa_shot\Exception\InvalidRunnerOptionsException;
 use Drupal\qa_shot\Exception\InvalidRunnerStageException;
 use Drupal\qa_shot\Exception\ReferenceCommandFailedException;
 use Drupal\qa_shot\Exception\TestCommandFailedException;
-use Drupal\qa_shot\Plugin\Field\FieldType\Viewport;
-use Drupal\qa_shot\Plugin\Field\FieldType\Scenario;
-use Drupal\Core\StreamWrapper\PrivateStream;
-use Drupal\Core\StreamWrapper\PublicStream;
-use Drupal\qa_shot\Service\FileSystem;
 
 /**
  * Class Backstop, contains helper functions.
  *
  * @package Drupal\qa_shot\Custom
  *
- * @todo: Refactor FS related things into a service.
  * @todo: Refactor Backstop into a service
  * @todo: Refactor RunnerOptions into a service
- * @todo: Refactor BackstopConfig into a service
  */
 class Backstop {
 
@@ -126,7 +118,7 @@ class Backstop {
   }
 
   /**
-   * Run a test accoring to the mode and stage.
+   * Run a test according to the mode and stage.
    *
    * @param string $mode
    *   The test mode.
@@ -184,7 +176,7 @@ class Backstop {
       $qasFileSystem = \Drupal::service('qa_shot.file_system');
       $qasFileSystem->initializeEnvironment($entity);
     }
-    catch (\Exception $exception) {
+    catch (BackstopBaseException $exception) {
       drupal_set_message('Exception at environment init. ' . $exception->getMessage(), 'error');
     }
 
@@ -257,7 +249,7 @@ class Backstop {
    */
   public static function runReferenceCommand(QAShotTestInterface $entity) {
     Backstop::prepareTest($entity);
-    return self::runCommand('reference', $entity->field_configuration_path->value);
+    return self::runCommand('reference', $entity->get('field_configuration_path')->value);
   }
 
   /**
@@ -278,7 +270,7 @@ class Backstop {
    */
   public static function runTestCommand(QAShotTestInterface $entity) {
     Backstop::prepareTest($entity);
-    return self::runCommand('test', $entity->field_configuration_path->value);
+    return self::runCommand('test', $entity->get('field_configuration_path')->value);
   }
 
   /**
