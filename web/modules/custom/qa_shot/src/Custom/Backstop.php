@@ -500,16 +500,49 @@ class Backstop {
     $backstopCommand = escapeshellcmd('backstop ' . $command . ' --configPath=' . $configurationPath);
     exec($backstopCommand, $execOutput, $status);
 
-    dpm($status, "exec status");
+    // dpm($status, "exec status");
 
-    if ($status !== 0) {
-      // @todo: Test command gives exit 1 if the compare fails.
-      // Search this line: "Bitmap file generation completed."
-      // And/Or this line: "COMMAND | Executing core for `report`".
-      dpm($execOutput, "Output of exec.");
+    $results = [
+      'passedTestCount' => NULL,
+      'failedTestCount' => NULL,
+      'bitmapGenerationSuccess' => FALSE,
+    ];
 
+    foreach ($execOutput as $line) {
+      // Search for bitmap generation string.
+      if (strpos($line, 'Bitmap file generation completed.') !== FALSE) {
+        $results['bitmapGenerationSuccess'] = TRUE;
+      }
+
+      // Search for the number of passed tests.
+      if (strpos($line, 'report |') !== FALSE && strpos($line, 'Passed') !== FALSE) {
+        $results['passedTestCount'] = explode(' ', explode('m', $line)[1])[0];
+      }
+
+      // Search for the number of passed tests.
+      if (strpos($line, 'report |') !== FALSE && strpos($line, 'Failed') !== FALSE) {
+        $results['failedTestCount'] = explode(' ', explode('m', $line)[1])[0];
+      }
+    }
+
+    if (!$results['bitmapGenerationSuccess']) {
+      drupal_set_message('Bitmap generation failed.');
       return FALSE;
     }
+
+    // Should only be a real value for test.
+    if (NULL !== $results['passedTestCount'] && NULL !== $results['failedTestCount']) {
+      drupal_set_message(t('Test done. @passed test(s) passed, @failed test(s) failed.', [
+        '@passed' => $results['passedTestCount'],
+        '@failed' => $results['failedTestCount'],
+      ]), 'status');
+    }
+
+    if ($status !== 0) {
+      // @todo: Here what?
+    }
+
+    // dpm($execOutput, 'Output of exec.');
 
     return TRUE;
   }
