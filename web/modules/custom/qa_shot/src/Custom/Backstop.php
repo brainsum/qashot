@@ -9,7 +9,9 @@ use Drupal\qa_shot\Exception\BackstopBaseException;
 use Drupal\qa_shot\Exception\InvalidCommandException;
 use Drupal\qa_shot\Exception\InvalidConfigurationException;
 use Drupal\qa_shot\Exception\InvalidEntityException;
+use Drupal\qa_shot\Exception\InvalidRunnerModeException;
 use Drupal\qa_shot\Exception\InvalidRunnerOptionsException;
+use Drupal\qa_shot\Exception\InvalidRunnerStageException;
 use Drupal\qa_shot\Exception\ReferenceCommandFailedException;
 use Drupal\qa_shot\Exception\TestCommandFailedException;
 use Drupal\qa_shot\Plugin\Field\FieldType\Viewport;
@@ -35,7 +37,7 @@ class Backstop {
    *
    * @var string
    */
-  private static $customDataBase = "qa_test_data";
+  private static $customDataBase = 'qa_test_data';
 
   /**
    * Debug variable.
@@ -57,7 +59,7 @@ class Backstop {
    * @var array
    */
   private static $runnerSettings = [
-    'a_b' => NULL,
+    'a_b' => '',
     'before_after' => [
       'before',
       'after',
@@ -74,24 +76,27 @@ class Backstop {
    * @param string $stage
    *   The run stage.
    *
+   * @throws InvalidRunnerModeException
+   * @throws InvalidRunnerStageException
+   *
    * @return bool
    *   Whether the settings are valid.
    */
   public static function areRunnerSettingsValid($mode, $stage) {
     // When not a valid mode, return FALSE.
     if (!array_key_exists($mode, self::$runnerSettings)) {
-      return FALSE;
+      throw new InvalidRunnerModeException("The mode '$mode' is not valid.");
     }
 
-    $stages = self::$runnerSettings[$mode];
+    $stages = self::getRunnerSettings()[$mode];
     // When stage is null, but there are stages, return FALSE.
-    if (NULL === $stage && NULL !== $stages) {
-      return FALSE;
+    if (empty($stage) && !empty($stages)) {
+      throw new InvalidRunnerStageException("The stage '$stage' is not valid.");
     }
 
     // If stage is invalid, return FALSE.
-    if (!in_array($stage, $stages, FALSE)) {
-      return FALSE;
+    if (is_array($stages) && !in_array($stage, $stages, FALSE)) {
+      throw new InvalidRunnerStageException("The stage '$stage' is not valid for the '$mode' mode.");
     }
 
     return TRUE;
@@ -400,6 +405,8 @@ class Backstop {
    * @throws \Drupal\qa_shot\Exception\TestCommandFailedException
    * @throws \Drupal\qa_shot\Exception\InvalidEntityException
    * @throws \Drupal\qa_shot\Exception\BackstopAlreadyRunningException
+   * @throws InvalidRunnerModeException
+   * @throws InvalidRunnerStageException
    */
   public static function runTestBySettings($mode, $stage, QAShotTestInterface $entity) {
     if (!Backstop::areRunnerSettingsValid($mode, $stage)) {
@@ -461,6 +468,7 @@ class Backstop {
    */
   public static function runABTest(QAShotTestInterface $entity) {
     $command = 'reference';
+
     try {
       $referenceResult = Backstop::runReferenceCommand($entity);
     }
@@ -510,7 +518,7 @@ class Backstop {
    */
   public static function runReferenceCommand(QAShotTestInterface $entity) {
     Backstop::prepareTest($entity);
-    return self::runCommand('reference', $entity->field_configuration_path->getValue());
+    return self::runCommand('reference', $entity->field_configuration_path->value);
   }
 
   /**
@@ -531,7 +539,7 @@ class Backstop {
    */
   public static function runTestCommand(QAShotTestInterface $entity) {
     Backstop::prepareTest($entity);
-    return self::runCommand('test', $entity->field_configuration_path->getValue());
+    return self::runCommand('test', $entity->field_configuration_path->value);
   }
 
   /**

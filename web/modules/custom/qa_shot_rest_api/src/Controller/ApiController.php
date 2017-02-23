@@ -105,6 +105,7 @@ class ApiController extends ControllerBase {
    *   The request.
    *
    * @throws BadRequestHttpException
+   * @throws \LogicException
    *
    * @return array|mixed
    *   The parameters.
@@ -120,8 +121,12 @@ class ApiController extends ControllerBase {
       throw new BadRequestHttpException('The request parameters are empty.');
     }
 
-    if (!isset($runnerSettings['test_mode'], $runnerSettings['test_stage'])) {
-      throw new BadRequestHttpException('The test_mode or test_stage required parameters are missing.');
+    if (!isset($runnerSettings['test_mode'])) {
+      throw new BadRequestHttpException('The test_mode required parameter is missing.');
+    }
+
+    if (!isset($runnerSettings['test_stage'])) {
+      $runnerSettings['test_stage'] = NULL;
     }
 
     return $runnerSettings;
