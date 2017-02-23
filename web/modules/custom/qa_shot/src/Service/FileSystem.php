@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\qa_shot\Service;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Custom\Backstop;
@@ -41,11 +42,23 @@ class FileSystem {
   private $publicFiles;
 
   /**
-   * FileSystem constructor.
+   * File system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
    */
-  public function __construct() {
+  private $fileSystem;
+
+  /**
+   * FileSystem constructor.
+   *
+   * @param \Drupal\Core\File\FileSystemInterface $fileSystem
+   *   File system service.
+   */
+  public function __construct(FileSystemInterface $fileSystem) {
     $this->privateFiles = PrivateStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
     $this->publicFiles = PublicStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
+
+    $this->fileSystem = $fileSystem;
   }
 
   // @todo: use this
@@ -66,7 +79,7 @@ class FileSystem {
     }
 
     // Create directory and parents as well.
-    if (!mkdir($dirToCreate, 0775, TRUE) && !is_dir($dirToCreate)) {
+    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !is_dir($dirToCreate)) {
       throw new FolderCreateException("Creating the $dirToCreate folder failed.");
     }
   }
@@ -122,7 +135,7 @@ class FileSystem {
         continue;
       }
 
-      $result |= copy($src . '/' . $file, $target . '/' . $file);
+      $result |= $this->fileSystem->moveUploadedFile($src . '/' . $file, $target . '/' . $file);
     }
 
     return $result;
@@ -236,13 +249,13 @@ class FileSystem {
 
     foreach ($files as $file) {
       if ($file->isDir()) {
-        $result |= rmdir($file->getRealPath());
+        $result |= $this->fileSystem->rmdir($file->getRealPath());
       }
       else {
-        $result |= unlink($file->getRealPath());
+        $result |= $this->fileSystem->unlink($file->getRealPath());
       }
     }
-    $result |= rmdir($dir);
+    $result |= $this->fileSystem->rmdir($dir);
 
     return $result;
   }

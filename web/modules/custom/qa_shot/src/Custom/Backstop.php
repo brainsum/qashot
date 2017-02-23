@@ -93,15 +93,16 @@ class Backstop {
   /**
    * Checks whether Backstop is running or not.
    *
-   * @return bool
-   *   TRUE, if a BackstopJS process is already running. FALSE otherwise.
+   * @throws BackstopAlreadyRunningException
    */
-  public static function isRunning() {
+  public static function checkBackstopRunStatus() {
     $checkerCommand = escapeshellcmd('pgrep -f backstop -c');
     $res = exec($checkerCommand, $execOutput, $status);
 
     // > 1 is used since the pgrep command gets included as well.
-    return (is_numeric($res) && (int) $res > 1);
+    if (is_numeric($res) && (int) $res > 1) {
+      throw new BackstopAlreadyRunningException('BackstopJS is already running.');
+    }
   }
 
   /**
@@ -276,8 +277,10 @@ class Backstop {
   /**
    * Command runner logic.
    *
-   * @param $command
-   * @param $configurationPath
+   * @param string $command
+   *   The command to be run.
+   * @param string $configurationPath
+   *   The path to the backstop config.
    *
    * @throws BackstopAlreadyRunningException
    *   When Backstop is already running.
@@ -285,6 +288,7 @@ class Backstop {
    *   When the supplied command is not a valid BackstopJS command.
    *
    * @return bool
+   *   TRUE on success.
    */
   private static function runCommand($command, $configurationPath) {
     // @todo: use exceptions instead of return bool
@@ -292,9 +296,7 @@ class Backstop {
       throw new InvalidCommandException("The supplied command '$command' is not valid.");
     }
 
-    if (self::isRunning()) {
-      throw new BackstopAlreadyRunningException('BackstopJS is already running.');
-    }
+    self::checkBackstopRunStatus();
 
     // @todo: send this to the background, don't hold up UI
     // @todo: add some kind of semaphore to prevent running a test several times at the same time
