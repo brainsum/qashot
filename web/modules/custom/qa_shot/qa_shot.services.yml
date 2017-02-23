@@ -1,0 +1,5 @@
+services:
+  qa_shot.file_system:
+    class: Drupal\qa_shot\Service\FileSystem
+  qa_shot.backstop:
+    class: Drupal\qa_shot\Service\Backstop

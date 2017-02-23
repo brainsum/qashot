@@ -13,8 +13,6 @@ use Drupal\user\EntityOwnerInterface;
  */
 interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
-  // Add get/set methods for your configuration properties here.
-
   /**
    * Gets the QAShot Test name.
    *
@@ -67,7 +65,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * Sets the published status of a QAShot Test.
    *
    * @param bool $published
-   *   TRUE to set this QAShot Test to published, FALSE to set it to unpublished.
+   *   TRUE to set as published, FALSE to set as unpublished.
    *
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
@@ -78,4 +76,20 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * {@inheritdoc}
    */
   public function validate();
+
+  /**
+   * Map the current entity to the array representation of a BackstopJS config.
+   *
+   * @param string $publicDataPath
+   *   The path to the public file system.
+   * @param string $privateDataPath
+   *   The path to the private file system.
+   * @param bool $withDebug
+   *   Whether we should add CasperJS debug options.
+   *
+   * @return array
+   *   The entity as a BackstopJS config array.
+   */
+  public function toBackstopConfigArray($publicDataPath, $privateDataPath, $withDebug = FALSE);
+
 }

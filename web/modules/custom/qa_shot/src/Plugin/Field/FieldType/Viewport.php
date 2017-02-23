@@ -128,4 +128,18 @@ class Viewport extends FieldItemBase {
            $height === NULL || $height === '';
   }
 
+  /**
+   * Convert the field so it can be used in a BackstopJS config array.
+   *
+   * @return array
+   *   The result array.
+   */
+  public function toBackstopViewportArray() {
+    return array(
+      'name' => (string) $this->get('name')->getValue(),
+      'width' => (int) $this->get('width')->getValue(),
+      'height' => (int) $this->get('height')->getValue(),
+    );
+  }
+
 }

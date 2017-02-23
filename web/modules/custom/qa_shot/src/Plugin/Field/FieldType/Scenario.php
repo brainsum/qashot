@@ -123,4 +123,33 @@ class Scenario extends FieldItemBase {
            $testUrl === NULL || $testUrl === '';
   }
 
+  /**
+   * Convert the field so it can be used in a BackstopJS config array.
+   *
+   * @return array
+   *   The result array.
+   */
+  public function toBackstopScenarioArray() {
+    return array(
+      'label' => (string) $this->get('label')->getValue(),
+      'referenceUrl' => (string) $this->get('referenceUrl')->getValue(),
+      'url' => (string) $this->get('testUrl')->getValue(),
+      'readyEvent' => NULL,
+      'delay' => 5000,
+      'misMatchThreshold' => 0.0,
+      'selectors' => [
+        'document',
+      ],
+      'removeSelectors' => [
+        '#twitter-widget-0',
+        '#twitter-widget-1',
+        '.captcha',
+        '#sliding-popup',
+      ],
+      'hideSelectors' => [],
+      'onBeforeScript' => 'onBefore.js',
+      'onReadyScript' => 'onReady.js',
+    );
+  }
+
 }

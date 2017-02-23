@@ -8,6 +8,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\qa_shot\Custom\Backstop;
+use Drupal\qa_shot\Service\FileSystem;
 use Drupal\user\UserInterface;
 
 /**
@@ -73,8 +74,11 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function delete() {
-    $pubRemoveRes = Backstop::removePublicData($this);
-    $privRemoveRes = Backstop::removePrivateData($this);
+    // @todo: Dependency inject.
+    /** @var FileSystem $qasFileSystem */
+    $qasFileSystem = \Drupal::service('qa_shot.file_system');
+    $pubRemoveRes = $qasFileSystem->removePublicData($this);
+    $privRemoveRes = $qasFileSystem->removePrivateData($this);
 
     drupal_set_message(
       $privRemoveRes ? 'Private data folder removed' : 'Private data folder not removed',
@@ -166,8 +170,8 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields = parent::baseFieldDefinitions($entity_type);
+  public static function baseFieldDefinitions(EntityTypeInterface $entityType) {
+    $fields = parent::baseFieldDefinitions($entityType);
 
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Authored by'))
@@ -235,7 +239,57 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function validate() {
+    // @todo: Add validations.
     return parent::validate();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toBackstopConfigArray($publicDataPath, $privateDataPath, $withDebug = FALSE) {
+    // @todo: get these field values global settings
+
+    $mapConfigToArray = [
+      // @todo: maybe id + revision id.
+      'id' => $this->id(),
+      'viewports' => [],
+      'scenarios' => [],
+      'paths' => [
+        'bitmaps_reference' => $publicDataPath . '/reference',
+        'bitmaps_test' => $publicDataPath . '/test',
+        'casper_scripts' => $privateDataPath . '/casper_scripts',
+        'html_report' => $publicDataPath . '/html_report',
+        'ci_report' => $publicDataPath . '/ci_report',
+      ],
+      // 'onBeforeScript' => 'onBefore.js', //.
+      // 'onReadyScript' => 'onReady.js', //.
+      'engine' => 'phantomjs',
+      'report' => [
+        'browser',
+      ],
+      'casperFlags' => [
+        '--ignore-ssl-errors=true',
+        '--ssl-protocol=any',
+      ],
+      'debug' => FALSE,
+    ];
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Viewport $viewport */
+    foreach ($this->get('field_viewport') as $viewport) {
+      $mapConfigToArray['viewports'][] = $viewport->toBackstopViewportArray();
+    }
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Scenario $scenario */
+    foreach ($this->get('field_scenario') as $scenario) {
+      $mapConfigToArray['scenarios'][] = $scenario->toBackstopScenarioArray();
+    }
+
+    if ($withDebug === TRUE) {
+      $mapConfigToArray['debug'] = TRUE;
+      $mapConfigToArray['casperFlags'][] = '--verbose';
+    }
+
+    return $mapConfigToArray;
   }
 
 }
