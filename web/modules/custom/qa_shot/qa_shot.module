@@ -103,19 +103,6 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
 }
 
 /**
- * Implements hook_ENTITY_TYPE_delete().
- *
- * {@inheritdoc}
- */
-function qa_shot_qa_shot_test_delete(EntityInterface $entity) {
-  $pubRemoveRes = Backstop::removePublicData($entity);
-  $privRemoveRes = Backstop::removePrivateData($entity);
-
-  dpm($privRemoveRes ? "PrivateFolder removed" : "Private folder not removed");
-  dpm($pubRemoveRes ? "PubFolder removed" : "Pub folder not removed");
-}
-
-/**
  * Implements hook_ENTITY_TYPE_view().
  *
  * {@inheritdoc}
@@ -139,61 +126,5 @@ function qa_shot_qa_shot_test_view(
     // @todo: store paths in db
 
     // dpm($entity->getBackstopConfigurationPath(), "config path from entity");//.
-  }
-}
-
-/**
- * Helper function for running a complete A/B test.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity.
- *
- * @throws \Exception
- *   Exception.
- */
-function _qa_shot_run_test_for_entity(EntityInterface $entity) {
-  if (NULL === $entity || !($entity instanceof QAShotTest)) {
-    drupal_set_message(t('Trying to run test for an empty or invalid entity.'), 'error');
-  }
-
-  try {
-    Backstop::initializeEnvironment($entity);
-    // _qa_shot_initialize_backstop_environment($entity);
-  }
-  catch (\Exception $exception) {
-    dpm($exception->getMessage(), 'Exception at entity insert.');
-  }
-
-  if (empty($entity->field_configuration_path->getValue())) {
-    drupal_set_message('Configuration path not saved in entity.', 'error');
-    return;
-  }
-
-  $command = 'reference';
-  try {
-    $referenceResult = Backstop::runReference($entity->get('field_configuration_path')->value);
-  }
-  catch (BackstopBaseException $e) {
-    drupal_set_message($e->getMessage(), 'error');
-    $referenceResult = FALSE;
-  }
-
-  if (FALSE === $referenceResult) {
-    drupal_set_message("Running the $command command resulted in a failure.", 'error');
-    return;
-  }
-
-  $command = 'test';
-  try {
-    $testResult = Backstop::runTest($entity->get('field_configuration_path')->value);
-  }
-  catch (BackstopBaseException $e) {
-    drupal_set_message($e->getMessage(), 'error');
-    $testResult = FALSE;
-  }
-
-  if (FALSE === $testResult) {
-    drupal_set_message("Running the $command command resulted in a failure.", 'error');
-    return;
   }
 }

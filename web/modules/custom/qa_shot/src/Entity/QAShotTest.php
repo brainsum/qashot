@@ -7,6 +7,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\qa_shot\Custom\Backstop;
 use Drupal\user\UserInterface;
 
 /**
@@ -61,11 +62,30 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
-    parent::preCreate($storage_controller, $values);
+  public static function preCreate(EntityStorageInterface $storageController, array &$values) {
+    parent::preCreate($storageController, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete() {
+    $pubRemoveRes = Backstop::removePublicData($this);
+    $privRemoveRes = Backstop::removePrivateData($this);
+
+    drupal_set_message(
+      $privRemoveRes ? 'Private data folder removed' : 'Private data folder not removed',
+      $privRemoveRes ? 'status' : 'error'
+    );
+    drupal_set_message(
+      $pubRemoveRes ? 'Public data folder removed' : 'Public data folder not removed',
+      $pubRemoveRes ? 'status' : 'error'
+    );
+
+    parent::delete();
   }
 
   /**

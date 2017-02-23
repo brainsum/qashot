@@ -3,7 +3,9 @@
 namespace Drupal\qa_shot\Custom;
 
 use \Drupal\Core\Entity\EntityInterface;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
+use Drupal\qa_shot\Exception\BackstopBaseException;
 use Drupal\qa_shot\Exception\InvalidCommandException;
 use Drupal\qa_shot\Plugin\Field\FieldType\Viewport;
 use Drupal\qa_shot\Plugin\Field\FieldType\Scenario;
@@ -370,6 +372,52 @@ class Backstop {
     return in_array($command, array('reference', 'test'), FALSE);
   }
 
+  public static function runABTest(QAShotTestInterface $entity) {
+    if (NULL === $entity) {
+      drupal_set_message(t('Trying to run test on NULL.'), 'error');
+    }
+
+    try {
+      Backstop::initializeEnvironment($entity);
+    }
+    catch (\Exception $exception) {
+      dpm($exception->getMessage(), 'Exception at entity insert.');
+    }
+
+    if (empty($entity->field_configuration_path->getValue())) {
+      drupal_set_message('Configuration path not saved in entity.', 'error');
+      return;
+    }
+
+    $command = 'reference';
+    try {
+      $referenceResult = Backstop::runReferenceCommand($entity->get('field_configuration_path')->value);
+    }
+    catch (BackstopBaseException $e) {
+      drupal_set_message($e->getMessage(), 'error');
+      $referenceResult = FALSE;
+    }
+
+    if (FALSE === $referenceResult) {
+      drupal_set_message("Running the $command command resulted in a failure.", 'error');
+      return;
+    }
+
+    $command = 'test';
+    try {
+      $testResult = Backstop::runTestCommand($entity->get('field_configuration_path')->value);
+    }
+    catch (BackstopBaseException $e) {
+      drupal_set_message($e->getMessage(), 'error');
+      $testResult = FALSE;
+    }
+
+    if (FALSE === $testResult) {
+      drupal_set_message("Running the $command command resulted in a failure.", 'error');
+      return;
+    }
+  }
+
   /**
    * Run the 'Reference' command.
    *
@@ -387,7 +435,7 @@ class Backstop {
    * @return bool
    *   TRUE on success, FALSE on failure.
    */
-  public static function runReference($configurationPath) {
+  public static function runReferenceCommand($configurationPath) {
     return self::runCommand('reference', $configurationPath);
   }
 
@@ -405,7 +453,7 @@ class Backstop {
    * @return bool
    *   TRUE on success, FALSE on failure.
    */
-  public static function runTest($configurationPath) {
+  public static function runTestCommand($configurationPath) {
     return self::runCommand('test', $configurationPath);
   }
 

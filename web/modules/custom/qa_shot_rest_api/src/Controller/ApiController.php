@@ -79,7 +79,7 @@ class ApiController extends ControllerBase {
 
     $responseData = [
       'runner_settings' => $runnerSettings,
-      'status' => 'possible values: queued, in progress, done, error',
+      'status' => 'TODO: possible values: queued, in progress, done, error',
       'entity' => $entity->toArray(),
     ];
 
