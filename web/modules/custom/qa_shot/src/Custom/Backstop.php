@@ -7,6 +7,11 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
 use Drupal\qa_shot\Exception\BackstopBaseException;
 use Drupal\qa_shot\Exception\InvalidCommandException;
+use Drupal\qa_shot\Exception\InvalidConfigurationException;
+use Drupal\qa_shot\Exception\InvalidEntityException;
+use Drupal\qa_shot\Exception\InvalidRunnerOptionsException;
+use Drupal\qa_shot\Exception\ReferenceCommandFailedException;
+use Drupal\qa_shot\Exception\TestCommandFailedException;
 use Drupal\qa_shot\Plugin\Field\FieldType\Viewport;
 use Drupal\qa_shot\Plugin\Field\FieldType\Scenario;
 use Drupal\Core\StreamWrapper\PrivateStream;
@@ -16,6 +21,11 @@ use Drupal\Core\StreamWrapper\PublicStream;
  * Class Backstop, contains helper functions.
  *
  * @package Drupal\qa_shot\Custom
+ *
+ * @todo: Refactor FS related things into a service.
+ * @todo: Refactor Backstop into a service
+ * @todo: Refactor RunnerOptions into a service
+ * @todo: Refactor BackstopConfig into a service
  */
 class Backstop {
   // @todo: Reorder functions, publics first.
@@ -113,49 +123,50 @@ class Backstop {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The QAShot Test entity.
    *
+   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
    * @throws \Exception
    */
   public static function initializeEnvironment(EntityInterface &$entity) {
     if (NULL === $entity || $entity->getEntityTypeId() !== 'qa_shot_test') {
-      throw new \Exception('The entity is empty or its type is not QAShot Test!');
+      throw new InvalidEntityException('The entity is empty or its type is not QAShot Test!');
     }
 
     // @todo: refactor
     // @todo: . "/" . revision id; to both paths.
-    $privateEntityData = PrivateStream::basePath() . "/" . self::$customDataBase . "/" . $entity->id();
-    $publicEntityData = PublicStream::basePath() . "/" . self::$customDataBase . "/" . $entity->id();
-    $templateFolder = PrivateStream::basePath() . "/" . self::$customDataBase . "/template";
-    $configPath = $privateEntityData . "/backstop.json";
+    $privateEntityData = PrivateStream::basePath() . '/' . self::$customDataBase . '/' . $entity->id();
+    $publicEntityData = PublicStream::basePath() . '/' . self::$customDataBase . '/' . $entity->id();
+    $templateFolder = PrivateStream::basePath() . '/' . self::$customDataBase . '/template';
+    $configPath = $privateEntityData . '/backstop.json';
 
     $configAsArray = self::mapEntityToArray($entity, $privateEntityData, $publicEntityData);
     $jsonConfig = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
     $configAsJSON = json_encode($configAsArray, $jsonConfig);
 
-    $privateCasperFolder = $configAsArray["paths"]["casper_scripts"];
-    $reportPath = $configAsArray["paths"]["html_report"] . "/index.html";
+    $privateCasperFolder = $configAsArray['paths']['casper_scripts'];
+    $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
 
     if (FALSE === self::createFolder($privateEntityData)) {
-      throw new \Exception("Creating the private base folder at " . $privateEntityData . " for the entity failed.");
+      throw new \Exception('Creating the private base folder at ' . $privateEntityData . ' for the entity failed.');
     }
 
     if (FALSE === self::createFile($configPath, $configAsJSON)) {
-      throw new \Exception("Creating the configuration file at " . $configPath . " failed.");
+      throw new \Exception('Creating the configuration file at ' . $configPath . ' failed.');
     }
 
     if (FALSE === self::createFolder($privateCasperFolder)) {
-      throw new \Exception("Creating the folder for casper scripts at " . $privateCasperFolder . " failed.");
+      throw new \Exception('Creating the folder for casper scripts at ' . $privateCasperFolder . ' failed.');
     }
 
-    if (FALSE === self::copyTemplates($templateFolder . "/casper_scripts", $configAsArray["paths"]["casper_scripts"])) {
-      throw new \Exception("Copying the template casper scripts failed.");
+    if (FALSE === self::copyTemplates($templateFolder . '/casper_scripts', $configAsArray['paths']['casper_scripts'])) {
+      throw new \Exception('Copying the template casper scripts failed.');
     }
 
     if (
-      $entity->get("field_configuration_path")->value !== $configPath ||
-      $entity->get("field_html_report_path")->value !== $reportPath
+      $entity->get('field_configuration_path')->value !== $configPath ||
+      $entity->get('field_html_report_path')->value !== $reportPath
     ) {
-      $entity->set("field_configuration_path", $configPath);
-      $entity->set("field_html_report_path", $reportPath);
+      $entity->set('field_configuration_path', $configPath);
+      $entity->set('field_html_report_path', $reportPath);
       $entity->save();
     }
   }
@@ -178,40 +189,40 @@ class Backstop {
 
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
-      "id" => $entity->id(),
-      "viewports" => [],
-      "scenarios" => [],
-      "paths" => [
-        "bitmaps_reference" => $publicDataPath . "/reference",
-        "bitmaps_test" => $publicDataPath . "/test",
-        "casper_scripts" => $privateDataPath . "/casper_scripts",
-        "html_report" => $publicDataPath . "/html_report",
-        "ci_report" => $publicDataPath . "/ci_report",
+      'id' => $entity->id(),
+      'viewports' => [],
+      'scenarios' => [],
+      'paths' => [
+        'bitmaps_reference' => $publicDataPath . '/reference',
+        'bitmaps_test' => $publicDataPath . '/test',
+        'casper_scripts' => $privateDataPath . '/casper_scripts',
+        'html_report' => $publicDataPath . '/html_report',
+        'ci_report' => $publicDataPath . '/ci_report',
       ],
-      // "onBeforeScript" => "onBefore.js", //.
-      // "onReadyScript" => "onReady.js", //.
-      "engine" => "phantomjs",
-      "report" => [
-        "browser",
+      // 'onBeforeScript' => 'onBefore.js', //.
+      // 'onReadyScript' => 'onReady.js', //.
+      'engine' => 'phantomjs',
+      'report' => [
+        'browser',
       ],
-      "casperFlags" => [
-        "--ignore-ssl-errors=true",
-        "--ssl-protocol=any",
+      'casperFlags' => [
+        '--ignore-ssl-errors=true',
+        '--ssl-protocol=any',
       ],
-      "debug" => FALSE,
+      'debug' => FALSE,
     ];
 
-    foreach ($entity->get("field_viewport") as $viewport) {
-      $mapConfigToArray["viewports"][] = self::mapViewportToArray($viewport);
+    foreach ($entity->get('field_viewport') as $viewport) {
+      $mapConfigToArray['viewports'][] = self::mapViewportToArray($viewport);
     }
 
-    foreach ($entity->get("field_scenario") as $scenario) {
-      $mapConfigToArray["scenarios"][] = self::mapScenarioToArray($scenario);
+    foreach ($entity->get('field_scenario') as $scenario) {
+      $mapConfigToArray['scenarios'][] = self::mapScenarioToArray($scenario);
     }
 
     if (self::$debugMode === TRUE) {
       $mapConfigToArray['debug'] = TRUE;
-      $mapConfigToArray['casperFlags'][] = "--verbose";
+      $mapConfigToArray['casperFlags'][] = '--verbose';
     }
 
     return $mapConfigToArray;
@@ -226,24 +237,24 @@ class Backstop {
    */
   private static function mapScenarioToArray(Scenario $scenario) {
     return array(
-      "label" => (string) $scenario->get("label")->getValue(),
-      "referenceUrl" => (string) $scenario->get("referenceUrl")->getValue(),
-      "url" => (string) $scenario->get("testUrl")->getValue(),
-      "readyEvent" => NULL,
-      "delay" => 5000,
-      "misMatchThreshold" => 0.0,
-      "selectors" => [
-        "document",
+      'label' => (string) $scenario->get('label')->getValue(),
+      'referenceUrl' => (string) $scenario->get('referenceUrl')->getValue(),
+      'url' => (string) $scenario->get('testUrl')->getValue(),
+      'readyEvent' => NULL,
+      'delay' => 5000,
+      'misMatchThreshold' => 0.0,
+      'selectors' => [
+        'document',
       ],
-      "removeSelectors" => [
-        "#twitter-widget-0",
-        "#twitter-widget-1",
-        ".captcha",
-        "#sliding-popup",
+      'removeSelectors' => [
+        '#twitter-widget-0',
+        '#twitter-widget-1',
+        '.captcha',
+        '#sliding-popup',
       ],
-      "hideSelectors" => [],
-      "onBeforeScript" => "onBefore.js",
-      "onReadyScript" => "onReady.js",
+      'hideSelectors' => [],
+      'onBeforeScript' => 'onBefore.js',
+      'onReadyScript' => 'onReady.js',
     );
   }
 
@@ -256,9 +267,9 @@ class Backstop {
    */
   private static function mapViewportToArray(Viewport $viewport) {
     return array(
-      "name" => (string) $viewport->get("name")->getValue(),
-      "width" => (int) $viewport->get("width")->getValue(),
-      "height" => (int) $viewport->get("height")->getValue(),
+      'name' => (string) $viewport->get('name')->getValue(),
+      'width' => (int) $viewport->get('width')->getValue(),
+      'height' => (int) $viewport->get('height')->getValue(),
     );
   }
 
@@ -294,22 +305,22 @@ class Backstop {
     // @todo: throw exceptions
     // @todo: check if file exists, if yes, check if it's the same as the new one.
     // if yes, skip
-    if (($configFile = fopen($configurationPath, "w")) === FALSE) {
-      dpm("failed to open config file to write");
+    if (($configFile = fopen($configurationPath, 'w')) === FALSE) {
+      dpm('failed to open config file to write');
       return FALSE;
     }
 
     if (fwrite($configFile, $jsonString) === FALSE) {
-      dpm("failed to write config file");
+      dpm('failed to write config file');
       return FALSE;
     }
 
     if (fclose($configFile) === FALSE) {
-      dpm("failed to close config file");
+      dpm('failed to close config file');
       return FALSE;
     }
 
-    dpm("config write success");
+    dpm('config write success');
 
     return TRUE;
   }
@@ -322,11 +333,11 @@ class Backstop {
    */
   private static function copyTemplates($src, $target) {
     // @todo: use exceptions
-    dpm($src, "copy src");
-    dpm($target, "copy target");
+    dpm($src, 'copy src');
+    dpm($target, 'copy target');
 
     if (($fileList = scandir($src)) === FALSE) {
-      dpm("scandir failed");
+      dpm('scandir failed');
       return FALSE;
     }
 
@@ -335,11 +346,11 @@ class Backstop {
     $result = TRUE;
 
     foreach ($fileList as $file) {
-      if (strpos($file, ".js") === FALSE) {
+      if (strpos($file, '.js') === FALSE) {
         continue;
       }
 
-      $result |= copy($src . "/" . $file, $target . "/" . $file);
+      $result |= copy($src . '/' . $file, $target . '/' . $file);
     }
 
     return $result;
@@ -372,26 +383,86 @@ class Backstop {
     return in_array($command, array('reference', 'test'), FALSE);
   }
 
-  public static function runABTest(QAShotTestInterface $entity) {
+  /**
+   * Run a test accoring to the mode and stage.
+   *
+   * @param string $mode
+   *   The test mode.
+   * @param string $stage
+   *   The test stage.
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   *
+   * @throws \Drupal\qa_shot\Exception\InvalidRunnerOptionsException
+   * @throws \Drupal\qa_shot\Exception\InvalidConfigurationException
+   * @throws \Drupal\qa_shot\Exception\InvalidCommandException
+   * @throws \Drupal\qa_shot\Exception\ReferenceCommandFailedException
+   * @throws \Drupal\qa_shot\Exception\TestCommandFailedException
+   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
+   * @throws \Drupal\qa_shot\Exception\BackstopAlreadyRunningException
+   */
+  public static function runTestBySettings($mode, $stage, QAShotTestInterface $entity) {
+    if (!Backstop::areRunnerSettingsValid($mode, $stage)) {
+      throw new InvalidRunnerOptionsException('The requested test mode or stage is invalid.');
+    }
+
+    if ('a_b' === $mode) {
+      Backstop::runABTest($entity);
+    }
+
+    if ('before_after' === $mode) {
+      if ('before' === $stage) {
+        Backstop::runReferenceCommand($entity);
+      }
+      else {
+        Backstop::runTestCommand($entity);
+      }
+    }
+  }
+
+  /**
+   * Preparations before running a test.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   *
+   * @throws \Drupal\qa_shot\Exception\InvalidConfigurationException
+   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
+   */
+  public static function prepareTest(QAShotTestInterface $entity) {
     if (NULL === $entity) {
       drupal_set_message(t('Trying to run test on NULL.'), 'error');
+      throw new InvalidEntityException('Entity is empty.');
     }
 
     try {
       Backstop::initializeEnvironment($entity);
     }
     catch (\Exception $exception) {
-      dpm($exception->getMessage(), 'Exception at entity insert.');
+      drupal_set_message('Exception at environment init. ' . $exception->getMessage(), 'error');
     }
 
     if (empty($entity->field_configuration_path->getValue())) {
       drupal_set_message('Configuration path not saved in entity.', 'error');
-      return;
+      throw new InvalidConfigurationException('Configuration path not saved in entity.');
     }
+  }
 
+  /**
+   * Run an A/B test.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   *
+   * @throws \Drupal\qa_shot\Exception\InvalidConfigurationException
+   * @throws \Drupal\qa_shot\Exception\ReferenceCommandFailedException
+   * @throws \Drupal\qa_shot\Exception\TestCommandFailedException
+   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
+   */
+  public static function runABTest(QAShotTestInterface $entity) {
     $command = 'reference';
     try {
-      $referenceResult = Backstop::runReferenceCommand($entity->get('field_configuration_path')->value);
+      $referenceResult = Backstop::runReferenceCommand($entity);
     }
     catch (BackstopBaseException $e) {
       drupal_set_message($e->getMessage(), 'error');
@@ -400,12 +471,12 @@ class Backstop {
 
     if (FALSE === $referenceResult) {
       drupal_set_message("Running the $command command resulted in a failure.", 'error');
-      return;
+      throw new ReferenceCommandFailedException("Running the $command command resulted in a failure.");
     }
 
     $command = 'test';
     try {
-      $testResult = Backstop::runTestCommand($entity->get('field_configuration_path')->value);
+      $testResult = Backstop::runTestCommand($entity);
     }
     catch (BackstopBaseException $e) {
       drupal_set_message($e->getMessage(), 'error');
@@ -414,7 +485,7 @@ class Backstop {
 
     if (FALSE === $testResult) {
       drupal_set_message("Running the $command command resulted in a failure.", 'error');
-      return;
+      throw new TestCommandFailedException("Running the $command command resulted in a failure.");
     }
   }
 
@@ -424,37 +495,43 @@ class Backstop {
    * Executes the reference BackstopJS command to create reference
    * screenshots according to the supplied configuration.
    *
-   * @param string $configurationPath
-   *   Path to the configuration.
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
    *
    * @throws BackstopAlreadyRunningException
    *   When Backstop is already running.
    * @throws InvalidCommandException
    *   When the supplied command is not a valid BackstopJS command.
+   * @throws InvalidEntityException
+   * @throws InvalidConfigurationException
    *
    * @return bool
    *   TRUE on success, FALSE on failure.
    */
-  public static function runReferenceCommand($configurationPath) {
-    return self::runCommand('reference', $configurationPath);
+  public static function runReferenceCommand(QAShotTestInterface $entity) {
+    Backstop::prepareTest($entity);
+    return self::runCommand('reference', $entity->field_configuration_path->getValue());
   }
 
   /**
    * Run the 'Test' command.
    *
-   * @param string $configurationPath
-   *   Path to the configuration.
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
    *
    * @throws BackstopAlreadyRunningException
    *   When Backstop is already running.
    * @throws InvalidCommandException
    *   When the supplied command is not a valid BackstopJS command.
+   * @throws InvalidEntityException
+   * @throws InvalidConfigurationException
    *
    * @return bool
    *   TRUE on success, FALSE on failure.
    */
-  public static function runTestCommand($configurationPath) {
-    return self::runCommand('test', $configurationPath);
+  public static function runTestCommand(QAShotTestInterface $entity) {
+    Backstop::prepareTest($entity);
+    return self::runCommand('test', $entity->field_configuration_path->getValue());
   }
 
   /**

@@ -2,14 +2,12 @@
 
 namespace Drupal\qa_shot_rest_api\Controller;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\qa_shot\Custom\Backstop;
-use Drupal\serialization\Normalizer\NormalizerBase;
+use Drupal\qa_shot\Exception\BackstopBaseException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,9 +75,23 @@ class ApiController extends ControllerBase {
 
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
+    $message = 'success';
+
+    try {
+      Backstop::runTestBySettings(
+        $runnerSettings['test_mode'],
+        $runnerSettings['test_stage'],
+        $entity
+      );
+    }
+    catch (BackstopBaseException $e) {
+      $message = $e->getMessage();
+    }
+
+    // TODO: possible values: queued, in progress, done, error.
     $responseData = [
       'runner_settings' => $runnerSettings,
-      'status' => 'TODO: possible values: queued, in progress, done, error',
+      'message' => $message,
       'entity' => $entity->toArray(),
     ];
 
@@ -110,10 +122,6 @@ class ApiController extends ControllerBase {
 
     if (!isset($runnerSettings['test_mode'], $runnerSettings['test_stage'])) {
       throw new BadRequestHttpException('The test_mode or test_stage required parameters are missing.');
-    }
-
-    if (!Backstop::areRunnerSettingsValid($runnerSettings['test_mode'], $runnerSettings['test_stage'])) {
-      throw new BadRequestHttpException('The requested test mode or stage is invalid.');
     }
 
     return $runnerSettings;
