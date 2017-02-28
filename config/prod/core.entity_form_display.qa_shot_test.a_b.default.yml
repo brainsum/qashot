@@ -1,33 +1,26 @@
-uuid: f2c86afb-55f8-4f20-b635-9ff80c441a97
+uuid: be67db32-b96c-45bd-a259-f9a5fac0caff
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.qa_shot_test.qa_shot_test.field_configuration_path
-    - field.field.qa_shot_test.qa_shot_test.field_html_report_path
-    - field.field.qa_shot_test.qa_shot_test.field_scenario
-    - field.field.qa_shot_test.qa_shot_test.field_viewport
+    - field.field.qa_shot_test.a_b.field_configuration_path
+    - field.field.qa_shot_test.a_b.field_html_report_path
+    - field.field.qa_shot_test.a_b.field_scenario
+    - qa_shot.qa_shot_test_type.a_b
   module:
     - qa_shot
-id: qa_shot_test.qa_shot_test.default
+id: qa_shot_test.a_b.default
 targetEntityType: qa_shot_test
-bundle: qa_shot_test
+bundle: a_b
 mode: default
 content:
   field_scenario:
-    weight: 3
+    weight: 2
     settings:
       size: 80
       placeholder: ''
     third_party_settings: {  }
     type: qa_shot_scenario
-  field_viewport:
-    weight: 2
-    settings:
-      size: 40
-      placeholder: ''
-    third_party_settings: {  }
-    type: qa_shot_viewport
   name:
     type: string_textfield
     weight: 0
@@ -36,11 +29,18 @@ content:
       placeholder: ''
     third_party_settings: {  }
   user_id:
-    type: entity_reference_autocomplete_tags
-    weight: 1
+    type: entity_reference_autocomplete
+    weight: 5
     settings:
       match_operator: CONTAINS
       size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  viewport:
+    type: qa_shot_viewport
+    weight: 1
+    settings:
+      size: 40
       placeholder: ''
     third_party_settings: {  }
 hidden:

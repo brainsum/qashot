@@ -51,7 +51,7 @@ class QAShotController extends ControllerBase {
     $output['#theme'] = 'qa_shot__qa_shot_test__run';
 
     if ($entity && $entity instanceof EntityInterface) {
-      $reportUrl = file_create_url($entity->get('field_html_report_path')->value);
+      $reportUrl = file_create_url($entity->getHtmlReportPath());
       $output['#html_report_url'] = $reportUrl;
       $output['#entity'] = $entity;
       // $output = ['#markup' => $entity->label()];

@@ -1,19 +1,20 @@
-uuid: 3184a11b-96bd-43d7-96a7-fbc6f1e81163
+uuid: f4191869-cb2e-4e67-9fff-b35d12d2d7dc
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.qa_shot_test.field_scenario
+    - qa_shot.qa_shot_test_type.a_b
   module:
     - qa_shot
-id: qa_shot_test.qa_shot_test.field_scenario
+id: qa_shot_test.a_b.field_scenario
 field_name: field_scenario
 entity_type: qa_shot_test
-bundle: qa_shot_test
+bundle: a_b
 label: Scenario
-description: 'A list of URL pairs and additional data for scenarios.'
+description: ''
 required: true
-translatable: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
 settings: {  }

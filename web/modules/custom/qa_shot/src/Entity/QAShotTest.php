@@ -7,8 +7,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\qa_shot\Custom\Backstop;
-use Drupal\qa_shot\Service\FileSystem;
 use Drupal\user\UserInterface;
 
 /**
@@ -19,6 +17,7 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "qa_shot_test",
  *   label = @Translation("QAShot Test"),
+ *   bundle_label = @Translation("QAShot Test type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\qa_shot\QAShotTestListBuilder",
@@ -39,6 +38,7 @@ use Drupal\user\UserInterface;
  *   admin_permission = "administer qashot test entities",
  *   entity_keys = {
  *     "id" = "id",
+ *     "bundle" = "type",
  *     "label" = "name",
  *     "uuid" = "uuid",
  *     "uid" = "user_id",
@@ -47,13 +47,14 @@ use Drupal\user\UserInterface;
  *   },
  *   links = {
  *     "canonical" = "/qa_shot_test/{qa_shot_test}",
- *     "add-form" = "/qa_shot_test/add",
+ *     "add-page" = "/qa_shot_test/add",
+ *     "add-form" = "/qa_shot_test/add/{qa_shot_test_type}",
  *     "edit-form" = "/qa_shot_test/{qa_shot_test}/edit",
  *     "delete-form" = "/qa_shot_test/{qa_shot_test}/delete",
  *     "collection" = "/qa_shot_test",
- *     "run" = "/qa_shot_test/{qa_shot_test}/run"
  *   },
- *   field_ui_base_route = "qa_shot_test.settings"
+ *   bundle_entity_type = "qa_shot_test_type",
+ *   field_ui_base_route = "entity.qa_shot_test_type.edit_form"
  * )
  */
 class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
@@ -63,8 +64,8 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public static function preCreate(EntityStorageInterface $storageController, array &$values) {
-    parent::preCreate($storageController, $values);
+  public static function preCreate(EntityStorageInterface $entityStorage, array &$values) {
+    parent::preCreate($entityStorage, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
     );
@@ -75,7 +76,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    */
   public function delete() {
     // @todo: Dependency inject.
-    /** @var FileSystem $qasFileSystem */
+    /** @var \Drupal\qa_shot\Service\FileSystem $qasFileSystem */
     $qasFileSystem = \Drupal::service('qa_shot.file_system');
     $pubRemoveRes = $qasFileSystem->removePublicData($this);
     $privRemoveRes = $qasFileSystem->removePrivateData($this);
@@ -90,6 +91,13 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     );
 
     parent::delete();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getType() {
+    return $this->bundle();
   }
 
   /**
@@ -163,8 +171,50 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function setPublished($published) {
-    $this->set('status', $published ? NODE_PUBLISHED : NODE_NOT_PUBLISHED);
+    $this->set('status', $published ? TRUE : FALSE);
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldViewport() {
+    return $this->get('viewport');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldScenario() {
+    return $this->get('field_scenario');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigurationPath() {
+    return $this->get('field_configuration_path')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setConfigurationPath($configurationPath) {
+    return $this->set('field_configuration_path', $configurationPath);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHtmlReportPath() {
+    return $this->get('field_html_report_path')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHtmlReportPath($htmlReportPath) {
+    return $this->set('field_html_report_path', $htmlReportPath);
   }
 
   /**
@@ -179,24 +229,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
-      ->setTranslatable(TRUE)
-      ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'author',
-        'weight' => 0,
-      ))
-      ->setDisplayOptions('form', array(
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 5,
-        'settings' => array(
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'autocomplete_type' => 'tags',
-          'placeholder' => '',
-        ),
-      ))
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+      ->setTranslatable(TRUE);
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
@@ -210,11 +243,11 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -4,
+        'weight' => 0,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
-        'weight' => -4,
+        'weight' => 0,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -232,6 +265,35 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
 
+    $fields['viewport'] = BaseFieldDefinition::create('qa_shot_viewport')
+      ->setLabel(t('Viewport'))
+      ->setRequired(TRUE)
+      ->setDescription(t('Set a unique name and the desired resolution. Supported resolutions range from 480x320 up to 3840x2400.'))
+      ->setCardinality(-1)
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'qa_shot_viewport',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'qa_shot_viewport',
+        'weight' => 1,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // @todo: Metadata field
+    // Metadata:
+    //   Config path
+    //   Html report path
+    //   Run data
+    //
+    // Run data:
+    //   date/time
+    //   fails/passes
+    //   run duration
+    //
+    // These are needed as custom field types.
     return $fields;
   }
 
@@ -246,7 +308,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function toBackstopConfigArray($publicDataPath, $privateDataPath, $withDebug = FALSE) {
+  public function toBackstopConfigArray($privateDataPath, $publicDataPath, $withDebug = FALSE) {
     // @todo: get these field values global settings
 
     $mapConfigToArray = [
@@ -275,12 +337,12 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     ];
 
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Viewport $viewport */
-    foreach ($this->get('field_viewport') as $viewport) {
+    foreach ($this->getFieldViewport() as $viewport) {
       $mapConfigToArray['viewports'][] = $viewport->toBackstopViewportArray();
     }
 
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Scenario $scenario */
-    foreach ($this->get('field_scenario') as $scenario) {
+    foreach ($this->getFieldScenario() as $scenario) {
       $mapConfigToArray['scenarios'][] = $scenario->toBackstopScenarioArray();
     }
 

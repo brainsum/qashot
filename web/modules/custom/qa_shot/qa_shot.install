@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Install file for the qa_shot module.
+ */
+
+/**
+ * Remove every QAShot Test entity.
+ */
+function qa_shot_update_8201() {
+  $tests = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->loadMultiple();
+
+  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+  foreach ($tests as $test) {
+    $test->delete();
+  }
+}
+
+/**
+ * Remove the QAShot Test entity type.
+ */
+function qa_shot_update_8202() {
+  $entity_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type = $entity_update_manager->getEntityType('qa_shot_test');
+  $entity_update_manager->uninstallEntityType($entity_type);
+}

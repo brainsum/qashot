@@ -2,18 +2,14 @@
 
 /**
  * @file
- * Contains qa_shot.module..
+ * Contains qa_shot.module.
  */
 
 use \Drupal\Core\Routing\RouteMatchInterface;
 use \Drupal\Core\Form\FormStateInterface;
 use \Drupal\Core\Entity\EntityInterface;
 use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
-use \Drupal\qa_shot\Entity\QAShotTest;
-use Drupal\qa_shot\Custom\Backstop;
-use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
-use Drupal\qa_shot\Exception\BackstopBaseException;
-use Drupal\qa_shot\Exception\InvalidCommandException;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
  * Implements hook_help().
@@ -34,29 +30,55 @@ function qa_shot_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function qa_shot_theme() {
+  $theme = [];
+  $theme['qa_shot_test'] = array(
+    'render element' => 'elements',
+    'file' => 'qa_shot_test.page.inc',
+    'template' => 'qa_shot_test',
+  );
+  $theme['qa_shot_test_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'qa_shot_test.page.inc',
+  ];
+  $theme['qa_shot__qa_shot_test__run'] = [
+    'template' => 'qa_shot_test--run',
+    'variables' => [
+      'entity' => NULL,
+      'html_report_url' => NULL,
+    ],
+  ];
+
+  return $theme;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function qa_shot_theme_suggestions_qa_shot_test(array $variables) {
+  $suggestions = array();
+  /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
+  $entity = $variables['elements']['#qa_shot_test'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'qa_shot_test__' . $sanitized_view_mode;
+  $suggestions[] = 'qa_shot_test__' . $entity->bundle();
+  $suggestions[] = 'qa_shot_test__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'qa_shot_test__' . $entity->id();
+  $suggestions[] = 'qa_shot_test__' . $entity->id() . '__' . $sanitized_view_mode;
+  return $suggestions;
+}
+
+/**
  * Implements hook_cron().
  *
  * {@inheritdoc}
  */
 function qa_shot_cron() {
   // @todo: run scheduled tests
-}
-
-/**
- * Implements hook_theme().
- *
- * {@inheritdoc}
- */
-function qa_shot_theme($existing, $type, $theme, $path) {
-  return [
-    'qa_shot__qa_shot_test__run' => [
-      'template' => 'qa_shot_test--run',
-      'variables' => [
-        'entity' => NULL,
-        'html_report_url' => NULL,
-      ],
-    ],
-  ];
 }
 
 /**
@@ -86,7 +108,7 @@ function qa_shot_form_alter(
  * {@inheritdoc}
  */
 function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state) {
-  /** @var QAShotTest $entity */
+  /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
   $entity = $form_state->getFormObject()->getEntity();
 
   $form_state->setRedirect(
@@ -109,18 +131,18 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
  */
 function qa_shot_qa_shot_test_view(
   array &$build,
-  EntityInterface $entity,
+  QAShotTestInterface $entity,
   EntityViewDisplayInterface $display,
   $view_mode
 ) {
   if ('full' === $view_mode) {
     // @todo: save paths in the entity
 
-    // dpm($genResult["data"]["reportPath"], "report path");
-    dpm(array(
-      "entity_conf_path" => $entity->get('field_configuration_path')->value,
-      "entity_report_path" => $entity->get('field_html_report_path')->value,
-    ), "entity");
+    // dpm($genResult['data']['reportPath'], 'report path');
+    dpm([
+      'entity_conf_path' => $entity->getConfigurationPath(),
+      'entity_report_path' => $entity->getHtmlReportPath(),
+    ], 'entity');
 
     // @todo: major cleanup and restructuring of the files
     // @todo: store paths in db

@@ -135,7 +135,7 @@ class FileSystem {
         continue;
       }
 
-      $result |= $this->fileSystem->moveUploadedFile($src . '/' . $file, $target . '/' . $file);
+      $result |= copy($src . '/' . $file, $target . '/' . $file);
     }
 
     return $result;
@@ -190,11 +190,11 @@ class FileSystem {
 
     // If the paths changed we save them.
     if (
-      $entity->get('field_configuration_path')->value !== $configPath ||
-      $entity->get('field_html_report_path')->value !== $reportPath
+      $entity->getConfigurationPath() !== $configPath ||
+      $entity->getHtmlReportPath() !== $reportPath
     ) {
-      $entity->set('field_configuration_path', $configPath);
-      $entity->set('field_html_report_path', $reportPath);
+      $entity->setConfigurationPath($configPath);
+      $entity->setHtmlReportPath($reportPath);
       $entity->save();
     }
   }

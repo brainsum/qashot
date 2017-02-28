@@ -265,35 +265,40 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     if ($entity->getEntityTypeId() !== $definition['entity_type']) {
       throw new BadRequestHttpException('Invalid entity type');
     }
+    // The denormalizer requires the bundle to be sent for some reason.
+    // We don't want to allow the bundle to be changed.
+    if ($original_entity->bundle() !== $entity->bundle()) {
+      throw new BadRequestHttpException('Changing the entity type is not allowed.');
+    }
     if (!$entity->access('update')) {
       throw new AccessDeniedHttpException();
     }
 
     // Overwrite the received properties.
-    $entity_keys = $entity->getEntityType()->getKeys();
-    foreach ($entity->_restSubmittedFields as $field_name) {
-      $field = $entity->get($field_name);
+    $entityKeys = $entity->getEntityType()->getKeys();
+    foreach ($entity->_restSubmittedFields as $fieldName) {
+      $field = $entity->get($fieldName);
 
       // Entity key fields need special treatment: together they uniquely
       // identify the entity. Therefore it does not make sense to modify any of
       // them. However, rather than throwing an error, we just ignore them as
       // long as their specified values match their current values.
-      if (in_array($field_name, $entity_keys, TRUE)) {
+      if (in_array($fieldName, $entityKeys, TRUE)) {
         // Unchanged values for entity keys don't need access checking.
-        if ($original_entity->get($field_name)->getValue() === $entity->get($field_name)->getValue()) {
+        if ($original_entity->get($fieldName)->getValue() === $entity->get($fieldName)->getValue()) {
           continue;
         }
         // It is not possible to set the language to NULL as it is automatically
         // re-initialized. As it must not be empty, skip it if it is.
-        elseif (isset($entity_keys['langcode']) && $field_name === $entity_keys['langcode'] && $field->isEmpty()) {
+        elseif (isset($entityKeys['langcode']) && $fieldName === $entityKeys['langcode'] && $field->isEmpty()) {
           continue;
         }
       }
 
-      if (!$original_entity->get($field_name)->access('edit')) {
-        throw new AccessDeniedHttpException("Access denied on updating field '$field_name'.");
+      if (!$original_entity->get($fieldName)->access('edit')) {
+        throw new AccessDeniedHttpException("Access denied on updating field '$fieldName'.");
       }
-      $original_entity->set($field_name, $field->getValue());
+      $original_entity->set($fieldName, $field->getValue());
     }
 
     // Validate the received data before saving.

@@ -181,7 +181,7 @@ class Backstop {
       drupal_set_message('Exception at environment init. ' . $exception->getMessage(), 'error');
     }
 
-    if (empty($entity->field_configuration_path->getValue())) {
+    if (empty($entity->getConfigurationPath())) {
       drupal_set_message('Configuration path not saved in entity.', 'error');
       throw new InvalidConfigurationException('Configuration path not saved in entity.');
     }
@@ -250,7 +250,7 @@ class Backstop {
    */
   public static function runReferenceCommand(QAShotTestInterface $entity) {
     Backstop::prepareTest($entity);
-    return self::runCommand('reference', $entity->get('field_configuration_path')->value);
+    return self::runCommand('reference', $entity->getConfigurationPath());
   }
 
   /**
@@ -271,7 +271,7 @@ class Backstop {
    */
   public static function runTestCommand(QAShotTestInterface $entity) {
     Backstop::prepareTest($entity);
-    return self::runCommand('test', $entity->get('field_configuration_path')->value);
+    return self::runCommand('test', $entity->getConfigurationPath());
   }
 
   /**
@@ -345,6 +345,7 @@ class Backstop {
 
     if (!$results['bitmapGenerationSuccess']) {
       drupal_set_message('Bitmap generation failed.');
+      dpm($execOutput);
       return FALSE;
     }
 

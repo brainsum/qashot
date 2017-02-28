@@ -1,19 +1,18 @@
-uuid: 96a64e06-23a8-4076-81db-84d2ce930d33
+uuid: 6a31e8ad-c157-4eed-95ae-f590f739adb0
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.qa_shot_test.field_html_report_path
-  module:
-    - qa_shot
-id: qa_shot_test.qa_shot_test.field_html_report_path
+    - qa_shot.qa_shot_test_type.a_b
+id: qa_shot_test.a_b.field_html_report_path
 field_name: field_html_report_path
 entity_type: qa_shot_test
-bundle: qa_shot_test
+bundle: a_b
 label: 'HTML Report Path'
 description: ''
 required: false
-translatable: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
 settings: {  }

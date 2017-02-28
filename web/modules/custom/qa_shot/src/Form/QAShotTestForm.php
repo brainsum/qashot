@@ -18,6 +18,7 @@ class QAShotTestForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     /* @var $entity \Drupal\qa_shot\Entity\QAShotTest */
     $form = parent::buildForm($form, $form_state);
+
     $entity = $this->entity;
 
     return $form;
@@ -27,7 +28,8 @@ class QAShotTestForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $entity = $this->entity;
+    $entity = &$this->entity;
+
     $status = parent::save($form, $form_state);
 
     switch ($status) {

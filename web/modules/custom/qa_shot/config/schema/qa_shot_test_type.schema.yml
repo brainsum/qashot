@@ -1,0 +1,12 @@
+qa_shot.qa_shot_test_type.*:
+  type: config_entity
+  label: 'QAShot Test type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string

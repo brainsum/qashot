@@ -8,8 +8,6 @@
  */
 
 use Drupal\Core\Render\Element;
-use Drupal\Core\Link;
-use Drupal\Core\Url;
 
 /**
  * Prepares variables for QAShot Test templates.
@@ -23,7 +21,8 @@ use Drupal\Core\Url;
  */
 function template_preprocess_qa_shot_test(array &$variables) {
   // Fetch QAShotTest Entity Object.
-  $qa_shot_test = $variables['elements']['#qa_shot_test'];
+  /** @var \Drupal\qa_shot\Entity\QAShotTest $qa_shot_test */
+  $qaShotTest = $variables['elements']['#qa_shot_test'];
 
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {

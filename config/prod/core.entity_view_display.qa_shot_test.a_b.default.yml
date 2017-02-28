@@ -1,32 +1,25 @@
-uuid: 63e20978-b6e3-4d60-a398-eed831d1fc6e
+uuid: 2ea842de-61ec-4002-8219-e74f837aba06
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.qa_shot_test.qa_shot_test.field_configuration_path
-    - field.field.qa_shot_test.qa_shot_test.field_html_report_path
-    - field.field.qa_shot_test.qa_shot_test.field_scenario
-    - field.field.qa_shot_test.qa_shot_test.field_viewport
+    - field.field.qa_shot_test.a_b.field_configuration_path
+    - field.field.qa_shot_test.a_b.field_html_report_path
+    - field.field.qa_shot_test.a_b.field_scenario
+    - qa_shot.qa_shot_test_type.a_b
   module:
     - qa_shot
-    - user
-id: qa_shot_test.qa_shot_test.default
+id: qa_shot_test.a_b.default
 targetEntityType: qa_shot_test
-bundle: qa_shot_test
+bundle: a_b
 mode: default
 content:
   field_scenario:
-    weight: 3
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    type: qa_shot_scenario
-  field_viewport:
     weight: 2
     label: above
     settings: {  }
     third_party_settings: {  }
-    type: qa_shot_viewport
+    type: qa_shot_scenario
   name:
     label: above
     type: string
@@ -37,6 +30,12 @@ content:
   user_id:
     label: hidden
     type: author
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+  viewport:
+    label: above
+    type: qa_shot_viewport
     weight: 1
     settings: {  }
     third_party_settings: {  }

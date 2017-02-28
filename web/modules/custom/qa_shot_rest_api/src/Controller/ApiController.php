@@ -73,13 +73,14 @@ class ApiController extends ControllerBase {
   public function runTest(Request $request) {
     $runnerSettings = $this->parseRunnerSettings($request);
 
+    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
     $message = 'success';
 
     try {
       Backstop::runTestBySettings(
-        $runnerSettings['test_mode'],
+        $entity->bundle(),
         $runnerSettings['test_stage'],
         $entity
       );
@@ -119,10 +120,6 @@ class ApiController extends ControllerBase {
 
     if (empty($runnerSettings)) {
       throw new BadRequestHttpException('The request parameters are empty.');
-    }
-
-    if (!isset($runnerSettings['test_mode'])) {
-      throw new BadRequestHttpException('The test_mode required parameter is missing.');
     }
 
     if (!isset($runnerSettings['test_stage'])) {

@@ -6,12 +6,20 @@ entity.qa_shot_test.collection:
   parent: system.admin_structure
   weight: 100
 
-qa_shot_test.admin.structure.settings:
-  title: QAShot Test settings
-  description: 'Configure QAShot Test entities'
-  route_name: qa_shot_test.settings
+# QAShot Test type menu items definition
+entity.qa_shot_test_type.collection:
+  title: 'QAShot Test type'
+  route_name: entity.qa_shot_test_type.collection
+  description: 'List QAShot Test type (bundles)'
   parent: system.admin_structure
-  weight: 101
+  weight: 99
+
+#qa_shot_test.admin.structure.settings:
+#  title: QAShot Test settings
+#  description: 'Configure QAShot Test entities'
+#  route_name: qa_shot_test.settings
+#  parent: system.admin_structure
+#  weight: 101
 
 qa_shot_test.add_test:
   title: 'Add test'

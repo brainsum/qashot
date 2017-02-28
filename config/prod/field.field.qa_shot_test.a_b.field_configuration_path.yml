@@ -1,19 +1,18 @@
-uuid: 5cede55a-1cc7-44db-86ba-ce81f64c0b12
+uuid: 3a3b8a40-48c3-4722-8de8-5a10129e269b
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.qa_shot_test.field_configuration_path
-  module:
-    - qa_shot
-id: qa_shot_test.qa_shot_test.field_configuration_path
+    - qa_shot.qa_shot_test_type.a_b
+id: qa_shot_test.a_b.field_configuration_path
 field_name: field_configuration_path
 entity_type: qa_shot_test
-bundle: qa_shot_test
+bundle: a_b
 label: 'Configuration Path'
 description: ''
 required: false
-translatable: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
 settings: {  }

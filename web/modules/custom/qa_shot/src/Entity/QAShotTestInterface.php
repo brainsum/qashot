@@ -13,6 +13,16 @@ use Drupal\user\EntityOwnerInterface;
  */
 interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
+  // Add get/set methods for your configuration properties here.
+
+  /**
+   * Gets the QAShot Test type.
+   *
+   * @return string
+   *   The QAShot Test type.
+   */
+  public function getType();
+
   /**
    * Gets the QAShot Test name.
    *
@@ -65,7 +75,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * Sets the published status of a QAShot Test.
    *
    * @param bool $published
-   *   TRUE to set as published, FALSE to set as unpublished.
+   *   TRUE to set this QAShot Test to published, FALSE to set it to unpublished.
    *
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
@@ -73,23 +83,72 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function setPublished($published);
 
   /**
-   * {@inheritdoc}
+   * Return the viewport field.
+   *
+   * @return \Drupal\Core\Field\FieldItemListInterface
+   *   The Viewport field.
    */
-  public function validate();
+  public function getFieldViewport();
+
+  /**
+   * Return the scenario field.
+   *
+   * @return \Drupal\Core\Field\FieldItemListInterface
+   *   The Scenario field.
+   */
+  public function getFieldScenario();
+
+  /**
+   * Return the path to the backstop.json configuration.
+   *
+   * @return string
+   *   The path to the config.
+   */
+  public function getConfigurationPath();
+
+  /**
+   * Set the configuration path.
+   *
+   * @param string $configurationPath
+   *   The path to the config.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function setConfigurationPath($configurationPath);
+
+  /**
+   * Return the path to the backstop-generated report.
+   *
+   * @return string
+   *   The path to the Backstop-generated report.
+   */
+  public function getHtmlReportPath();
+
+  /**
+   * Set the report path.
+   *
+   * @param string $htmlReportPath
+   *   The path to the report.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function setHtmlReportPath($htmlReportPath);
 
   /**
    * Map the current entity to the array representation of a BackstopJS config.
    *
-   * @param string $publicDataPath
-   *   The path to the public file system.
    * @param string $privateDataPath
    *   The path to the private file system.
+   * @param string $publicDataPath
+   *   The path to the public file system.
    * @param bool $withDebug
    *   Whether we should add CasperJS debug options.
    *
    * @return array
    *   The entity as a BackstopJS config array.
    */
-  public function toBackstopConfigArray($publicDataPath, $privateDataPath, $withDebug = FALSE);
+  public function toBackstopConfigArray($privateDataPath, $publicDataPath, $withDebug = FALSE);
 
 }
