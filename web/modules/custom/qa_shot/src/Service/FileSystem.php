@@ -1,10 +1,10 @@
 <?php
 
 namespace Drupal\qa_shot\Service;
+
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
-use Drupal\qa_shot\Custom\Backstop;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\FileCopyException;
 use Drupal\qa_shot\Exception\FileCreateException;
@@ -178,7 +178,6 @@ class FileSystem {
 
     $privateCasperFolder = $configAsArray['paths']['casper_scripts'];
     $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
-
 
     $this->createFolder($privateEntityData);
     $this->createConfigFile($configPath, $configAsJSON);

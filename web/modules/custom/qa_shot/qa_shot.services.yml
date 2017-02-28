@@ -4,3 +4,5 @@ services:
     arguments: ['@file_system']
   qa_shot.backstop:
     class: Drupal\qa_shot\Service\Backstop
+  qa_shot.converter:
+    class: Drupal\qa_shot\Service\BackstopConfigurationConverter
