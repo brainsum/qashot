@@ -91,7 +91,8 @@ function qa_shot_form_alter(
   FormStateInterface $form_state,
   $form_id
 ) {
-  if ($form_id === 'qa_shot_test_edit_form') {
+  // Display the run button on QAShot edit forms only.
+  if (strpos($form_id, 'qa_shot_test') !== FALSE && strpos($form_id, 'edit_form') !== FALSE) {
     $form['actions']['run'] = array(
       '#type' => 'submit',
       '#value' => t('Run Test'),

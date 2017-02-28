@@ -147,7 +147,10 @@ class Backstop {
       Backstop::runABTest($entity);
     }
 
+    // @fixme
     if ('before_after' === $mode) {
+      Backstop::prepareTest($entity);
+
       if ('before' === $stage) {
         Backstop::runReferenceCommand($entity);
       }
@@ -199,6 +202,8 @@ class Backstop {
    * @throws \Drupal\qa_shot\Exception\InvalidEntityException
    */
   public static function runABTest(QAShotTestInterface $entity) {
+    Backstop::prepareTest($entity);
+
     $command = 'reference';
 
     try {
@@ -249,7 +254,6 @@ class Backstop {
    *   TRUE on success, FALSE on failure.
    */
   public static function runReferenceCommand(QAShotTestInterface $entity) {
-    Backstop::prepareTest($entity);
     return self::runCommand('reference', $entity->getConfigurationPath());
   }
 
@@ -270,7 +274,6 @@ class Backstop {
    *   TRUE on success, FALSE on failure.
    */
   public static function runTestCommand(QAShotTestInterface $entity) {
-    Backstop::prepareTest($entity);
     return self::runCommand('test', $entity->getConfigurationPath());
   }
 
