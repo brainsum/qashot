@@ -14,16 +14,15 @@ entity.qa_shot_test_type.collection:
   parent: system.admin_structure
   weight: 99
 
-#qa_shot_test.admin.structure.settings:
-#  title: QAShot Test settings
-#  description: 'Configure QAShot Test entities'
-#  route_name: qa_shot_test.settings
-#  parent: system.admin_structure
-#  weight: 101
-
 qa_shot_test.add_test:
   title: 'Add test'
   description: 'Add a new QAShot test.'
   route_name: entity.qa_shot_test.add_form
   parent: main
   weight: 100
+
+# Login
+qa_shot.main_menu.login_logout:
+  menu_name: main
+  weight: 200
+  class: Drupal\user\Plugin\Menu\LoginLogoutMenuLink
