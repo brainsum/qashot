@@ -14,12 +14,21 @@ entity.qa_shot_test_type.collection:
   parent: system.admin_structure
   weight: 99
 
-qa_shot_test.add_test:
-  title: 'Add test'
-  description: 'Add a new QAShot test.'
-  route_name: entity.qa_shot_test.add_form
-  parent: main
+qa_shot.main_menu.add_a_b_test:
+  title: 'Add A/B Test'
+  menu_name: main
   weight: 100
+  route_name: entity.qa_shot_test.add_form
+  route_parameters:
+    qa_shot_test_type: 'a_b'
+
+qa_shot.main_menu.add_before_after_test:
+  title: 'Add Before/After Test'
+  menu_name: main
+  weight: 101
+  route_name: entity.qa_shot_test.add_form
+  route_parameters:
+    qa_shot_test_type: 'before_after'
 
 # Login
 qa_shot.main_menu.login_logout:

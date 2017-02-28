@@ -3,4 +3,4 @@ langcode: en
 status: true
 dependencies: {  }
 id: a_b
-label: A/B
+label: 'A/B Test'
