@@ -335,14 +335,17 @@ class Backstop {
         $results['bitmapGenerationSuccess'] = TRUE;
       }
 
-      // Search for the number of passed tests.
-      if (strpos($line, 'report |') !== FALSE && strpos($line, 'Passed') !== FALSE) {
-        $results['passedTestCount'] = explode(' ', explode('m', $line)[1])[0];
-      }
 
-      // Search for the number of passed tests.
-      if (strpos($line, 'report |') !== FALSE && strpos($line, 'Failed') !== FALSE) {
-        $results['failedTestCount'] = explode(' ', explode('m', $line)[1])[0];
+      if (strpos($line, 'report |') !== FALSE) {
+        // Search for the number of passed tests.
+        if (strpos($line, 'Passed') !== FALSE) {
+          $results['passedTestCount'] = preg_replace('/\D/', '', $line);
+        }
+
+        // Search for the number of failed tests.
+        if (strpos($line, 'Failed') !== FALSE) {
+          $results['failedTestCount'] = preg_replace('/\D/', '', $line);
+        }
       }
     }
 
