@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bf5e77820a61f9dc3d7aa6617e8fb546",
+    "content-hash": "eb9c63f3e7a5510362dd41a938a65a4d",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -1127,7 +1127,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://ftp.drupal.org/files/projects/bootstrap-8.x-3.2.zip",
-                "reference": null,
+                "reference": "8.x-3.2",
                 "shasum": "1638ded543a50a5dce558c2a8177a945a3e5a4cb"
             },
             "require": {
@@ -5124,6 +5124,26 @@
                 "testing"
             ],
             "time": "2016-03-05T08:59:47+00:00"
+        },
+        {
+            "name": "components/highlightjs",
+            "version": "9.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/components/highlightjs",
+                "reference": "9.7.0"
+            },
+            "type": "drupal-library"
+        },
+        {
+            "name": "d3/d3",
+            "version": "v3.5.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/d3/d3",
+                "reference": "v3.5.17"
+            },
+            "type": "drupal-library"
         },
         {
             "name": "doctrine/instantiator",
