@@ -294,6 +294,7 @@ class Backstop {
    *   TRUE on success.
    */
   private static function runCommand($command, $configurationPath) {
+    // @todo: Either make the entity as the parameter, or return an array.
     // @todo: use exceptions instead of return bool
     if (!self::isCommandValid($command)) {
       throw new InvalidCommandException("The supplied command '$command' is not valid.");
