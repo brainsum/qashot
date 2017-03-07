@@ -79,7 +79,7 @@ class ApiController extends ControllerBase {
     $message = 'success';
 
     try {
-      Backstop::runTestBySettings(
+      \Drupal::service('qa_shot.backstop')->runTestBySettings(
         $entity->bundle(),
         $runnerSettings['test_stage'],
         $entity

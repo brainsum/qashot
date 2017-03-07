@@ -35,30 +35,27 @@ class TestMetadata extends FieldItemBase {
   public static function schema(
     FieldStorageDefinitionInterface $fieldDefinition
   ) {
-//    $schema = [
-//      'columns' => [
-//        'label' => [
-//          'description' => "The label for the scenario.",
-//          'type' => 'varchar',
-//          'length' => 255,
-//          'not null' => TRUE,
-//        ],
-//        'referenceUrl' => [
-//          'description' => "The URL of the reference site.",
-//          'type' => 'varchar',
-//          'length' => 255,
-//          'not null' => TRUE,
-//        ],
-//        'testUrl' => [
-//          'description' => "The URL of the site to test.",
-//          'type' => 'varchar',
-//          'length' => 255,
-//          'not null' => TRUE,
-//        ],
-//      ],
-//    ];
+    $schema = [
+      'columns' => [
+        'datetime' => [
+          'description' => 'Time of the run.',
+          'type' => 'varchar',
+          'length' => 20,
+        ],
+        'duration' => [
+          'description' => 'The duration of the run.',
+        ],
+        'passed' => [
+          'description' => 'The amount of passed tests.',
+          'type' => 'int',
+        ],
+        'failed' => [
+          'description' => 'The amount of failed tests.',
+          'type' => 'int',
+        ],
+      ],
+    ];
 
-    $schema = [];
     return $schema;
   }
 
