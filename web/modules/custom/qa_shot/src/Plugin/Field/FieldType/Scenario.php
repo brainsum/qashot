@@ -40,7 +40,7 @@ class Scenario extends FieldItemBase {
     // Prevent early t() calls by using the TranslatableMarkup.
     $properties['label'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Label'))
-      ->setDescription("A label to help identify the scenario.")
+      ->setDescription('A label to help identify the scenario.')
       ->addConstraint(
         'Length',
         [
@@ -52,19 +52,19 @@ class Scenario extends FieldItemBase {
     // Prevent early t() calls by using the TranslatableMarkup.
     $properties['referenceUrl'] = DataDefinition::create('uri')
       ->setLabel(new TranslatableMarkup('Reference URL'))
-      ->setDescription("The URL of the reference site.")
+      ->setDescription('The URL of the reference site.')
       ->addConstraint(
         'Length',
         [
           'max' => $field_definition->getSetting('max_url_length'),
         ]
       )
-      ->setRequired(TRUE);
+      ->setRequired(FALSE);
 
     // Prevent early t() calls by using the TranslatableMarkup.
     $properties['testUrl'] = DataDefinition::create('uri')
       ->setLabel(new TranslatableMarkup('Test URL'))
-      ->setDescription("The URL of the site to test.")
+      ->setDescription('The URL of the site to test.')
       ->addConstraint(
         'Length',
         [
@@ -85,24 +85,30 @@ class Scenario extends FieldItemBase {
     $schema = [
       'columns' => [
         'label' => [
-          'description' => "The label for the scenario.",
-          'type' => 'varchar',
-          'length' => 255,
-          'not null' => TRUE,
-        ],
-        'referenceUrl' => [
-          'description' => "The URL of the reference site.",
+          'description' => 'The label for the scenario.',
           'type' => 'varchar',
           'length' => 255,
           'not null' => TRUE,
         ],
         'testUrl' => [
-          'description' => "The URL of the site to test.",
+          'description' => 'The URL of the site to test.',
           'type' => 'varchar',
           'length' => 255,
           'not null' => TRUE,
         ],
+        'referenceUrl' => [
+          'description' => 'The URL of the reference site.',
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ],
       ],
+//      'foreign keys' => array(
+//        'target_id' => array(
+//          'table' => 'file_managed',
+//          'columns' => array('target_id' => 'fid'),
+//        ),
+//      ),
     ];
 
     // We allow the user to input 80 character long URLs only
@@ -130,9 +136,15 @@ class Scenario extends FieldItemBase {
    *   The result array.
    */
   public function toBackstopScenarioArray() {
-    return array(
+    $scenario = [
       'label' => (string) $this->get('label')->getValue(),
-      'referenceUrl' => (string) $this->get('referenceUrl')->getValue(),
+    ];
+
+    if ($referenceUrl = $this->get('referenceUrl')->getValue()) {
+      $scenario['referenceUrl'] = (string) $referenceUrl;
+    }
+
+    $scenario += [
       'url' => (string) $this->get('testUrl')->getValue(),
       'readyEvent' => NULL,
       'delay' => 5000,
@@ -149,7 +161,9 @@ class Scenario extends FieldItemBase {
       'hideSelectors' => [],
       'onBeforeScript' => 'onBefore.js',
       'onReadyScript' => 'onReady.js',
-    );
+    ];
+
+    return $scenario;
   }
 
 }
