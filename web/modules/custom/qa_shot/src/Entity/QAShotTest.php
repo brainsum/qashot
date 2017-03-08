@@ -185,8 +185,22 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function getViewportCount() {
+    return $this->getFieldViewport()->count();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getFieldScenario() {
     return $this->get('field_scenario');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getScenarioCount() {
+    return $this->getFieldScenario()->count();
   }
 
   /**
@@ -215,6 +229,56 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    */
   public function setHtmlReportPath($htmlReportPath) {
     return $this->set('field_html_report_path', $htmlReportPath);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addMetadata(array $metadata) {
+    // Add the supplied metadata to the metadata_lifetime field.
+    $this->get('metadata_lifetime')->appendItem($metadata);
+
+    // Update the metadata_last_run field properly.
+    // If the field already has some values, we need to got through them.
+    if ($lastRun = $this->getLastRunMetadataValue()) {
+      $updateKey = NULL;
+
+      foreach ($lastRun as $key => $item) {
+        // If the given stage is already in the field, update.
+        if ($item['stage'] === $metadata['stage']) {
+          $updateKey = $key;
+          // There shouldn't be another item with this stage value, so break.
+          break;
+        }
+      }
+
+      if (NULL === $updateKey) {
+        $this->get('metadata_last_run')->appendItem($metadata);
+      }
+      else {
+        $this->get('metadata_last_run')->set($updateKey, $metadata);
+      }
+    }
+    // When empty, just set the value.
+    else {
+      $this->get('metadata_last_run')->appendItem($metadata);
+    }
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLastRunMetadataValue() {
+    return $this->get('metadata_last_run')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLifetimeMetadataValue() {
+    return $this->get('metadata_lifetime')->getValue();
   }
 
   /**
@@ -282,18 +346,20 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // @todo: Metadata field
-    // Metadata:
-    //   Config path
-    //   Html report path
-    //   Run data
-    //
-    // Run data:
-    //   date/time
-    //   fails/passes
-    //   run duration
-    //
-    // These are needed as custom field types.
+    // This field stores metadata for the last run.
+    // Last run means a full test run.
+    // @todo: Maybe make this computed?
+    $fields['metadata_last_run'] = BaseFieldDefinition::create('qa_shot_test_metadata')
+      ->setLabel(t('Metadata (Last run)'))
+      ->setDescription(t('Stores metadata for the last run.'))
+      ->setCardinality(-1);
+
+    // This field stores metadata for every run.
+    $fields['metadata_lifetime'] = BaseFieldDefinition::create('qa_shot_test_metadata')
+      ->setLabel(t('Metadata (Lifetime)'))
+      ->setDescription(t('Stores metadata for the entity.'))
+      ->setCardinality(-1);
+
     return $fields;
   }
 

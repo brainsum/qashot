@@ -78,7 +78,7 @@ class ViewportWidget extends WidgetBase {
       '#maxlength' => $this->getFieldSetting('max_name_length'),
       '#title' => $this->t('Name'),
       '#description' => 'Name of the Viewport, e.g: Desktop, Mobile, ' . $this->getSetting('size') . ' characters at most.',
-      '#required' => $element['#required']
+      '#required' => $element['#required'],
     ];
 
     $element['width'] = [
@@ -87,8 +87,8 @@ class ViewportWidget extends WidgetBase {
       '#min' => $this->getFieldSetting('min_width'),
       '#max' => $this->getFieldSetting('max_width'),
       '#title' => $this->t('Width'),
-      '#required' => $element['#required']
-      ];
+      '#required' => $element['#required'],
+    ];
 
     $element['height'] = [
       '#type' => 'number',
@@ -96,8 +96,8 @@ class ViewportWidget extends WidgetBase {
       '#min' => $this->getFieldSetting('min_height'),
       '#max' => $this->getFieldSetting('max_height'),
       '#title' => $this->t('Height'),
-      '#required' => $element['#required']
-      ];
+      '#required' => $element['#required'],
+    ];
     
     return $element;
   }

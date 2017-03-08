@@ -7,17 +7,18 @@ use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Plugin implementation of the 'qa_shot_scenario' widget.
+ * Plugin implementation of the 'qa_shot_test_metadata' widget.
  *
- * @FieldWidget(
- *   id = "qa_shot_scenario",
- *   label = @Translation("Scenario"),
+ * @todo: Fix annotation when needed.
+ * FieldWidget(
+ *   id = "qa_shot_test_metadata",
+ *   label = @Translation("Test Metadata"),
  *   field_types = {
- *     "qa_shot_scenario"
+ *     "qa_shot_test_metadata"
  *   }
  * )
  */
-class ScenarioWidget extends WidgetBase {
+class TestMetadataWidget extends WidgetBase {
 
   /**
    * {@inheritdoc}
@@ -72,38 +73,38 @@ class ScenarioWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     // So QAShot test id: 1 can have only one label value with "Opening page"
     // But QAShot test id: 2 can have a label value with "Opening page" as well.
-    $element['label'] = [
-      '#type' => 'textfield',
-      '#default_value' => isset($items[$delta]->label) ? $items[$delta]->label : NULL,
-      '#size' => $this->getSetting('size'),
-      '#placeholder' => $this->getSetting('placeholder'),
-      '#maxlength' => $this->getFieldSetting('max_label_length'),
-      '#title' => $this->t('Label'),
-      '#description' => 'A unique name to identify the scenario, ' . $this->getFieldSetting('max_label_length') . ' characters at most.',
-      '#required' => $element['#required'],
-    ];
-
-    $element['referenceUrl'] = [
-      '#type' => 'url',
-      '#default_value' => isset($items[$delta]->referenceUrl) ? $items[$delta]->referenceUrl : NULL,
-      '#size' => $this->getSetting('size'),
-      '#placeholder' => $this->getSetting('placeholder'),
-      '#maxlength' => $this->getFieldSetting('max_url_length'),
-      '#title' => $this->t('Reference URL'),
-      '#description' => 'The URL of the reference site.',
-      '#required' => $element['#required'],
-    ];
-
-    $element['testUrl'] = [
-      '#type' => 'url',
-      '#default_value' => isset($items[$delta]->testUrl) ? $items[$delta]->testUrl : NULL,
-      '#size' => $this->getSetting('size'),
-      '#placeholder' => $this->getSetting('placeholder'),
-      '#maxlength' => $this->getFieldSetting('max_url_length'),
-      '#title' => $this->t('Test URL'),
-      '#description' => 'The URL of the site to test.',
-      '#required' => $element['#required'],
-    ];
+//    $element['label'] = [
+//      '#type' => 'textfield',
+//      '#default_value' => isset($items[$delta]->label) ? $items[$delta]->label : NULL,
+//      '#size' => $this->getSetting('size'),
+//      '#placeholder' => $this->getSetting('placeholder'),
+//      '#maxlength' => $this->getFieldSetting('max_label_length'),
+//      '#title' => $this->t('Label'),
+//      '#description' => 'A unique name to identify the scenario, ' . $this->getFieldSetting('max_label_length') . ' characters at most.',
+//      '#required' => $element['#required'],
+//    ];
+//
+//    $element['referenceUrl'] = [
+//      '#type' => 'url',
+//      '#default_value' => isset($items[$delta]->referenceUrl) ? $items[$delta]->referenceUrl : NULL,
+//      '#size' => $this->getSetting('size'),
+//      '#placeholder' => $this->getSetting('placeholder'),
+//      '#maxlength' => $this->getFieldSetting('max_url_length'),
+//      '#title' => $this->t('Reference URL'),
+//      '#description' => 'The URL of the reference site.',
+//      '#required' => $element['#required'],
+//    ];
+//
+//    $element['testUrl'] = [
+//      '#type' => 'url',
+//      '#default_value' => isset($items[$delta]->testUrl) ? $items[$delta]->testUrl : NULL,
+//      '#size' => $this->getSetting('size'),
+//      '#placeholder' => $this->getSetting('placeholder'),
+//      '#maxlength' => $this->getFieldSetting('max_url_length'),
+//      '#title' => $this->t('Test URL'),
+//      '#description' => 'The URL of the site to test.',
+//      '#required' => $element['#required'],
+//    ];
 
     return $element;
   }

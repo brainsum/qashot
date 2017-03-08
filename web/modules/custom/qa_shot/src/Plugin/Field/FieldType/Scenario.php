@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot\Plugin\Field\FieldType;
 
+use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -14,6 +15,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "qa_shot_scenario",
  *   label = @Translation("Scenario"),
  *   description = @Translation("Scenario type for QA Shot tests."),
+ *   category = @Translation("QAShot"),
  *   default_widget = "qa_shot_scenario",
  *   default_formatter = "qa_shot_scenario"
  * )

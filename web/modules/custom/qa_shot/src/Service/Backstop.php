@@ -45,15 +45,18 @@ class Backstop {
    * @throws \Drupal\qa_shot\Exception\InvalidRunnerStageException
    */
   public function runTestBySettings($mode, $stage, QAShotTestInterface $entity) {
+    // Validate the settings.
     if (!CustomBackstop::areRunnerSettingsValid($mode, $stage)) {
       throw new InvalidRunnerOptionsException('The requested test mode or stage is invalid.');
     }
 
+    // Prepare the test environment.
     $this->prepareTest($entity);
 
     $startTime = microtime(TRUE);
     $results = NULL;
 
+    // Run the test.
     if ('a_b' === $mode) {
       $results = $this->runABTest($entity);
     }
@@ -79,18 +82,32 @@ class Backstop {
       ]), 'status');
     }
 
+    // Gather and persist metadata.
     $metadata = [
       'stage' => $stage,
+      'viewport_count' => $entity->getViewportCount(),
+      'scenario_count' => $entity->getScenarioCount(),
       'datetime' => (new \DateTime())->format('Y-m-d H:i:s'),
       'duration' => $endTime - $startTime,
-      'passed' => $results['passedTestCount'],
-      'failed' => $results['failedTestCount'],
+      'passed_count' => $results['passedTestCount'],
+      'failed_count' => $results['failedTestCount'],
+      'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
 
-    // $entity->set('metadata', $metadata);
-    // $entity->save();
+    kint('aaa');
+    kint('aaa');
 
-    dpm($metadata);
+    try {
+      $entity->addMetadata($metadata);
+      $entity->save();
+
+      kint('lifetime metadata', $entity->getLifetimeMetadataValue());
+      kint('last run metadata', $entity->getLastRunMetadataValue());
+    }
+    catch (\Exception $e) {
+      kint('exc message', $e->getMessage());
+      kint('to-be-saved metadata', $metadata);
+    }
   }
 
   /**
@@ -286,12 +303,12 @@ class Backstop {
       if (strpos($line, 'report |') !== FALSE) {
         // Search for the number of passed tests.
         if (strpos($line, 'Passed') !== FALSE) {
-          $results['passedTestCount'] = preg_replace('/\D/', '', $line);
+          $results['passedTestCount'] = (int) preg_replace('/\D/', '', $line);
         }
 
         // Search for the number of failed tests.
         if (strpos($line, 'Failed') !== FALSE) {
-          $results['failedTestCount'] = preg_replace('/\D/', '', $line);
+          $results['failedTestCount'] = (int) preg_replace('/\D/', '', $line);
         }
       }
     }

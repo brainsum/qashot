@@ -14,6 +14,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "qa_shot_viewport",
  *   label = @Translation("Viewport"),
  *   description = @Translation("Viewport type for QAShot tests."),
+ *   category = @Translation("QAShot"),
  *   default_widget = "qa_shot_viewport",
  *   default_formatter = "qa_shot_viewport"
  * )

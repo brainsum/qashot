@@ -91,12 +91,28 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getFieldViewport();
 
   /**
+   * Return the count of the viewports.
+   *
+   * @return int
+   *   The count of viewports.
+   */
+  public function getViewportCount();
+
+  /**
    * Return the scenario field.
    *
    * @return \Drupal\Core\Field\FieldItemListInterface
    *   The Scenario field.
    */
   public function getFieldScenario();
+
+  /**
+   * Return the count of the scenarios.
+   *
+   * @return int
+   *   The count of scenarios.
+   */
+  public function getScenarioCount();
 
   /**
    * Return the path to the backstop.json configuration.
@@ -135,6 +151,41 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    *   The called QAShot Test entity.
    */
   public function setHtmlReportPath($htmlReportPath);
+
+  /**
+   * Adds metadata to the entity.
+   *
+   * Each entity features two metadata fields:
+   *  metadata_last_run
+   *  metadata_lifetime
+   * This function adds the metadata to the beginning of the lifetime field,
+   * and updates the last_run value following this rule:
+   *   If the stage defined in the metadata already exists, then it's
+   *   overwritten, otherwise it's added.
+   *
+   * @param array $metadata
+   *   The array with the metadata.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function addMetadata(array $metadata);
+
+  /**
+   * Returns the lifetime metadata.
+   *
+   * @return \Drupal\Core\Field\FieldItemListInterface
+   *   The metadata field.
+   */
+  public function getLifetimeMetadataValue();
+
+  /**
+   * Returns the last run metadata.
+   *
+   * @return \Drupal\Core\Field\FieldItemListInterface
+   *   The metadata field.
+   */
+  public function getLastRunMetadataValue();
 
   /**
    * Map the current entity to the array representation of a BackstopJS config.
