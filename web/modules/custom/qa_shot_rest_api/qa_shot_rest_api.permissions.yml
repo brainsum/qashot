@@ -1,0 +1,22 @@
+add qashot test entities via rest:
+  title: 'Create new QAShot Test entities via rest'
+
+administer qashot test entities via rest:
+  title: 'Administer QAShot Test entities via rest'
+  description: 'Allow to access the administration form to configure QAShot Test entities via rest.'
+  restrict access: true
+
+delete qashot test entities via rest:
+  title: 'Delete QAShot Test entities via rest'
+
+edit qashot test entities via rest:
+  title: 'Edit QAShot Test entities via rest'
+
+access qashot test overview via rest:
+  title: 'Access the QAShot Test overview page via rest'
+
+view published qashot test entities via rest:
+  title: 'View published QAShot Test entities via rest'
+
+view unpublished qashot test entities via rest:
+  title: 'View unpublished QAShot Test entities via rest'

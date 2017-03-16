@@ -348,6 +348,12 @@ display:
       display_extenders: {  }
       path: qashot-test
       display_description: ''
+      access:
+        type: perm
+        options:
+          perm: 'access qashot test overview'
+      defaults:
+        access: false
     cache_metadata:
       max-age: 0
       contexts:
@@ -651,6 +657,11 @@ display:
           plugin_id: test_metadata_last_run
       defaults:
         fields: false
+        access: false
+      access:
+        type: perm
+        options:
+          perm: 'access qashot test overview via rest'
     cache_metadata:
       max-age: -1
       contexts:
