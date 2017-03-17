@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function qa_shot_rest_api_views_pre_render(ViewExecutable $view) {
+  // @todo: fixme
+  if ('rest_export_1' === $view->current_display && 'qashot_test' === $view->id()) {
+    foreach ($view->result as $item) {
+      unset($view->result[$item->index]->_entity->metadata_lifetime);
+      unset($view->result[$item->index]->_entity->uuid);
+      unset($view->result[$item->index]->_entity->langcode);
+      unset($view->result[$item->index]->_entity->user_id);
+      unset($view->result[$item->index]->_entity->status);
+      unset($view->result[$item->index]->_entity->created);
+      unset($view->result[$item->index]->_entity->changed);
+      unset($view->result[$item->index]->_entity->viewport);
+      unset($view->result[$item->index]->_entity->field_configuration_path);
+      unset($view->result[$item->index]->_entity->field_html_report_path);
+      unset($view->result[$item->index]->_entity->field_scenario);
+    }
+  }
+}

@@ -394,21 +394,8 @@ display:
             offset_label: Offset
           quantity: 9
       row:
-        type: data_field
-        options:
-          field_options:
-            id:
-              alias: ''
-              raw_output: true
-            name:
-              alias: ''
-              raw_output: true
-            type:
-              alias: ''
-              raw_output: true
-            test_metadata_last_run:
-              alias: metadata_last_run
-              raw_output: false
+        type: data_entity
+        options: {  }
       fields:
         id:
           id: id
