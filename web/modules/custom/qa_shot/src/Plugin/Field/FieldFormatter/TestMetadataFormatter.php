@@ -11,7 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Plugin implementation of the 'qa_shot_test_metadata' formatter.
  *
- * FieldFormatter(
+ * @FieldFormatter(
  *   id = "qa_shot_test_metadata",
  *   label = @Translation("Test Metadata"),
  *   field_types = {

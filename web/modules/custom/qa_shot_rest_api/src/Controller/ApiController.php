@@ -165,6 +165,32 @@ class ApiController extends ControllerBase {
   }
 
   /**
+   * Return the list of tests.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function testList() {
+    // @todo: Pagination.
+    $tests = $this->testStorage->loadMultiple();
+
+    $responseData = [];
+
+    foreach ($tests as $test) {
+      $testAsArray = $test->toArray();
+
+      $responseData[] = [
+        'id' => $testAsArray['id'],
+        'name' => $testAsArray['name'],
+        'type' => $testAsArray['type'],
+        'metadata_last_run' => $testAsArray['metadata_last_run'],
+      ];
+    }
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
    * Implements access logic for this controller.
    *
    * @param \Drupal\Core\Session\AccountInterface $account

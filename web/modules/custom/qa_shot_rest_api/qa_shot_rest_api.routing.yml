@@ -9,3 +9,15 @@ qa_shot_rest_api.run_test:
      _format: json
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+
+qa_shot_rest_api.test_list:
+  path: 'api/rest/v1/test_list'
+  defaults:
+    _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::testList'
+  methods: [GET]
+  options:
+   _auth: ['basic_auth', 'cookie']
+   query:
+     _format: json
+  requirements:
+    _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
