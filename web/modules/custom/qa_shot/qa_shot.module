@@ -145,6 +145,10 @@ function qa_shot_qa_shot_test_view(
       'entity_report_path' => $entity->getHtmlReportPath(),
     ], 'entity');
 
+    /** @var \Drupal\qa_shot\Service\Backstop $backstop */
+    $backstop = \Drupal::service('qa_shot.backstop');
+    dpm($backstop->parseScreenshots($entity));
+
     // @todo: major cleanup and restructuring of the files
     // @todo: store paths in db
 

@@ -61,9 +61,26 @@ class FileSystem {
     $this->fileSystem = $fileSystem;
   }
 
-  // @todo: use this
-  # /** @var \Drupal\Core\File\FileSystem $fs */
-  # $fs = \Drupal::service('file_system');
+  /**
+   * @return \Drupal\Core\File\FileSystemInterface
+   */
+  public function getFileSystem() {
+    return $this->fileSystem;
+  }
+
+  /**
+   * @return string
+   */
+  public function getPublicFiles() {
+    return $this->publicFiles;
+  }
+
+  /**
+   * @return string
+   */
+  public function getPrivateFiles() {
+    return $this->privateFiles;
+  }
 
   /**
    * Creates a directory at the given path.

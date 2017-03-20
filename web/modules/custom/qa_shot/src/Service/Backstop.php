@@ -94,20 +94,75 @@ class Backstop {
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
 
-    kint('aaa');
-    kint('aaa');
+    kint('a');
+    kint('a');
 
-    try {
-      $entity->addMetadata($metadata);
-      $entity->save();
+    kint($this->parseScreenshots($entity));
 
-      kint('lifetime metadata', $entity->getLifetimeMetadataValue());
-      kint('last run metadata', $entity->getLastRunMetadataValue());
+    $entity->addMetadata($metadata);
+    $entity->save();
+
+    kint('lifetime metadata', $entity->getLifetimeMetadataValue());
+    kint('last run metadata', $entity->getLastRunMetadataValue());
+
+  }
+
+  /**
+   * Get the result screenshos.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   *
+   * @return array
+   *   The screenshots.
+   */
+  public function parseScreenshots(QAShotTestInterface $entity) {
+    // @todo: Dependency inject.
+    /** @var \Drupal\qa_shot\Service\FileSystem $qasFileSystem */
+    $qasFileSystem = \Drupal::service('qa_shot.file_system');
+
+    $screenshots = [];
+
+    $resultBasePath = $qasFileSystem->getFileSystem()->dirname($entity->getHtmlReportPath());
+    $screenshotConfigPath = $resultBasePath . '/config.js';
+    $screenshotConfig = file_get_contents($screenshotConfigPath);
+    if (FALSE === $screenshotConfig) {
+      dpm('Config file not found at ' . $screenshotConfigPath);
+      return [];
     }
-    catch (\Exception $e) {
-      kint('exc message', $e->getMessage());
-      kint('to-be-saved metadata', $metadata);
+
+    $screenshotConfigData = json_decode(str_replace(['report(', ');'], '', $screenshotConfig), TRUE);
+
+    $testDir = NULL;
+
+    kint(1);
+    kint(1);
+
+    // @todo: fix
+    foreach ($screenshotConfigData['tests'] as $screenshot) {
+      if (NULL === $testDir) {
+        $testDir = $qasFileSystem->getFileSystem()->dirname($screenshot['pair']['test']);
+        $testDir = str_replace('../', $resultBasePath, $testDir);
+        dpm($testDir, 'testDir');
+      }
+
+      $diff = $testDir . '/failed_diff_' . $screenshot['pair']['fileName'];
+
+      if (($diffHandler = fopen($diff, 'rb')) === FALSE) {
+        $diff = '';
+      }
+
+      kint($diff, $diffHandler, 'diffexists');
+
+      $screenshots[] = [
+        'reference' => str_replace('../', $resultBasePath, $screenshot['pair']['reference']),
+        'test' => str_replace('../', $resultBasePath, $screenshot['pair']['test']),
+        'diff' => $diff,
+      ];
+
     }
+
+    return $screenshots;
   }
 
   /**
@@ -126,6 +181,7 @@ class Backstop {
     }
 
     try {
+      // @todo: Dependency inject.
       /** @var \Drupal\qa_shot\Service\FileSystem $qasFileSystem */
       $qasFileSystem = \Drupal::service('qa_shot.file_system');
       $qasFileSystem->initializeEnvironment($entity);
