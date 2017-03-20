@@ -5,15 +5,15 @@ namespace Drupal\qa_shot_rest_api\Controller;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\qa_shot\Custom\Backstop;
 use Drupal\qa_shot\Exception\BackstopBaseException;
+use Drupal\qa_shot\Service\Backstop;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Controller for the custom API endpoints.
@@ -30,11 +30,18 @@ class ApiController extends ControllerBase {
   private $testStorage;
 
   /**
-   * Serializer.
+   * URL Generator.
    *
-   * @var \Symfony\Component\Serializer\SerializerInterface
+   * @var \Drupal\Core\Routing\UrlGeneratorInterface
    */
-  private $serializer;
+  protected $urlGenerator;
+
+  /**
+   * Tester service.
+   *
+   * @var \Drupal\qa_shot\Service\Backstop
+   */
+  private $tester;
 
   /**
    * Create.
@@ -44,19 +51,29 @@ class ApiController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('serializer')
+      $container->get('url_generator'),
+      $container->get('qa_shot.backstop')
     );
   }
 
   /**
-   * Constructor.
+   * ApiController constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager.
+   * @param \Drupal\Core\Routing\UrlGeneratorInterface $urlGenerator
+   *   Url generator.
+   * @param \Drupal\qa_shot\Service\Backstop $tester
+   *   The tester service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    SerializerInterface $serializer
+    UrlGeneratorInterface $urlGenerator,
+    Backstop $tester
   ) {
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
-    $this->serializer = $serializer;
+    $this->urlGenerator = $urlGenerator;
+    $this->tester = $tester;
   }
 
   /**
@@ -79,7 +96,7 @@ class ApiController extends ControllerBase {
     $message = 'success';
 
     try {
-      \Drupal::service('qa_shot.backstop')->runTestBySettings(
+      $this->tester->runTestBySettings(
         $entity->bundle(),
         $runnerSettings['test_stage'],
         $entity
@@ -89,6 +106,7 @@ class ApiController extends ControllerBase {
       $message = $e->getMessage();
     }
 
+    // TODO: If queued, the response code should be 201 (accepted) or smth.
     // TODO: possible values: queued, in progress, done, error.
     $responseData = [
       'runner_settings' => $runnerSettings,
@@ -170,16 +188,25 @@ class ApiController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
    */
-  public function testList() {
-    // @todo: Pagination.
-    $tests = $this->testStorage->loadMultiple();
+  public function testList(Request $request) {
+    $page = (int) $request->query->get('page', 1);
+    $page = $page < 1 ? 1 : $page;
+    $limit = (int) $request->query->get('limit', 10);
+    $limit = $limit < 0 ? 0 : $limit;
 
-    $responseData = [];
+    $queryStartIndex = ($page - 1) * $limit;
+
+    $testsIds = $this->testStorage->getQuery()->range($queryStartIndex, $limit)->execute();
+    $tests = $this->testStorage->loadMultiple($testsIds);
+
+    $responseData = [
+      'pagination' => $this->generatePager($page, $limit),
+      'entity' => [],
+    ];
 
     foreach ($tests as $test) {
       $testAsArray = $test->toArray();
-
-      $responseData[] = [
+      $responseData['entity'][] = [
         'id' => $testAsArray['id'],
         'name' => $testAsArray['name'],
         'type' => $testAsArray['type'],
@@ -188,6 +215,61 @@ class ApiController extends ControllerBase {
     }
 
     return new JsonResponse($responseData);
+  }
+
+  /**
+   * Function to generate a pager.
+   *
+   * @param int $page
+   *   The current page.
+   * @param int $limit
+   *   Items per page.
+   *
+   * @return array
+   *   The pager as array.
+   */
+  private function generatePager($page, $limit) {
+    $totalEntityCount = $this->testStorage->getQuery()->count()->execute();
+    $totalPageCount = (int) ceil($totalEntityCount / $limit);
+
+    $routeParams = [
+      '_format' => 'json',
+      'page' => $page,
+      'limit' => $limit,
+    ];
+
+    $routeOptions = [
+      'absolute' => TRUE,
+    ];
+
+    $pager = [
+      // The number of the current page.
+      'page' => (string) $page,
+      // The limit of items on the page.
+      'limit' => (string) $limit,
+      // The total count of entities.
+      'total_entities' => (string) $totalEntityCount,
+      // The total count of pages.
+      'total_pages' => (string) $totalPageCount,
+      'links' => [
+        'self' => $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions),
+      ],
+    ];
+
+    if ($page > 1) {
+      $routeParams['page'] = $page - 1;
+      $pager['links']['previous'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $routeParams['page'] = 1;
+      $pager['links']['first'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+    }
+    if ($page < $totalPageCount) {
+      $routeParams['page'] = $page + 1;
+      $pager['links']['next'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $routeParams['page'] = $totalPageCount;
+      $pager['links']['last'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+    }
+
+    return $pager;
   }
 
   /**
