@@ -98,13 +98,13 @@ class Backstop {
     kint('a');
     kint('a');
 
-    kint($this->parseScreenshots($entity));
-
     $entity->addMetadata($metadata);
+    $entity->setResult($this->parseScreenshots($entity));
     $entity->save();
 
     kint('lifetime metadata', $entity->getLifetimeMetadataValue());
     kint('last run metadata', $entity->getLastRunMetadataValue());
+    kint('last run result', $entity->getResultValue());
 
   }
 
@@ -117,7 +117,7 @@ class Backstop {
    * @return array
    *   The screenshots.
    */
-  private function parseScreenshots(QAShotTestInterface $entity) {
+  public function parseScreenshots(QAShotTestInterface $entity) {
     $screenshots = [];
 
     $reportBasePath = str_replace('/html_report/index.html', '', $entity->getHtmlReportPath());
@@ -125,7 +125,7 @@ class Backstop {
     $screenshotConfig = file_get_contents($screenshotConfigPath);
     if (FALSE === $screenshotConfig) {
       dpm('Config file not found at ' . $screenshotConfigPath);
-      return [];
+      return $screenshots;
     }
 
     // Report config is a json wrapped in a report() function,
@@ -136,14 +136,14 @@ class Backstop {
     $scenarioIndex = 0;
     $totalViewportLimit = $entity->getViewportCount() - 1;
     $viewportIndex = 0;
-    $reportExternalUrl = str_replace(PublicStream::basePath(), PublicStream::baseUrl(), $reportBasePath) . '/';
+
     foreach ($screenshotConfigData['tests'] as $screenshot) {
       $screenshots[] = [
-        'scenarioDelta' => $scenarioIndex,
-        'viewportDelta' => $viewportIndex,
-        'reference' => str_replace('../', $reportExternalUrl, $screenshot['pair']['reference']),
-        'test' => str_replace('../', $reportExternalUrl, $screenshot['pair']['test']),
-        'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('../', $reportExternalUrl, $screenshot['pair']['diffImage']) : '',
+        'scenario_delta' => $scenarioIndex,
+        'viewport_delta' => $viewportIndex,
+        'reference' => str_replace('../', $entity->id() . '/', $screenshot['pair']['reference']),
+        'test' => str_replace('../', $entity->id() . '/', $screenshot['pair']['test']),
+        'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('../', $entity->id() . '/', $screenshot['pair']['diffImage']) : '',
         'success' => $screenshot['status'] === 'pass',
       ];
 

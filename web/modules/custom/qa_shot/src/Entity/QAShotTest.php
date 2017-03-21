@@ -284,6 +284,39 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function getResultValue() {
+    return $this->get('result')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getComputedResultValue() {
+    $computedValue = [];
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Result $item */
+    foreach ($this->get('result') as $delta => $item) {
+      /** @var \Drupal\Core\TypedData\TypedDataInterface $property */
+      foreach ($item->getProperties(TRUE) as $name => $property) {
+        $computedValue[$delta][$name] = $property->getValue();
+      }
+    }
+
+    return $computedValue;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setResult(array $result) {
+    $this->get('result')->setValue($result);
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function baseFieldDefinitions(EntityTypeInterface $entityType) {
     $fields = parent::baseFieldDefinitions($entityType);
 
@@ -358,6 +391,12 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $fields['metadata_lifetime'] = BaseFieldDefinition::create('qa_shot_test_metadata')
       ->setLabel(t('Metadata (Lifetime)'))
       ->setDescription(t('Stores metadata for the entity.'))
+      ->setCardinality(-1);
+
+    // This field stores results (links to the individual screenshots).
+    $fields['result'] = BaseFieldDefinition::create('qa_shot_test_result')
+      ->setLabel(t('Result'))
+      ->setDescription(t('Stores the results for the last run.'))
       ->setCardinality(-1);
 
     return $fields;

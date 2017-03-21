@@ -188,6 +188,33 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getLastRunMetadataValue();
 
   /**
+   * Sets the result.
+   *
+   * @param array $result
+   *   The array with the results.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function setResult(array $result);
+
+  /**
+   * Returns the result.
+   *
+   * @return \Drupal\Core\Field\FieldItemListInterface
+   *   The result field.
+   */
+  public function getResultValue();
+
+  /**
+   * Returns the result with computed property values included.
+   *
+   * @return array
+   *   The result values.
+   */
+  public function getComputedResultValue();
+
+  /**
    * Map the current entity to the array representation of a BackstopJS config.
    *
    * @param string $privateDataPath
