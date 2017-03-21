@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot\Service;
 
+use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
 use Drupal\qa_shot\Exception\BackstopBaseException;
@@ -108,7 +109,7 @@ class Backstop {
   }
 
   /**
-   * Get the result screenshos.
+   * Get the result screenshots.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
@@ -116,50 +117,45 @@ class Backstop {
    * @return array
    *   The screenshots.
    */
-  public function parseScreenshots(QAShotTestInterface $entity) {
-    // @todo: Dependency inject.
-    /** @var \Drupal\qa_shot\Service\FileSystem $qasFileSystem */
-    $qasFileSystem = \Drupal::service('qa_shot.file_system');
-
+  private function parseScreenshots(QAShotTestInterface $entity) {
     $screenshots = [];
 
-    $resultBasePath = $qasFileSystem->getFileSystem()->dirname($entity->getHtmlReportPath());
-    $screenshotConfigPath = $resultBasePath . '/config.js';
+    $reportBasePath = str_replace('/html_report/index.html', '', $entity->getHtmlReportPath());
+    $screenshotConfigPath = $reportBasePath . '/html_report/config.js';
     $screenshotConfig = file_get_contents($screenshotConfigPath);
     if (FALSE === $screenshotConfig) {
       dpm('Config file not found at ' . $screenshotConfigPath);
       return [];
     }
 
+    // Report config is a json wrapped in a report() function,
+    // so we replace that with ''. Then, we turn the json into an array.
+    /** @var array[] $screenshotConfigData */
     $screenshotConfigData = json_decode(str_replace(['report(', ');'], '', $screenshotConfig), TRUE);
 
-    $testDir = NULL;
-
-    kint(1);
-    kint(1);
-
-    // @todo: fix
+    $scenarioIndex = 0;
+    $totalViewportLimit = $entity->getViewportCount() - 1;
+    $viewportIndex = 0;
+    $reportExternalUrl = str_replace(PublicStream::basePath(), PublicStream::baseUrl(), $reportBasePath) . '/';
     foreach ($screenshotConfigData['tests'] as $screenshot) {
-      if (NULL === $testDir) {
-        $testDir = $qasFileSystem->getFileSystem()->dirname($screenshot['pair']['test']);
-        $testDir = str_replace('../', $resultBasePath, $testDir);
-        dpm($testDir, 'testDir');
-      }
-
-      $diff = $testDir . '/failed_diff_' . $screenshot['pair']['fileName'];
-
-      if (($diffHandler = fopen($diff, 'rb')) === FALSE) {
-        $diff = '';
-      }
-
-      kint($diff, $diffHandler, 'diffexists');
-
       $screenshots[] = [
-        'reference' => str_replace('../', $resultBasePath, $screenshot['pair']['reference']),
-        'test' => str_replace('../', $resultBasePath, $screenshot['pair']['test']),
-        'diff' => $diff,
+        'scenarioDelta' => $scenarioIndex,
+        'viewportDelta' => $viewportIndex,
+        'reference' => str_replace('../', $reportExternalUrl, $screenshot['pair']['reference']),
+        'test' => str_replace('../', $reportExternalUrl, $screenshot['pair']['test']),
+        'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('../', $reportExternalUrl, $screenshot['pair']['diffImage']) : '',
+        'success' => $screenshot['status'] === 'pass',
       ];
 
+      // When the viewportIndex reaches the limit, we have to reset it to 0.
+      // We also have to increase the scenarioIndex.
+      if ($viewportIndex === $totalViewportLimit) {
+        ++$scenarioIndex;
+        $viewportIndex = 0;
+      }
+      else {
+        ++$viewportIndex;
+      }
     }
 
     return $screenshots;
