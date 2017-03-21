@@ -12,7 +12,7 @@ module:
   config: 0
   contact: 0
   contextual: 0
-  cors: 0
+  cors_ui: 0
   datetime: 0
   dblog: 0
   devel: 0
