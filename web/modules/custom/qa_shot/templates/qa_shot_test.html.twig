@@ -18,5 +18,11 @@
 <div{{ attributes.addClass('qa_shot_test') }}>
   {% if content %}
     {{- content -}}
+
+    <div>
+      <br/>
+      {{- report_path -}} <br/>
+      {{- run_path -}} <br/>
+    </div>
   {% endif %}
 </div>

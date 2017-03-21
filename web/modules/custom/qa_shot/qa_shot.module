@@ -10,6 +10,7 @@ use \Drupal\Core\Form\FormStateInterface;
 use \Drupal\Core\Entity\EntityInterface;
 use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_help().
@@ -136,22 +137,7 @@ function qa_shot_qa_shot_test_view(
   EntityViewDisplayInterface $display,
   $view_mode
 ) {
-  if ('full' === $view_mode) {
-    // @todo: save paths in the entity
-
-    // dpm($genResult['data']['reportPath'], 'report path');
-    dpm([
-      'entity_conf_path' => $entity->getConfigurationPath(),
-      'entity_report_path' => $entity->getHtmlReportPath(),
-    ], 'entity');
-
-    /** @var \Drupal\qa_shot\Service\Backstop $backstop */
-    $backstop = \Drupal::service('qa_shot.backstop');
-    dpm($backstop->parseScreenshots($entity));
-
-    // @todo: major cleanup and restructuring of the files
-    // @todo: store paths in db
-
-    // dpm($entity->getBackstopConfigurationPath(), "config path from entity");//.
-  }
+//  if ('full' === $view_mode) {
+//    // @todo: Placeholder for additional debug stuff.
+//  }
 }
