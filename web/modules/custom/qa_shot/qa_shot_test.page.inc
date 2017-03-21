@@ -38,6 +38,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
       'btn-info',
     ],
     'role' => ['button'],
+    'target' => ['_blank'],
   ];
 
   $runAttributes = [
