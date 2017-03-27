@@ -117,11 +117,6 @@
             "drush/contrib/{$name}": [
                 "type:drupal-drush"
             ]
-        },
-        "patches": {
-          "drupal/cors": {
-            "Multivalue responses not being returned. Added Origin matching": "https://www.drupal.org/files/issues/2780297-multivalue-headers-13.patch"
-          }
         }
     }
 }
