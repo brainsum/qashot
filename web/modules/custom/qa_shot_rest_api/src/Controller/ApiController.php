@@ -97,9 +97,8 @@ class ApiController extends ControllerBase {
 
     try {
       $this->tester->runTestBySettings(
-        $entity->bundle(),
-        $runnerSettings['test_stage'],
-        $entity
+        $entity,
+        $runnerSettings['test_stage']
       );
     }
     catch (BackstopBaseException $e) {

@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Module file for the backstop abstraction module.
+ */
+
+/*
+ * @todo list
+ * In qa_shot, implement a system that lists available abstractions.
+ * (Custom plugin maybe?)
+ *
+ * In qa_shot, implement a tester service which uses the selected abstraction.
+ */

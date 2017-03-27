@@ -2,7 +2,6 @@
 
 namespace Drupal\qa_shot\Service;
 
-use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
 use Drupal\qa_shot\Exception\BackstopBaseException;
@@ -13,6 +12,7 @@ use Drupal\qa_shot\Exception\InvalidRunnerOptionsException;
 use Drupal\qa_shot\Custom\Backstop as CustomBackstop;
 use Drupal\qa_shot\Exception\ReferenceCommandFailedException;
 use Drupal\qa_shot\Exception\TestCommandFailedException;
+use Drupal\qa_shot\TestBase;
 
 /**
  * Class Backstop.
@@ -21,19 +21,10 @@ use Drupal\qa_shot\Exception\TestCommandFailedException;
  *
  * @package Drupal\qa_shot\Service
  */
-class Backstop {
+class Backstop extends TestBase {
 
   /**
-   * Run a test according to the mode and stage.
-   *
-   * Run tests only with this function!
-   *
-   * @param string $mode
-   *   The test mode.
-   * @param string $stage
-   *   The test stage.
-   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
-   *   The entity.
+   * {@inheritdoc}
    *
    * @throws \Drupal\qa_shot\Exception\InvalidRunnerOptionsException
    * @throws \Drupal\qa_shot\Exception\InvalidConfigurationException
@@ -45,7 +36,9 @@ class Backstop {
    * @throws \Drupal\qa_shot\Exception\InvalidRunnerModeException
    * @throws \Drupal\qa_shot\Exception\InvalidRunnerStageException
    */
-  public function runTestBySettings($mode, $stage, QAShotTestInterface $entity) {
+  public function runTestBySettings(QAShotTestInterface $entity, $stage) {
+
+    $mode = $entity->bundle();
     // Validate the settings.
     if (!CustomBackstop::areRunnerSettingsValid($mode, $stage)) {
       throw new InvalidRunnerOptionsException('The requested test mode or stage is invalid.');
@@ -198,7 +191,7 @@ class Backstop {
    *
    * @return array
    */
-  private function runBeforeAfterTest(QAShotTestInterface $entity, $stage) {
+  protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage) {
     return ('before' === $stage) ? $this->runReferenceCommand($entity) : $this->runTestCommand($entity);
   }
 
@@ -215,7 +208,7 @@ class Backstop {
    *
    * @return array
    */
-  private function runABTest(QAShotTestInterface $entity) {
+  protected function runABTest(QAShotTestInterface $entity) {
     $command = 'reference';
     try {
       $referenceResult = $this->runReferenceCommand($entity);
