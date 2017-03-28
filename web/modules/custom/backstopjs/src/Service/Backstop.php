@@ -83,7 +83,7 @@ class Backstop extends TestBackendBase {
       throw new \Exception('Test results are empty. Contact the site administrator!');
     }
 
-    // Should only be a real value for test.
+    // Should only be a real value for the 'test' command.
     if (NULL !== $results['passedTestCount'] && NULL !== $results['failedTestCount']) {
       drupal_set_message(t('Test done. @passed test(s) passed, @failed test(s) failed.', [
         '@passed' => $results['passedTestCount'],
