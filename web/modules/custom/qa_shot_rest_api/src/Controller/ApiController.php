@@ -7,8 +7,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\backstopjs\Exception\BackstopBaseException;
-use Drupal\qa_shot\TestBackendInterface;
+use Drupal\qa_shot\Exception\QAShotBaseException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -93,7 +92,7 @@ class ApiController extends ControllerBase {
     try {
       $entity->run($stage);
     }
-    catch (BackstopBaseException $e) {
+    catch (QAShotBaseException $e) {
       $message = $e->getMessage();
     }
 

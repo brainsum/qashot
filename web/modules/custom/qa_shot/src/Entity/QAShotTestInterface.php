@@ -222,19 +222,4 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    */
   public function run($stage);
 
-  /**
-   * Map the current entity to the array representation of a BackstopJS config.
-   *
-   * @param string $privateDataPath
-   *   The path to the private file system.
-   * @param string $publicDataPath
-   *   The path to the public file system.
-   * @param bool $withDebug
-   *   Whether we should add CasperJS debug options.
-   *
-   * @return array
-   *   The entity as a BackstopJS config array.
-   */
-  public function toBackstopConfigArray($privateDataPath, $publicDataPath, $withDebug = FALSE);
-
 }

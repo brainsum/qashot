@@ -4,7 +4,7 @@ namespace Drupal\backstopjs\Service;
 
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
-use Drupal\backstopjs\Exception\BackstopBaseException;
+use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\backstopjs\Exception\InvalidCommandException;
 use Drupal\backstopjs\Exception\InvalidConfigurationException;
 use Drupal\backstopjs\Exception\InvalidEntityException;
@@ -187,7 +187,7 @@ class Backstop extends TestBackendBase {
     try {
       $this->qasFileSystem->initializeEnvironment($entity);
     }
-    catch (BackstopBaseException $exception) {
+    catch (QAShotBaseException $exception) {
       drupal_set_message('Exception at environment init. ' . $exception->getMessage(), 'error');
     }
 
@@ -225,7 +225,7 @@ class Backstop extends TestBackendBase {
     try {
       $referenceResult = $this->runReferenceCommand($entity);
     }
-    catch (BackstopBaseException $e) {
+    catch (QAShotBaseException $e) {
       drupal_set_message($e->getMessage(), 'error');
       $referenceResult['result'] = FALSE;
     }
@@ -239,7 +239,7 @@ class Backstop extends TestBackendBase {
     try {
       $testResult = $this->runTestCommand($entity);
     }
-    catch (BackstopBaseException $e) {
+    catch (QAShotBaseException $e) {
       drupal_set_message($e->getMessage(), 'error');
       $testResult['result'] = FALSE;
     }

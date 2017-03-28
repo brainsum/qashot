@@ -6,7 +6,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Drupal\backstopjs\Exception\BackstopBaseException;
+use Drupal\qa_shot\Exception\QAShotBaseException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -44,7 +44,7 @@ class QAShotController extends ControllerBase {
         try {
           $entity->run(NULL);
         }
-        catch (BackstopBaseException $e) {
+        catch (QAShotBaseException $e) {
           drupal_set_message($e->getMessage(), 'error');
         }
       }

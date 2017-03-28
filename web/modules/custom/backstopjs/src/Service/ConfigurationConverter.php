@@ -2,6 +2,9 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\StreamWrapper\PrivateStream;
+use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
@@ -14,8 +17,152 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  */
 class ConfigurationConverter {
 
-  public function entityToArray(QAShotTestInterface $entity) {
-    // return $entity->toBackstopConfigArray('', '');
+  /**
+   * The private files folder for QAShot Test Entities without a trailing /.
+   *
+   * @var string
+   */
+  private $privateDataPath;
+
+  /**
+   * The public files folder for QAShot Test Entities without a trailing /.
+   *
+   * @var string
+   */
+  private $publicDataPath;
+
+  /**
+   * ConfigurationConverter constructor.
+   */
+  public function __construct() {
+    $pathPattern = FileSystem::PATH_PATTERN;
+
+    $this->privateDataPath = str_replace('{files_path}', PrivateStream::basePath(), $pathPattern);
+    $this->publicDataPath = str_replace('{files_path}', PublicStream::basePath(), $pathPattern);
+  }
+
+  /**
+   * Map the current entity to the array representation of a BackstopJS config.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The test entity.
+   * @param bool $withDebug
+   *   Whether we should add CasperJS debug options.
+   *
+   * @return array
+   *   The entity as a BackstopJS config array.
+   */
+  public function entityToArray(QAShotTestInterface $entity, $withDebug = FALSE) {
+    // @todo: get some field values global settings
+
+    $entityId = $entity->id();
+    $this->privateDataPath = str_replace('{entity_id}', $entityId, $this->privateDataPath);
+    $this->publicDataPath = str_replace('{entity_id}', $entityId, $this->publicDataPath);
+
+    $mapConfigToArray = [
+      // @todo: maybe id + revision id.
+      'id' => $entityId,
+      'viewports' => [],
+      'scenarios' => [],
+      'paths' => [
+        'bitmaps_reference' => $this->publicDataPath . '/reference',
+        'bitmaps_test' => $this->publicDataPath . '/test',
+        'casper_scripts' => $this->privateDataPath . '/casper_scripts',
+        'html_report' => $this->publicDataPath . '/html_report',
+        'ci_report' => $this->publicDataPath . '/ci_report',
+      ],
+      // 'onBeforeScript' => 'onBefore.js', //.
+      // 'onReadyScript' => 'onReady.js', //.
+      'engine' => 'phantomjs',
+      'report' => [
+        'browser',
+      ],
+      'casperFlags' => [
+        '--ignore-ssl-errors=true',
+        '--ssl-protocol=any',
+      ],
+      'debug' => FALSE,
+    ];
+
+    $mapConfigToArray['viewports'] = $this->viewportToArray($entity->getFieldViewport());
+    $mapConfigToArray['scenarios'] = $this->scenarioToArray($entity->getFieldScenario());
+
+    if ($withDebug === TRUE) {
+      $mapConfigToArray['debug'] = TRUE;
+      $mapConfigToArray['casperFlags'][] = '--verbose';
+    }
+
+    return $mapConfigToArray;
+  }
+
+  /**
+   * Convert the viewport field so it can be used in a BackstopJS config array.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $viewportField
+   *   The viewport field.
+   *
+   * @return array
+   *   Array representation of the viewport field.
+   */
+  private function viewportToArray(FieldItemListInterface $viewportField) {
+    $viewportData = [];
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Viewport $viewport */
+    foreach ($viewportField as $viewport) {
+      $viewportData[] = [
+        'name' => (string) $viewport->get('name')->getValue(),
+        'width' => (int) $viewport->get('width')->getValue(),
+        'height' => (int) $viewport->get('height')->getValue(),
+      ];
+    }
+
+    return $viewportData;
+  }
+
+  /**
+   * Convert the scenario field so it can be used in a BackstopJS config array.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $scenarioField
+   *   The scenario field.
+   *
+   * @return array
+   *   Array representation of the scenario field.
+   */
+  private function scenarioToArray(FieldItemListInterface $scenarioField) {
+    $scenarioData = [];
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Scenario $scenario */
+    foreach ($scenarioField as $scenario) {
+      $currentScenario = [];
+      $currentScenario['label'] = (string) $scenario->get('label')->getValue();
+
+      if ($referenceUrl = $scenario->get('referenceUrl')->getValue()) {
+        $currentScenario['referenceUrl'] = (string) $referenceUrl;
+      }
+
+      $currentScenario += [
+        'url' => (string) $scenario->get('testUrl')->getValue(),
+        'readyEvent' => NULL,
+        'delay' => 5000,
+        'misMatchThreshold' => 0.0,
+        'selectors' => [
+          'document',
+        ],
+        'removeSelectors' => [
+          '#twitter-widget-0',
+          '#twitter-widget-1',
+          '.captcha',
+          '#sliding-popup',
+        ],
+        'hideSelectors' => [],
+        'onBeforeScript' => 'onBefore.js',
+        'onReadyScript' => 'onReady.js',
+      ];
+
+      $scenarioData[] = $currentScenario;
+    }
+
+    return $scenarioData;
   }
 
   /**
@@ -26,7 +173,7 @@ class ConfigurationConverter {
    * @param bool $saveEntity
    *   Whether to persist the entity as well.
    *
-   * @return QAShotTestInterface|\Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface|\Drupal\Core\Entity\EntityInterface
    *   The entity object.
    */
   public function arrayToEntity(array $config, $saveEntity = FALSE) {
@@ -47,7 +194,7 @@ class ConfigurationConverter {
    * @param bool $saveEntity
    *   Whether to persist the entity as well.
    *
-   * @return QAShotTestInterface
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The entity object.
    */
   public function jsonStringToEntity($json, $saveEntity = FALSE) {
@@ -80,7 +227,7 @@ class ConfigurationConverter {
    * @param bool $saveEntity
    *   Whether to persist the entity as well.
    *
-   * @return QAShotTestInterface
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The entity object.
    */
   public function jsonFileToEntity($jsonFile, $saveEntity = FALSE) {

@@ -20,6 +20,16 @@ use Drupal\backstopjs\Exception\InvalidEntityException;
 class FileSystem {
 
   /**
+   * The pattern of the paths.
+   *
+   * {files} = The file system path.
+   * {entity_id} = The ID of the entity.
+   *
+   * @var string
+   */
+  const PATH_PATTERN = '{files_path}/qa_test_data/{entity_id}';
+
+  /**
    * The entity data base path in the public and private filesystem.
    *
    * @var string
@@ -47,17 +57,22 @@ class FileSystem {
    */
   private $fileSystem;
 
+  private $configConverter;
+
   /**
    * FileSystem constructor.
    *
    * @param \Drupal\Core\File\FileSystemInterface $fileSystem
    *   File system service.
+   * @param \Drupal\backstopjs\Service\ConfigurationConverter $configConverter
+   *   The configuration converter.
    */
-  public function __construct(FileSystemInterface $fileSystem) {
+  public function __construct(FileSystemInterface $fileSystem, ConfigurationConverter $configConverter) {
     $this->privateFiles = PrivateStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
     $this->publicFiles = PublicStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
 
     $this->fileSystem = $fileSystem;
+    $this->configConverter = $configConverter;
   }
 
   /**
@@ -188,7 +203,7 @@ class FileSystem {
     $templateFolder = $this->privateFiles . '/template';
     $configPath = $privateEntityData . '/backstop.json';
 
-    $configAsArray = $entity->toBackstopConfigArray($privateEntityData, $publicEntityData, FALSE);
+    $configAsArray = $this->configConverter->entityToArray($entity, FALSE);
     $jsonEncodeSettings = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
     $configAsJSON = json_encode($configAsArray, $jsonEncodeSettings);
 
