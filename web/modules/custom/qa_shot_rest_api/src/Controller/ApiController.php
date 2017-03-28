@@ -47,6 +47,8 @@ class ApiController extends ControllerBase {
    * Create.
    *
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -65,6 +67,8 @@ class ApiController extends ControllerBase {
    *   Url generator.
    * @param \Drupal\qa_shot\TestBackendInterface $tester
    *   The tester service.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
@@ -83,6 +87,9 @@ class ApiController extends ControllerBase {
    *   The request.
    *
    * @throws BadRequestHttpException
+   * @throws \InvalidArgumentException
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   * @throws \LogicException
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
@@ -184,6 +191,14 @@ class ApiController extends ControllerBase {
   /**
    * Return the list of tests.
    *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws \Symfony\Component\Routing\Exception\RouteNotFoundException
+   * @throws \Symfony\Component\Routing\Exception\MissingMandatoryParametersException
+   * @throws \Symfony\Component\Routing\Exception\InvalidParameterException
+   * @throws \InvalidArgumentException
+   *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
    */
@@ -223,6 +238,10 @@ class ApiController extends ControllerBase {
    *   The current page.
    * @param int $limit
    *   Items per page.
+   *
+   * @throws \Symfony\Component\Routing\Exception\MissingMandatoryParametersException
+   * @throws \Symfony\Component\Routing\Exception\InvalidParameterException
+   * @throws \Symfony\Component\Routing\Exception\RouteNotFoundException
    *
    * @return array
    *   The pager as array.
