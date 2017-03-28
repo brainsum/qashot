@@ -51,12 +51,17 @@ class FileSystem {
   private $publicFiles;
 
   /**
-   * File system service.
+   * File system service from core.
    *
    * @var \Drupal\Core\File\FileSystemInterface
    */
   private $fileSystem;
 
+  /**
+   * The configuration converter service.
+   *
+   * @var \Drupal\backstopjs\Service\ConfigurationConverter
+   */
   private $configConverter;
 
   /**
@@ -76,27 +81,6 @@ class FileSystem {
   }
 
   /**
-   * @return \Drupal\Core\File\FileSystemInterface
-   */
-  public function getFileSystem() {
-    return $this->fileSystem;
-  }
-
-  /**
-   * @return string
-   */
-  public function getPublicFiles() {
-    return $this->publicFiles;
-  }
-
-  /**
-   * @return string
-   */
-  public function getPrivateFiles() {
-    return $this->privateFiles;
-  }
-
-  /**
    * Creates a directory at the given path.
    *
    * @param string $dirToCreate
@@ -104,7 +88,7 @@ class FileSystem {
    *
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
    */
-  public function createFolder($dirToCreate) {
+  private function createFolder($dirToCreate) {
     if (is_dir($dirToCreate)) {
       return;
     }
@@ -126,7 +110,7 @@ class FileSystem {
    * @throws FileWriteException
    * @throws FileOpenException
    */
-  public function createConfigFile($configurationPath, $jsonString) {
+  private function createConfigFile($configurationPath, $jsonString) {
     // @todo: check if file exists, if yes, check if it's the same as the new one.
     if (($configFile = fopen($configurationPath, 'w')) === FALSE) {
       throw new FileOpenException("Opening the configuration file at $configurationPath failed.");
@@ -142,12 +126,17 @@ class FileSystem {
   }
 
   /**
-   * @param $src
-   * @param $target
+   * Copy the required template files into the target folder.
+   *
+   * @param string $src
+   *   Template folder.
+   * @param string $target
+   *   Target folder.
    *
    * @return bool
+   *   Whether the copy was a success or not.
    */
-  public function copyTemplates($src, $target) {
+  private function copyTemplates($src, $target) {
     // @todo: use exceptions
     dpm($src, 'copy src');
     dpm($target, 'copy target');
@@ -199,7 +188,6 @@ class FileSystem {
     // @todo: refactor
     // @todo: . "/" . revision id; to both paths.
     $privateEntityData = $this->privateFiles . '/' . $entity->id();
-    $publicEntityData = $this->publicFiles . '/' . $entity->id();
     $templateFolder = $this->privateFiles . '/template';
     $configPath = $privateEntityData . '/backstop.json';
 
@@ -258,7 +246,7 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  public function removePublicData(QAShotTestInterface $entity) {
+  private function removePublicData(QAShotTestInterface $entity) {
     $dir = $this->publicFiles . '/' . $entity->id();
     return $this->removeDirectory($dir);
   }
@@ -272,7 +260,7 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  public function removePrivateData(QAShotTestInterface $entity) {
+  private function removePrivateData(QAShotTestInterface $entity) {
     $dir = $this->privateFiles . '/' . $entity->id();
     return $this->removeDirectory($dir);
   }
@@ -286,7 +274,7 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  public function removeDirectory($dir) {
+  private function removeDirectory($dir) {
     if (!is_dir($dir)) {
       return TRUE;
     }

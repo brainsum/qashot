@@ -17,7 +17,7 @@ use Drupal\qa_shot\TestBackendBase;
 /**
  * Class Backstop.
  *
- * BackstopJS wrapper class.
+ * BackstopJS abstraction class.
  *
  * @package Drupal\qa_shot\Service
  */
@@ -102,9 +102,6 @@ class Backstop extends TestBackendBase {
       'failed_count' => $results['failedTestCount'],
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
-
-    kint('a');
-    kint('a');
 
     $entity->addMetadata($metadata);
     $entity->setResult($this->parseScreenshots($entity));

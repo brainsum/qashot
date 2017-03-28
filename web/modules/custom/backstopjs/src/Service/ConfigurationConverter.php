@@ -2,6 +2,7 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
@@ -32,13 +33,25 @@ class ConfigurationConverter {
   private $publicDataPath;
 
   /**
-   * ConfigurationConverter constructor.
+   * QAShotTest entity storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
    */
-  public function __construct() {
+  private $testStorage;
+
+  /**
+   * ConfigurationConverter constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   EntityTypeManager service.
+   */
+  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
     $pathPattern = FileSystem::PATH_PATTERN;
 
     $this->privateDataPath = str_replace('{files_path}', PrivateStream::basePath(), $pathPattern);
     $this->publicDataPath = str_replace('{files_path}', PublicStream::basePath(), $pathPattern);
+
+    $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
   }
 
   /**
@@ -177,7 +190,7 @@ class ConfigurationConverter {
    *   The entity object.
    */
   public function arrayToEntity(array $config, $saveEntity = FALSE) {
-    $testEntity = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->create($config);
+    $testEntity = $this->testStorage->create($config);
 
     if ($saveEntity) {
       $testEntity->save();
