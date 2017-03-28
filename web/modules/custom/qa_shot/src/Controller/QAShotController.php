@@ -42,7 +42,7 @@ class QAShotController extends ControllerBase {
       if ($request->query->get('start_now') == 1) {
         // If we come from a valid route, run the tests.
         try {
-          \Drupal::service('backstopjs.backstop')->runTestBySettings('a_b', NULL, $entity);
+          $entity->run(NULL);
         }
         catch (BackstopBaseException $e) {
           drupal_set_message($e->getMessage(), 'error');

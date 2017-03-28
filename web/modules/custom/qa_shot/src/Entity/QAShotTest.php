@@ -413,6 +413,18 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function run($stage) {
+    // @todo: Generalize.
+    /** @var \Drupal\qa_shot\TestBackendInterface $testBackend */
+    $testBackend = \Drupal::service('backstopjs.backstop');
+    $testBackend->runTestBySettings($this, $stage);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * // @todo: Move to the configconverter in backstopjs module.
+   */
   public function toBackstopConfigArray($privateDataPath, $publicDataPath, $withDebug = FALSE) {
     // @todo: get these field values global settings
 

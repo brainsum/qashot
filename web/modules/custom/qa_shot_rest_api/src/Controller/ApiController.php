@@ -37,13 +37,6 @@ class ApiController extends ControllerBase {
   protected $urlGenerator;
 
   /**
-   * Tester service.
-   *
-   * @var \Drupal\qa_shot\TestBackendInterface
-   */
-  private $tester;
-
-  /**
    * Create.
    *
    * {@inheritdoc}
@@ -53,8 +46,7 @@ class ApiController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('url_generator'),
-      $container->get('backstopjs.backstop')
+      $container->get('url_generator')
     );
   }
 
@@ -65,19 +57,15 @@ class ApiController extends ControllerBase {
    *   Entity type manager.
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $urlGenerator
    *   Url generator.
-   * @param \Drupal\qa_shot\TestBackendInterface $tester
-   *   The tester service.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    UrlGeneratorInterface $urlGenerator,
-    TestBackendInterface $tester
+    UrlGeneratorInterface $urlGenerator
   ) {
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->urlGenerator = $urlGenerator;
-    $this->tester = $tester;
   }
 
   /**
@@ -95,7 +83,7 @@ class ApiController extends ControllerBase {
    *   The response.
    */
   public function runTest(Request $request) {
-    $runnerSettings = $this->parseRunnerSettings($request);
+    $stage = $this->parseRunnerSettings($request);
 
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
@@ -103,10 +91,7 @@ class ApiController extends ControllerBase {
     $message = 'success';
 
     try {
-      $this->tester->runTestBySettings(
-        $entity,
-        $runnerSettings['test_stage']
-      );
+      $entity->run($stage);
     }
     catch (BackstopBaseException $e) {
       $message = $e->getMessage();
@@ -115,7 +100,7 @@ class ApiController extends ControllerBase {
     // TODO: If queued, the response code should be 201 (accepted) or smth.
     // TODO: possible values: queued, in progress, done, error.
     $responseData = [
-      'runner_settings' => $runnerSettings,
+      'runner_settings' => ['stage' => $stage],
       'message' => $message,
       'entity' => $entity->toArray(),
     ];
@@ -132,7 +117,7 @@ class ApiController extends ControllerBase {
    * @throws BadRequestHttpException
    * @throws \LogicException
    *
-   * @return array|mixed
+   * @return string|null
    *   The parameters.
    */
   private function parseRunnerSettings(Request $request) {
@@ -150,7 +135,7 @@ class ApiController extends ControllerBase {
       $runnerSettings['test_stage'] = NULL;
     }
 
-    return $runnerSettings;
+    return $runnerSettings['test_stage'];
   }
 
   /**

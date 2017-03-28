@@ -215,6 +215,14 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getComputedResultValue();
 
   /**
+   * Run the test entity.
+   *
+   * @param string|null $stage
+   *   The stage of the run.
+   */
+  public function run($stage);
+
+  /**
    * Map the current entity to the array representation of a BackstopJS config.
    *
    * @param string $privateDataPath
