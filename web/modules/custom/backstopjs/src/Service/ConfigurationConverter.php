@@ -100,9 +100,17 @@ class ConfigurationConverter {
           'green' => 0,
           'blue' => 255,
         ],
+        // Can be 'flat' or 'movement'.
+        // Movement: Merges error color with base image
+        // which makes it a little easier to spot movement.
         'errorType' => 'movement',
+        // Fade unchanged areas to make changed areas more apparent.
         'transparency' => 0.3,
+        // Set as 0 to disable.
         'largeImageThreshold' => 1200,
+        // Set to FALSE for DATA URIs.
+        // @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
+        // Note: This shouldn't matter here.
         'useCrossOrigin' => TRUE,
       ],
       'asyncCompareLimit' => 40,
