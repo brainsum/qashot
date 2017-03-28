@@ -1,18 +1,18 @@
 <?php
 
-namespace Drupal\qa_shot\Service;
+namespace Drupal\backstopjs\Service;
 
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
- * Class BackstopConfigurationConverter.
+ * Class ConfigurationConverter.
  *
  * Provides various functions to create a QAShotTest instance.
  * Saving the new entity is optional.
  *
- * @package Drupal\qa_shot\Service
+ * @package Drupal\backstopjs\Service
  */
-class BackstopConfigurationConverter {
+class ConfigurationConverter {
 
   public function entityToArray(QAShotTestInterface $entity) {
     // return $entity->toBackstopConfigArray('', '');

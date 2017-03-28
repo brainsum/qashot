@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\qa_shot\Exception;
+namespace Drupal\backstopjs\Exception;
 
 /**
  * Class FileWriteException.
  *
- * @package Drupal\qa_shot\Exception
+ * @package Drupal\backstopjs\Exception
  */
 class FileWriteException extends BackstopBaseException {
 }

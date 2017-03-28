@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\qa_shot\Exception;
+namespace Drupal\backstopjs\Exception;
 
 /**
  * Class BackstopAlreadyRunningException.
  *
- * @package Drupal\qa_shot\Exception
+ * @package Drupal\backstopjs\Exception
  */
 class BackstopAlreadyRunningException extends BackstopBaseException {
 }

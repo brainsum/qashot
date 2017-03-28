@@ -3,3 +3,5 @@ type: module
 description: Module for BackstopJS abstraction.
 core: 8.x
 package: QAShot
+dependencies:
+  - qa_shot

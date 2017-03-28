@@ -7,8 +7,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\qa_shot\Exception\BackstopBaseException;
-use Drupal\qa_shot\Service\Backstop;
+use Drupal\backstopjs\Exception\BackstopBaseException;
+use Drupal\qa_shot\TestBackendInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +39,7 @@ class ApiController extends ControllerBase {
   /**
    * Tester service.
    *
-   * @var \Drupal\qa_shot\Service\Backstop
+   * @var \Drupal\qa_shot\TestBackendInterface
    */
   private $tester;
 
@@ -52,7 +52,7 @@ class ApiController extends ControllerBase {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('url_generator'),
-      $container->get('qa_shot.backstop')
+      $container->get('backstopjs.backstop')
     );
   }
 
@@ -63,13 +63,13 @@ class ApiController extends ControllerBase {
    *   Entity type manager.
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $urlGenerator
    *   Url generator.
-   * @param \Drupal\qa_shot\Service\Backstop $tester
+   * @param \Drupal\qa_shot\TestBackendInterface $tester
    *   The tester service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     UrlGeneratorInterface $urlGenerator,
-    Backstop $tester
+    TestBackendInterface $tester
   ) {
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->urlGenerator = $urlGenerator;
@@ -139,7 +139,7 @@ class ApiController extends ControllerBase {
       throw new BadRequestHttpException('The request parameters are empty.');
     }
 
-    if (!isset($runnerSettings['test_stage'])) {
+    if (!isset($runnerSettings['test_stage']) || empty($runnerSettings['test_stage'])) {
       $runnerSettings['test_stage'] = NULL;
     }
 

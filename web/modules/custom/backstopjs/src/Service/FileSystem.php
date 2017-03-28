@@ -1,22 +1,21 @@
 <?php
 
-namespace Drupal\qa_shot\Service;
+namespace Drupal\backstopjs\Service;
 
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Drupal\qa_shot\Exception\FileCopyException;
-use Drupal\qa_shot\Exception\FileCreateException;
-use Drupal\qa_shot\Exception\FileOpenException;
-use Drupal\qa_shot\Exception\FileWriteException;
-use Drupal\qa_shot\Exception\FolderCreateException;
-use Drupal\qa_shot\Exception\InvalidEntityException;
+use Drupal\backstopjs\Exception\FileCopyException;
+use Drupal\backstopjs\Exception\FileOpenException;
+use Drupal\backstopjs\Exception\FileWriteException;
+use Drupal\backstopjs\Exception\FolderCreateException;
+use Drupal\backstopjs\Exception\InvalidEntityException;
 
 /**
  * Class FileSystem.
  *
- * @package Drupal\qa_shot\Service
+ * @package Drupal\backstopjs\Service
  */
 class FileSystem {
 
@@ -88,7 +87,7 @@ class FileSystem {
    * @param string $dirToCreate
    *   Path of the directory to be created.
    *
-   * @throws \Drupal\qa_shot\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
    */
   public function createFolder($dirToCreate) {
     if (is_dir($dirToCreate)) {
@@ -170,12 +169,12 @@ class FileSystem {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The QAShot Test entity.
    *
-   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
-   * @throws \Drupal\qa_shot\Exception\FileOpenException
-   * @throws \Drupal\qa_shot\Exception\FileWriteException
-   * @throws \Drupal\qa_shot\Exception\FileCloseException
-   * @throws \Drupal\qa_shot\Exception\FileCopyException
-   * @throws \Drupal\qa_shot\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FileCloseException
+   * @throws \Drupal\backstopjs\Exception\FileCopyException
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
    */
   public function initializeEnvironment(QAShotTestInterface $entity) {
     if (NULL === $entity || $entity->getEntityTypeId() !== 'qa_shot_test') {

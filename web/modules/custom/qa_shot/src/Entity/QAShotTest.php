@@ -75,9 +75,9 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function delete() {
-    // @todo: Dependency inject.
-    /** @var \Drupal\qa_shot\Service\FileSystem $qasFileSystem */
-    $qasFileSystem = \Drupal::service('qa_shot.file_system');
+    // @todo: Dependency inject. How to do this in a generic fashion?
+    /** @var \Drupal\backstopjs\Service\FileSystem $qasFileSystem */
+    $qasFileSystem = \Drupal::service('backstopjs.file_system');
     $pubRemoveRes = $qasFileSystem->removePublicData($this);
     $privRemoveRes = $qasFileSystem->removePrivateData($this);
 

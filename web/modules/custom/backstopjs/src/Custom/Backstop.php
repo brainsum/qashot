@@ -1,14 +1,14 @@
 <?php
 
-namespace Drupal\qa_shot\Custom;
+namespace Drupal\backstopjs\Custom;
 
-use Drupal\qa_shot\Exception\InvalidRunnerModeException;
-use Drupal\qa_shot\Exception\InvalidRunnerStageException;
+use Drupal\backstopjs\Exception\InvalidRunnerModeException;
+use Drupal\backstopjs\Exception\InvalidRunnerStageException;
 
 /**
  * Class Backstop, contains helper functions.
  *
- * @package Drupal\qa_shot\Custom
+ * @package Drupal\backstopjs\Custom
  *
  * @todo: Refactor RunnerOptions into a service
  */

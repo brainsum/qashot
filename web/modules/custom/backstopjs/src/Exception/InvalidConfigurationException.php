@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\qa_shot\Exception;
+namespace Drupal\backstopjs\Exception;
 
 /**
  * Class InvalidConfigurationException.
  *
- * @package Drupal\qa_shot\Exception
+ * @package Drupal\backstopjs\Exception
  */
 class InvalidConfigurationException extends BackstopBaseException {
 }

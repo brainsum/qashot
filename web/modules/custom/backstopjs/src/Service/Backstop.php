@@ -1,18 +1,18 @@
 <?php
 
-namespace Drupal\qa_shot\Service;
+namespace Drupal\backstopjs\Service;
 
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Drupal\qa_shot\Exception\BackstopAlreadyRunningException;
-use Drupal\qa_shot\Exception\BackstopBaseException;
-use Drupal\qa_shot\Exception\InvalidCommandException;
-use Drupal\qa_shot\Exception\InvalidConfigurationException;
-use Drupal\qa_shot\Exception\InvalidEntityException;
-use Drupal\qa_shot\Exception\InvalidRunnerOptionsException;
-use Drupal\qa_shot\Custom\Backstop as CustomBackstop;
-use Drupal\qa_shot\Exception\ReferenceCommandFailedException;
-use Drupal\qa_shot\Exception\TestCommandFailedException;
-use Drupal\qa_shot\TestBase;
+use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
+use Drupal\backstopjs\Exception\BackstopBaseException;
+use Drupal\backstopjs\Exception\InvalidCommandException;
+use Drupal\backstopjs\Exception\InvalidConfigurationException;
+use Drupal\backstopjs\Exception\InvalidEntityException;
+use Drupal\backstopjs\Exception\InvalidRunnerOptionsException;
+use Drupal\backstopjs\Custom\Backstop as CustomBackstop;
+use Drupal\backstopjs\Exception\ReferenceCommandFailedException;
+use Drupal\backstopjs\Exception\TestCommandFailedException;
+use Drupal\qa_shot\TestBackendBase;
 
 /**
  * Class Backstop.
@@ -21,20 +21,35 @@ use Drupal\qa_shot\TestBase;
  *
  * @package Drupal\qa_shot\Service
  */
-class Backstop extends TestBase {
+class Backstop extends TestBackendBase {
+
+  /**
+   * The QAShot specific filesystem service.
+   *
+   * @var \Drupal\backstopjs\Service\FileSystem
+   */
+  protected $qasFileSystem;
+
+  /**
+   * TestBase constructor.
+   */
+  public function __construct() {
+    // @todo: Dependency injection.
+    $this->qasFileSystem = \Drupal::service('backstopjs.file_system');
+  }
 
   /**
    * {@inheritdoc}
    *
-   * @throws \Drupal\qa_shot\Exception\InvalidRunnerOptionsException
-   * @throws \Drupal\qa_shot\Exception\InvalidConfigurationException
-   * @throws \Drupal\qa_shot\Exception\InvalidCommandException
-   * @throws \Drupal\qa_shot\Exception\ReferenceCommandFailedException
-   * @throws \Drupal\qa_shot\Exception\TestCommandFailedException
-   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
-   * @throws \Drupal\qa_shot\Exception\BackstopAlreadyRunningException
-   * @throws \Drupal\qa_shot\Exception\InvalidRunnerModeException
-   * @throws \Drupal\qa_shot\Exception\InvalidRunnerStageException
+   * @throws \Drupal\backstopjs\Exception\InvalidRunnerOptionsException
+   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
+   * @throws \Drupal\backstopjs\Exception\InvalidCommandException
+   * @throws \Drupal\backstopjs\Exception\ReferenceCommandFailedException
+   * @throws \Drupal\backstopjs\Exception\TestCommandFailedException
+   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
+   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
+   * @throws \Drupal\backstopjs\Exception\InvalidRunnerModeException
+   * @throws \Drupal\backstopjs\Exception\InvalidRunnerStageException
    */
   public function runTestBySettings(QAShotTestInterface $entity, $stage) {
 
@@ -78,7 +93,7 @@ class Backstop extends TestBase {
 
     // Gather and persist metadata.
     $metadata = [
-      'stage' => $stage,
+      'stage' => empty($stage) ? NULL : $stage,
       'viewport_count' => $entity->getViewportCount(),
       'scenario_count' => $entity->getScenarioCount(),
       'datetime' => (new \DateTime())->format('Y-m-d H:i:s'),
@@ -160,8 +175,8 @@ class Backstop extends TestBase {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    *
-   * @throws \Drupal\qa_shot\Exception\InvalidConfigurationException
-   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
+   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
+   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    */
   private function prepareTest(QAShotTestInterface $entity) {
     if (NULL === $entity) {
@@ -170,10 +185,7 @@ class Backstop extends TestBase {
     }
 
     try {
-      // @todo: Dependency inject.
-      /** @var \Drupal\qa_shot\Service\FileSystem $qasFileSystem */
-      $qasFileSystem = \Drupal::service('qa_shot.file_system');
-      $qasFileSystem->initializeEnvironment($entity);
+      $this->qasFileSystem->initializeEnvironment($entity);
     }
     catch (BackstopBaseException $exception) {
       drupal_set_message('Exception at environment init. ' . $exception->getMessage(), 'error');
@@ -201,10 +213,10 @@ class Backstop extends TestBase {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    *
-   * @throws \Drupal\qa_shot\Exception\InvalidConfigurationException
-   * @throws \Drupal\qa_shot\Exception\ReferenceCommandFailedException
-   * @throws \Drupal\qa_shot\Exception\TestCommandFailedException
-   * @throws \Drupal\qa_shot\Exception\InvalidEntityException
+   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
+   * @throws \Drupal\backstopjs\Exception\ReferenceCommandFailedException
+   * @throws \Drupal\backstopjs\Exception\TestCommandFailedException
+   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    *
    * @return array
    */

@@ -1,0 +1,8 @@
+services:
+  backstopjs.file_system:
+    class: Drupal\backstopjs\Service\FileSystem
+    arguments: ['@file_system']
+  backstopjs.backstop:
+    class: Drupal\backstopjs\Service\Backstop
+  backstopjs.config_converter:
+    class: Drupal\backstopjs\Service\ConfigurationConverter

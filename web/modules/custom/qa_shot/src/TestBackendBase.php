@@ -9,7 +9,7 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  *
  * @package Drupal\qa_shot
  */
-abstract class TestBase implements TestInterface {
+abstract class TestBackendBase implements TestBackendInterface {
 
   /**
    * {@inheritdoc}
@@ -20,6 +20,8 @@ abstract class TestBase implements TestInterface {
    * Run tests in Before/After mode.
    *
    * Use this function inside the runTestBySettings() method only.
+   * Before/After should compare a single site with itself at two different
+   * times.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The test entity.
@@ -33,6 +35,9 @@ abstract class TestBase implements TestInterface {
 
   /**
    * Run tests in A/B mode.
+   *
+   * Use this function inside the runTestBySettings() method only.
+   * A/B compares two URLs with each other.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The test entity.

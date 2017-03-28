@@ -4,10 +4,9 @@ namespace Drupal\qa_shot\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\qa_shot\Custom\Backstop;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Drupal\qa_shot\Exception\BackstopBaseException;
+use Drupal\backstopjs\Exception\BackstopBaseException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -43,7 +42,7 @@ class QAShotController extends ControllerBase {
       if ($request->query->get('start_now') == 1) {
         // If we come from a valid route, run the tests.
         try {
-          \Drupal::service('qa_shot.backstop')->runTestBySettings('a_b', NULL, $entity);
+          \Drupal::service('backstopjs.backstop')->runTestBySettings('a_b', NULL, $entity);
         }
         catch (BackstopBaseException $e) {
           drupal_set_message($e->getMessage(), 'error');

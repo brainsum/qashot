@@ -11,7 +11,7 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  *
  * @package Drupal\qa_shot
  */
-interface TestInterface {
+interface TestBackendInterface {
 
   /**
    * Use this function to run tests according to the given stage.

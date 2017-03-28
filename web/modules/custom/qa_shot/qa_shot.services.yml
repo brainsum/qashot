@@ -1,8 +1,0 @@
-services:
-  qa_shot.file_system:
-    class: Drupal\qa_shot\Service\FileSystem
-    arguments: ['@file_system']
-  qa_shot.backstop:
-    class: Drupal\qa_shot\Service\Backstop
-  qa_shot.converter:
-    class: Drupal\qa_shot\Service\BackstopConfigurationConverter
