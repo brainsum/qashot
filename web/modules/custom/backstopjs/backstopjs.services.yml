@@ -4,6 +4,7 @@ services:
     arguments: ['@file_system', '@backstopjs.config_converter']
   backstopjs.backstop:
     class: Drupal\backstopjs\Service\Backstop
+    arguments: ['@backstopjs.file_system']
   backstopjs.config_converter:
     class: Drupal\backstopjs\Service\ConfigurationConverter
     arguments: ['@entity_type.manager']

@@ -28,14 +28,16 @@ class Backstop extends TestBackendBase {
    *
    * @var \Drupal\backstopjs\Service\FileSystem
    */
-  protected $qasFileSystem;
+  protected $backstopFileSystem;
 
   /**
-   * TestBase constructor.
+   * Backstop constructor.
+   *
+   * @param \Drupal\backstopjs\Service\FileSystem $backstopFileSystem
+   *   The BackstopJS file system service.
    */
-  public function __construct() {
-    // @todo: Dependency injection.
-    $this->qasFileSystem = \Drupal::service('backstopjs.file_system');
+  public function __construct(FileSystem $backstopFileSystem) {
+    $this->backstopFileSystem = $backstopFileSystem;
   }
 
   /**
@@ -182,7 +184,7 @@ class Backstop extends TestBackendBase {
     }
 
     try {
-      $this->qasFileSystem->initializeEnvironment($entity);
+      $this->backstopFileSystem->initializeEnvironment($entity);
     }
     catch (QAShotBaseException $exception) {
       drupal_set_message('Exception at environment init. ' . $exception->getMessage(), 'error');
@@ -418,7 +420,7 @@ class Backstop extends TestBackendBase {
    *   The entity.
    */
   public function clearFiles(QAShotTestInterface $entity) {
-    $this->qasFileSystem->clearFiles($entity);
+    $this->backstopFileSystem->clearFiles($entity);
   }
 
 }
