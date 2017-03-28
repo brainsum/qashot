@@ -125,7 +125,7 @@ class Backstop extends TestBackendBase {
    * @return array
    *   The screenshots.
    */
-  public function parseScreenshots(QAShotTestInterface $entity) {
+  private function parseScreenshots(QAShotTestInterface $entity) {
     $screenshots = [];
 
     $reportBasePath = str_replace('/html_report/index.html', '', $entity->getHtmlReportPath());
@@ -391,7 +391,7 @@ class Backstop extends TestBackendBase {
    *
    * @throws BackstopAlreadyRunningException
    */
-  public function checkBackstopRunStatus() {
+  private function checkBackstopRunStatus() {
     $checkerCommand = escapeshellcmd('pgrep -f backstop -c');
     $res = exec($checkerCommand, $execOutput, $status);
 
@@ -410,8 +410,18 @@ class Backstop extends TestBackendBase {
    * @return bool
    *   TRUE for valid, FALSE for invalid.
    */
-  public function isCommandValid($command) {
+  private function isCommandValid($command) {
     return in_array($command, array('reference', 'test'), FALSE);
+  }
+
+  /**
+   * Clean up the stored files for an entity.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   */
+  public function clearFiles(QAShotTestInterface $entity) {
+    $this->qasFileSystem->clearFiles($entity);
   }
 
 }

@@ -215,6 +215,26 @@ class FileSystem {
   }
 
   /**
+   * Clean up the stored files for an entity.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   */
+  public function clearFiles(QAShotTestInterface $entity) {
+    $pubRemoveRes = $this->removePublicData($entity);
+    $privRemoveRes = $this->removePrivateData($entity);
+
+    drupal_set_message(
+      $privRemoveRes ? 'Private data folder removed' : 'Private data folder not removed',
+      $privRemoveRes ? 'status' : 'error'
+    );
+    drupal_set_message(
+      $pubRemoveRes ? 'Public data folder removed' : 'Public data folder not removed',
+      $pubRemoveRes ? 'status' : 'error'
+    );
+  }
+
+  /**
    * Remove the stored public data of the entity from the filesystem.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity

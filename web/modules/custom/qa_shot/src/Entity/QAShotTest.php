@@ -75,20 +75,10 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function delete() {
-    // @todo: Dependency inject. How to do this in a generic fashion?
-    /** @var \Drupal\backstopjs\Service\FileSystem $qasFileSystem */
-    $qasFileSystem = \Drupal::service('backstopjs.file_system');
-    $pubRemoveRes = $qasFileSystem->removePublicData($this);
-    $privRemoveRes = $qasFileSystem->removePrivateData($this);
-
-    drupal_set_message(
-      $privRemoveRes ? 'Private data folder removed' : 'Private data folder not removed',
-      $privRemoveRes ? 'status' : 'error'
-    );
-    drupal_set_message(
-      $pubRemoveRes ? 'Public data folder removed' : 'Public data folder not removed',
-      $pubRemoveRes ? 'status' : 'error'
-    );
+    // @todo: Generalize.
+    /** @var \Drupal\qa_shot\TestBackendInterface $testBackend */
+    $testBackend = \Drupal::service('backstopjs.backstop');
+    $testBackend->clearFiles($this);
 
     parent::delete();
   }

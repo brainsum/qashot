@@ -32,4 +32,14 @@ interface TestBackendInterface {
    */
   public function runTestBySettings(QAShotTestInterface $entity, $stage);
 
+  /**
+   * Remove files belonging to the test.
+   *
+   * Removal should include both the private and public file system.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   */
+  public function clearFiles(QAShotTestInterface $entity);
+
 }
