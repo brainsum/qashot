@@ -31,24 +31,22 @@ function template_preprocess_qa_shot_test(array &$variables) {
   }
 
   $urlOptions = ['absolute' => TRUE];
-  $reportAttributes = [
+
+  $attributes = [
     'class' => [
       'btn',
       'button',
-      'btn-info',
     ],
     'role' => ['button'],
-    'target' => ['_blank'],
   ];
 
-  $runAttributes = [
-    'class' => [
-      'btn',
-      'button',
-      'btn-primary',
-    ],
-    'role' => ['button'],
-  ];
+  $reportAttributes = $attributes;
+  $reportAttributes['class'][] = 'btn-info';
+  $reportAttributes['target'] = ['_blank'];
+  $reportAttributes['rel'] = ['noopener'];
+
+  $runAttributes = $attributes;
+  $runAttributes['class'][] = 'btn-primary';
 
   $variables['report_path'] = [
     '#title' => 'HTML Report Path',
