@@ -14,9 +14,9 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
 interface TestBackendInterface {
 
   /**
-   * Use this function to run tests according to the given stage.
+   * Use this function as a glue for the different test modes, telemetry, etc.
    *
-   * Tests should only be run with this function.
+   * This function is only used in QAShotTest::run().
    * Throw exception, when something unwanted happens.
    *
    * This function should do the following:
