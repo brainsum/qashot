@@ -94,6 +94,18 @@ class ConfigurationConverter {
         '--ignore-ssl-errors=true',
         '--ssl-protocol=any',
       ],
+      'resembleOutputOptions' => [
+        'errorColor' => [
+          'red' => 255,
+          'green' => 0,
+          'blue' => 255,
+        ],
+        'errorType' => 'movement',
+        'transparency' => 0.3,
+        'largeImageThreshold' => 1200,
+        'useCrossOrigin' => TRUE,
+      ],
+      'asyncCompareLimit' => 40,
       'debug' => FALSE,
     ];
 
