@@ -2,10 +2,12 @@
 
 namespace Drupal\backstopjs\Exception;
 
+use Drupal\qa_shot\Exception\QAShotBaseException;
+
 /**
  * Class ConfigurationSaveException.
  *
  * @package Drupal\backstopjs\Exception
  */
-class ConfigurationSaveException extends BackstopBaseException {
+class ConfigurationSaveException extends QAShotBaseException {
 }

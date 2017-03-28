@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\backstopjs\Exception;
+namespace Drupal\qa_shot\Exception;
 
 /**
  * Base class for Backstop related exception.
  *
  * @package Drupal\backstopjs\Exception
  */
-class BackstopBaseException extends \Exception {
+class QAShotBaseException extends \Exception {
 }
