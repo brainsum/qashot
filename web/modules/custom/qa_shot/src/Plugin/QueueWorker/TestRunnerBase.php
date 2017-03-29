@@ -78,6 +78,8 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
     }
     catch (QAShotBaseException $e) {
       $this->queueState->setToError($entity->id());
+      // @todo: fix.
+      \Drupal::logger('qa_shot')->error($e->getMessage());
       throw new RequeueException($e->getMessage(), $e->getCode(), $e);
     }
   }
