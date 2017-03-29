@@ -199,6 +199,7 @@ class FileSystem {
     $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
 
     $this->createFolder($privateEntityData);
+    $this->createFolder($privateEntityData . '/tmp');
     $this->createConfigFile($configPath, $configAsJSON);
     $this->createFolder($privateCasperFolder);
 

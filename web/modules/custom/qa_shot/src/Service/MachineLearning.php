@@ -2,8 +2,8 @@
 
 namespace Drupal\qa_shot\Service;
 
+use Drupal\Core\StreamWrapper\PrivateStream;
 use Phpml\Dataset\ArrayDataset;
-use Phpml\Regression\LeastSquares;
 use Phpml\Regression\SVR;
 use Phpml\SupportVectorMachine\Kernel;
 
@@ -56,11 +56,20 @@ class MachineLearning {
     kint($targets);
     kint($predictFor);
 
-    // @todo: Hack this:
-    // /vendor/php-ai/php-ml/src/Phpml/SupportVectorMachine/SupportVectorMachine.php
-    // The original rootPath is pointing to a 'probably not writable' folder
-    // (vendor).
-    $regression = new SVR(Kernel::LINEAR);
+    $tmpFilePath = \Drupal::service('file_system')->realpath(PrivateStream::basePath()) . '/qa_test_data/' . $entity->id() . '/tmp/';
+    $regression = new SVR(Kernel::LINEAR, 3, 0.1, 1.0, NULL, 0.0, 0.001, 100, TRUE, $tmpFilePath);
+    // @note: This is not there by default.
+    /*
+     * @code
+     * public function setVarPath($path) {
+     *   $this->varPath = $path;
+     * }
+     * @code
+     *
+     * Add to this:
+     * ../vendor/php-ai/php-ml/src/Phpml/SupportVectorMachine/SupportVectorMachine.php
+     */
+    $regression->setVarPath($tmpFilePath);
     $regression->train($samples, $targets);
     $result = $regression->predict($predictFor);
 
