@@ -96,12 +96,15 @@ class ApiController extends ControllerBase {
       $message = $e->getMessage();
     }
 
+    $entityAsArray = $entity->toArray();
+    $entityAsArray['result'] = $entity->getComputedResultValue();
+
     // TODO: If queued, the response code should be 201 (accepted) or smth.
     // TODO: possible values: queued, in progress, done, error.
     $responseData = [
       'runner_settings' => ['stage' => $stage],
       'message' => $message,
-      'entity' => $entity->toArray(),
+      'entity' => $entityAsArray,
     ];
 
     return new JsonResponse($responseData);
