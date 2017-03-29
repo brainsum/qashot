@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot\Entity;
 
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
@@ -404,10 +405,43 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function run($stage) {
-    // @todo: Generalize.
-    /** @var \Drupal\qa_shot\TestBackendInterface $testBackend */
-    $testBackend = \Drupal::service('backstopjs.backstop');
-    $testBackend->runTestBySettings($this, $stage);
+    // Since you can't get queued items, use the state API as a workaround.
+    /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
+    $testQueueState = \Drupal::service('qa_shot.test_queue_state');
+
+    if ($testQueueState->add($this->id())) {
+      /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
+      $queueFactory = \Drupal::service('queue');
+      /** @var \Drupal\Core\Queue\ReliableQueueInterface $testQueue */
+      $testQueue = $queueFactory->get('cron_run_qa_shot_test', TRUE);
+
+      $queueItem = new \stdClass();
+      $queueItem->entity = $this;
+      $queueItem->stage = $stage;
+      $testQueue->createItem($queueItem);
+      drupal_set_message('The test has been queued to run. Check back later for the results.', 'info');
+      return 'added_to_queue';
+    }
+
+    drupal_set_message('The test is already in the queue. Check back later for the results.', 'info');
+    return 'already_in_queue';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toRestResponseArray() {
+    $array = $this->toArray();
+    $array['result'] = $this->getComputedResultValue();
+
+    /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
+    $testQueueState = \Drupal::service('qa_shot.test_queue_state');
+
+    $array['queue_status'][] = [
+      'value' => $testQueueState->getStatus($this->id()),
+    ];
+
+    return $array;
   }
 
 }

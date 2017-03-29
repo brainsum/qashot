@@ -87,27 +87,22 @@ class ApiController extends ControllerBase {
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
-    $message = 'success';
-
     try {
-      $entity->run($stage);
+      $message = $entity->run($stage);
+      $responseCode = 'added_to_queue' === $message ? 201 : 202;
     }
     catch (QAShotBaseException $e) {
       $message = $e->getMessage();
+      $responseCode = 500;
     }
 
-    $entityAsArray = $entity->toArray();
-    $entityAsArray['result'] = $entity->getComputedResultValue();
-
-    // TODO: If queued, the response code should be 201 (accepted) or smth.
-    // TODO: possible values: queued, in progress, done, error.
     $responseData = [
       'runner_settings' => ['stage' => $stage],
       'message' => $message,
-      'entity' => $entityAsArray,
+      'entity' => $entity->toRestResponseArray(),
     ];
 
-    return new JsonResponse($responseData);
+    return new JsonResponse($responseData, $responseCode);
   }
 
   /**

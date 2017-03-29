@@ -93,6 +93,8 @@ class Backstop extends TestBackendBase {
       ]), 'status');
     }
 
+    // @todo: Maybe return result and metadata and save elsewhere,
+    // more specifically in the qa_shot module.
     // Gather and persist metadata.
     $metadata = [
       'stage' => empty($stage) ? NULL : $stage,
@@ -396,6 +398,7 @@ class Backstop extends TestBackendBase {
 
     // > 1 is used since the pgrep command gets included as well.
     if (is_numeric($res) && (int) $res > 1) {
+      \Drupal::logger('backstopjs')->error('BackstopJS is already running.');
       throw new BackstopAlreadyRunningException('BackstopJS is already running.');
     }
   }

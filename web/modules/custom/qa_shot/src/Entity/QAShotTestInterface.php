@@ -222,4 +222,12 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    */
   public function run($stage);
 
+  /**
+   * Convert the entity into a custom array to be used in ReST responses.
+   *
+   * @return array
+   *   The entity as an array prepared for ReST.
+   */
+  public function toRestResponseArray();
+
 }

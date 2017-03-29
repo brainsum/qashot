@@ -146,16 +146,13 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @throws NotFoundHttpException
    * @throws BadRequestHttpException
    *
-   * @return ResourceResponse
+   * @return \Drupal\rest\ResourceResponse
    *   The response.
    */
   public function get($qaShotTest) {
     $entity = $this->loadEntityFromId($qaShotTest);
 
-    $entityAsArray = $entity->toArray();
-    $entityAsArray['result'] = $entity->getComputedResultValue();
-
-    $response = new ResourceResponse($entityAsArray, 200);
+    $response = new ResourceResponse($entity->toRestResponseArray(), 200);
     $response->addCacheableDependency($entity);
 
     return $response;
@@ -211,7 +208,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       // body. These responses are not cacheable, so we add no cacheability
       // metadata here.
       $url = $entity->toUrl('canonical', ['absolute' => TRUE])->toString(TRUE);
-      $response = new ModifiedResourceResponse($entity, 201, ['Location' => $url->getGeneratedUrl()]);
+      $response = new ModifiedResourceResponse($entity->toRestResponseArray(), 201, ['Location' => $url->getGeneratedUrl()]);
       return $response;
     }
     catch (EntityStorageException $e) {
@@ -311,7 +308,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       $this->logger->notice('Updated entity %type with ID %id.', array('%type' => $original_entity->getEntityTypeId(), '%id' => $original_entity->id()));
 
       // Return the updated entity in the response body.
-      return new ModifiedResourceResponse($original_entity, 200);
+      return new ModifiedResourceResponse($original_entity->toRestResponseArray(), 200);
     }
     catch (EntityStorageException $e) {
       throw new HttpException(500, 'Internal Server Error', $e);

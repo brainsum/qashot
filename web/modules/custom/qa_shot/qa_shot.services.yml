@@ -1,3 +1,6 @@
 services:
+  qa_shot.test_queue_state:
+    class: Drupal\qa_shot\Service\TestQueueState
+    arguments: ['@state', '@logger.factory']
   qa_shot.machine_learning:
     class: Drupal\qa_shot\Service\MachineLearning
