@@ -26,5 +26,5 @@ entity.qa_shot_test.delete_form:
 entity.qa_shot_test.run:
   route_name:  entity.qa_shot_test.run
   base_route:  entity.qa_shot_test.canonical
-  title: 'Run'
+  title: 'Status'
   weight: 4

@@ -50,6 +50,7 @@ function qa_shot_theme() {
     'variables' => [
       'entity' => NULL,
       'html_report_url' => NULL,
+      'queue_status' => NULL,
     ],
   ];
 
@@ -96,7 +97,7 @@ function qa_shot_form_alter(
   if (strpos($form_id, 'qa_shot_test') !== FALSE && strpos($form_id, 'edit_form') !== FALSE) {
     $form['actions']['run'] = array(
       '#type' => 'submit',
-      '#value' => t('Run Test'),
+      '#value' => t('Add test to queue'),
       '#weight' => $form['actions']['submit']['#weight'] + 1,
       // '#ajax' => ['callback' => [$this, 'ajaxCallback']], //.
       '#submit' => array("qa_shot_qa_shot_test_run_handler"),

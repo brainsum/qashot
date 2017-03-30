@@ -1,5 +1,8 @@
 <div>
-    <label>{{ entity.name.value }}</label>
+    <label>Name: </label> {{ entity.name.value }}
+    <br />
+    <p>The current status of the test is <b>{{ queue_status }}</b></p>
+    <br />
     <p>
     {% if entity.field_html_report_path is empty %}
         No test report found.

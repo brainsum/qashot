@@ -230,4 +230,12 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    */
   public function toRestResponseArray();
 
+  /**
+   * Return the current queue status of the entity.
+   *
+   * @return string
+   *   The status.
+   */
+  public function statusInQueue();
+
 }

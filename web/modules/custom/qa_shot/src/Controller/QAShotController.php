@@ -53,14 +53,18 @@ class QAShotController extends ControllerBase {
       drupal_set_message($this->t('Running this type of test is not yet supported.', 'error'));
     }
 
-    $output = [];
-    $output['#theme'] = 'qa_shot__qa_shot_test__run';
-
     $reportUrl = file_create_url($entity->getHtmlReportPath());
-    $output['#html_report_url'] = $reportUrl;
-    $output['#entity'] = $entity;
+    $currentStatus = $entity->statusInQueue();
 
-    return $output;
+    $build = [
+      '#type' => 'markup',
+      '#theme' => 'qa_shot__qa_shot_test__run',
+      '#queue_status' => $currentStatus,
+      '#html_report_url' => $reportUrl,
+      '#entity' => $entity,
+    ];
+
+    return $build;
   }
 
 }

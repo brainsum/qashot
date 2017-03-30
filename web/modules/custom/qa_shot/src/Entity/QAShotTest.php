@@ -423,7 +423,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       return 'added_to_queue';
     }
 
-    drupal_set_message('The test is already in the queue. Check back later for the results.', 'info');
     return 'already_in_queue';
   }
 
@@ -434,14 +433,20 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $array = $this->toArray();
     $array['result'] = $this->getComputedResultValue();
 
-    /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
-    $testQueueState = \Drupal::service('qa_shot.test_queue_state');
-
     $array['queue_status'][] = [
-      'value' => $testQueueState->getStatus($this->id()),
+      'value' => $this->statusInQueue(),
     ];
 
     return $array;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function statusInQueue() {
+    /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
+    $testQueueState = \Drupal::service('qa_shot.test_queue_state');
+    return $testQueueState->getStatus($this->id());
   }
 
 }
