@@ -5,12 +5,10 @@
  * Contains qa_shot.module.
  */
 
-use \Drupal\Core\Routing\RouteMatchInterface;
-use \Drupal\Core\Form\FormStateInterface;
-use \Drupal\Core\Entity\EntityInterface;
-use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_help().
@@ -74,13 +72,25 @@ function qa_shot_theme_suggestions_qa_shot_test(array $variables) {
   return $suggestions;
 }
 
+///**
+// * Implements hook_cron().
+// *
+// * {@inheritdoc}
+// */
+//function qa_shot_cron() {
+//  // @todo: run scheduled tests
+//}
+
 /**
- * Implements hook_cron().
- *
- * {@inheritdoc}
+ * Implements hook_mail().
  */
-function qa_shot_cron() {
-  // @todo: run scheduled tests
+function qa_shot_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'qashot_test_notification':
+      $message['subject'] = $params['subject'];
+      $message['body'] = $params['body'];
+      break;
+  }
 }
 
 /**
