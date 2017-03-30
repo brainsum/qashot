@@ -13,7 +13,7 @@ use Drupal\Core\Annotation\Translation;
  * @QueueWorker(
  *   id = "cron_run_qa_shot_test",
  *   title = @Translation("QAShot Cron Test Runner"),
- *   cron = {"time" = 10}
+ *   cron = {"time" = 15}
  * )
  */
 class CronTestRunner extends TestRunnerBase {
