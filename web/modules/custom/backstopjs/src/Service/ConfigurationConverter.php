@@ -69,8 +69,8 @@ class ConfigurationConverter {
     // @todo: get some field values global settings
 
     $entityId = $entity->id();
-    $this->privateDataPath = str_replace('{entity_id}', $entityId, $this->privateDataPath);
-    $this->publicDataPath = str_replace('{entity_id}', $entityId, $this->publicDataPath);
+    $private = str_replace('{entity_id}', $entityId, $this->privateDataPath);
+    $public = str_replace('{entity_id}', $entityId, $this->publicDataPath);
 
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
@@ -78,11 +78,11 @@ class ConfigurationConverter {
       'viewports' => [],
       'scenarios' => [],
       'paths' => [
-        'bitmaps_reference' => $this->publicDataPath . '/reference',
-        'bitmaps_test' => $this->publicDataPath . '/test',
-        'casper_scripts' => $this->privateDataPath . '/casper_scripts',
-        'html_report' => $this->publicDataPath . '/html_report',
-        'ci_report' => $this->publicDataPath . '/ci_report',
+        'bitmaps_reference' => $public . '/reference',
+        'bitmaps_test' => $public . '/test',
+        'casper_scripts' => $private . '/casper_scripts',
+        'html_report' => $public . '/html_report',
+        'ci_report' => $public . '/ci_report',
       ],
       // 'onBeforeScript' => 'onBefore.js', //.
       // 'onReadyScript' => 'onReady.js', //.
