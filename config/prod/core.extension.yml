@@ -28,6 +28,7 @@ module:
   image: 0
   kint: 0
   link: 0
+  maillog: 0
   maxlength: 0
   menu_ui: 0
   node: 0
