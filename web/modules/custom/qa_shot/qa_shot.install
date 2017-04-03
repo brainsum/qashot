@@ -25,3 +25,5 @@ function qa_shot_update_8202() {
   $entity_type = $entity_update_manager->getEntityType('qa_shot_test');
   $entity_update_manager->uninstallEntityType($entity_type);
 }
+
+// @todo: Add hook to truncate metadata fields.

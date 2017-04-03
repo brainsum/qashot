@@ -70,9 +70,11 @@ class Backstop extends TestBackendBase {
     // Run the test.
     if ('a_b' === $mode) {
       $results = $this->runABTest($entity);
+      $containsResults = TRUE;
     }
     elseif ('before_after' === $mode) {
       $results = $this->runBeforeAfterTest($entity, $stage);
+      $containsResults = $stage === 'after';
     }
     else {
       throw new InvalidRunnerOptionsException('The test mode is invalid or the app was not prepared for it.');
@@ -104,6 +106,8 @@ class Backstop extends TestBackendBase {
       'duration' => $endTime - $startTime,
       'passed_count' => $results['passedTestCount'],
       'failed_count' => $results['failedTestCount'],
+      'pass_rate' => (int) $results['passed_count'] / ((int) $results['passed_count'] + (int) $results['failed_count']),
+      'contains_result' => $containsResults,
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
 

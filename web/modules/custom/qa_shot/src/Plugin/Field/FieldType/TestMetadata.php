@@ -30,6 +30,8 @@ class TestMetadata extends FieldItemBase {
   public static function defaultStorageSettings() {
     return [
       'max_stage_length' => 30,
+      'pass_rate_scale' => 9,
+      'pass_rate_precision' => 10,
     ] + parent::defaultStorageSettings();
   }
 
@@ -82,6 +84,21 @@ class TestMetadata extends FieldItemBase {
           'type' => 'int',
           'size' => 'small',
           'unsigned' => TRUE,
+        ],
+        'pass_rate' => [
+          'description' => 'The pass rate of the tests. Number between 0 and 1.',
+          'type' => 'numeric',
+          // Total number of significant digits.
+          'precision' => $fieldDefinition->getSetting('pass_rate_precision'),
+          // Decimal digits right of the decimal point.
+          'scale' => $fieldDefinition->getSetting('pass_rate_scale'),
+        ],
+        'contains_result' => [
+          'description' => 'Flag indicating whether these are result values or intermediate ones.',
+          'type' => 'int',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          'default' => 0,
         ],
         'success' => [
           'description' => 'Flag indicating whether a test is considered a success.',
@@ -142,6 +159,18 @@ class TestMetadata extends FieldItemBase {
     $properties['failed_count'] = DataDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Failed tests'))
       ->setDescription('The amount of failed tests.')
+      ->setRequired(TRUE);
+
+    $properties['pass_rate'] = DataDefinition::create('decimal')
+      ->setLabel(new TranslatableMarkup('Test pass rate'))
+      ->setDescription('The amount rate of passed tests (number between 0 and 1).')
+      ->setRequired(TRUE)
+      ->setSetting('precision', $fieldDefinition->getSetting('pass_rate_precision'))
+      ->setSetting('scale', $fieldDefinition->getSetting('pass_rate_scale'));
+
+    $properties['contains_result'] = DataDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('Contains result'))
+      ->setDescription('Whether the metadata contains test results.')
       ->setRequired(TRUE);
 
     // @todo: Should be computed.
