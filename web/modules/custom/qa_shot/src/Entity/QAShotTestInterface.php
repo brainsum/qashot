@@ -5,6 +5,7 @@ namespace Drupal\qa_shot\Entity;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\user\EntityOwnerInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Provides an interface for defining QAShot Test entities.
@@ -43,6 +44,44 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function setName($name);
 
   /**
+   * Get the user who initiated the test.
+   *
+   * @return \Drupal\user\UserInterface|null
+   *   The user object or NULL, if it hasn't been run yet.
+   */
+  public function getInitiator();
+
+  /**
+   * Set the user who initiated the test.
+   *
+   * @param \Drupal\user\UserInterface $account
+   *   The account.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The test object for chaining.
+   */
+  public function setInitiator(UserInterface $account);
+
+  /**
+   * Get the Id of the user who initiated the test.
+   *
+   * @return int|string|null
+   *   The user ID.
+   */
+  public function getInitiatorId();
+
+  /**
+   * Set the user who initiated the test by ID.
+   *
+   * @param string|int $uid
+   *   The user ID.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The test object for chaining.
+   */
+  public function setInitiatorId($uid);
+
+  /**
    * Gets the QAShot Test creation timestamp.
    *
    * @return int
@@ -60,6 +99,25 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    *   The called QAShot Test entity.
    */
   public function setCreatedTime($timestamp);
+
+  /**
+   * Gets the QAShot Test run initiation timestamp.
+   *
+   * @return int
+   *   Initiation timestamp of the QAShot Test.
+   */
+  public function getInitiatedTime();
+
+  /**
+   * Sets the QAShot Test run initiation timestamp.
+   *
+   * @param int $timestamp
+   *   The QAShot Test initiation timestamp.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function setInitiatedTime($timestamp);
 
   /**
    * Returns the QAShot Test published status indicator.

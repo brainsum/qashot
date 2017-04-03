@@ -155,9 +155,7 @@ class TestNotification {
       'body' => [$link],
     ];
 
-    // @todo: get the field that contains the user who started the test.
-    // Run Initiator field.
-    $receiver = $entity->getOwner()->getEmail();
+    $receiver = $entity->getInitiator()->getEmail();
 
     $result = $this->mailManager->mail(
       $module,

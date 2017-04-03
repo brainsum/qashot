@@ -3,6 +3,7 @@
 namespace Drupal\qa_shot\Entity;
 
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
@@ -148,6 +149,51 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    */
   public function setOwner(UserInterface $account) {
     $this->set('user_id', $account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInitiator() {
+    return $this->get('initiator_id')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInitiator(UserInterface $account) {
+    $this->set('initiator_id', $account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInitiatorId() {
+    return $this->get('initiator_id')->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInitiatorId($uid) {
+    $this->set('initiator_id', $uid);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInitiatedTime() {
+    return $this->get('initiated')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInitiatedTime($timestamp) {
+    $this->set('initiated', $timestamp);
     return $this;
   }
 
@@ -319,6 +365,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setSetting('handler', 'default')
       ->setTranslatable(TRUE);
 
+    $fields['initiator_id'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Initiated by'))
+      ->setDescription(t('The user ID of who started the previous test run.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default')
+      ->setTranslatable(TRUE);
+
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setRequired(TRUE)
@@ -352,6 +406,10 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
+
+    $fields['initiated'] = BaseFieldDefinition::create('datetime')
+      ->setLabel(t('Initiated'))
+      ->setDescription(t('The time that the entity was last initiated.'));
 
     $fields['viewport'] = BaseFieldDefinition::create('qa_shot_viewport')
       ->setLabel(t('Viewport'))
@@ -409,20 +467,40 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
     $testQueueState = \Drupal::service('qa_shot.test_queue_state');
 
+    // Try to add the test to the queue.
     if ($testQueueState->add($this->id())) {
+      try {
+        // If we successfully added it to the queue state, we set
+        // the current user as the initiator and also save the current time.
+        $currentUser = \Drupal::currentUser();
+        $this->setInitiatorId($currentUser->id());
+        $this->setInitiatedTime(REQUEST_TIME);
+        $this->save();
+      }
+      catch (EntityStorageException $e) {
+        // If saving the entity fails, remove it from the queue.
+        $testQueueState->remove($this->id());
+        // Throw the caught exception again.
+        throw $e;
+      }
+
       /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
       $queueFactory = \Drupal::service('queue');
+      // Get our QueueWorker.
       /** @var \Drupal\Core\Queue\ReliableQueueInterface $testQueue */
       $testQueue = $queueFactory->get('cron_run_qa_shot_test', TRUE);
 
+      // Add the test entity and the requested stage to the item.
       $queueItem = new \stdClass();
       $queueItem->entity = $this;
       $queueItem->stage = $stage;
+      // Add the item to the queue.
       $testQueue->createItem($queueItem);
       drupal_set_message('The test has been queued to run. Check back later for the results.', 'info');
       return 'added_to_queue';
     }
 
+    // If we can't, it's already in the queue state.
     return 'already_in_queue';
   }
 
