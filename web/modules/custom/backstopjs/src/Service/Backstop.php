@@ -87,12 +87,14 @@ class Backstop extends TestBackendBase {
       throw new \Exception('Test results are empty. Contact the site administrator!');
     }
 
+    $passRate = 0;
     // Should only be a real value for the 'test' command.
     if (NULL !== $results['passedTestCount'] && NULL !== $results['failedTestCount']) {
       drupal_set_message(t('Test done. @passed test(s) passed, @failed test(s) failed.', [
         '@passed' => $results['passedTestCount'],
         '@failed' => $results['failedTestCount'],
       ]), 'status');
+      $passRate = (int) $results['passedTestCount'] / ((int) $results['passedTestCount'] + (int) $results['failedTestCount']);
     }
 
     // @todo: Maybe return result and metadata and save elsewhere,
@@ -106,7 +108,7 @@ class Backstop extends TestBackendBase {
       'duration' => $endTime - $startTime,
       'passed_count' => $results['passedTestCount'],
       'failed_count' => $results['failedTestCount'],
-      'pass_rate' => (int) $results['passed_count'] / ((int) $results['passed_count'] + (int) $results['failed_count']),
+      'pass_rate' => (float) $passRate,
       'contains_result' => $containsResults,
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];

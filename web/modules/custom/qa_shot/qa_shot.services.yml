@@ -4,6 +4,6 @@ services:
     arguments: ['@state', '@logger.factory']
   qa_shot.test_notification:
     class: Drupal\qa_shot\Service\TestNotification
-    arguments: ['@language_manager', '@plugin.manager.mail', '@config.factory', '@logger.factory', '@url_generator']
+    arguments: ['@language_manager', '@plugin.manager.mail', '@config.factory', '@logger.factory']
   qa_shot.machine_learning:
     class: Drupal\qa_shot\Service\MachineLearning

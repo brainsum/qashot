@@ -153,18 +153,15 @@ class TestMetadata extends FieldItemBase {
 
     $properties['passed_count'] = DataDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Passed tests'))
-      ->setDescription('The amount of passed tests.')
-      ->setRequired(TRUE);
+      ->setDescription('The amount of passed tests.');
 
     $properties['failed_count'] = DataDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Failed tests'))
-      ->setDescription('The amount of failed tests.')
-      ->setRequired(TRUE);
+      ->setDescription('The amount of failed tests.');
 
     $properties['pass_rate'] = DataDefinition::create('decimal')
       ->setLabel(new TranslatableMarkup('Test pass rate'))
       ->setDescription('The amount rate of passed tests (number between 0 and 1).')
-      ->setRequired(TRUE)
       ->setSetting('precision', $fieldDefinition->getSetting('pass_rate_precision'))
       ->setSetting('scale', $fieldDefinition->getSetting('pass_rate_scale'));
 

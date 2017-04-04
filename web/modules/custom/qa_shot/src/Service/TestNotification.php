@@ -45,13 +45,6 @@ class TestNotification {
   private $logger;
 
   /**
-   * Url service.
-   *
-   * @var \Drupal\Core\Routing\UrlGeneratorInterface
-   */
-  private $urlGenerator;
-
-  /**
    * The site email.
    *
    * @var string
@@ -72,19 +65,16 @@ class TestNotification {
    * @param \Drupal\Core\Mail\MailManagerInterface $mailManager
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
-   * @param \Drupal\Core\Routing\UrlGeneratorInterface $urlGenerator
    */
   public function __construct(
     LanguageManagerInterface $languageManager,
     MailManagerInterface $mailManager,
     ConfigFactoryInterface $configFactory,
-    LoggerChannelFactoryInterface $loggerChannelFactory,
-    UrlGeneratorInterface $urlGenerator
+    LoggerChannelFactoryInterface $loggerChannelFactory
   ) {
     $this->languageManager = $languageManager;
     $this->mailManager = $mailManager;
     $this->logger = $loggerChannelFactory->get('qa_shot');
-    $this->urlGenerator = $urlGenerator;
 
     $this->siteMail = $configFactory->get('system.site')->get('mail');
     $this->siteName = $configFactory->get('system.site')->get('name');
@@ -106,41 +96,32 @@ class TestNotification {
       return;
     }
 
-    // In case of befor/after, only the after contains passed/failed data.
-    if ($entity->bundle() === 'before_after') {
-      $shouldSend = FALSE;
-      foreach ($metadata as $meta) {
-        if ($meta['stage'] === 'after') {
-          $shouldSend = TRUE;
-          break;
-        }
-      }
-
-      if (FALSE === $shouldSend) {
-        return;
-      }
-    }
-
-    $testResults = [];
-    $stageKey = $entity->bundle() === 'a_b' ? NULL : 'after';
-    foreach ($metadata as $meta) {
-      if ($meta['stage'] === $stageKey) {
-        $testResults = $meta;
+    $result = NULL;
+    // Get the first metadata with results.
+    foreach ($metadata as $data) {
+      if (TRUE === (boolean) $data['contains_result']) {
+        $result = $data;
         break;
       }
     }
 
-    $passPercentage = (int) $testResults['passed_count'] / ((int) $testResults['passed_count'] + (int) $testResults['failed_count']) * 100;
+    // If there are no result metadata rows, don't send a notification.
+    if (NULL === $result) {
+      return;
+    }
 
-    $entityTypeId = $entity->getEntityTypeId();
+    $passPercentage = round($result['pass_rate'] * 100, 3);
+
+    $linkOptions = [
+      'absolute' => TRUE,
+      'external' => TRUE,
+    ];
 
     try {
-      $link = $this->urlGenerator->generateFromRoute(
-        $entity->toUrl()->getRouteName(),
-        [$entityTypeId => $entity->id()],
-        ['absolute' => TRUE],
-        TRUE
-      )->getGeneratedUrl();
+      $link = $entity
+        ->toUrl('canonical', $linkOptions)
+        ->toString(TRUE)
+        ->getGeneratedUrl();
     }
     catch (\Exception $exception) {
       $this->logger->error(
