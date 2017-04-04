@@ -160,7 +160,7 @@ class TestMetadata extends FieldItemBase {
       ->setDescription('The amount of failed tests.');
 
     // @see: web/core/lib/Drupal/Core/Field/Plugin/Field/FieldType/DecimalItem.php
-    $properties['pass_rate'] = DataDefinition::create('decimal')
+    $properties['pass_rate'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Test pass rate'))
       ->setDescription('The amount rate of passed tests (number between 0 and 1).')
       ->setSetting('precision', $fieldDefinition->getSetting('pass_rate_precision'))
