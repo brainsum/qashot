@@ -3,7 +3,7 @@ name: QAShot
 mail: dev+qashot@brainsum.com
 slogan: ''
 page:
-  403: ''
+  403: /user/login
   404: ''
   front: /qashot-test
 admin_compact_mode: false
