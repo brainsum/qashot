@@ -27,5 +27,13 @@ function qa_shot_views_data() {
     ),
   );
 
+  $data['views']['entity_bundle_label'] = array(
+    'title' => t('QAShot Test Bundle Label'),
+    'help' => t('Display the label of the entity.'),
+    'field' => array(
+      'id' => 'entity_bundle_label',
+    ),
+  );
+
   return $data;
 }
