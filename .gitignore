@@ -25,3 +25,4 @@ web/sites/*/services.yml
 docker-runtime/*
 mariadb-init
 web/modules/custom/tmp
+web/modules/custom/qa_shot_field/
