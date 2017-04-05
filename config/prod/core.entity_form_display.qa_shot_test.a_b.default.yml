@@ -15,7 +15,7 @@ bundle: a_b
 mode: default
 content:
   field_scenario:
-    weight: 2
+    weight: 3
     settings:
       size: 80
       placeholder: ''
@@ -24,6 +24,13 @@ content:
   name:
     type: string_textfield
     weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  selectors_to_hide:
+    type: string_textfield
+    weight: 4
     settings:
       size: 60
       placeholder: ''
@@ -38,7 +45,7 @@ content:
     third_party_settings: {  }
   viewport:
     type: qa_shot_viewport
-    weight: 1
+    weight: 2
     settings:
       size: 40
       placeholder: ''

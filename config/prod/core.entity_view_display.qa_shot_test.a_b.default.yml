@@ -27,6 +27,13 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+  selectors_to_hide:
+    label: above
+    type: string
+    weight: 10
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
   user_id:
     label: hidden
     type: author
