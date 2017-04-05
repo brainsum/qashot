@@ -371,6 +371,21 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function getFrontendUrl() {
+    return $this->get('frontend_url')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setFrontendUrl($url) {
+    $this->set('frontend_url', $url);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function baseFieldDefinitions(EntityTypeInterface $entityType) {
     $fields = parent::baseFieldDefinitions($entityType);
 
@@ -465,21 +480,29 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setDescription(t('Stores the results for the last run.'))
       ->setCardinality(-1);
 
+    $fields['frontend_url'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Frontend URL'))
+      ->setDescription(t('Stores the frontend URL.'))
+      ->setSettings(array(
+        'max_length' => 2000,
+        'text_processing' => 0,
+      ));
+
     return $fields;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function validate() {
-    // @todo: Add validations.
-    return parent::validate();
-  }
+//  /**
+//   * {@inheritdoc}
+//   */
+//  public function validate() {
+//    // @todo: Add validations.
+//    return parent::validate();
+//  }
 
   /**
    * {@inheritdoc}
    */
-  public function run($stage) {
+  public function run($stage, $origin = 'drupal') {
     // Since you can't get queued items, use the state API as a workaround.
     /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
     $testQueueState = \Drupal::service('qa_shot.test_queue_state');
@@ -511,6 +534,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       $queueItem = new \stdClass();
       $queueItem->entity = $this;
       $queueItem->stage = $stage;
+      $queueItem->origin = $origin;
       // Add the item to the queue.
       $testQueue->createItem($queueItem);
       drupal_set_message('The test has been queued to run. Check back later for the results.', 'info');

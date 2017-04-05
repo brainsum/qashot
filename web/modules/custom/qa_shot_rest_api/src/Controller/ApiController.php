@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot_rest_api\Controller;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -82,13 +83,21 @@ class ApiController extends ControllerBase {
    *   The response.
    */
   public function runTest(Request $request) {
-    $stage = $this->parseRunnerSettings($request);
+    $settings = $this->parseRunnerSettings($request);
+    $stage = $settings['stage'];
+    $frontendUrl = $settings['frontend_url'];
 
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
+    $storedFrontendUrl = $entity->getFrontendUrl();
+    if (empty($storedFrontendUrl) || $storedFrontendUrl !== $frontendUrl) {
+      $entity->setFrontendUrl($frontendUrl);
+      $entity->save();
+    }
+
     try {
-      $message = $entity->run($stage);
+      $message = $entity->run($stage, 'api');
       $responseCode = 'added_to_queue' === $message ? 201 : 202;
     }
     catch (QAShotBaseException $e) {
@@ -128,11 +137,19 @@ class ApiController extends ControllerBase {
       throw new BadRequestHttpException('The request parameters are empty.');
     }
 
+    if (!isset($runnerSettings['frontend_url']) || empty($runnerSettings['frontend_url'])) {
+      throw new BadRequestHttpException("The 'frontend_url' parameter is missing.");
+    }
+
+    if (!UrlHelper::isValid($runnerSettings['frontend_url'], TRUE)) {
+      throw new BadRequestHttpException("The 'frontend_url' parameter is not a valid URL.");
+    }
+
     if (!isset($runnerSettings['test_stage']) || empty($runnerSettings['test_stage'])) {
       $runnerSettings['test_stage'] = NULL;
     }
 
-    return $runnerSettings['test_stage'];
+    return $runnerSettings;
   }
 
   /**

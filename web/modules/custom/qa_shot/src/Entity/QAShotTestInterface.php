@@ -273,12 +273,33 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getComputedResultValue();
 
   /**
+   * Set the frontend URL.
+   *
+   * @param string $url
+   *   The frontend url of the entity.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function setFrontendUrl($url);
+
+  /**
+   * Get the frontend URL.
+   *
+   * @return string|null
+   *   The url or NULL.
+   */
+  public function getFrontendUrl();
+
+  /**
    * Run the test entity.
    *
    * @param string|null $stage
    *   The stage of the run.
+   * @param string $origin
+   *   The origin of the run request. Can be 'drupal' or 'api'.
    */
-  public function run($stage);
+  public function run($stage, $origin = 'drupal');
 
   /**
    * Convert the entity into a custom array to be used in ReST responses.

@@ -56,7 +56,7 @@ class TestNotification {
    *
    * @var string
    */
-  private $siteName;
+//  private $siteName;
 
   /**
    * TestNotification constructor.
@@ -77,7 +77,7 @@ class TestNotification {
     $this->logger = $loggerChannelFactory->get('qa_shot');
 
     $this->siteMail = $configFactory->get('system.site')->get('mail');
-    $this->siteName = $configFactory->get('system.site')->get('name');
+//    $this->siteName = $configFactory->get('system.site')->get('name');
   }
 
   /**
@@ -85,10 +85,12 @@ class TestNotification {
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The test entity.
+   * @param string $origin
+   *   The origin of the request, 'drupal' or 'api'.
    * @param string $module
    *   The module where the processing hook_mail() resides.
    */
-  public function sendNotification(QAShotTestInterface $entity, $module = 'qa_shot') {
+  public function sendNotification(QAShotTestInterface $entity, $origin, $module = 'qa_shot') {
     $metadata = $entity->getLastRunMetadataValue();
 
     // @todo: FIXME, code below is quick and dirty.
@@ -118,10 +120,13 @@ class TestNotification {
     ];
 
     try {
-      $link = $entity
-        ->toUrl('canonical', $linkOptions)
-        ->toString(TRUE)
-        ->getGeneratedUrl();
+      $link = $entity->getFrontendUrl();
+      if ('drupal' === $origin || empty($link)) {
+        $link = $entity
+          ->toUrl('canonical', $linkOptions)
+          ->toString(TRUE)
+          ->getGeneratedUrl();
+      }
     }
     catch (\Exception $exception) {
       $this->logger->error(

@@ -42,7 +42,7 @@ class QAShotController extends ControllerBase {
       if ($request->query->get('start_now') == 1) {
         // If we come from a valid route, run the tests.
         try {
-          $entity->run(NULL);
+          $entity->run(NULL, 'drupal');
         }
         catch (QAShotBaseException $e) {
           drupal_set_message($e->getMessage(), 'error');

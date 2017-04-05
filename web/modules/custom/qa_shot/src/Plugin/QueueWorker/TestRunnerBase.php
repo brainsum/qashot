@@ -112,7 +112,7 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
       $this->queueState->setToRunning($entity->id());
       $this->testBackend->runTestBySettings($entity, $data->stage);
       $this->queueState->remove($entity->id());
-      $this->notification->sendNotification($entity, 'qa_shot');
+      $this->notification->sendNotification($entity, $data->origin, 'qa_shot');
     }
     catch (QAShotBaseException $e) {
       $this->queueState->setToError($entity->id());
