@@ -292,6 +292,25 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getFrontendUrl();
 
   /**
+   * Get the 'selectors_to_hide' field value.
+   *
+   * @return array
+   *   The field value as array.
+   */
+  public function getSelectorsToHide();
+
+  /**
+   * Set the 'selectors_to_hide' field value.
+   *
+   * @param string[] $selectors
+   *   The list of selectors.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The entity for chaining.
+   */
+  public function setSelectorsToHide(array $selectors);
+
+  /**
    * Run the test entity.
    *
    * @param string|null $stage

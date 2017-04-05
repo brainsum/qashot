@@ -345,6 +345,21 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function getSelectorsToHide() {
+    return $this->get('selectors_to_hide')->getValue();
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setSelectorsToHide(array $selectors) {
+    return $this->set('selectors_to_hide', $selectors);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getComputedResultValue() {
     $computedValue = [];
 
@@ -456,6 +471,26 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setDisplayOptions('form', array(
         'type' => 'qa_shot_viewport',
         'weight' => 1,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['selectors_to_hide'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Selectors to hide'))
+      ->setDescription(t('Selectors that should be visually hidden. Can be an element ID (#my-id), Class (.my-class) or XPath.'))
+      ->setCardinality(-1)
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 10,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => 10,
+      ))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);

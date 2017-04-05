@@ -118,7 +118,7 @@ class ConfigurationConverter {
     ];
 
     $mapConfigToArray['viewports'] = $this->viewportToArray($entity->getFieldViewport());
-    $mapConfigToArray['scenarios'] = $this->scenarioToArray($entity->getFieldScenario());
+    $mapConfigToArray['scenarios'] = $this->scenarioToArray($entity->getFieldScenario(), $entity->getSelectorsToHide());
 
     if ($withDebug === TRUE) {
       $mapConfigToArray['debug'] = TRUE;
@@ -157,12 +157,25 @@ class ConfigurationConverter {
    *
    * @param \Drupal\Core\Field\FieldItemListInterface $scenarioField
    *   The scenario field.
+   * @param string[] $otherSelectorsToHide
+   *   An array of selectors that should be visually hidden.
+   *   The values are merged with the default ones.
    *
    * @return array
    *   Array representation of the scenario field.
    */
-  private function scenarioToArray(FieldItemListInterface $scenarioField) {
+  private function scenarioToArray(FieldItemListInterface $scenarioField, array $otherSelectorsToHide) {
     $scenarioData = [];
+
+    // @todo: Remove, move to admin UI, or what?
+    $baseSelectorsToHide = [
+      '#twitter-widget-0',
+      '#twitter-widget-1',
+      '.captcha',
+      '#sliding-popup',
+    ];
+
+    $selectorsToHide = array_merge($baseSelectorsToHide, $otherSelectorsToHide);
 
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Scenario $scenario */
     foreach ($scenarioField as $scenario) {
@@ -181,13 +194,8 @@ class ConfigurationConverter {
         'selectors' => [
           'document',
         ],
-        'removeSelectors' => [
-          '#twitter-widget-0',
-          '#twitter-widget-1',
-          '.captcha',
-          '#sliding-popup',
-        ],
-        'hideSelectors' => [],
+        'removeSelectors' => [],
+        'hideSelectors' => $selectorsToHide,
         'onBeforeScript' => 'onBefore.js',
         'onReadyScript' => 'onReady.js',
       ];
