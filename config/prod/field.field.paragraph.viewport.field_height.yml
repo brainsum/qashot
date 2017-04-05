@@ -1,0 +1,23 @@
+uuid: 314719fc-c0df-4830-8b12-21a596307e62
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_height
+    - paragraphs.paragraphs_type.viewport
+id: paragraph.viewport.field_height
+field_name: field_height
+entity_type: paragraph
+bundle: viewport
+label: Height
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 320
+  max: 2400
+  prefix: ''
+  suffix: ''
+field_type: integer

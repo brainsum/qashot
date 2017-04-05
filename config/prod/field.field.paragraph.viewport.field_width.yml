@@ -1,0 +1,23 @@
+uuid: e2ee1aaa-3f70-493e-9a0b-5d3995f61c3a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_width
+    - paragraphs.paragraphs_type.viewport
+id: paragraph.viewport.field_width
+field_name: field_width
+entity_type: paragraph
+bundle: viewport
+label: Width
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 480
+  max: 3840
+  prefix: ''
+  suffix: ''
+field_type: integer

@@ -1,0 +1,37 @@
+uuid: 836a46b4-edfe-45ed-924f-15d5a7bb30f3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.viewport.field_height
+    - field.field.paragraph.viewport.field_name
+    - field.field.paragraph.viewport.field_width
+    - paragraphs.paragraphs_type.viewport
+id: paragraph.viewport.default
+targetEntityType: paragraph
+bundle: viewport
+mode: default
+content:
+  field_height:
+    weight: 2
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+    type: number
+  field_name:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  field_width:
+    weight: 1
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+    type: number
+hidden:
+  created: true
+  status: true
+  uid: true

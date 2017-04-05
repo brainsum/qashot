@@ -1,0 +1,38 @@
+uuid: 9a8ec7d6-2ccf-4afd-9cdb-4dd97b5764f5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.viewport.field_height
+    - field.field.paragraph.viewport.field_name
+    - field.field.paragraph.viewport.field_width
+    - paragraphs.paragraphs_type.viewport
+id: paragraph.viewport.default
+targetEntityType: paragraph
+bundle: viewport
+mode: default
+content:
+  field_height:
+    weight: 2
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_integer
+  field_name:
+    weight: 0
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_width:
+    weight: 1
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_integer
+hidden: {  }

@@ -1,0 +1,30 @@
+uuid: 39692baa-fc16-49de-a9a6-5dfe3c484250
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_viewport
+    - paragraphs.paragraphs_type.viewport
+    - qa_shot.qa_shot_test_type.a_b
+  module:
+    - entity_reference_revisions
+id: qa_shot_test.a_b.field_viewport
+field_name: field_viewport
+entity_type: qa_shot_test
+bundle: a_b
+label: Viewport
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      viewport: viewport
+    target_bundles_drag_drop:
+      viewport:
+        enabled: true
+        weight: 2
+field_type: entity_reference_revisions
