@@ -157,25 +157,15 @@ class ConfigurationConverter {
    *
    * @param \Drupal\Core\Field\FieldItemListInterface $scenarioField
    *   The scenario field.
-   * @param string[] $otherSelectorsToHide
+   * @param string[] $selectorsToHide
    *   An array of selectors that should be visually hidden.
    *   The values are merged with the default ones.
    *
    * @return array
    *   Array representation of the scenario field.
    */
-  private function scenarioToArray(FieldItemListInterface $scenarioField, array $otherSelectorsToHide) {
+  private function scenarioToArray(FieldItemListInterface $scenarioField, array $selectorsToHide) {
     $scenarioData = [];
-
-    // @todo: Remove, move to admin UI, or what?
-    $baseSelectorsToHide = [
-      '#twitter-widget-0',
-      '#twitter-widget-1',
-      '.captcha',
-      '#sliding-popup',
-    ];
-
-    $selectorsToHide = array_merge($baseSelectorsToHide, $otherSelectorsToHide);
 
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Scenario $scenario */
     foreach ($scenarioField as $scenario) {
