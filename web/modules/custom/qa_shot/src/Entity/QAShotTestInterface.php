@@ -14,8 +14,6 @@ use Drupal\user\UserInterface;
  */
 interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
-  // Add get/set methods for your configuration properties here.
-
   /**
    * Gets the QAShot Test type.
    *
@@ -47,7 +45,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * Get the user who initiated the test.
    *
    * @return \Drupal\user\UserInterface|null
-   *   The user object or NULL, if it hasn't been run yet.
+   *   The user object or NULL, if it has not been run yet.
    */
   public function getInitiator();
 
@@ -133,7 +131,8 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * Sets the published status of a QAShot Test.
    *
    * @param bool $published
-   *   TRUE to set this QAShot Test to published, FALSE to set it to unpublished.
+   *   TRUE to set this QAShot Test to published,
+   *   FALSE to set it to unpublished.
    *
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
@@ -265,14 +264,6 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getResultValue();
 
   /**
-   * Returns the result with computed property values included.
-   *
-   * @return array
-   *   The result values.
-   */
-  public function getComputedResultValue();
-
-  /**
    * Set the frontend URL.
    *
    * @param string $url
@@ -319,14 +310,6 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    *   The origin of the run request. Can be 'drupal' or 'api'.
    */
   public function run($stage, $origin = 'drupal');
-
-  /**
-   * Convert the entity into a custom array to be used in ReST responses.
-   *
-   * @return array
-   *   The entity as an array prepared for ReST.
-   */
-  public function toRestResponseArray();
 
   /**
    * Return the current queue status of the entity.

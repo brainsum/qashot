@@ -2,8 +2,27 @@ services:
   qa_shot.test_queue_state:
     class: Drupal\qa_shot\Service\TestQueueState
     arguments: ['@state', '@logger.factory']
+
   qa_shot.test_notification:
     class: Drupal\qa_shot\Service\TestNotification
     arguments: ['@language_manager', '@plugin.manager.mail', '@config.factory', '@logger.factory']
+
   qa_shot.machine_learning:
     class: Drupal\qa_shot\Service\MachineLearning
+
+  qa_shot.normalizer.qa_shot_test:
+    class: Drupal\qa_shot\Normalizer\QAShotTestNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+
+  qa_shot.normalizer.entity_reference_revisions_item:
+    class: Drupal\qa_shot\Normalizer\EntityReferenceRevisionsItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+
+  qa_shot.normalizer.entity_reference_item:
+    class: Drupal\qa_shot\Normalizer\EntityReferenceItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }

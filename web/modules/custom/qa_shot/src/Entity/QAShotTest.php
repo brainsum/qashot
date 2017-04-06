@@ -360,23 +360,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getComputedResultValue() {
-    $computedValue = [];
-
-    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Result $item */
-    foreach ($this->get('result') as $delta => $item) {
-      /** @var \Drupal\Core\TypedData\TypedDataInterface $property */
-      foreach ($item->getProperties(TRUE) as $name => $property) {
-        $computedValue[$delta][$name] = $property->getValue();
-      }
-    }
-
-    return $computedValue;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function setResult(array $result) {
     $this->get('result')->setValue($result);
 
@@ -526,14 +509,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     return $fields;
   }
 
-//  /**
-//   * {@inheritdoc}
-//   */
-//  public function validate() {
-//    // @todo: Add validations.
-//    return parent::validate();
-//  }
-
   /**
    * {@inheritdoc}
    */
@@ -582,6 +557,27 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @deprecated Logic moves to the normalizer.
+   */
+  public function getComputedResultValue() {
+    $computedValue = [];
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Result $item */
+    foreach ($this->get('result') as $delta => $item) {
+      /** @var \Drupal\Core\TypedData\TypedDataInterface $property */
+      foreach ($item->getProperties(TRUE) as $name => $property) {
+        $computedValue[$delta][$name] = $property->getValue();
+      }
+    }
+
+    return $computedValue;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @deprecated Logic moves to the normalizer.
    */
   public function toRestResponseArray() {
     $array = $this->toArray();

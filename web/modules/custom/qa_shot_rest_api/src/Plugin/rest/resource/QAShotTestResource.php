@@ -28,6 +28,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @RestResource(
  *   id = "entity:qa_shot_test",
  *   label = @Translation("QAShot Test Resource"),
+ *   serialization_class = "Drupal\qa_shot\Entity\QAShotTest",
+ *   deriver = "Drupal\qa_shot_rest_api\Plugin\Deriver\QAShotTestDeriver",
  *   uri_paths = {
  *     "canonical" = "/api/rest/v1/qa_shot_test/{qa_shot_test}",
  *     "https://www.drupal.org/link-relations/create" = "/api/rest/v1/qa_shot_test"
@@ -152,7 +154,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
   public function get($qaShotTest) {
     $entity = $this->loadEntityFromId($qaShotTest);
 
-    $response = new ResourceResponse($entity->toRestResponseArray(), 200);
+    $response = new ResourceResponse($entity, 200);
     $response->addCacheableDependency($entity);
 
     return $response;
@@ -208,7 +210,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       // body. These responses are not cacheable, so we add no cacheability
       // metadata here.
       $url = $entity->toUrl('canonical', ['absolute' => TRUE])->toString(TRUE);
-      $response = new ModifiedResourceResponse($entity->toRestResponseArray(), 201, ['Location' => $url->getGeneratedUrl()]);
+      $response = new ModifiedResourceResponse($entity, 201, ['Location' => $url->getGeneratedUrl()]);
       return $response;
     }
     catch (EntityStorageException $e) {
@@ -308,7 +310,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       $this->logger->notice('Updated entity %type with ID %id.', array('%type' => $original_entity->getEntityTypeId(), '%id' => $original_entity->id()));
 
       // Return the updated entity in the response body.
-      return new ModifiedResourceResponse($original_entity->toRestResponseArray(), 200);
+      return new ModifiedResourceResponse($original_entity, 200);
     }
     catch (EntityStorageException $e) {
       throw new HttpException(500, 'Internal Server Error', $e);
