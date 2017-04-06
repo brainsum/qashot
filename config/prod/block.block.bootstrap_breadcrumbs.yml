@@ -10,7 +10,7 @@ _core:
   default_config_hash: wDR9JKEATSWldBjw8du8s3G2zjEYeQf88nlld11hMLo
 id: bootstrap_breadcrumbs
 theme: bootstrap
-region: '-1'
+region: navigation
 weight: -5
 provider: null
 plugin: system_breadcrumb_block

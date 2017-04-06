@@ -22,6 +22,7 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: qa_shot_scenario
+    region: content
   field_viewport:
     type: entity_reference_revisions_entity_view
     weight: 1
@@ -30,6 +31,7 @@ content:
       view_mode: default
       link: ''
     third_party_settings: {  }
+    region: content
   name:
     label: above
     type: string
@@ -37,6 +39,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   selectors_to_hide:
     label: above
     type: string
@@ -44,12 +47,14 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   user_id:
     label: hidden
     type: author
     weight: 0
     settings: {  }
     third_party_settings: {  }
+    region: content
 hidden:
   field_configuration_path: true
   field_html_report_path: true

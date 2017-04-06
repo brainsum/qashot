@@ -23,6 +23,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: qa_shot_scenario
+    region: content
   field_viewport:
     type: entity_reference_paragraphs
     weight: 1
@@ -34,6 +35,7 @@ content:
       form_display_mode: default
       default_paragraph_type: viewport
     third_party_settings: {  }
+    region: content
   name:
     type: string_textfield
     weight: 0
@@ -41,6 +43,7 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
   selectors_to_hide:
     type: string_textfield
     weight: 3
@@ -48,6 +51,7 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
   user_id:
     type: entity_reference_autocomplete
     weight: 5
@@ -56,6 +60,7 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
 hidden:
   field_configuration_path: true
   field_html_report_path: true
