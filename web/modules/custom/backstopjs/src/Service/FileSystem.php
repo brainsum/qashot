@@ -73,8 +73,8 @@ class FileSystem {
    *   The configuration converter.
    */
   public function __construct(FileSystemInterface $fileSystem, ConfigurationConverter $configConverter) {
-    $this->privateFiles = PrivateStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
-    $this->publicFiles = PublicStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
+    $this->privateFiles = PrivateStream::basePath() . DIRECTORY_SEPARATOR . $this::DATA_BASE_FOLDER;
+    $this->publicFiles = PublicStream::basePath() . DIRECTORY_SEPARATOR . $this::DATA_BASE_FOLDER;
 
     $this->fileSystem = $fileSystem;
     $this->configConverter = $configConverter;
@@ -297,6 +297,33 @@ class FileSystem {
     $result |= $this->fileSystem->rmdir($dir);
 
     return $result;
+  }
+
+  /**
+   * Remove unused public files and folders.
+   */
+  public function removeUnusedFiles() {
+    $tests = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->loadMultiple();
+    foreach ($tests as $test) {
+      $dataFolder = $this->publicFiles . DIRECTORY_SEPARATOR . $test->id() . DIRECTORY_SEPARATOR . 'test';
+
+      if (!is_dir($dataFolder)) {
+        continue;
+      }
+
+      // Get the folders without the . and .. ones in reverse order.
+      $folders = array_values(array_diff(scandir($dataFolder, SCANDIR_SORT_DESCENDING), ['.', '..']));
+
+      // If there are more than one items in it, remove the first.
+      // This should mean the removal of the latest item.
+      if (count($folders) > 0) {
+        unset($folders[0]);
+      }
+
+      foreach ($folders as $folder) {
+        $this->removeDirectory($dataFolder . DIRECTORY_SEPARATOR . $folder);
+      }
+    }
   }
 
 }
