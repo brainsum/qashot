@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
+use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
@@ -40,6 +41,13 @@ class ConfigurationConverter {
   private $testStorage;
 
   /**
+   * Paragraphs entity storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  private $paragraphStorage;
+
+  /**
    * ConfigurationConverter constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -52,6 +60,7 @@ class ConfigurationConverter {
     $this->publicDataPath = str_replace('{files_path}', PublicStream::basePath(), $pathPattern);
 
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
+    $this->paragraphStorage = $entityTypeManager->getStorage('paragraph');
   }
 
   /**
@@ -131,24 +140,30 @@ class ConfigurationConverter {
   /**
    * Convert the viewport field so it can be used in a BackstopJS config array.
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface $viewportField
+   * @param \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList $viewportField
    *   The viewport field.
    *
    * @return array
    *   Array representation of the viewport field.
    */
-  private function viewportToArray(FieldItemListInterface $viewportField) {
-    $viewportData = [];
+  private function viewportToArray(EntityReferenceRevisionsFieldItemList $viewportField) {
+    // Flatten the field values from target_id + revision_target_id
+    // to target_id only.
+    $ids = array_map(function ($item) {
+      return $item['target_id'];
+    }, $viewportField->getValue());
 
+    $viewports = $this->paragraphStorage->loadMultiple($ids);
+
+    $viewportData = [];
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Viewport $viewport */
-    foreach ($viewportField as $viewport) {
+    foreach ($viewports as $viewport) {
       $viewportData[] = [
-        'name' => (string) $viewport->get('name')->getValue(),
-        'width' => (int) $viewport->get('width')->getValue(),
-        'height' => (int) $viewport->get('height')->getValue(),
+        'name' => (string) $viewport->get('field_name')->value,
+        'width' => (int) $viewport->get('field_width')->value,
+        'height' => (int) $viewport->get('field_height')->value,
       ];
     }
-
     return $viewportData;
   }
 
@@ -199,6 +214,8 @@ class ConfigurationConverter {
   /**
    * Instantiates a new QAShotEntity from the array. Optionally saves it.
    *
+   * @deprecated
+   *
    * @param array $config
    *   The entity as an array.
    * @param bool $saveEntity
@@ -219,7 +236,7 @@ class ConfigurationConverter {
 
   /**
    * Instantiates a new QAShotEntity from the json string. Optionally saves it.
-   *
+   * @deprecated
    * @param string $json
    *   The backstop.json config file as a string.
    * @param bool $saveEntity
@@ -252,7 +269,7 @@ class ConfigurationConverter {
 
   /**
    * Instantiates a new QAShotEntity from the json file. Optionally saves it.
-   *
+   * @deprecated
    * @param string $jsonFile
    *   The backstop.json config file path as a string.
    * @param bool $saveEntity

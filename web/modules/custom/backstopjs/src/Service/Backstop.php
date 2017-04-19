@@ -126,6 +126,8 @@ class Backstop extends TestBackendBase {
   /**
    * Get the result screenshots.
    *
+   * @todo: Change, so this is stored in the new field_viewport.
+   *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    *
@@ -148,6 +150,7 @@ class Backstop extends TestBackendBase {
     /** @var array[] $screenshotConfigData */
     $screenshotConfigData = json_decode(str_replace(['report(', ');'], '', $screenshotConfig), TRUE);
 
+    // @todo: Change.
     $scenarioIndex = 0;
     $totalViewportLimit = $entity->getViewportCount() - 1;
     $viewportIndex = 0;

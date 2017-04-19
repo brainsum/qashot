@@ -142,7 +142,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   /**
    * Return the viewport field.
    *
-   * @return \Drupal\Core\Field\FieldItemListInterface
+   * @return \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList
    *   The Viewport field.
    */
   public function getFieldViewport();

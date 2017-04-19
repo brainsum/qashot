@@ -216,7 +216,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function getFieldViewport() {
-    return $this->get('viewport');
+    return $this->get('field_viewport');
   }
 
   /**
@@ -440,23 +440,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $fields['initiated'] = BaseFieldDefinition::create('datetime')
       ->setLabel(t('Initiated'))
       ->setDescription(t('The time that the entity was last initiated.'));
-
-    $fields['viewport'] = BaseFieldDefinition::create('qa_shot_viewport')
-      ->setLabel(t('Viewport'))
-      ->setRequired(TRUE)
-      ->setDescription(t('Set a unique name and the desired resolution. Supported resolutions range from 480x320 up to 3840x2400.'))
-      ->setCardinality(-1)
-      ->setDisplayOptions('view', array(
-        'label' => 'above',
-        'type' => 'qa_shot_viewport',
-        'weight' => 1,
-      ))
-      ->setDisplayOptions('form', array(
-        'type' => 'qa_shot_viewport',
-        'weight' => 1,
-      ))
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
 
     $fields['selectors_to_hide'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Selectors to hide'))

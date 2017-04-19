@@ -5533,7 +5533,8 @@
             "support": {
                 "source": "https://cgit.drupalcode.org/restui",
                 "issues": "https://www.drupal.org/project/issues/restui"
-            }
+            },
+            "time": "2017-03-28 09:24:17"
         },
         {
             "name": "drupal/toolbar_anti_flicker",

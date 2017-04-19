@@ -4,6 +4,7 @@
  * @file
  * Install file for the qa_shot module.
  */
+use Drupal\paragraphs\Entity\Paragraph;
 
 /**
  * Remove every QAShot Test entity.
