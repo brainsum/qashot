@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Controller for the custom API endpoints.
@@ -37,6 +38,13 @@ class ApiController extends ControllerBase {
   protected $urlGenerator;
 
   /**
+   * Serialization service.
+   *
+   * @var \Symfony\Component\Serializer\Normalizer\NormalizerInterface
+   */
+  protected $serializer;
+
+  /**
    * Create.
    *
    * {@inheritdoc}
@@ -46,7 +54,8 @@ class ApiController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('url_generator')
+      $container->get('url_generator'),
+      $container->get('serializer')
     );
   }
 
@@ -57,15 +66,19 @@ class ApiController extends ControllerBase {
    *   Entity type manager.
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $urlGenerator
    *   Url generator.
+   * @param \Symfony\Component\Serializer\Normalizer\NormalizerInterface $serializer
+   *   Serializer service.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    UrlGeneratorInterface $urlGenerator
+    UrlGeneratorInterface $urlGenerator,
+    NormalizerInterface $serializer
   ) {
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->urlGenerator = $urlGenerator;
+    $this->serializer = $serializer;
   }
 
   /**
@@ -105,10 +118,12 @@ class ApiController extends ControllerBase {
       $responseCode = 500;
     }
 
+    $entityData = $this->serializer->normalize($entity);
+
     $responseData = [
       'runner_settings' => ['stage' => $stage],
       'message' => $message,
-      'entity' => $entity->toRestResponseArray(),
+      'entity' => $entityData,
     ];
 
     return new JsonResponse($responseData, $responseCode);

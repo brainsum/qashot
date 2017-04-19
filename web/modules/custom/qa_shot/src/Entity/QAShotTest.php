@@ -507,7 +507,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
         // the current user as the initiator and also save the current time.
         $currentUser = \Drupal::currentUser();
         $this->setInitiatorId($currentUser->id());
-        $this->setInitiatedTime(REQUEST_TIME);
+        $this->setInitiatedTime(\Drupal::time()->getRequestTime());
         $this->save();
       }
       catch (EntityStorageException $e) {
@@ -536,41 +536,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
     // If we can't, it's already in the queue state.
     return 'already_in_queue';
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @deprecated Logic moves to the normalizer.
-   */
-  public function getComputedResultValue() {
-    $computedValue = [];
-
-    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Result $item */
-    foreach ($this->get('result') as $delta => $item) {
-      /** @var \Drupal\Core\TypedData\TypedDataInterface $property */
-      foreach ($item->getProperties(TRUE) as $name => $property) {
-        $computedValue[$delta][$name] = $property->getValue();
-      }
-    }
-
-    return $computedValue;
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @deprecated Logic moves to the normalizer.
-   */
-  public function toRestResponseArray() {
-    $array = $this->toArray();
-    $array['result'] = $this->getComputedResultValue();
-
-    $array['queue_status'][] = [
-      'value' => $this->statusInQueue(),
-    ];
-
-    return $array;
   }
 
   /**
