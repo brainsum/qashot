@@ -6,6 +6,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\Queue\RequeueException;
+use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Service\TestNotification;
 use Drupal\qa_shot\Service\TestQueueState;
@@ -107,6 +108,13 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
   public function processItem($data) {
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $data->entity;
+
+    // @hotfix @fixme @todo
+    if (NULL === QAShotTest::load($entity->id())) {
+      $this->queueState->remove($entity->id());
+      $this->logger->error('The entity with id ' . $entity->id() . ' has been deleted while it was queued.');
+      return;
+    }
 
     try {
       $this->queueState->setToRunning($entity->id());
