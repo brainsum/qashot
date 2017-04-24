@@ -116,6 +116,11 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
       return;
     }
 
+    // @todo: Maybe add a custom queue processor.
+    if ($this->queueState->hasRunningItem()) {
+      throw new RequeueException('The entity with id ' . $entity->id() . ' tried to run while another test was already running.');
+    }
+
     try {
       $this->queueState->setToRunning($entity->id());
       $this->testBackend->runTestBySettings($entity, $data->stage);

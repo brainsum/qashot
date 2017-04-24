@@ -65,6 +65,23 @@ class TestQueueState {
   }
 
   /**
+   * Checks whether the queue has a running item.
+   *
+   * @return bool
+   *   The status.
+   */
+  public function hasRunningItem() {
+    $queueState = $this->state->get($this::STATE_KEY);
+    foreach ($queueState as $item) {
+      if ($item['status'] === 'running') {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Get the status of the entity.
    *
    * @param string|int $testId
