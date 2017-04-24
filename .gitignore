@@ -26,3 +26,4 @@ docker-runtime/*
 mariadb-init
 web/modules/custom/tmp
 web/modules/custom/qa_shot_field/
+drush/drushrc.local.php
