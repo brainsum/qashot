@@ -397,11 +397,26 @@ class Backstop extends TestBackendBase {
       }
     }
 
-    $this->logger->debug(var_export([
+    // Debug.
+    $debugData = [
       'command' => $command,
       'execOutput' => $execOutput,
       'res' => $results,
-    ], TRUE));
+    ];
+    $debug = var_export($debugData, TRUE);
+
+    $this->logger->debug($debug);
+    $debugFolder = $this->backstopFileSystem->getPublicFiles() . DIRECTORY_SEPARATOR . 'debug_data';
+
+    $fileName = (new \DateTime())->format('Ymd-His') . '-' . $command . '.json';
+    try {
+      $this->backstopFileSystem->createFolder($debugFolder . DIRECTORY_SEPARATOR);
+      $this->backstopFileSystem->createConfigFile($debugFolder . DIRECTORY_SEPARATOR . $fileName, json_encode($debugData));
+    }
+    catch (\Exception $e) {
+      $this->logger->debug($e->getMessage());
+    }
+    // End Debug.
 
     dpm($execOutput);
     if (!$results['bitmapGenerationSuccess']) {

@@ -120,7 +120,7 @@ class ConfigurationConverter {
         // Note: This shouldn't matter here.
         'useCrossOrigin' => TRUE,
       ],
-      'asyncCompareLimit' => 40,
+      'asyncCompareLimit' => 10,
       'debug' => FALSE,
     ];
 

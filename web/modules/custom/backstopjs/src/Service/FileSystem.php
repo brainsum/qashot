@@ -86,6 +86,26 @@ class FileSystem {
   }
 
   /**
+   * Return the public file location.
+   *
+   * @return string
+   *   Public files.
+   */
+  public function getPublicFiles() {
+    return $this->publicFiles;
+  }
+
+  /**
+   * Return the private file location.
+   *
+   * @return string
+   *   Private files.
+   */
+  public function getPrivateFiles() {
+    return $this->privateFiles;
+  }
+
+  /**
    * Creates a directory at the given path.
    *
    * @param string $dirToCreate
@@ -93,7 +113,7 @@ class FileSystem {
    *
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
    */
-  private function createFolder($dirToCreate) {
+  public function createFolder($dirToCreate) {
     if (is_dir($dirToCreate)) {
       return;
     }
@@ -115,7 +135,7 @@ class FileSystem {
    * @throws FileWriteException
    * @throws FileOpenException
    */
-  private function createConfigFile($configurationPath, $jsonString) {
+  public function createConfigFile($configurationPath, $jsonString) {
     // @todo: check if file exists, if yes, check if it's the same as the new one.
     if (($configFile = fopen($configurationPath, 'w')) === FALSE) {
       throw new FileOpenException("Opening the configuration file at $configurationPath failed.");
