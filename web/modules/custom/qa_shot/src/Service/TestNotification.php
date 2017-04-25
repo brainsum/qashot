@@ -160,13 +160,13 @@ class TestNotification {
 
     if ($result['result'] === TRUE) {
       $this->logger->notice(
-        'Notification about the @status of the test with id #@id has been sent.',
+        'Notification about the result [@status] of the test with id #@id has been sent.',
         $logParameters
       );
     }
     else {
       $this->logger->warning(
-        'Notification about the @status of the test with id #@id has not been sent.',
+        'Notification about the result [@status] of the test with id #@id has not been sent.',
         $logParameters
       );
     }
