@@ -133,7 +133,7 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
     catch (QAShotBaseException $e) {
       $this->queueState->setToError($entity->id());
       $this->logger->alert($e->getMessage());
-      throw new RequeueException($e->getMessage(), $e->getCode(), $e);
+      return;
     }
     catch (\Exception $e) {
       // If we get any other errors, just remove the item from core queue
