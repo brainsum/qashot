@@ -2,6 +2,7 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
 use Drupal\qa_shot\Exception\QAShotBaseException;
@@ -31,13 +32,26 @@ class Backstop extends TestBackendBase {
   protected $backstopFileSystem;
 
   /**
+   * The logger.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
    * Backstop constructor.
    *
    * @param \Drupal\backstopjs\Service\FileSystem $backstopFileSystem
    *   The BackstopJS file system service.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
+   *   The logger channel factory.
    */
-  public function __construct(FileSystem $backstopFileSystem) {
+  public function __construct(
+    FileSystem $backstopFileSystem,
+    LoggerChannelFactoryInterface $loggerChannelFactory
+  ) {
     $this->backstopFileSystem = $backstopFileSystem;
+    $this->logger = $loggerChannelFactory->get('backstopjs');
   }
 
   /**
@@ -113,14 +127,16 @@ class Backstop extends TestBackendBase {
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
 
+    $result = $this->parseScreenshots($entity);
+
+    $this->logger->debug(var_export([
+      'metadata' => $metadata,
+      'result' => $result,
+    ], TRUE));
+
     $entity->addMetadata($metadata);
-    $entity->setResult($this->parseScreenshots($entity));
+    $entity->setResult($result);
     $entity->save();
-
-    kint('lifetime metadata', $entity->getLifetimeMetadataValue());
-    kint('last run metadata', $entity->getLastRunMetadataValue());
-    kint('last run result', $entity->getResultValue());
-
   }
 
   /**
@@ -359,6 +375,7 @@ class Backstop extends TestBackendBase {
       'bitmapGenerationSuccess' => FALSE,
     ];
 
+
     foreach ($execOutput as $line) {
       // Search for bitmap generation string.
       if (strpos($line, 'Bitmap file generation completed.') !== FALSE) {
@@ -379,6 +396,12 @@ class Backstop extends TestBackendBase {
         }
       }
     }
+
+    $this->logger->debug(var_export([
+      'command' => $command,
+      'execOutput' => $execOutput,
+      'res' => $results,
+    ], TRUE));
 
     dpm($execOutput);
     if (!$results['bitmapGenerationSuccess']) {
@@ -407,7 +430,7 @@ class Backstop extends TestBackendBase {
 
     // > 1 is used since the pgrep command gets included as well.
     if (is_numeric($res) && (int) $res > 1) {
-      \Drupal::logger('backstopjs')->error('BackstopJS is already running.');
+      $this->logger->warning('BackstopJS is already running.');
       throw new BackstopAlreadyRunningException('BackstopJS is already running.');
     }
   }
