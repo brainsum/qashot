@@ -210,6 +210,12 @@ class TestQueueState {
    * Clear both the state and the DB table.
    */
   public function clearQueue() {
+    /**
+      $service = \Drupal::service('qa_shot.test_queue_state');
+      $service->clearQueue();
+     */
+
+
     // @todo: This should be something like this:
     //   lock queue
     //   get queue
