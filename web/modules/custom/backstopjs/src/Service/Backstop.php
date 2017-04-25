@@ -122,7 +122,7 @@ class Backstop extends TestBackendBase {
       'duration' => $endTime - $startTime,
       'passed_count' => $results['passedTestCount'],
       'failed_count' => $results['failedTestCount'],
-      'pass_rate' => (float) $passRate,
+      'pass_rate' => is_numeric((float) $passRate) ? (float) $passRate : 0,
       'contains_result' => $containsResults,
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
