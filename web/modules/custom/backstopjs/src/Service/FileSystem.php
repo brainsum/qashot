@@ -20,16 +20,6 @@ use Drupal\backstopjs\Exception\InvalidEntityException;
 class FileSystem {
 
   /**
-   * The pattern of the paths.
-   *
-   * {files} = The file system path.
-   * {entity_id} = The ID of the entity.
-   *
-   * @var string
-   */
-  const PATH_PATTERN = '{files_path}/qa_test_data/{entity_id}';
-
-  /**
    * The entity data base path in the public and private filesystem.
    *
    * @var string
@@ -199,6 +189,7 @@ class FileSystem {
     $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
 
     $this->createFolder($privateEntityData);
+    $this->createFolder($configAsArray['paths']['html_report']);
     $this->createFolder($privateEntityData . '/tmp');
     $this->createConfigFile($configPath, $configAsJSON);
     $this->createFolder($privateCasperFolder);

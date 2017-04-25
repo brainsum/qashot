@@ -54,10 +54,8 @@ class ConfigurationConverter {
    *   EntityTypeManager service.
    */
   public function __construct(EntityTypeManagerInterface $entityTypeManager) {
-    $pathPattern = FileSystem::PATH_PATTERN;
-
-    $this->privateDataPath = str_replace('{files_path}', PrivateStream::basePath(), $pathPattern);
-    $this->publicDataPath = str_replace('{files_path}', PublicStream::basePath(), $pathPattern);
+    $this->privateDataPath = PrivateStream::basePath() . DIRECTORY_SEPARATOR . FileSystem::DATA_BASE_FOLDER;
+    $this->publicDataPath = PublicStream::basePath() . DIRECTORY_SEPARATOR . FileSystem::DATA_BASE_FOLDER;
 
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->paragraphStorage = $entityTypeManager->getStorage('paragraph');
@@ -78,8 +76,8 @@ class ConfigurationConverter {
     // @todo: get some field values global settings
 
     $entityId = $entity->id();
-    $private = str_replace('{entity_id}', $entityId, $this->privateDataPath);
-    $public = str_replace('{entity_id}', $entityId, $this->publicDataPath);
+    $private = $this->privateDataPath . DIRECTORY_SEPARATOR . $entityId;
+    $public = $this->publicDataPath . DIRECTORY_SEPARATOR . $entityId;
 
     $mapConfigToArray = [
       // @todo: maybe id + revision id.

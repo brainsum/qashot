@@ -206,4 +206,28 @@ class TestQueueState {
     );
   }
 
+  /**
+   * Clear both the state and the DB table.
+   */
+  public function clearQueue() {
+    // @todo: This should be something like this:
+    //   lock queue
+    //   get queue
+    //   foreach (queue) { remove item from queue, remove item from db }
+    //   if db not empty, log error and truncate.
+    $this->state->set($this::STATE_KEY, []);
+
+    \Drupal::state()->set('qa_shot_queue', []);
+    \Drupal::database()->truncate('queue')->execute();
+
+    /* Code to get entity IDs from the queue table.
+         $queue = \Drupal::database()->select('queue')->fields('queue')->execute()->fetchAll();
+kint($queue);
+foreach ($queue as $item) {
+  $data = unserialize($item->data);
+  kint($data->entity->id());
+}
+     */
+  }
+
 }
