@@ -122,7 +122,7 @@ class Backstop extends TestBackendBase {
       'duration' => $endTime - $startTime,
       'passed_count' => $results['passedTestCount'],
       'failed_count' => $results['failedTestCount'],
-      'pass_rate' => is_numeric((float) $passRate) ? (float) $passRate : 0,
+      'pass_rate' => (float) (is_numeric($passRate) ? $passRate : 0),
       'contains_result' => $containsResults,
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
@@ -406,18 +406,17 @@ class Backstop extends TestBackendBase {
     $debug = var_export($debugData, TRUE);
 
     $this->logger->debug($debug);
-    $debugFolder = $this->backstopFileSystem->getPublicFiles() . DIRECTORY_SEPARATOR . 'debug_data';
+    $debugFolder = $this->backstopFileSystem->getPrivateFiles() . DIRECTORY_SEPARATOR . 'debug_data';
 
     $fileName = (new \DateTime())->format('Ymd-His') . '-' . $command . '.json';
     try {
       $this->backstopFileSystem->createFolder($debugFolder . DIRECTORY_SEPARATOR);
-      $this->backstopFileSystem->createConfigFile($debugFolder . DIRECTORY_SEPARATOR . $fileName, json_encode($debugData));
+      $this->backstopFileSystem->createConfigFile($debugFolder . DIRECTORY_SEPARATOR . $fileName, json_encode($debugData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     }
     catch (\Exception $e) {
       $this->logger->debug($e->getMessage());
     }
     // End Debug.
-
     dpm($execOutput);
     if (!$results['bitmapGenerationSuccess']) {
       $results['result'] = FALSE;
