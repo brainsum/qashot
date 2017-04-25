@@ -386,12 +386,12 @@ class Backstop extends TestBackendBase {
       // Search for the reports.
       if (strpos($line, 'report |') !== FALSE) {
         // Search for the number of passed tests.
-        if (strpos($line, 'Passed') !== FALSE) {
+        if ($results['passedTestCount'] === NULL && strpos($line, 'Passed') !== FALSE) {
           $results['passedTestCount'] = (int) preg_replace('/\D/', '', $line);
         }
 
         // Search for the number of failed tests.
-        if (strpos($line, 'Failed') !== FALSE) {
+        if ($results['failedTestCount'] === NULL && strpos($line, 'Failed') !== FALSE) {
           $results['failedTestCount'] = (int) preg_replace('/\D/', '', $line);
         }
       }
