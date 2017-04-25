@@ -108,7 +108,15 @@ class Backstop extends TestBackendBase {
         '@passed' => $results['passedTestCount'],
         '@failed' => $results['failedTestCount'],
       ]), 'status');
-      $passRate = (int) $results['passedTestCount'] / ((int) $results['passedTestCount'] + (int) $results['failedTestCount']);
+
+      $testCount = (int) $results['passedTestCount'] + (int) $results['failedTestCount'];
+      if ($testCount === 0) {
+        $this->logger->notice('Test count is 0. Is this ok? Test ID: ' . $entity->id());
+        $passRate = 0;
+      }
+      else {
+        $passRate = ((int) $results['passedTestCount']) / $testCount;
+      }
     }
 
     // @todo: Maybe return result and metadata and save elsewhere,
@@ -122,7 +130,7 @@ class Backstop extends TestBackendBase {
       'duration' => $endTime - $startTime,
       'passed_count' => $results['passedTestCount'],
       'failed_count' => $results['failedTestCount'],
-      'pass_rate' => (float) (is_numeric($passRate) ? $passRate : 0),
+      'pass_rate' => (float) $passRate,
       'contains_result' => $containsResults,
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
