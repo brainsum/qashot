@@ -30,8 +30,6 @@ class TestMetadata extends FieldItemBase {
   public static function defaultStorageSettings() {
     return [
       'max_stage_length' => 30,
-      'pass_rate_scale' => 9,
-      'pass_rate_precision' => 10,
     ] + parent::defaultStorageSettings();
   }
 
@@ -87,11 +85,8 @@ class TestMetadata extends FieldItemBase {
         ],
         'pass_rate' => [
           'description' => 'The pass rate of the tests. Number between 0 and 1.',
-          'type' => 'numeric',
-          // Total number of significant digits.
-          'precision' => $fieldDefinition->getSetting('pass_rate_precision'),
-          // Decimal digits right of the decimal point.
-          'scale' => $fieldDefinition->getSetting('pass_rate_scale'),
+          'type' => 'varchar',
+          'length' => 40,
         ],
         'contains_result' => [
           'description' => 'Flag indicating whether these are result values or intermediate ones.',
@@ -162,9 +157,7 @@ class TestMetadata extends FieldItemBase {
     // @see: web/core/lib/Drupal/Core/Field/Plugin/Field/FieldType/DecimalItem.php
     $properties['pass_rate'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Test pass rate'))
-      ->setDescription('The amount rate of passed tests (number between 0 and 1).')
-      ->setSetting('precision', $fieldDefinition->getSetting('pass_rate_precision'))
-      ->setSetting('scale', $fieldDefinition->getSetting('pass_rate_scale'));
+      ->setDescription('The amount rate of passed tests (number between 0 and 1).');
 
     $properties['contains_result'] = DataDefinition::create('boolean')
       ->setLabel(new TranslatableMarkup('Contains result'))

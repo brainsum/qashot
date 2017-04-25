@@ -49,3 +49,26 @@ function qa_shot_update_8203() {
   $database->truncate('qa_shot_test__metadata_last_run')->execute();
   $database->truncate('qa_shot_test__metadata_lifetime')->execute();
 }
+
+/**
+ * Truncate the metadata fields so they can be updated.
+ */
+function qa_shot_update_8301() {
+  // Set the fields to NULL properly.
+  $testStorage = \Drupal::entityTypeManager()->getStorage('qa_shot_test');
+  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface[] $tests */
+  $tests = $testStorage->loadMultiple();
+
+  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+  foreach ($tests as $test) {
+    $test->set('metadata_last_run', []);
+    $test->set('metadata_lifetime', []);
+    $test->save();
+  }
+
+  $database = \Drupal::database();
+  // If there are stuck values (improper removal of an entity, etc.),
+  // remove them.
+  $database->truncate('qa_shot_test__metadata_last_run')->execute();
+  $database->truncate('qa_shot_test__metadata_lifetime')->execute();
+}
