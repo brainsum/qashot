@@ -2,6 +2,7 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
@@ -55,19 +56,33 @@ class FileSystem {
   private $configConverter;
 
   /**
+   * QAShot Test entity storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  private $testStorage;
+
+  /**
    * FileSystem constructor.
    *
    * @param \Drupal\Core\File\FileSystemInterface $fileSystem
    *   File system service.
    * @param \Drupal\backstopjs\Service\ConfigurationConverter $configConverter
    *   The configuration converter.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
    */
-  public function __construct(FileSystemInterface $fileSystem, ConfigurationConverter $configConverter) {
+  public function __construct(
+    FileSystemInterface $fileSystem,
+    ConfigurationConverter $configConverter,
+    EntityTypeManagerInterface $entityTypeManager
+  ) {
     $this->privateFiles = PrivateStream::basePath() . DIRECTORY_SEPARATOR . $this::DATA_BASE_FOLDER;
     $this->publicFiles = PublicStream::basePath() . DIRECTORY_SEPARATOR . $this::DATA_BASE_FOLDER;
 
     $this->fileSystem = $fileSystem;
     $this->configConverter = $configConverter;
+    $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
   }
 
   /**
@@ -294,9 +309,10 @@ class FileSystem {
    * Remove unused public files and folders.
    */
   public function removeUnusedFiles() {
-    $tests = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->loadMultiple();
-    foreach ($tests as $test) {
-      $dataFolder = $this->publicFiles . DIRECTORY_SEPARATOR . $test->id() . DIRECTORY_SEPARATOR . 'test';
+    $testIds = array_keys($this->testStorage->loadMultiple());
+
+    foreach ($testIds as $id) {
+      $dataFolder = $this->publicFiles . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'test';
 
       if (!is_dir($dataFolder)) {
         continue;
@@ -314,6 +330,17 @@ class FileSystem {
       foreach ($folders as $folder) {
         $this->removeDirectory($dataFolder . DIRECTORY_SEPARATOR . $folder);
       }
+    }
+
+    // Remove stuck folders.
+    $folders = array_values(array_diff(scandir($this->publicFiles, SCANDIR_SORT_DESCENDING), ['.', '..']));
+    // Get the folders where the test entity is missing.
+    $stuckTestData = array_diff($folders, $testIds);
+
+    // Remove data for the missing entities.
+    foreach ($stuckTestData as $data) {
+      $this->removeDirectory($this->publicFiles . DIRECTORY_SEPARATOR . $data);
+      $this->removeDirectory($this->privateFiles . DIRECTORY_SEPARATOR . $data);
     }
   }
 
