@@ -42,4 +42,14 @@ interface TestBackendInterface {
    */
   public function clearFiles(QAShotTestInterface $entity);
 
+  /**
+   * Remove unused files belonging to the test.
+   *
+   * Removal should include only public files.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   */
+  public function removeUnusedFilesForTest(QAShotTestInterface $entity);
+
 }

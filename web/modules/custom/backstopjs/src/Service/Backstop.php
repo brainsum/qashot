@@ -480,4 +480,14 @@ class Backstop extends TestBackendBase {
     $this->backstopFileSystem->clearFiles($entity);
   }
 
+  /**
+   * Clean up the unused files for an entity.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   */
+  public function removeUnusedFilesForTest(QAShotTestInterface $entity) {
+    $this->backstopFileSystem->removedUnusedFilesForTest($entity);
+  }
+
 }

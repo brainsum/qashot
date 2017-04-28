@@ -332,24 +332,7 @@ class FileSystem {
     $testIds = array_keys($this->testStorage->loadMultiple());
 
     foreach ($testIds as $id) {
-      $dataFolder = $this->publicFiles . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'test';
-
-      if (!is_dir($dataFolder)) {
-        continue;
-      }
-
-      // Get the folders without the . and .. ones in reverse order.
-      $folders = array_values(array_diff(scandir($dataFolder, SCANDIR_SORT_DESCENDING), ['.', '..']));
-
-      // If there are more than one items in it, remove the first.
-      // This should mean the removal of the latest item.
-      if (count($folders) > 0) {
-        unset($folders[0]);
-      }
-
-      foreach ($folders as $folder) {
-        $this->removeDirectory($dataFolder . DIRECTORY_SEPARATOR . $folder);
-      }
+      $this->removedUnusedFilesByTestId($id);
     }
 
     // Remove stuck folders.
@@ -362,6 +345,43 @@ class FileSystem {
       $this->removeDirectory($this->publicFiles . DIRECTORY_SEPARATOR . $data);
       $this->removeDirectory($this->privateFiles . DIRECTORY_SEPARATOR . $data);
     }
+  }
+
+  /**
+   * Remove unused data for a specific test by its ID.
+   *
+   * @param string|int $testId
+   *   The test entity ID.
+   */
+  public function removedUnusedFilesByTestId($testId) {
+    $dataFolder = $this->publicFiles . DIRECTORY_SEPARATOR . $testId . DIRECTORY_SEPARATOR . 'test';
+
+    if (!is_dir($dataFolder)) {
+      return;
+    }
+
+    // Get the folders without the . and .. ones in reverse order.
+    $folders = array_values(array_diff(scandir($dataFolder, SCANDIR_SORT_DESCENDING), ['.', '..']));
+
+    // If there are more than one items in it, remove the first.
+    // This should mean the removal of the latest item.
+    if (count($folders) > 0) {
+      unset($folders[0]);
+    }
+
+    foreach ($folders as $folder) {
+      $this->removeDirectory($dataFolder . DIRECTORY_SEPARATOR . $folder);
+    }
+  }
+
+  /**
+   * Remove unused data for a specific test.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
+   *   The test entity.
+   */
+  public function removedUnusedFilesForTest(QAShotTestInterface $test) {
+    $this->removedUnusedFilesByTestId($test->id());
   }
 
 }

@@ -124,11 +124,12 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
     try {
       $this->queueState->setToRunning($entity->id());
       $this->testBackend->runTestBySettings($entity, $data->stage);
-      // @todo: Don't remove, just set to IDLE.
+      // @todo: Don't remove, just set to IDLE?
       // Remove only when entity is deleted.
       // Check the queue table in the DB for inconsistencies.
       $this->queueState->remove($entity->id());
       $this->notification->sendNotification($entity, $data->origin, 'qa_shot');
+      $this->testBackend->removeUnusedFilesForTest($entity);
     }
     catch (QAShotBaseException $e) {
       $this->queueState->setToError($entity->id());

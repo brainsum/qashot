@@ -22,6 +22,11 @@ abstract class TestBackendBase implements TestBackendInterface {
   abstract public function clearFiles(QAShotTestInterface $entity);
 
   /**
+   * {@inheritdoc}
+   */
+  abstract public function removeUnusedFilesForTest(QAShotTestInterface $entity);
+
+  /**
    * Run tests in Before/After mode.
    *
    * Use this function inside the runTestBySettings() method only.
