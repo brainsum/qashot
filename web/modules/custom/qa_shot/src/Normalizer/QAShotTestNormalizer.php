@@ -71,9 +71,34 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
     $attributes = [];
     /** @var \Drupal\Core\TypedData\TypedDataInterface $field */
     foreach ($object as $name => $field) {
+      // @fixme This is just a hotfix.
+      if ($name === 'result') {
+        $attributes[$name] = $this->serializer->normalize($this->computeResultField($field), $format, $context);
+        continue;
+      }
       $attributes[$name] = $this->serializer->normalize($field, $format, $context);
     }
     return $attributes;
+  }
+
+  /**
+   * Hotfix.
+   *
+   * @param $result
+   * @return array
+   */
+  private function computeResultField($result) {
+    $computedValue = [];
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Result $item */
+    foreach ($result as $delta => $item) {
+      /** @var \Drupal\Core\TypedData\TypedDataInterface $property */
+      foreach ($item->getProperties(TRUE) as $name => $property) {
+        $computedValue[$delta][$name] = $property->getValue();
+      }
+    }
+
+    return $computedValue;
   }
 
   /**
