@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "4f0aa407b12d9ace13fbb57ccb894cdb",
+    "content-hash": "d88d344bc107210df08455b3367e78d3",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5214,11 +5214,17 @@
         },
         {
             "name": "drupal/devel",
-            "version": "dev-1.x",
+            "version": "1.0.0-rc2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupal.org/project/devel",
-                "reference": "2d1ad8e73f71b3a4b983bc2fe50e601aae248c1a"
+                "reference": "8.x-1.0-rc2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/devel-8.x-1.0-rc2.zip",
+                "reference": null,
+                "shasum": "011322bf9c263dab29f94640829f4b654e9c5632"
             },
             "require": {
                 "drupal/core": "~8.0"
@@ -5232,8 +5238,8 @@
                     "dev-1.x": "1.x-dev"
                 },
                 "drupal": {
-                    "version": "8.x-1.0-rc2+3-dev",
-                    "datestamp": "1493434144"
+                    "version": "8.x-1.0-rc2",
+                    "datestamp": "1492989244"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -5485,7 +5491,8 @@
             "homepage": "https://www.drupal.org/project/restui",
             "support": {
                 "source": "http://cgit.drupalcode.org/restui"
-            }
+            },
+            "time": "2017-04-29 07:05:04"
         },
         {
             "name": "drupal/toolbar_anti_flicker",
@@ -6913,7 +6920,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "roave/security-advisories": 20,
-        "drupal/devel": 20,
         "drupal/examples": 20,
         "drupal/restui": 20,
         "drupal/cors_ui": 20,
