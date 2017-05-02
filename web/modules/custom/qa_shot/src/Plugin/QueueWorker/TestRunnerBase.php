@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot\Plugin\QueueWorker;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -49,6 +50,13 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
   protected $notification;
 
   /**
+   * QAShot Test storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $testStorage;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(
@@ -64,7 +72,8 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
       $container->get('backstopjs.backstop'),
       $container->get('qa_shot.test_queue_state'),
       $container->get('logger.factory'),
-      $container->get('qa_shot.test_notification')
+      $container->get('qa_shot.test_notification'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -85,6 +94,8 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
    *   The logger channel factory service.
    * @param \Drupal\qa_shot\Service\TestNotification $notification
    *   The notification service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager.
    */
   public function __construct(
     array $configuration,
@@ -93,13 +104,15 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
     TestBackendInterface $testBackend,
     TestQueueState $queueState,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    TestNotification $notification
+    TestNotification $notification,
+    EntityTypeManagerInterface $entityTypeManager
   ) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
     $this->testBackend = $testBackend;
     $this->queueState = $queueState;
     $this->logger = $loggerChannelFactory->get('qa_shot');
     $this->notification = $notification;
+    $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
   }
 
   /**
@@ -107,39 +120,41 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
    */
   public function processItem($data) {
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
-    $entity = $data->entity;
+    $entity = $this->testStorage->load($data->entityId);
 
-    // @hotfix @fixme @todo
-    if (NULL === QAShotTest::load($entity->id())) {
-      $this->queueState->remove($entity->id());
-      $this->logger->error('The entity with id ' . $entity->id() . ' has been deleted while it was queued.');
+    // If the entity has been deleted while queued remove it, log an error
+    // and return, so it gets removed from the DB queue as well.
+    if (NULL === $entity) {
+      $this->queueState->remove($data->entityId);
+      $this->logger->error('The entity with id ' . $data->entityId . ' has been deleted while it was queued.');
       return;
     }
 
     // @todo: Maybe add a custom queue processor.
+    // If there's already a running item, requeue.
     if ($this->queueState->hasRunningItem()) {
-      throw new RequeueException('The entity with id ' . $entity->id() . ' tried to run while another test was already running.');
+      throw new RequeueException('The entity with id ' . $data->entityId . ' tried to run while another test was already running.');
     }
 
     try {
-      $this->queueState->setToRunning($entity->id());
+      $this->queueState->setToRunning($data->entityId);
       $this->testBackend->runTestBySettings($entity, $data->stage);
       // @todo: Don't remove, just set to IDLE?
       // Remove only when entity is deleted.
       // Check the queue table in the DB for inconsistencies.
-      $this->queueState->remove($entity->id());
+      $this->queueState->remove($data->entityId);
       $this->notification->sendNotification($entity, $data->origin, 'qa_shot');
       $this->testBackend->removeUnusedFilesForTest($entity);
     }
     catch (QAShotBaseException $e) {
-      $this->queueState->setToError($entity->id());
+      $this->queueState->setToError($data->entityId);
       $this->logger->alert($e->getMessage());
       return;
     }
     catch (\Exception $e) {
       // If we get any other errors, just remove the item from core queue
       // and our custom one as well.
-      $this->queueState->setToError($entity->id());
+      $this->queueState->setToError($data->entityId);
       $this->logger->error($e->getMessage());
       return;
     }

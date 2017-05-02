@@ -525,7 +525,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
       // Add the test entity and the requested stage to the item.
       $queueItem = new \stdClass();
-      $queueItem->entity = $this;
+      $queueItem->entityId = $this->id();
       $queueItem->stage = $stage;
       $queueItem->origin = $origin;
       // Add the item to the queue.
