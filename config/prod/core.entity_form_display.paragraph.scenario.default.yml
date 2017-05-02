@@ -9,6 +9,7 @@ dependencies:
     - paragraphs.paragraphs_type.scenario
   module:
     - link
+    - maxlength
 id: paragraph.scenario.default
 targetEntityType: paragraph
 bundle: scenario
@@ -17,10 +18,13 @@ content:
   field_label:
     weight: 0
     settings:
-      rows: 5
+      size: 80
       placeholder: ''
-    third_party_settings: {  }
-    type: string_textarea
+    third_party_settings:
+      maxlength:
+        maxlength_js: 80
+        maxlength_js_label: 'Content limited to @limit characters, remaining: <strong>@remaining</strong>'
+    type: string_textfield
     region: content
   field_reference_url:
     weight: 1

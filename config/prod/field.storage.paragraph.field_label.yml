@@ -1,4 +1,4 @@
-uuid: 756c4871-ea7e-4cee-bc7c-26ca6e6f1df4
+uuid: bb89bf7c-890a-404f-a7ed-61a53a9ecc04
 langcode: en
 status: true
 dependencies:
@@ -7,8 +7,10 @@ dependencies:
 id: paragraph.field_label
 field_name: field_label
 entity_type: paragraph
-type: string_long
+type: string
 settings:
+  max_length: 255
+  is_ascii: false
   case_sensitive: false
 module: core
 locked: false
