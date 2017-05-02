@@ -1,0 +1,7 @@
+uuid: acba4796-0ade-4fa4-a822-178c19c52a73
+langcode: en
+status: true
+dependencies: {  }
+id: scenario
+label: Scenario
+behavior_plugins: {  }

@@ -5,33 +5,20 @@ dependencies:
   module:
     - basic_auth
     - qa_shot
+    - qa_shot_rest_api
     - serialization
     - user
 id: entity.qa_shot_test
 plugin_id: 'entity:qa_shot_test'
-granularity: method
+granularity: resource
 configuration:
-  GET:
-    supported_formats:
-      - json
-    supported_auth:
-      - basic_auth
-      - cookie
-  POST:
-    supported_formats:
-      - json
-    supported_auth:
-      - basic_auth
-      - cookie
-  DELETE:
-    supported_formats:
-      - json
-    supported_auth:
-      - basic_auth
-      - cookie
-  PATCH:
-    supported_formats:
-      - json
-    supported_auth:
-      - basic_auth
-      - cookie
+  methods:
+    - GET
+    - POST
+    - DELETE
+    - PATCH
+  formats:
+    - json
+  authentication:
+    - basic_auth
+    - cookie

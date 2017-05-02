@@ -1,0 +1,23 @@
+uuid: f4434215-a986-44f0-a382-e1401320624c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_reference_url
+    - paragraphs.paragraphs_type.scenario
+  module:
+    - link
+id: paragraph.scenario.field_reference_url
+field_name: field_reference_url
+entity_type: paragraph
+bundle: scenario
+label: 'Reference URL'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 16
+  title: 0
+field_type: link

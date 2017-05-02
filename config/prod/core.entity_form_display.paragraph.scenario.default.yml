@@ -1,0 +1,44 @@
+uuid: e4771b67-83ad-4f8f-a8e4-a7bbc1baad93
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.scenario.field_label
+    - field.field.paragraph.scenario.field_reference_url
+    - field.field.paragraph.scenario.field_test_url
+    - paragraphs.paragraphs_type.scenario
+  module:
+    - link
+id: paragraph.scenario.default
+targetEntityType: paragraph
+bundle: scenario
+mode: default
+content:
+  field_label:
+    weight: 0
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+    region: content
+  field_reference_url:
+    weight: 1
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+    region: content
+  field_test_url:
+    weight: 2
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+    region: content
+hidden:
+  created: true
+  status: true
+  uid: true

@@ -1,0 +1,48 @@
+uuid: 0f9de02b-a4ca-4e85-87fe-bc9135b94bfb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.scenario.field_label
+    - field.field.paragraph.scenario.field_reference_url
+    - field.field.paragraph.scenario.field_test_url
+    - paragraphs.paragraphs_type.scenario
+  module:
+    - link
+id: paragraph.scenario.default
+targetEntityType: paragraph
+bundle: scenario
+mode: default
+content:
+  field_label:
+    weight: 0
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+    region: content
+  field_reference_url:
+    weight: 1
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+    region: content
+  field_test_url:
+    weight: 2
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+    region: content
+hidden: {  }

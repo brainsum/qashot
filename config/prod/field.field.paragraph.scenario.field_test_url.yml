@@ -1,0 +1,23 @@
+uuid: c7046493-a599-456e-9988-824e54e20c76
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_test_url
+    - paragraphs.paragraphs_type.scenario
+  module:
+    - link
+id: paragraph.scenario.field_test_url
+field_name: field_test_url
+entity_type: paragraph
+bundle: scenario
+label: 'Test URL'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 16
+  title: 0
+field_type: link
