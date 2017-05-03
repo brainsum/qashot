@@ -89,8 +89,14 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
         }
 
         $itemValue = [];
+        // @todo @fixme.
         foreach ($value as $item) {
-          $itemValue[] = $item['value'];
+          if (isset($item['uri'])) {
+            $itemValue[] = $item['uri'];
+          }
+          else {
+            $itemValue[] = $item['value'];
+          }
         }
 
         return count($itemValue) > 1 ? $itemValue : $itemValue[0];
@@ -139,7 +145,6 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
       $bundleData = $this->extractBundleData($data, $entityTypeDefinition);
 
       $bundleData = array_merge($bundleData, $data);
-
 
       // Create the entity from bundle data only, then apply field values after.
       $entity = $this->entityTypeManager->getStorage($entityTypeId)->create($bundleData);
