@@ -144,7 +144,7 @@ class ConfigurationConverter {
    * @return array
    *   Array representation of the viewport field.
    */
-  private function viewportToArray(EntityReferenceRevisionsFieldItemList $viewportField) {
+  public function viewportToArray(EntityReferenceRevisionsFieldItemList $viewportField) {
     // Flatten the field values from target_id + revision_target_id
     // to target_id only.
     $ids = array_map(function ($item) {
@@ -154,12 +154,12 @@ class ConfigurationConverter {
     $viewports = $this->paragraphStorage->loadMultiple($ids);
 
     $viewportData = [];
-    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Viewport $viewport */
+    /** @var \Drupal\paragraphs\Entity\Paragraph $viewport */
     foreach ($viewports as $viewport) {
       $viewportData[] = [
-        'name' => (string) $viewport->get('field_name')->value,
-        'width' => (int) $viewport->get('field_width')->value,
-        'height' => (int) $viewport->get('field_height')->value,
+        'name' => (string) $viewport->get('field_name')->getValue()[0]['value'],
+        'width' => (int) $viewport->get('field_width')->getValue()[0]['value'],
+        'height' => (int) $viewport->get('field_height')->getValue()[0]['value'],
       ];
     }
     return $viewportData;
@@ -168,7 +168,7 @@ class ConfigurationConverter {
   /**
    * Convert the scenario field so it can be used in a BackstopJS config array.
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface $scenarioField
+   * @param \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList $scenarioField
    *   The scenario field.
    * @param string[] $selectorsToHide
    *   An array of selectors that should be visually hidden.
@@ -177,20 +177,28 @@ class ConfigurationConverter {
    * @return array
    *   Array representation of the scenario field.
    */
-  private function scenarioToArray(FieldItemListInterface $scenarioField, array $selectorsToHide) {
+  public function scenarioToArray(EntityReferenceRevisionsFieldItemList $scenarioField, array $selectorsToHide) {
     $scenarioData = [];
 
-    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Scenario $scenario */
-    foreach ($scenarioField as $scenario) {
-      $currentScenario = [];
-      $currentScenario['label'] = (string) $scenario->get('label')->getValue();
+    // Flatten the field values from target_id + revision_target_id
+    // to target_id only.
+    $ids = array_map(function ($item) {
+      return $item['target_id'];
+    }, $scenarioField->getValue());
 
-      if ($referenceUrl = $scenario->get('referenceUrl')->getValue()) {
+    $scenarios = $this->paragraphStorage->loadMultiple($ids);
+
+    /** @var \Drupal\paragraphs\Entity\Paragraph $scenario */
+    foreach ($scenarios as $scenario) {
+      $currentScenario = [];
+      $currentScenario['label'] = (string) $scenario->get('field_label')->getValue()[0]['value'];
+
+      if ($referenceUrl = $scenario->get('field_reference_url')->getValue()[0]['uri']) {
         $currentScenario['referenceUrl'] = (string) $referenceUrl;
       }
 
       $currentScenario += [
-        'url' => (string) $scenario->get('testUrl')->getValue(),
+        'url' => (string) $scenario->get('field_test_url')->getValue()[0]['uri'],
         'readyEvent' => NULL,
         'delay' => 5000,
         'misMatchThreshold' => 0.0,

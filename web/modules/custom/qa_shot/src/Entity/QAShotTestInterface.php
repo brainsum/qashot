@@ -158,7 +158,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   /**
    * Return the scenario field.
    *
-   * @return \Drupal\Core\Field\FieldItemListInterface
+   * @return \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList
    *   The Scenario field.
    */
   public function getFieldScenario();
