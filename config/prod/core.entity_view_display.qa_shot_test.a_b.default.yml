@@ -10,19 +10,20 @@ dependencies:
     - qa_shot.qa_shot_test_type.a_b
   module:
     - entity_reference_revisions
-    - qa_shot
 id: qa_shot_test.a_b.default
 targetEntityType: qa_shot_test
 bundle: a_b
 mode: default
 content:
   field_scenario:
+    type: entity_reference_revisions_entity_view
     weight: 2
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    type: qa_shot_scenario
     region: content
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
   field_viewport:
     type: entity_reference_revisions_entity_view
     weight: 1

@@ -4,6 +4,11 @@
  * @file
  * Install file for the qa_shot module.
  */
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Utility\UpdateException;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\paragraphs\Entity\Paragraph;
 
 /**
@@ -71,4 +76,194 @@ function qa_shot_update_8301() {
   // remove them.
   $database->truncate('qa_shot_test__metadata_last_run')->execute();
   $database->truncate('qa_shot_test__metadata_lifetime')->execute();
+}
+
+/**
+ * Some tables have not been purged properly.
+ */
+function qa_shot_update_8302() {
+  $database = \Drupal::database();
+  // If there are stuck values (improper removal of an entity, etc.),
+  // remove them.
+  $database->query('CREATE TABLE field_deleted_data_81ed64c1a3 ( entity_id int, bundle varchar(20), PRIMARY KEY (entity_id));');
+  drupal_flush_all_caches();
+  field_purge_batch(100);
+  $database->query('DROP TABLE field_deleted_data_8d252dda90;');
+  drupal_flush_all_caches();
+  field_purge_batch(100);
+}
+
+/**
+ * Clone field_scenario into field_scenario_backup, then delete the old one.
+ */
+function qa_shot_update_8303() {
+  field_purge_batch(100);
+  drupal_flush_all_caches();
+  $entityTypeManager = \Drupal::entityTypeManager();
+
+  if (!$scenarioField = $entityTypeManager->getStorage('field_config')->loadByProperties([
+    'field_type' => 'qa_shot_scenario',
+  ])['qa_shot_test.a_b.field_scenario']) {
+    return;
+  }
+
+  if (!$scenarioStorage = $entityTypeManager->getStorage('field_storage_config')->loadByProperties([
+    'type' => 'qa_shot_scenario',
+  ])['qa_shot_test.field_scenario']) {
+    return;
+  }
+
+  if (!$scenarioStorageBackup = $entityTypeManager->getStorage('field_storage_config')->loadByProperties([
+    'type' => 'qa_shot_scenario',
+  ])['qa_shot_test.field_scenario_backup']) {
+    // Clone FieldStorageConfig.
+    $new_field_storage = $scenarioStorage->toArray();
+    $new_field_storage['field_name'] .= '_backup';
+    unset($new_field_storage['uuid'], $new_field_storage['id']);
+    $new_field_storage = FieldStorageConfig::create($new_field_storage);
+    $new_field_storage->enforceIsNew(TRUE);
+    $new_field_storage->save();
+  }
+
+  if (!$scenarioFieldBackup = $entityTypeManager->getStorage('field_config')->loadByProperties([
+    'field_type' => 'qa_shot_scenario',
+  ])['qa_shot_test.a_b.field_scenario_backup']) {
+    // Clone FieldConfig.
+    $new_field = $scenarioField->toArray();
+    $new_field['field_name'] .= '_backup';
+    $new_field['label'] .= ' (Backup)';
+    $new_field['config'][] = 'field.storage.qa_shot_test.field_scenario_backup';
+    unset(
+      $new_field['uuid'],
+      $new_field['id'],
+      $new_field['config']['field.storage.qa_shot_test.field_scenario']
+    );
+    $new_field = $entityTypeManager->getStorage('field_config')->create($new_field);
+    $new_field->enforceIsNew(TRUE);
+    $new_field->save();
+  }
+
+  $tests = $entityTypeManager->getStorage('qa_shot_test')->loadMultiple();
+
+  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+  foreach ($tests as $test) {
+    // Set the new viewport values and save the test.
+    $test->set('field_scenario_backup', $test->get('field_scenario')->getValue());
+    $test->save();
+  }
+
+  // Remove old scenario field and storage.
+  $entityTypeManager->getStorage('field_config')->delete([$scenarioField]);
+  $entityTypeManager->getStorage('field_storage_config')->delete([$scenarioStorage]);
+  field_purge_batch(100);
+  drupal_flush_all_caches();
+}
+
+/**
+ * Create a new field_scenario for paragraphs.
+ */
+function qa_shot_update_8304() {
+  // include_once DRUPAL_ROOT . '/modules/custom/qa_shot/qa_shot.install';
+  field_purge_batch(100);
+  drupal_flush_all_caches();
+  $entityTypeManager = \Drupal::entityTypeManager();
+
+  // Add a paragraphs field.
+  $field_storage = $entityTypeManager->getStorage('field_storage_config')
+    ->create([
+      'uuid' => '408fb3d6-d1ae-4648-bbf2-5752610b8fa2',
+      'field_name' => 'field_scenario',
+      'entity_type' => 'qa_shot_test',
+      'type' => 'entity_reference_revisions',
+      'cardinality' => '-1',
+      'settings' => [
+        'target_type' => 'paragraph',
+      ],
+    ]);
+  $field_storage->enforceIsNew(TRUE);
+  $field_storage->save();
+
+  $field = $entityTypeManager->getStorage('field_config')->create([
+    'uuid' => '9ead64b1-5d07-4be5-921d-4f4d325f9bcf',
+    'field_storage' => $field_storage,
+    'label' => 'Scenario',
+    'bundle' => 'a_b',
+    'settings' => [
+      'handler' => 'default:paragraph',
+      'handler_settings' => [
+        'target_bundles' => ['scenario' => 'scenario'],
+        'target_bundles_drag_drop' => ['scenario' => ['enabled' => TRUE], 'weight' => 1],
+      ],
+    ],
+    'required' => TRUE,
+  ]);
+  $field->enforceIsNew(TRUE);
+  $field->save();
+
+  field_purge_batch(100);
+  drupal_flush_all_caches();
+}
+
+/**
+ * Copy field_scenario_backup data to the new, paragraphs based field_scenario.
+ */
+function qa_shot_update_8305() {
+  field_purge_batch(100);
+  drupal_flush_all_caches();
+
+  $entityTypeManager = \Drupal::entityTypeManager();
+  $paragraphStorage = $entityTypeManager->getStorage('paragraph');
+  $tests = $entityTypeManager->getStorage('qa_shot_test')->loadMultiple();
+
+  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+  foreach ($tests as $test) {
+    $scenarios = $test->get('field_scenario_backup')->getValue();
+
+    if (empty($scenarios)) {
+      continue;
+    }
+
+    $paragraphs = [];
+
+    foreach ($scenarios as $scenario) {
+      $paragraph = $paragraphStorage->create([
+        'type' => 'scenario',
+        'field_label' => $scenario['label'],
+        'field_reference_url' => $scenario['testUrl'],
+        'field_test_url' => $scenario['referenceUrl'],
+      ]);
+
+      $paragraphs[] = $paragraph;
+    }
+
+    // Set the new scenario values and save the test.
+    $test->set('field_scenario', $paragraphs);
+    $test->set('field_scenario_backup', []);
+    $test->save();
+  }
+
+  $database = \Drupal::database();
+  // If there are stuck values (improper removal of an entity, etc.),
+  // remove them.
+  $database->query('TRUNCATE TABLE qa_shot_test__field_scenario_backup;');
+
+  if ($scenarioField = $entityTypeManager->getStorage('field_config')
+    ->loadByProperties([
+      'field_type' => 'qa_shot_scenario',
+    ])['qa_shot_test.a_b.field_scenario_backup']
+  ) {
+    $entityTypeManager->getStorage('field_config')->delete([$scenarioField]);
+  }
+
+  if ($scenarioStorage = $entityTypeManager->getStorage('field_storage_config')
+    ->loadByProperties([
+      'type' => 'qa_shot_scenario',
+    ])['qa_shot_test.field_scenario_backup']
+  ) {
+    $entityTypeManager->getStorage('field_storage_config')
+      ->delete([$scenarioStorage]);
+  }
+
+  field_purge_batch(100);
+  drupal_flush_all_caches();
 }

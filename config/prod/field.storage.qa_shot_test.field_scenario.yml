@@ -1,17 +1,18 @@
-uuid: 4d5e1580-534c-4cf4-92ba-5a419ee01c4e
+uuid: 408fb3d6-d1ae-4648-bbf2-5752610b8fa2
 langcode: en
 status: true
 dependencies:
   module:
+    - entity_reference_revisions
+    - paragraphs
     - qa_shot
 id: qa_shot_test.field_scenario
 field_name: field_scenario
 entity_type: qa_shot_test
-type: qa_shot_scenario
+type: entity_reference_revisions
 settings:
-  max_url_length: 255
-  max_label_length: 80
-module: qa_shot
+  target_type: paragraph
+module: entity_reference_revisions
 locked: false
 cardinality: -1
 translatable: true

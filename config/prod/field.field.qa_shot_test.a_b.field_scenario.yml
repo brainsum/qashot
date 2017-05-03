@@ -1,12 +1,13 @@
-uuid: f4191869-cb2e-4e67-9fff-b35d12d2d7dc
+uuid: 9ead64b1-5d07-4be5-921d-4f4d325f9bcf
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.qa_shot_test.field_scenario
+    - paragraphs.paragraphs_type.scenario
     - qa_shot.qa_shot_test_type.a_b
   module:
-    - qa_shot
+    - entity_reference_revisions
 id: qa_shot_test.a_b.field_scenario
 field_name: field_scenario
 entity_type: qa_shot_test
@@ -17,5 +18,13 @@ required: true
 translatable: true
 default_value: {  }
 default_value_callback: ''
-settings: {  }
-field_type: qa_shot_scenario
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      scenario: scenario
+    target_bundles_drag_drop:
+      scenario:
+        enabled: true
+      weight: 1
+field_type: entity_reference_revisions
