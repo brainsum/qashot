@@ -85,9 +85,11 @@ function qa_shot_update_8302() {
   $database = \Drupal::database();
   // If there are stuck values (improper removal of an entity, etc.),
   // remove them.
-  $database->query('CREATE TABLE field_deleted_data_81ed64c1a3 ( entity_id int, bundle varchar(20), PRIMARY KEY (entity_id));');
-  drupal_flush_all_caches();
-  field_purge_batch(100);
+  if (!$database->schema()->tableExists('field_deleted_data_81ed64c1a3')) {
+    $database->query('CREATE TABLE field_deleted_data_81ed64c1a3 ( entity_id int, bundle varchar(20), PRIMARY KEY (entity_id));');
+    drupal_flush_all_caches();
+    field_purge_batch(100);
+  }
 
   if ($database->schema()->tableExists('field_deleted_data_8d252dda90')) {
     $database->schema()->dropTable('field_deleted_data_8d252dda90');
