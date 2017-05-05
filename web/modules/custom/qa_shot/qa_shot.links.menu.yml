@@ -35,3 +35,17 @@ qa_shot.main_menu.login_logout:
   menu_name: main
   weight: 200
   class: Drupal\user\Plugin\Menu\LoginLogoutMenuLink
+
+# Settings
+system.admin_config_qa_shot:
+  title: 'QAShot'
+  parent: system.admin_config
+  description: 'Configure QAShot.'
+  route_name: 'qa_shot.settings'
+  weight: -100
+
+qa_shot.settings:
+  title: 'QAShot Settings'
+  parent: system.admin_config_qa_shot
+  route_name: 'qa_shot.settings_form'
+  description: 'Clear queues, and access other settings.'

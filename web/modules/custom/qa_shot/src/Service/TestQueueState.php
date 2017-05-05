@@ -210,12 +210,6 @@ class TestQueueState {
    * Clear both the state and the DB table.
    */
   public function clearQueue() {
-    /**
-      $service = \Drupal::service('qa_shot.test_queue_state');
-      $service->clearQueue();
-     */
-
-
     // @todo: This should be something like this:
     //   lock queue
     //   get queue
@@ -228,11 +222,7 @@ class TestQueueState {
 
     /* Code to get entity IDs from the queue table.
          $queue = \Drupal::database()->select('queue')->fields('queue')->execute()->fetchAll();
-kint($queue);
-foreach ($queue as $item) {
-  $data = unserialize($item->data);
-  kint($data->entity->id());
-}
+         kint($queue);
      */
   }
 
