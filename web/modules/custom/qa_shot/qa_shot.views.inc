@@ -13,27 +13,27 @@
 function qa_shot_views_data() {
 
   $data['views']['table']['group'] = t('Custom Global');
-  $data['views']['table']['join'] = array(
+  $data['views']['table']['join'] = [
     // #global is a special flag which allows a table to appear all the time.
-    '#global' => array(),
-  );
+    '#global' => [],
+  ];
 
 
-  $data['views']['test_queue_status'] = array(
+  $data['views']['test_queue_status'] = [
     'title' => t('QAShot Test Queue Status'),
     'help' => t('Display the current status of the Test in the queue.'),
-    'field' => array(
+    'field' => [
       'id' => 'test_queue_status',
-    ),
-  );
+    ],
+  ];
 
-  $data['views']['entity_bundle_label'] = array(
+  $data['views']['entity_bundle_label'] = [
     'title' => t('QAShot Test Bundle Label'),
     'help' => t('Display the label of the entity.'),
-    'field' => array(
+    'field' => [
       'id' => 'entity_bundle_label',
-    ),
-  );
+    ],
+  ];
 
   return $data;
 }
