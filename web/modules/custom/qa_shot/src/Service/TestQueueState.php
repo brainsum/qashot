@@ -99,6 +99,16 @@ class TestQueueState {
   }
 
   /**
+   * Return the full queue from the state.
+   *
+   * @return array
+   *   The queue state.
+   */
+  public function getQueue() {
+    return $this->state->get($this::STATE_KEY);
+  }
+
+  /**
    * Set the status to 'running'.
    *
    * @param string|int $testId
