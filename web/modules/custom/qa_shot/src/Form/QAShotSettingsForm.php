@@ -4,8 +4,7 @@ namespace Drupal\qa_shot\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Database\Database;
-use \Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -105,6 +104,7 @@ class QAShotSettingsForm extends ConfigFormBase {
       '#open' => TRUE,
     ];
 
+    // @todo: Use a view instead (#type => view).
     $form['queue']['table'] = [
       '#type' => 'table',
       '#caption' => $this->t('Queue at @time', [
@@ -223,6 +223,13 @@ class QAShotSettingsForm extends ConfigFormBase {
    */
   public function submitQueueClearAll(array &$form, FormStateInterface $form_state) {
     $this->queueState->clearQueue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
   }
 
 }
