@@ -20,4 +20,4 @@ qa_shot.settings_form:
     _form: '\Drupal\qa_shot\Form\QAShotSettingsForm'
     _title: 'QAShot Settings'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer qashot configuration'
