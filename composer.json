@@ -124,5 +124,8 @@
                 "type:drupal-drush"
             ]
         }
+    },
+    "config": {
+        "optimize-autoloader": true
     }
 }
