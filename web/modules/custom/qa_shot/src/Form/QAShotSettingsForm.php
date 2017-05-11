@@ -147,6 +147,15 @@ class QAShotSettingsForm extends ConfigFormBase {
 
     $queueTableRows = [];
     $index = 0;
+
+    // Set an 'Empty message' as the default.
+    $queueTableRows[$index]['test_id'] = 'The queue is empty.';
+    $queueTableRows[$index]['status'] = '';
+    $queueTableRows[$index]['date'] = '';
+    $queueTableRows[$index]['stage'] = '';
+    $queueTableRows[$index]['origin'] = '';
+    $queueTableRows[$index]['item_id'] = '';
+
     /** @var \stdClass $item */
     // Go through the database queue.
     // If an item is in the database and also in the state,
