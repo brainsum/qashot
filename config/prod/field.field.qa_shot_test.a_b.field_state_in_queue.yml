@@ -1,0 +1,23 @@
+uuid: 41bc19cf-4eaf-4f9a-ab35-14c60cd868cb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_state_in_queue
+    - qa_shot.qa_shot_test_type.a_b
+  module:
+    - options
+id: qa_shot_test.a_b.field_state_in_queue
+field_name: field_state_in_queue
+entity_type: qa_shot_test
+bundle: a_b
+label: 'State in queue'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: idle
+default_value_callback: ''
+settings: {  }
+field_type: list_string

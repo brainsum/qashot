@@ -1,0 +1,33 @@
+uuid: f7b08b06-ec24-4ad7-a4ad-716995f08de3
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - qa_shot
+id: qa_shot_test.field_state_in_queue
+field_name: field_state_in_queue
+entity_type: qa_shot_test
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: idle
+      label: Idle
+    -
+      value: queued
+      label: 'Queued to run'
+    -
+      value: running
+      label: Running
+    -
+      value: error
+      label: Error
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

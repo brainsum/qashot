@@ -2,7 +2,10 @@ uuid: 3360faeb-b7d6-475e-ba3d-a72fe605d717
 langcode: en
 status: true
 dependencies:
+  config:
+    - field.storage.qa_shot_test.field_state_in_queue
   module:
+    - options
     - qa_shot
     - user
 id: qashot_test
@@ -38,9 +41,9 @@ display:
       exposed_form:
         type: basic
         options:
-          submit_button: Apply
-          reset_button: false
-          reset_button_label: Reset
+          submit_button: 'Apply sort'
+          reset_button: true
+          reset_button_label: 'Reset sort'
           exposed_sorts_label: 'Sort by'
           expose_sort_order: true
           sort_asc_label: Asc
@@ -80,7 +83,8 @@ display:
           columns:
             id: id
             name: name
-            type: type
+            entity_bundle_label: entity_bundle_label
+            field_state_in_queue: field_state_in_queue
             operations: operations
           info:
             id:
@@ -97,8 +101,15 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
-            type:
+            entity_bundle_label:
               sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            field_state_in_queue:
+              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
@@ -294,10 +305,10 @@ display:
           empty_zero: false
           hide_alter_empty: false
           plugin_id: entity_bundle_label
-        test_queue_status:
-          id: test_queue_status
-          table: views
-          field: test_queue_status
+        field_state_in_queue:
+          id: field_state_in_queue
+          table: qa_shot_test__field_state_in_queue
+          field: field_state_in_queue
           relationship: none
           group_type: group
           admin_label: ''
@@ -341,8 +352,21 @@ display:
           empty: ''
           hide_empty: false
           empty_zero: false
-          hide_alter_empty: false
-          plugin_id: test_queue_status
+          hide_alter_empty: true
+          click_sort_column: value
+          type: list_default
+          settings: {  }
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+          plugin_id: field
         operations:
           table: qa_shot_test
           field: operations
@@ -405,6 +429,7 @@ display:
       arguments: {  }
       display_extenders: {  }
       group_by: false
+      use_ajax: true
     cache_metadata:
       max-age: 0
       contexts:
@@ -412,7 +437,8 @@ display:
         - 'languages:language_interface'
         - url.query_args
         - user.permissions
-      tags: {  }
+      tags:
+        - 'config:field.storage.qa_shot_test.field_state_in_queue'
   frontpage_list:
     display_plugin: page
     id: frontpage_list
@@ -435,4 +461,5 @@ display:
         - 'languages:language_interface'
         - url.query_args
         - user.permissions
-      tags: {  }
+      tags:
+        - 'config:field.storage.qa_shot_test.field_state_in_queue'
