@@ -384,6 +384,30 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function getQueueStatus() {
+    return $this->get('field_state_in_queue')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHumanReadableQueueStatus() {
+    /** @var \Drupal\Core\Field\FieldItemListInterface $field */
+    $field = $this->get('field_state_in_queue');
+    return $field->getSetting('allowed_values')[$field->getString()];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setQueueStatus($status) {
+    $this->set('field_state_in_queue', $status);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function baseFieldDefinitions(EntityTypeInterface $entityType) {
     $fields = parent::baseFieldDefinitions($entityType);
 
@@ -536,15 +560,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
     // If we can't, it's already in the queue state.
     return 'already_in_queue';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function statusInQueue() {
-    /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
-    $testQueueState = \Drupal::service('qa_shot.test_queue_state');
-    return $testQueueState->getStatus($this->id());
   }
 
 }

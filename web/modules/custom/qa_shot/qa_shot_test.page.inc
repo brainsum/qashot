@@ -30,11 +30,6 @@ function template_preprocess_qa_shot_test(array &$variables) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
 
-  $variables['queue_status'] = [
-    '#type' => 'markup',
-    '#markup' => 'Current status in the queue is ' . $qaShotTest->statusInQueue() . '.',
-  ];
-
   $urlOptions = ['absolute' => TRUE];
 
   $attributes = [

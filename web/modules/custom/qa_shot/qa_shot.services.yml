@@ -1,7 +1,7 @@
 services:
   qa_shot.test_queue_state:
     class: Drupal\qa_shot\Service\TestQueueState
-    arguments: ['@state', '@logger.factory']
+    arguments: ['@state', '@logger.factory', '@entity_type.manager']
 
   qa_shot.test_notification:
     class: Drupal\qa_shot\Service\TestNotification

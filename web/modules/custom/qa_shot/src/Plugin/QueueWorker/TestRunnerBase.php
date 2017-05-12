@@ -7,7 +7,6 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\Queue\RequeueException;
-use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Service\TestNotification;
 use Drupal\qa_shot\Service\TestQueueState;

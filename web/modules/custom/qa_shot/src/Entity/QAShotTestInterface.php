@@ -283,6 +283,33 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getFrontendUrl();
 
   /**
+   * Get current queue status value.
+   *
+   * @return array
+   *   The value.
+   */
+  public function getQueueStatus();
+
+  /**
+   * Get current queue status.
+   *
+   * @return string
+   *   The status.
+   */
+  public function getHumanReadableQueueStatus();
+
+  /**
+   * Set current queue status.
+   *
+   * @param string $status
+   *   The status.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function setQueueStatus($status);
+
+  /**
    * Get the 'selectors_to_hide' field value.
    *
    * @return array
@@ -310,13 +337,5 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    *   The origin of the run request. Can be 'drupal' or 'api'.
    */
   public function run($stage, $origin = 'drupal');
-
-  /**
-   * Return the current queue status of the entity.
-   *
-   * @return string
-   *   The status.
-   */
-  public function statusInQueue();
 
 }

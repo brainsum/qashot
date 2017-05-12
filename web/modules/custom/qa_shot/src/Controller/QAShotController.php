@@ -54,12 +54,11 @@ class QAShotController extends ControllerBase {
     }
 
     $reportUrl = file_create_url($entity->getHtmlReportPath());
-    $currentStatus = $entity->statusInQueue();
 
     $build = [
       '#type' => 'markup',
       '#theme' => 'qa_shot__qa_shot_test__run',
-      '#queue_status' => $currentStatus,
+      '#queue_status' => $entity->getHumanReadableQueueStatus(),
       '#html_report_url' => $reportUrl,
       '#entity' => $entity,
     ];

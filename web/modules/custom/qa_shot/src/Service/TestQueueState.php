@@ -3,6 +3,7 @@
 namespace Drupal\qa_shot\Service;
 
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -37,16 +38,40 @@ class TestQueueState {
   private $logger;
 
   /**
+   * Test storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  private $testStorage;
+
+  /**
    * TestQueueState constructor.
    *
    * @param \Drupal\Core\State\StateInterface $state
    *   Drupal state service.
    * @param \Drupal\Core\Logger\LoggerChannelFactory $logger
    *   Logger service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager.
    */
-  public function __construct(StateInterface $state, LoggerChannelFactory $logger) {
+  public function __construct(StateInterface $state, LoggerChannelFactory $logger, EntityTypeManagerInterface $entityTypeManager) {
     $this->state = $state;
     $this->logger = $logger->get('qa_shot');
+    $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
+  }
+
+  /**
+   * Update an entity with the status.
+   *
+   * @param int|string $entityId
+   *   Entity id.
+   * @param string $status
+   *   Status.
+   */
+  private function updateEntity($entityId, $status) {
+    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+    $test = $this->testStorage->load($entityId);
+    $test->setQueueStatus($status)->save();
   }
 
   /**
@@ -117,12 +142,13 @@ class TestQueueState {
   public function setToRunning($testId) {
     $currentState = $this->state->get($this::STATE_KEY);
     $currentState[$testId] = $this->createState($this::STATUS_RUNNING);
-
     $this->state->set($this::STATE_KEY, $currentState);
 
     $this->logger->info(
       $this->t('Test with ID #@testID status changed to running.', ['@testID' => $testId])
     );
+
+    $this->updateEntity($testId, $this::STATUS_RUNNING);
   }
 
   /**
@@ -134,12 +160,13 @@ class TestQueueState {
   public function setToError($testId) {
     $currentState = $this->state->get($this::STATE_KEY);
     $currentState[$testId] = $this->createState($this::STATUS_ERROR);
-
     $this->state->set($this::STATE_KEY, $currentState);
 
     $this->logger->error(
       $this->t('Test with ID #@testID status changed to error.', ['@testID' => $testId])
     );
+
+    $this->updateEntity($testId, $this::STATUS_ERROR);
   }
 
   /**
@@ -157,6 +184,8 @@ class TestQueueState {
     $this->logger->info(
       $this->t('Test with ID #@testID status changed to queued.', ['@testID' => $testId])
     );
+
+    $this->updateEntity($testId, $this::STATUS_QUEUED);
   }
 
   /**
@@ -214,6 +243,8 @@ class TestQueueState {
     $this->logger->info(
       $this->t('Test with ID #@testID removed from the testing queue.', ['@testID' => $testId])
     );
+
+    $this->updateEntity($testId, $this::STATUS_IDLE);
   }
 
   /**
