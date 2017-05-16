@@ -2,7 +2,6 @@
 
 namespace Drupal\qa_shot\Entity;
 
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -68,9 +67,9 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    */
   public static function preCreate(EntityStorageInterface $entityStorage, array &$values) {
     parent::preCreate($entityStorage, $values);
-    $values += array(
+    $values += [
       'user_id' => \Drupal::currentUser()->id(),
-    );
+    ];
   }
 
   /**
@@ -346,7 +345,17 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function getSelectorsToHide() {
-    return $this->get('selectors_to_hide')->getValue();
+    /** @var \Drupal\Core\Field\FieldItemList $field */
+    $field = $this->get('selectors_to_hide')->getValue();
+
+    $fieldValue = [];
+
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\StringItem $item */
+    foreach ($field as $item) {
+      $fieldValue[] = $item->value;
+    }
+
+    return $fieldValue;
 
   }
 

@@ -258,8 +258,16 @@ class TestQueueState {
     //   if db not empty, log error and truncate.
     $this->state->set($this::STATE_KEY, []);
 
-    \Drupal::state()->set('qa_shot_queue', []);
     \Drupal::database()->truncate('queue')->execute();
+    $tests = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->loadMultiple();
+
+    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+    foreach ($tests as $test) {
+      if ($test->getQueueStatus()[0]['value'] !== $this::STATUS_IDLE) {
+        $test->setQueueStatus($this::STATUS_IDLE);
+        $test->save();
+      }
+    }
 
     /* Code to get entity IDs from the queue table.
          $queue = \Drupal::database()->select('queue')->fields('queue')->execute()->fetchAll();

@@ -10,6 +10,8 @@ use Drupal\views\ResultRow;
  *
  * @ingroup views_field_handlers
  *
+ * @toremove
+ *
  * @ViewsField("test_queue_status")
  */
 class TestQueueStatus extends FieldPluginBase {
@@ -44,7 +46,7 @@ class TestQueueStatus extends FieldPluginBase {
   public function render(ResultRow $values) {
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $values->_entity;
-    return $entity->statusInQueue();
+    return $entity->getQueueStatus()['value'];
   }
 
 }
