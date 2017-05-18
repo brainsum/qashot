@@ -7,6 +7,7 @@ dependencies:
     - field.field.qa_shot_test.a_b.field_html_report_path
     - field.field.qa_shot_test.a_b.field_scenario
     - field.field.qa_shot_test.a_b.field_state_in_queue
+    - field.field.qa_shot_test.a_b.field_tester_engine
     - field.field.qa_shot_test.a_b.field_viewport
     - qa_shot.qa_shot_test_type.a_b
   module:
@@ -28,6 +29,12 @@ content:
       form_display_mode: default
       default_paragraph_type: scenario
     third_party_settings: {  }
+  field_tester_engine:
+    weight: 6
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
   field_viewport:
     type: entity_reference_paragraphs
     weight: 1

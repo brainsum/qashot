@@ -1,9 +1,36 @@
+# QAShot
+
 ## Synopsis
 
-Note: The readme is outdated.
-QAShot is a Drupal 8.2 application which provides a UI to create BackstopJS configuration files.
-The user can also run these tests manually or schedule them to run at given times.
+QAShot is a Drupal 8 application which provides a UI to use BackstopJS to execute A/B testing of 2 sites.
 
+Features:
+* Test queue; Tests are put into a queue and are executed as soon as possible.
+* UI to manage BackstopJS test cases.
+
+## Docker
+A custom docker image is used. It was based on the Docker4Drupal environment (an older version).
+Name: havelantmate/drupal_php:Backstop2.6.13-SlimerJS
+Contents:
+* BackstopJS 2.6.13
+* Innophi SlimerJS 0.10.3
+* CasperJS version 1.1.4 at /usr/lib/node_modules/casperjs, using phantomjs version 2.1.1
+* Mozilla Firefox 45.0.2
+
+## Cron
+The tests are not run automatically, they are first put into a queue which is managed with cron.
+If you want the tests to run, you have to set up a cron job on the system.
+
+If you are using the docker environment described in this repo, just use this:
+( crontab -l ; echo "* * * * * /bin/sh <path-to-project>/run-test-queue.sh" ) | crontab -
+
+As of 2017. March 30, the Automated Cron module has been disabled.
+If you are using the docker environment described in this repo, just use this:
+( crontab -l ; echo "0 2 * * 1 /bin/sh ~/www/weekly-cron.sh" ) | crontab -
+
+See https://www.drupal.org/node/23714 for more cron info.
+
+# Outdated parts (some of it might still work)
 ## Installation
 
 The UI part is standard Drupal installation. Dependencies are managed with composer.
@@ -17,16 +44,3 @@ https://github.com/brainsum/qashot/blob/master/environment/amazee/Readme.md
 
 Background for installation inside an amazee.io container refer to this manual:
 https://docs.google.com/document/d/1GUmDacF-VSw-e1HvzOzaq_Su_Cz0FszPX-_8dr53tnw/edit , then
-
-### Cron
-The tests are not run automatically, they are first put into a queue which is managed with cron.
-If you want the tests to run, you have to set up a cron job on the system.
-
-If you are using the docker environment described in this repo, just use this:
-( crontab -l ; echo "* * * * * /bin/sh <path-to-project>/run-test-queue.sh" ) | crontab -
-
-As of 2017. March 30, the Automated Cron module has been disabled.
-If you are using the docker environment described in this repo, just use this:
-( crontab -l ; echo "0 2 * * 1 /bin/sh ~/www/weekly-cron.sh" ) | crontab -
-
-See https://www.drupal.org/node/23714 for more cron info.

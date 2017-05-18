@@ -124,6 +124,7 @@ class Backstop extends TestBackendBase {
     // Gather and persist metadata.
     $metadata = [
       'stage' => empty($stage) ? NULL : $stage,
+      'backstop_engine' => $results['backstopEngine'],
       'viewport_count' => $entity->getViewportCount(),
       'scenario_count' => $entity->getScenarioCount(),
       'datetime' => (new \DateTime())->format('Y-m-d H:i:s'),
@@ -141,6 +142,9 @@ class Backstop extends TestBackendBase {
       'metadata' => $metadata,
       'result' => $result,
     ], TRUE));
+
+    // @todo: Save this as well.
+    unset($metadata['backstop_engine']);
 
     $entity->addMetadata($metadata);
     $entity->setResult($result);
@@ -306,7 +310,7 @@ class Backstop extends TestBackendBase {
    *   Array with data from the command run.
    */
   private function runReferenceCommand(QAShotTestInterface $entity) {
-    return $this->runCommand('reference', $entity->getConfigurationPath());
+    return $this->runCommand('reference', $entity);
   }
 
   /**
@@ -326,7 +330,7 @@ class Backstop extends TestBackendBase {
    *   Array with data from the command run.
    */
   private function runTestCommand(QAShotTestInterface $entity) {
-    return $this->runCommand('test', $entity->getConfigurationPath());
+    return $this->runCommand('test', $entity);
   }
 
   /**
@@ -334,8 +338,8 @@ class Backstop extends TestBackendBase {
    *
    * @param string $command
    *   The command to be run.
-   * @param string $configurationPath
-   *   The path to the backstop config.
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
    *
    * @throws BackstopAlreadyRunningException
    *   When Backstop is already running.
@@ -345,35 +349,36 @@ class Backstop extends TestBackendBase {
    * @return array
    *   Array with data from the command run.
    */
-  private function runCommand($command, $configurationPath) {
-    // @todo: Either make the entity as the parameter, or return an array.
-    // @todo: use exceptions instead of return bool
+  private function runCommand($command, QAShotTestInterface $entity) {
     if (!$this->isCommandValid($command)) {
       throw new InvalidCommandException("The supplied command '$command' is not valid.");
     }
 
     $this->checkBackstopRunStatus();
-
-    // @todo: send this to the background, don't hold up UI
-    // @todo: add some kind of semaphore to prevent running a test several times at the same time
     /*
-     * @todo: real-time output:
-     *    http://stackoverflow.com/questions/1281140/run-process-with-realtime-output-in-php
-     *    http://stackoverflow.com/questions/20614557/php-shell-exec-update-output-as-script-is-running
-     *    http://stackoverflow.com/questions/20107147/php-reading-shell-exec-live-output
+     * @todo: real-time output @see: QAS-90.
+     * @todo: If the engine is slimerjs, add 'if' to close xvfb.
      */
-
-    // @todo: install script ending with "sudo -k" or "-K".
-    // @todo: FIXME.
-    // @todo: Get node version from .amazee.yml and add /var/www/drupal/.nvm/versions/node/v6.5.0/bin to path.
-    // @todo: Add an admin form where the user can input the path.
-    if (strpos(getenv("PATH"), "/var/www/drupal/.nvm/versions/node") === FALSE) {
-      putenv("PATH=/var/www/drupal/.nvm/versions/node/v6.5.0/bin:" . getenv("PATH"));
+    // @todo: Add separate function.
+    $testerEngine = 'phantomjs';
+    if ($engine = $entity->getTestEngine()) {
+      $testerEngine = $engine;
     }
 
-    $backstopCommand = escapeshellcmd('backstop ' . $command . ' --configPath=' . $configurationPath);
+    // @todo: Add an admin form where the user can input the path of binaries.
+
+    // @todo: What if local install, not docker/server?
+    // With slimerjs we have to use xvfb-run.
+    $xvfb = '';
+    if ($testerEngine === 'slimerjs') {
+      $xvfb = 'xvfb-run -a ';
+    }
+
+    $backstopCommand = escapeshellcmd($xvfb . 'backstop ' . $command . ' --configPath=' . $entity->getConfigurationPath());
     exec($backstopCommand, $execOutput, $status);
 
+
+    // @todo: ps aux | grep xvfb and kill the process if it hangs.
     // dpm($status, "exec status");
 
     $results = [
@@ -381,8 +386,8 @@ class Backstop extends TestBackendBase {
       'passedTestCount' => NULL,
       'failedTestCount' => NULL,
       'bitmapGenerationSuccess' => FALSE,
+      'backstopEngine' => $testerEngine,
     ];
-
 
     foreach ($execOutput as $line) {
       // Search for bitmap generation string.
@@ -405,26 +410,31 @@ class Backstop extends TestBackendBase {
       }
     }
 
-    // Debug.
-    $debugData = [
-      'command' => $command,
-      'execOutput' => $execOutput,
-      'res' => $results,
-    ];
-    $debug = var_export($debugData, TRUE);
-
-    $this->logger->debug($debug);
-    $debugFolder = $this->backstopFileSystem->getPrivateFiles() . DIRECTORY_SEPARATOR . 'debug_data';
-
-    $fileName = (new \DateTime())->format('Ymd-His') . '-' . $command . '.json';
-    try {
-      $this->backstopFileSystem->createFolder($debugFolder . DIRECTORY_SEPARATOR);
-      $this->backstopFileSystem->createConfigFile($debugFolder . DIRECTORY_SEPARATOR . $fileName, json_encode($debugData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-    }
-    catch (\Exception $e) {
-      $this->logger->debug($e->getMessage());
-    }
-    // End Debug.
+//    // Debug.
+//    $debugData = [
+//      'command' => $command,
+//      'execOutput' => $execOutput,
+//      'res' => $results,
+//    ];
+//    $debug = var_export($debugData, TRUE);
+//
+//    $this->logger->debug($debug);
+//    $debugFolder = $this->backstopFileSystem->getPrivateFiles() . DIRECTORY_SEPARATOR . 'debug_data';
+//
+//    $fileName = (new \DateTime())->format('Ymd-His') . '-' . $command . '.json';
+//    try {
+//      $this->backstopFileSystem->createFolder($debugFolder . DIRECTORY_SEPARATOR);
+//      $this->backstopFileSystem->createConfigFile($debugFolder . DIRECTORY_SEPARATOR . $fileName, json_encode($debugData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+//    }
+//    catch (\Exception $e) {
+//      try {
+//        $this->logger->debug($e->getMessage());
+//      }
+//      catch (\Exception $innerE) {
+//        drupal_set_message($e->getMessage(), 'error');
+//      }
+//    }
+//    // End Debug.
     dpm($execOutput);
     if (!$results['bitmapGenerationSuccess']) {
       $results['result'] = FALSE;

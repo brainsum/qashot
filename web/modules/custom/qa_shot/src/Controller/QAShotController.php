@@ -39,7 +39,7 @@ class QAShotController extends ControllerBase {
 
     // @fixme
     if ('a_b' === $entity->bundle()) {
-      if ($request->query->get('start_now') == 1) {
+      if ((int) $request->query->get('start_now') === 1) {
         // If we come from a valid route, run the tests.
         try {
           $entity->run(NULL, 'drupal');

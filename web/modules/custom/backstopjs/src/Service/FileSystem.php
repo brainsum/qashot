@@ -225,6 +225,7 @@ class FileSystem {
 
     $this->createFolder($privateEntityData);
     $this->createFolder($configAsArray['paths']['html_report']);
+    $this->createFolder($configAsArray['paths']['ci_report']);
     $this->createFolder($privateEntityData . '/tmp');
     $this->createConfigFile($configPath, $configAsJSON);
     $this->createFolder($privateCasperFolder);

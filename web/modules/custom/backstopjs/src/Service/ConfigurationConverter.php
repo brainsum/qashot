@@ -78,6 +78,7 @@ class ConfigurationConverter {
     $entityId = $entity->id();
     $private = $this->privateDataPath . DIRECTORY_SEPARATOR . $entityId;
     $public = $this->publicDataPath . DIRECTORY_SEPARATOR . $entityId;
+    $testEngine = $entity->getTestEngine();
 
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
@@ -85,17 +86,21 @@ class ConfigurationConverter {
       'viewports' => [],
       'scenarios' => [],
       'paths' => [
+        'casper_scripts' => $private . '/casper_scripts',
         'bitmaps_reference' => $public . '/reference',
         'bitmaps_test' => $public . '/test',
-        'casper_scripts' => $private . '/casper_scripts',
         'html_report' => $public . '/html_report',
         'ci_report' => $public . '/ci_report',
       ],
       // 'onBeforeScript' => 'onBefore.js', //.
       // 'onReadyScript' => 'onReady.js', //.
-      'engine' => 'phantomjs',
+      'engine' => (NULL === $testEngine) ? 'phantomjs' : $testEngine,
       'report' => [
-        'browser',
+        // Skipping 'browser' will still generate it, but it won't try to open
+        // the generated report. For reasons.
+        // 'browser',
+        // CI is added, as omitting it won't result in it being generated.
+        'CI',
       ],
       'casperFlags' => [
         '--ignore-ssl-errors=true',

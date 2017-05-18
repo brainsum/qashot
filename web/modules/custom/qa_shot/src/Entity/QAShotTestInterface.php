@@ -329,6 +329,14 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function setSelectorsToHide(array $selectors);
 
   /**
+   * Returns the selected engine, e.g. phantomjs.
+   *
+   * @return string
+   *   The value.
+   */
+  public function getTestEngine();
+
+  /**
    * Run the test entity.
    *
    * @param string|null $stage

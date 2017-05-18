@@ -13,7 +13,7 @@ services:
       - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
 
   php:
-    image: havelantmate/drupal_php:PHP7.0-Backstop2.6.6
+    image: havelantmate/drupal_php:Backstop2.6.13-SlimerJS
 #    image: wodby/drupal-php:7.0-1.0.0
 #    image: wodby/drupal-php:5.6-1.0.0
     environment:

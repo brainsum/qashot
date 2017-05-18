@@ -1,0 +1,23 @@
+uuid: 73b9d353-c0a5-403e-98de-7119bfea5a09
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_tester_engine
+    - qa_shot.qa_shot_test_type.a_b
+  module:
+    - options
+id: qa_shot_test.a_b.field_tester_engine
+field_name: field_tester_engine
+entity_type: qa_shot_test
+bundle: a_b
+label: 'Tester engine'
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    value: phantomjs
+default_value_callback: ''
+settings: {  }
+field_type: list_string

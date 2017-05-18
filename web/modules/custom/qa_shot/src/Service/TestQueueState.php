@@ -216,7 +216,7 @@ class TestQueueState {
    */
   public function add($testId) {
     // If the current ID is in the queue, return FALSE.
-    if ($this->inQueue($testId)) {
+    if ($this->inQueue($testId) && $this->getStatus($testId) !== $this::STATUS_ERROR) {
       // @todo: Check if API calls don't spam every user with this.
       drupal_set_message('The test is already queued.', 'warning');
       return FALSE;

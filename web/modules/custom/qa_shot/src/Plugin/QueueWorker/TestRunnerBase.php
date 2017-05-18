@@ -118,6 +118,7 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
    * {@inheritdoc}
    */
   public function processItem($data) {
+    drupal_set_message('Cron: starting test with ID ' . $data->entityId);
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $this->testStorage->load($data->entityId);
 
@@ -126,12 +127,14 @@ abstract class TestRunnerBase extends QueueWorkerBase implements ContainerFactor
     if (NULL === $entity) {
       $this->queueState->remove($data->entityId);
       $this->logger->error('The entity with id ' . $data->entityId . ' has been deleted while it was queued.');
+      drupal_set_message('Cron: The entity with id ' . $data->entityId . ' has been deleted while it was queued.', 'error');
       return;
     }
 
     // @todo: Maybe add a custom queue processor.
     // If there's already a running item, requeue.
     if ($this->queueState->hasRunningItem()) {
+      drupal_set_message('Cron: The entity with id ' . $data->entityId . ' tried to run while another test was already running.', 'error');
       throw new RequeueException('The entity with id ' . $data->entityId . ' tried to run while another test was already running.');
     }
 

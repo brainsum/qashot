@@ -1,0 +1,27 @@
+uuid: 36f260db-350f-4af8-b490-f50f2f4bd8eb
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - qa_shot
+id: qa_shot_test.field_tester_engine
+field_name: field_tester_engine
+entity_type: qa_shot_test
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: phantomjs
+      label: PhantomJS
+    -
+      value: slimerjs
+      label: SlimerJS
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
