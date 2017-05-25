@@ -269,6 +269,22 @@ class TestQueueState {
       }
     }
 
+    /*
+     $tests = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->loadMultiple();
+foreach($tests as $test) {
+   if (NULL === $test->getTestEngine()) {
+      $test->set('field_tester_engine', 'phantomjs');
+   }
+
+   if (NULL === $test->getQueueStatus()) {
+      $test->set('field_state_in_queue', 'idle');
+   }
+
+
+$test->save();
+}
+     */
+
     /* Code to get entity IDs from the queue table.
          $queue = \Drupal::database()->select('queue')->fields('queue')->execute()->fetchAll();
          kint($queue);

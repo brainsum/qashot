@@ -350,9 +350,9 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
     $fieldValue = [];
 
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\StringItem $item */
+    /** @var array $item */
     foreach ($field as $item) {
-      $fieldValue[] = $item->value;
+      $fieldValue[] = $item['value'];
     }
 
     return $fieldValue;
