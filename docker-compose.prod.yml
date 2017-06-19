@@ -7,6 +7,8 @@ services:
 
   php:
     restart: always
+    environment:
+      PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i
 
   nginx:
     ports:
@@ -18,4 +20,3 @@ services:
 
   mailhog:
     restart: always
-
