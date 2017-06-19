@@ -1,0 +1,33 @@
+uuid: 15e0aa09-0409-4082-bc04-5931340e8312
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_viewport
+    - paragraphs.paragraphs_type.viewport
+    - qa_shot.qa_shot_test_type.before_after
+  module:
+    - entity_reference_revisions
+id: qa_shot_test.before_after.field_viewport
+field_name: field_viewport
+entity_type: qa_shot_test
+bundle: before_after
+label: Viewport
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      viewport: viewport
+    target_bundles_drag_drop:
+      scenario:
+        weight: 3
+        enabled: false
+      viewport:
+        enabled: true
+        weight: 4
+field_type: entity_reference_revisions

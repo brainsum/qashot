@@ -1,0 +1,33 @@
+uuid: 8e7caec2-0418-438d-82fe-5903df0c7fc6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_scenario
+    - paragraphs.paragraphs_type.scenario
+    - qa_shot.qa_shot_test_type.before_after
+  module:
+    - entity_reference_revisions
+id: qa_shot_test.before_after.field_scenario
+field_name: field_scenario
+entity_type: qa_shot_test
+bundle: before_after
+label: Scenario
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      scenario: scenario
+    target_bundles_drag_drop:
+      scenario:
+        enabled: true
+        weight: 3
+      viewport:
+        weight: 4
+        enabled: false
+field_type: entity_reference_revisions

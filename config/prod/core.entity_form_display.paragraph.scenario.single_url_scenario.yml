@@ -1,0 +1,42 @@
+uuid: 5fe53d05-528a-4426-83ed-d22b716d7b30
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.paragraph.single_url_scenario
+    - field.field.paragraph.scenario.field_label
+    - field.field.paragraph.scenario.field_reference_url
+    - field.field.paragraph.scenario.field_test_url
+    - paragraphs.paragraphs_type.scenario
+  module:
+    - link
+    - maxlength
+id: paragraph.scenario.single_url_scenario
+targetEntityType: paragraph
+bundle: scenario
+mode: single_url_scenario
+content:
+  field_label:
+    weight: 0
+    settings:
+      size: 80
+      placeholder: ''
+    third_party_settings:
+      maxlength:
+        maxlength_js: 80
+        maxlength_js_label: 'Content limited to @limit characters, remaining: <strong>@remaining</strong>'
+    type: string_textfield
+    region: content
+  field_test_url:
+    weight: 1
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+    region: content
+hidden:
+  created: true
+  field_reference_url: true
+  status: true
+  uid: true

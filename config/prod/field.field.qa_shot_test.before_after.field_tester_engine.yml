@@ -1,0 +1,23 @@
+uuid: 423da067-c1f6-42d3-ace0-28a2ffe7fd3b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_tester_engine
+    - qa_shot.qa_shot_test_type.before_after
+  module:
+    - options
+id: qa_shot_test.before_after.field_tester_engine
+field_name: field_tester_engine
+entity_type: qa_shot_test
+bundle: before_after
+label: 'Tester engine'
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    value: phantomjs
+default_value_callback: ''
+settings: {  }
+field_type: list_string

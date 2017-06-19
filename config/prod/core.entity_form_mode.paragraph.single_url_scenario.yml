@@ -1,0 +1,10 @@
+uuid: b8bba110-fa5c-4fc5-8951-ead79634ea62
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.single_url_scenario
+label: 'Single URL Scenario'
+targetEntityType: paragraph
+cache: true

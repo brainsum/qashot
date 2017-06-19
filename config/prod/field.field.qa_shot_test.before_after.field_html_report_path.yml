@@ -1,0 +1,19 @@
+uuid: c3002a50-ed58-4352-aa31-d4ee09f27fc3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_html_report_path
+    - qa_shot.qa_shot_test_type.before_after
+id: qa_shot_test.before_after.field_html_report_path
+field_name: field_html_report_path
+entity_type: qa_shot_test
+bundle: before_after
+label: 'HTML Report Path'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

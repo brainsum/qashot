@@ -1,0 +1,19 @@
+uuid: adfb6873-9acc-44c7-88fb-7730c25772ca
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_configuration_path
+    - qa_shot.qa_shot_test_type.before_after
+id: qa_shot_test.before_after.field_configuration_path
+field_name: field_configuration_path
+entity_type: qa_shot_test
+bundle: before_after
+label: 'Configuration Path'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
