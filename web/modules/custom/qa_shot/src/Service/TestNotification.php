@@ -154,7 +154,7 @@ class TestNotification {
     );
 
     $logParameters = [
-      '@status' => 'fail',
+      '@status' => (100 === (int) $passPercentage) ? 'success' : 'fail',
       '@id' => $entity->id(),
     ];
 
