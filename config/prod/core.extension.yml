@@ -6,7 +6,6 @@ module:
   block: 0
   breakpoint: 0
   ckeditor: 0
-  comment: 0
   config: 0
   contact: 0
   cors_ui: 0
