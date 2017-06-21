@@ -43,6 +43,7 @@
     ],
     "require": {
         "roave/security-advisories": "dev-master",
+        "php": "^7.0",
         "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6",
         "drupal-composer/drupal-scaffold": "^2.2",

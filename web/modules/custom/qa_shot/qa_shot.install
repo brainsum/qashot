@@ -4,12 +4,28 @@
  * @file
  * Install file for the qa_shot module.
  */
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
-use Drupal\Core\Utility\UpdateException;
-use Drupal\field\Entity\FieldConfig;
+
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\paragraphs\Entity\Paragraph;
+
+/**
+ * Implements hook_requirements().
+ */
+function qa_shot_requirements($phase) {
+  $requirements = [];
+
+  $requirements['qa_shot_required_php_version'] = [
+    'title' => t('QAShot PHP Version'),
+    'value' => PHP_VERSION,
+    'severity' => REQUIREMENT_OK,
+    'description' => t('QAShot requires PHP 7'),
+  ];
+
+  if (version_compare(PHP_VERSION, '7', '<')) {
+    $requirements['qa_shot_required_php_version']['severity'] = REQUIREMENT_ERROR;
+  }
+
+  return $requirements;
+}
 
 /**
  * Remove every QAShot Test entity.

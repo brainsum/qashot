@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6e9e8e1cd84ff1b219f59514e3b30383",
+    "content-hash": "ff1301a4bc5aac8ad050545d8d0eae05",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5563,6 +5563,9 @@
                 "drupal": {
                     "version": "8.x-1.x-dev",
                     "datestamp": "1476978839"
+                },
+                "patches_applied": {
+                    "log() argument is null": "https://www.drupal.org/files/issues/security_review-fatal_error_when_running_the_review-2815487-5.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -5591,7 +5594,8 @@
             "homepage": "https://www.drupal.org/project/security_review",
             "support": {
                 "source": "http://cgit.drupalcode.org/security_review"
-            }
+            },
+            "time": "2016-10-20 15:43:48"
         },
         {
             "name": "drupal/toolbar_anti_flicker",
@@ -7154,6 +7158,8 @@
     },
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.0"
+    },
     "platform-dev": []
 }
