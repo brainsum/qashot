@@ -1,6 +1,6 @@
 country:
   default: HU
-first_day: 0
+first_day: 1
 timezone:
   default: Europe/Budapest
   user:

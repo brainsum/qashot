@@ -2,6 +2,13 @@
 
 namespace Drupal\Tests\qa_shot_rest_api\Unit;
 
+/**
+ * Class ExampleTest
+ *
+ * @package Drupal\Tests\qa_shot_rest_api\Unit
+ *
+ * @group Example
+ */
 class ExampleTest extends \PHPUnit_Framework_TestCase {
 
   public static function addProvider() {
