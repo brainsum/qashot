@@ -68,6 +68,7 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\InvalidRunnerModeException
    * @throws \Drupal\backstopjs\Exception\InvalidRunnerStageException
    * @throws \Drupal\backstopjs\Exception\EmptyResultsException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function runTestBySettings(QAShotTestInterface $entity, $stage) {
     $mode = $entity->bundle();
@@ -84,7 +85,7 @@ class Backstop extends TestBackendBase {
 
     // Run the test.
     if ('a_b' === $mode) {
-      $results = $this->runABTest($entity);
+      $results = $this->runAbTest($entity);
       $containsResults = TRUE;
     }
     elseif ('before_after' === $mode) {
@@ -162,7 +163,7 @@ class Backstop extends TestBackendBase {
    * @return array
    *   The screenshots.
    */
-  private function parseScreenshots(QAShotTestInterface $entity) {
+  private function parseScreenshots(QAShotTestInterface $entity): array {
     $screenshots = [];
 
     $reportBasePath = str_replace('/html_report/index.html', '', $entity->getHtmlReportPath());
@@ -215,6 +216,7 @@ class Backstop extends TestBackendBase {
    *
    * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
    * @throws \Drupal\backstopjs\Exception\InvalidEntityException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   private function prepareTest(QAShotTestInterface $entity) {
     if (NULL === $entity) {
@@ -236,12 +238,22 @@ class Backstop extends TestBackendBase {
   }
 
   /**
+   * Callback for running the 'Before/After' test type.
+   *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
-   * @param $stage
+   *   The test.
+   * @param string $stage
+   *   The stage; before or after.
+   *
+   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
+   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
+   * @throws \Drupal\backstopjs\Exception\InvalidCommandException
+   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
    *
    * @return array
+   *   Test results.
    */
-  protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage) {
+  protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage): array {
     return ('before' === $stage) ? $this->runReferenceCommand($entity) : $this->runTestCommand($entity);
   }
 
@@ -257,8 +269,9 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    *
    * @return array
+   *   The test results.
    */
-  protected function runABTest(QAShotTestInterface $entity) {
+  protected function runAbTest(QAShotTestInterface $entity): array {
     $command = 'reference';
     try {
       $referenceResult = $this->runReferenceCommand($entity);
@@ -309,7 +322,7 @@ class Backstop extends TestBackendBase {
    * @return array
    *   Array with data from the command run.
    */
-  private function runReferenceCommand(QAShotTestInterface $entity) {
+  private function runReferenceCommand(QAShotTestInterface $entity): array {
     return $this->runCommand('reference', $entity);
   }
 
@@ -329,7 +342,7 @@ class Backstop extends TestBackendBase {
    * @return array
    *   Array with data from the command run.
    */
-  private function runTestCommand(QAShotTestInterface $entity) {
+  private function runTestCommand(QAShotTestInterface $entity): array {
     return $this->runCommand('test', $entity);
   }
 
@@ -349,7 +362,7 @@ class Backstop extends TestBackendBase {
    * @return array
    *   Array with data from the command run.
    */
-  private function runCommand($command, QAShotTestInterface $entity) {
+  private function runCommand($command, QAShotTestInterface $entity): array {
     if (!$this->isCommandValid($command)) {
       throw new InvalidCommandException("The supplied command '$command' is not valid.");
     }
@@ -373,10 +386,9 @@ class Backstop extends TestBackendBase {
     }
 
     $backstopCommand = escapeshellcmd($xvfb . 'backstop ' . $command . ' --configPath=' . $entity->getConfigurationPath());
+    /** @var array $execOutput */
+    /** @var int $status */
     exec($backstopCommand, $execOutput, $status);
-
-    // @todo: ps aux | grep xvfb and kill the process if it hangs.
-    // dpm($status, "exec status");
 
     $results = [
       'result' => TRUE,
@@ -407,31 +419,6 @@ class Backstop extends TestBackendBase {
       }
     }
 
-//    // Debug.
-//    $debugData = [
-//      'command' => $command,
-//      'execOutput' => $execOutput,
-//      'res' => $results,
-//    ];
-//    $debug = var_export($debugData, TRUE);
-//
-//    $this->logger->debug($debug);
-//    $debugFolder = $this->backstopFileSystem->getPrivateFiles() . DIRECTORY_SEPARATOR . 'debug_data';
-//
-//    $fileName = (new \DateTime())->format('Ymd-His') . '-' . $command . '.json';
-//    try {
-//      $this->backstopFileSystem->createFolder($debugFolder . DIRECTORY_SEPARATOR);
-//      $this->backstopFileSystem->createConfigFile($debugFolder . DIRECTORY_SEPARATOR . $fileName, json_encode($debugData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-//    }
-//    catch (\Exception $e) {
-//      try {
-//        $this->logger->debug($e->getMessage());
-//      }
-//      catch (\Exception $innerE) {
-//        drupal_set_message($e->getMessage(), 'error');
-//      }
-//    }
-//    // End Debug.
     dpm($execOutput);
     if (!$results['bitmapGenerationSuccess']) {
       $results['result'] = FALSE;
@@ -439,12 +426,11 @@ class Backstop extends TestBackendBase {
       return $results;
     }
 
-//    if ($status !== 0) {
-//      // @todo: Here what?
-//    }
-
-    // dpm($execOutput, 'Output of exec.');
-
+    /*
+    if ($status !== 0) {
+    // @todo: Here what?
+    }
+     */
     return $results;
   }
 
@@ -473,7 +459,7 @@ class Backstop extends TestBackendBase {
    * @return bool
    *   TRUE for valid, FALSE for invalid.
    */
-  private function isCommandValid($command) {
+  private function isCommandValid($command): bool {
     return in_array($command, array('reference', 'test'), FALSE);
   }
 

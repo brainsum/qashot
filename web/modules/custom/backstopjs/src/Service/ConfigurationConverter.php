@@ -3,7 +3,6 @@
 namespace Drupal\backstopjs\Service;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
@@ -52,6 +51,8 @@ class ConfigurationConverter {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   EntityTypeManager service.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(EntityTypeManagerInterface $entityTypeManager) {
     $this->privateDataPath = PrivateStream::basePath() . DIRECTORY_SEPARATOR . FileSystem::DATA_BASE_FOLDER;
@@ -71,8 +72,10 @@ class ConfigurationConverter {
    *
    * @return array
    *   The entity as a BackstopJS config array.
+   *
+   * @throws \InvalidArgumentException
    */
-  public function entityToArray(QAShotTestInterface $entity, $withDebug = FALSE) {
+  public function entityToArray(QAShotTestInterface $entity, $withDebug = FALSE): array {
     // @todo: get some field values global settings
 
     $entityId = $entity->id();
@@ -94,7 +97,7 @@ class ConfigurationConverter {
       ],
       // 'onBeforeScript' => 'onBefore.js', //.
       // 'onReadyScript' => 'onReady.js', //.
-      'engine' => (NULL === $testEngine) ? 'phantomjs' : $testEngine,
+      'engine' => $testEngine ?? 'phantomjs',
       'report' => [
         // Skipping 'browser' will still generate it, but it won't try to open
         // the generated report. For reasons.
@@ -146,10 +149,12 @@ class ConfigurationConverter {
    * @param \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList $viewportField
    *   The viewport field.
    *
+   * @throws \InvalidArgumentException
+   *
    * @return array
    *   Array representation of the viewport field.
    */
-  public function viewportToArray(EntityReferenceRevisionsFieldItemList $viewportField) {
+  public function viewportToArray(EntityReferenceRevisionsFieldItemList $viewportField): array {
     // Flatten the field values from target_id + revision_target_id
     // to target_id only.
     $ids = array_map(function ($item) {
@@ -179,10 +184,12 @@ class ConfigurationConverter {
    *   An array of selectors that should be visually hidden.
    *   The values are merged with the default ones.
    *
+   * @throws \InvalidArgumentException
+   *
    * @return array
    *   Array representation of the scenario field.
    */
-  public function scenarioToArray(EntityReferenceRevisionsFieldItemList $scenarioField, array $selectorsToHide) {
+  public function scenarioToArray(EntityReferenceRevisionsFieldItemList $scenarioField, array $selectorsToHide): array {
     $scenarioData = [];
 
     // Flatten the field values from target_id + revision_target_id
@@ -225,15 +232,17 @@ class ConfigurationConverter {
   /**
    * Instantiates a new QAShotEntity from the array. Optionally saves it.
    *
-   * @deprecated
-   *
    * @param array $config
    *   The entity as an array.
    * @param bool $saveEntity
    *   Whether to persist the entity as well.
    *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface|\Drupal\Core\Entity\EntityInterface
    *   The entity object.
+   *
+   * @deprecated
    */
   public function arrayToEntity(array $config, $saveEntity = FALSE) {
     $testEntity = $this->testStorage->create($config);
@@ -247,7 +256,7 @@ class ConfigurationConverter {
 
   /**
    * Instantiates a new QAShotEntity from the json string. Optionally saves it.
-   * @deprecated
+   *
    * @param string $json
    *   The backstop.json config file as a string.
    * @param bool $saveEntity
@@ -255,8 +264,12 @@ class ConfigurationConverter {
    *
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The entity object.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *
+   * @deprecated
    */
-  public function jsonStringToEntity($json, $saveEntity = FALSE) {
+  public function jsonStringToEntity($json, $saveEntity = FALSE): QAShotTestInterface {
     /** @var array $rawData */
     $rawData = json_decode($json, TRUE);
 
@@ -280,7 +293,7 @@ class ConfigurationConverter {
 
   /**
    * Instantiates a new QAShotEntity from the json file. Optionally saves it.
-   * @deprecated
+   *
    * @param string $jsonFile
    *   The backstop.json config file path as a string.
    * @param bool $saveEntity
@@ -288,8 +301,10 @@ class ConfigurationConverter {
    *
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The entity object.
+   *
+   * @deprecated
    */
-  public function jsonFileToEntity($jsonFile, $saveEntity = FALSE) {
+  public function jsonFileToEntity($jsonFile, $saveEntity = FALSE): QAShotTestInterface {
     $data = file_get_contents($jsonFile);
     return $this->jsonStringToEntity($data, $saveEntity);
   }
@@ -301,14 +316,14 @@ class ConfigurationConverter {
    * @deprecated
    */
   public function example() {
-    $basePath = \Drupal\Core\StreamWrapper\PrivateStream::basePath() . '/qa_test_data';
+    $basePath = PrivateStream::basePath() . '/qa_test_data';
 
     $ids = [
       '1',
     ];
 
     foreach ($ids as $id) {
-      $this->jsonFileToEntity($basePath . "/$id/backstop.json", FALSE);
+      $this->jsonFileToEntity($basePath . "/$id/backstop.json");
     }
   }
 
@@ -318,11 +333,14 @@ class ConfigurationConverter {
    * This is intended to be copy-pasteable into devel/php as a rudimentary
    * import script.
    *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   *
    * @internal
    * @deprecated
    */
   public function copyPasteableExample() {
-    $basePath = \Drupal\Core\StreamWrapper\PrivateStream::basePath() . '/qa_test_data';
+    $basePath = PrivateStream::basePath() . '/qa_test_data';
 
     $ids = [
       '1',
@@ -349,9 +367,9 @@ class ConfigurationConverter {
         ];
       }
 
-      /** @var QAShotTestInterface $newTest */
+      /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $newTest */
       $newTest = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->create($entityData);
-      kint($newTest);
+      dpm($newTest);
       $newTest->save();
     }
   }

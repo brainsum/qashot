@@ -71,6 +71,8 @@ class FileSystem {
    *   The configuration converter.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(
     FileSystemInterface $fileSystem,
@@ -91,7 +93,7 @@ class FileSystem {
    * @return string
    *   Public files.
    */
-  public function getPublicFiles() {
+  public function getPublicFiles(): string {
     return $this->publicFiles;
   }
 
@@ -101,7 +103,7 @@ class FileSystem {
    * @return string
    *   Private files.
    */
-  public function getPrivateFiles() {
+  public function getPrivateFiles(): string {
     return $this->privateFiles;
   }
 
@@ -200,6 +202,7 @@ class FileSystem {
    * @throws \Drupal\backstopjs\Exception\FileCloseException
    * @throws \Drupal\backstopjs\Exception\FileCopyException
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function initializeEnvironment(QAShotTestInterface $entity) {
     if (NULL === $entity || $entity->getEntityTypeId() !== 'qa_shot_test') {
@@ -212,7 +215,7 @@ class FileSystem {
     $templateFolder = $this->privateFiles . '/template';
     $configPath = $privateEntityData . '/backstop.json';
 
-    $configAsArray = $this->configConverter->entityToArray($entity, FALSE);
+    $configAsArray = $this->configConverter->entityToArray($entity);
     $jsonEncodeSettings = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
     $configAsJSON = json_encode($configAsArray, $jsonEncodeSettings);
 
@@ -267,7 +270,7 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  private function removePublicData(QAShotTestInterface $entity) {
+  private function removePublicData(QAShotTestInterface $entity): bool {
     $dir = $this->publicFiles . '/' . $entity->id();
     return $this->removeDirectory($dir);
   }
@@ -281,7 +284,7 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  private function removePrivateData(QAShotTestInterface $entity) {
+  private function removePrivateData(QAShotTestInterface $entity): bool {
     $dir = $this->privateFiles . '/' . $entity->id();
     return $this->removeDirectory($dir);
   }
@@ -295,7 +298,7 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  private function removeDirectory($dir) {
+  private function removeDirectory($dir): bool {
     if (!is_dir($dir)) {
       return TRUE;
     }

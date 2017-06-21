@@ -50,7 +50,7 @@ class Backstop {
    * @return bool
    *   Whether the settings are valid.
    */
-  public static function areRunnerSettingsValid($mode, $stage) {
+  public static function areRunnerSettingsValid($mode, $stage): bool {
     // When not a valid mode, return FALSE.
     if (!array_key_exists($mode, self::$runnerSettings)) {
       throw new InvalidRunnerModeException("The mode '$mode' is not valid.");
@@ -76,7 +76,7 @@ class Backstop {
    * @return array
    *   The settings as an array.
    */
-  public static function getRunnerSettings() {
+  public static function getRunnerSettings(): array {
     return self::$runnerSettings;
   }
 

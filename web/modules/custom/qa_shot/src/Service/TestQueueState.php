@@ -287,7 +287,7 @@ $test->save();
 
     /* Code to get entity IDs from the queue table.
          $queue = \Drupal::database()->select('queue')->fields('queue')->execute()->fetchAll();
-         kint($queue);
+         dpm($queue);
      */
   }
 
