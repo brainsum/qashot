@@ -158,17 +158,11 @@ class FileSystem {
    * @param string $target
    *   Target folder.
    *
-   * @return bool
-   *   Whether the copy was a success or not.
+   * @throws \Drupal\backstopjs\Exception\FileCopyException
    */
   private function copyTemplates($src, $target) {
-    // @todo: use exceptions
-    dpm($src, 'copy src');
-    dpm($target, 'copy target');
-
-    if (($fileList = scandir($src)) === FALSE) {
-      dpm('scandir failed');
-      return FALSE;
+    if (($fileList = scandir($src, NULL)) === FALSE) {
+      throw new FileCopyException('Copying the casper script templates failed.');
     }
 
     // @todo: scandir target, if file is there and they are the same, skip the file
@@ -183,7 +177,9 @@ class FileSystem {
       $result |= copy($src . '/' . $file, $target . '/' . $file);
     }
 
-    return $result;
+    if (FALSE === $result) {
+      throw new FileCopyException('Copying the casper script templates failed.');
+    }
   }
 
   /**
@@ -229,10 +225,7 @@ class FileSystem {
     $this->createFolder($privateEntityData . '/tmp');
     $this->createConfigFile($configPath, $configAsJSON);
     $this->createFolder($privateCasperFolder);
-
-    if (FALSE === $this->copyTemplates($templateFolder . '/casper_scripts', $configAsArray['paths']['casper_scripts'])) {
-      throw new FileCopyException('Copying the casper script templates failed.');
-    }
+    $this->copyTemplates($templateFolder . '/casper_scripts', $configAsArray['paths']['casper_scripts']);
 
     // If the paths changed we save them.
     if (

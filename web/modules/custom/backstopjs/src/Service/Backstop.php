@@ -2,6 +2,7 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\backstopjs\Exception\EmptyResultsException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
@@ -66,9 +67,9 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
    * @throws \Drupal\backstopjs\Exception\InvalidRunnerModeException
    * @throws \Drupal\backstopjs\Exception\InvalidRunnerStageException
+   * @throws \Drupal\backstopjs\Exception\EmptyResultsException
    */
   public function runTestBySettings(QAShotTestInterface $entity, $stage) {
-
     $mode = $entity->bundle();
     // Validate the settings.
     if (!CustomBackstop::areRunnerSettingsValid($mode, $stage)) {
@@ -97,8 +98,7 @@ class Backstop extends TestBackendBase {
     $endTime = microtime(TRUE);
 
     if (NULL === $results) {
-      // @todo: More specific exception.
-      throw new \Exception('Test results are empty. Contact the site administrator!');
+      throw new EmptyResultsException('Test results are empty. Contact the site administrator!');
     }
 
     $passRate = 0;
@@ -107,7 +107,7 @@ class Backstop extends TestBackendBase {
       drupal_set_message(t('Test done. @passed test(s) passed, @failed test(s) failed.', [
         '@passed' => $results['passedTestCount'],
         '@failed' => $results['failedTestCount'],
-      ]), 'status');
+      ]));
 
       $testCount = (int) $results['passedTestCount'] + (int) $results['failedTestCount'];
       if ($testCount === 0) {
@@ -154,10 +154,10 @@ class Backstop extends TestBackendBase {
   /**
    * Get the result screenshots.
    *
-   * @todo: Change, so this is stored in the new field_viewport.
-   *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
+   *
+   * @todo: Change, so this is stored in the new field_viewport.
    *
    * @return array
    *   The screenshots.
@@ -357,7 +357,6 @@ class Backstop extends TestBackendBase {
     $this->checkBackstopRunStatus();
     /*
      * @todo: real-time output @see: QAS-90.
-     * @todo: If the engine is slimerjs, add 'if' to close xvfb.
      */
     // @todo: Add separate function.
     $testerEngine = 'phantomjs';
@@ -366,7 +365,6 @@ class Backstop extends TestBackendBase {
     }
 
     // @todo: Add an admin form where the user can input the path of binaries.
-
     // @todo: What if local install, not docker/server?
     // With slimerjs we have to use xvfb-run.
     $xvfb = '';
@@ -376,7 +374,6 @@ class Backstop extends TestBackendBase {
 
     $backstopCommand = escapeshellcmd($xvfb . 'backstop ' . $command . ' --configPath=' . $entity->getConfigurationPath());
     exec($backstopCommand, $execOutput, $status);
-
 
     // @todo: ps aux | grep xvfb and kill the process if it hangs.
     // dpm($status, "exec status");
