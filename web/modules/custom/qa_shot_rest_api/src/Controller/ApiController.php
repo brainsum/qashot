@@ -31,13 +31,6 @@ class ApiController extends ControllerBase {
   private $testStorage;
 
   /**
-   * URL Generator.
-   *
-   * @var \Drupal\Core\Routing\UrlGeneratorInterface
-   */
-  protected $urlGenerator;
-
-  /**
    * Serialization service.
    *
    * @var \Symfony\Component\Serializer\Normalizer\NormalizerInterface
@@ -54,7 +47,6 @@ class ApiController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('url_generator'),
       $container->get('serializer')
     );
   }
@@ -64,8 +56,6 @@ class ApiController extends ControllerBase {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
-   * @param \Drupal\Core\Routing\UrlGeneratorInterface $urlGenerator
-   *   Url generator.
    * @param \Symfony\Component\Serializer\Normalizer\NormalizerInterface $serializer
    *   Serializer service.
    *
@@ -73,11 +63,9 @@ class ApiController extends ControllerBase {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    UrlGeneratorInterface $urlGenerator,
     NormalizerInterface $serializer
   ) {
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
-    $this->urlGenerator = $urlGenerator;
     $this->serializer = $serializer;
   }
 

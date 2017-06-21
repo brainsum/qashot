@@ -83,7 +83,7 @@ class TestQueueState {
    * @return bool
    *   TRUE if the given ID is in the queue, FALSE otherwise.
    */
-  private function inQueue($testId) {
+  private function inQueue($testId): bool {
     $queueState = $this->state->get($this::STATE_KEY);
     $isInQueue = !empty($queueState) && is_array($queueState) && array_key_exists($testId, $queueState);
     return $isInQueue;
@@ -95,7 +95,8 @@ class TestQueueState {
    * @return bool
    *   The status.
    */
-  public function hasRunningItem() {
+  public function hasRunningItem(): bool {
+    /** @var array $queueState */
     $queueState = $this->state->get($this::STATE_KEY);
     foreach ($queueState as $item) {
       if ($item['status'] === 'running') {
@@ -115,7 +116,7 @@ class TestQueueState {
    * @return string
    *   The status: 'idle', 'queued', 'running', 'error'.
    */
-  public function getStatus($testId) {
+  public function getStatus($testId): string {
     if ($this->inQueue($testId)) {
       return $this->state->get($this::STATE_KEY)[$testId]['status'];
     }
@@ -129,7 +130,7 @@ class TestQueueState {
    * @return array
    *   The queue state.
    */
-  public function getQueue() {
+  public function getQueue(): array {
     return $this->state->get($this::STATE_KEY);
   }
 
@@ -197,7 +198,7 @@ class TestQueueState {
    * @return array
    *   The state.
    */
-  private function createState($status) {
+  private function createState($status): array {
     $now = new DrupalDateTime();
     return [
       'status' => $status,
@@ -214,10 +215,9 @@ class TestQueueState {
    * @return bool
    *   TRUE if the entity could be added to the queue.
    */
-  public function add($testId) {
+  public function add($testId): bool {
     // If the current ID is in the queue, return FALSE.
     if ($this->inQueue($testId) && $this->getStatus($testId) !== $this::STATUS_ERROR) {
-      // @todo: Check if API calls don't spam every user with this.
       drupal_set_message('The test is already queued.', 'warning');
       return FALSE;
     }

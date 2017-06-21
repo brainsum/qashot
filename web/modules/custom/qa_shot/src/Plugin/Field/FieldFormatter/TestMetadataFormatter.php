@@ -2,7 +2,6 @@
 
 namespace Drupal\qa_shot\Plugin\Field\FieldFormatter;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
@@ -24,35 +23,29 @@ class TestMetadataFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
-    return [
-      // Implement default settings.
-    ] + parent::defaultSettings();
+  public static function defaultSettings(): array {
+    return ([] + parent::defaultSettings());
   }
 
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    return [
-      // Implement settings form.
-    ] + parent::settingsForm($form, $form_state);
+  public function settingsForm(array $form, FormStateInterface $form_state): array {
+    return ([] + parent::settingsForm($form, $form_state));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function settingsSummary() {
-    $summary = [];
+  public function settingsSummary(): array {
     // Implement settings summary.
-
-    return $summary;
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
+  public function viewElements(FieldItemListInterface $items, $langcode): array {
     $elements = [];
 
     foreach ($items as $delta => $item) {
@@ -74,7 +67,7 @@ class TestMetadataFormatter extends FormatterBase {
    * @return string
    *   The textual output generated.
    */
-  protected function viewValue(FieldItemInterface $item) {
+  protected function viewValue(FieldItemInterface $item): string {
     // The text value has no text format assigned to it, so the user input
     // should equal the output, including newlines.
     return rtrim(implode(', ', $item->getValue()), ", \t\n\r\0\x0B");

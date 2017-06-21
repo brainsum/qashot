@@ -6,7 +6,6 @@ use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
-use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\qa_shot\Plugin\DataType\ComputedScreenshotPath;
 
 /**
@@ -24,7 +23,7 @@ class Result extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function defaultStorageSettings() {
+  public static function defaultStorageSettings(): array {
     return [
       'max_url_length' => 255,
     ] + parent::defaultStorageSettings();
@@ -33,9 +32,7 @@ class Result extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function schema(
-    FieldStorageDefinitionInterface $fieldDefinition
-  ) {
+  public static function schema(FieldStorageDefinitionInterface $fieldDefinition): array {
     $schema = [
       'columns' => [
         'scenario_delta' => [
@@ -81,9 +78,7 @@ class Result extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function propertyDefinitions(
-    FieldStorageDefinitionInterface $fieldDefinition
-  ) {
+  public static function propertyDefinitions(FieldStorageDefinitionInterface $fieldDefinition) {
     $properties['scenario_delta'] = DataDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Scenario (Delta)'))
       ->setDescription('The delta of the scenario.');

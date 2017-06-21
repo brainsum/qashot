@@ -52,9 +52,9 @@ class MachineLearning {
       (int) $metadata[0]['scenario_count'],
     ];
 
-    kint($samples);
-    kint($targets);
-    kint($predictFor);
+    dpm($samples);
+    dpm($targets);
+    dpm($predictFor);
 
     $tmpFilePath = \Drupal::service('file_system')->realpath(PrivateStream::basePath()) . '/qa_test_data/' . $entity->id() . '/tmp/';
     $regression = new SVR(Kernel::LINEAR, 3, 0.1, 1.0, NULL, 0.0, 0.001, 100, TRUE, $tmpFilePath);
@@ -73,9 +73,9 @@ class MachineLearning {
     $regression->train($samples, $targets);
     $result = $regression->predict($predictFor);
 
-    kint($metadata);
+    dpm($metadata);
 
-    kint('prediction', $result, 'actual', (float) $metadata[0]['duration']);
+    dpm('prediction', $result, 'actual', (float) $metadata[0]['duration']);
 
   }
 
@@ -83,13 +83,13 @@ class MachineLearning {
     $samples = [[73676, 1996], [77006, 1998], [10565, 2000], [146088, 1995], [15000, 2001], [65940, 2000], [9300, 2000], [93739, 1996], [153260, 1994], [17764, 2002], [57000, 1998], [15000, 2000]];
     $targets = [2000, 2750, 15500, 960, 4400, 8800, 7100, 2550, 1025, 5900, 4600, 4400];
 
-    kint($samples);
-    kint($targets);
+    dpm($samples);
+    dpm($targets);
 
     $regression = new SVR(Kernel::LINEAR);
     $regression->train($samples, $targets);
     $result = $regression->predict([60000, 1996]);
-    kint($result);
+    dpm($result);
   }
 
 }

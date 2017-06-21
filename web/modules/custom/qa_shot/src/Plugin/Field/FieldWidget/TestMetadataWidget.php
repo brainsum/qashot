@@ -23,7 +23,7 @@ class TestMetadataWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
+  public static function defaultSettings(): array {
     return [
       'size' => 80,
       'placeholder' => '',
@@ -33,7 +33,7 @@ class TestMetadataWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state): array {
     $elements = [];
 
     $elements['size'] = [
@@ -56,7 +56,7 @@ class TestMetadataWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsSummary() {
+  public function settingsSummary(): array {
     $summary = [];
 
     $summary[] = t('Textfield size: @size', ['@size' => $this->getSetting('size')]);
@@ -70,7 +70,7 @@ class TestMetadataWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
-  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state): array {
     // So QAShot test id: 1 can have only one label value with "Opening page"
     // But QAShot test id: 2 can have a label value with "Opening page" as well.
 //    $element['label'] = [

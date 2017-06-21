@@ -7,8 +7,6 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
-use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
  * Implements hook_help().
@@ -16,15 +14,12 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  * {@inheritdoc}
  */
 function qa_shot_help($route_name, RouteMatchInterface $route_match) {
-  switch ($route_name) {
-    // Main module help for the qa_shot module.
-    case 'help.page.qa_shot':
-      $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Module for test management.') . '</p>';
-      return $output;
-
-    default:
+  // Main module help for the qa_shot module.
+  if ('help.page.qa_shot' === $route_name) {
+    $output = '';
+    $output .= '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t('Module for test management.') . '</p>';
+    return $output;
   }
 }
 
@@ -62,7 +57,7 @@ function qa_shot_theme_suggestions_qa_shot_test(array $variables) {
   $suggestions = array();
   /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
   $entity = $variables['elements']['#qa_shot_test'];
-  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+  $sanitized_view_mode = str_replace('.', '_', $variables['elements']['#view_mode']);
 
   $suggestions[] = 'qa_shot_test__' . $sanitized_view_mode;
   $suggestions[] = 'qa_shot_test__' . $entity->bundle();
@@ -71,15 +66,6 @@ function qa_shot_theme_suggestions_qa_shot_test(array $variables) {
   $suggestions[] = 'qa_shot_test__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
 }
-
-///**
-// * Implements hook_cron().
-// *
-// * {@inheritdoc}
-// */
-//function qa_shot_cron() {
-//  // @todo: run scheduled tests
-//}
 
 /**
  * Implements hook_mail().
@@ -135,20 +121,4 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
       ],
     ]
   );
-}
-
-/**
- * Implements hook_ENTITY_TYPE_view().
- *
- * {@inheritdoc}
- */
-function qa_shot_qa_shot_test_view(
-  array &$build,
-  QAShotTestInterface $entity,
-  EntityViewDisplayInterface $display,
-  $view_mode
-) {
-//  if ('full' === $view_mode) {
-//    // @todo: Placeholder for additional debug stuff.
-//  }
 }

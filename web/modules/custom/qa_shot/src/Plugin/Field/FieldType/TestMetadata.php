@@ -27,7 +27,7 @@ class TestMetadata extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function defaultStorageSettings() {
+  public static function defaultStorageSettings(): array {
     return [
       'max_stage_length' => 30,
     ] + parent::defaultStorageSettings();
@@ -36,9 +36,7 @@ class TestMetadata extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function schema(
-    FieldStorageDefinitionInterface $fieldDefinition
-  ) {
+  public static function schema(FieldStorageDefinitionInterface $fieldDefinition): array {
     // Unsigned small ints should be enough, 65535 max value.
     // Unsigned big float is used for double precision.
     $schema = [
@@ -111,9 +109,7 @@ class TestMetadata extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function propertyDefinitions(
-    FieldStorageDefinitionInterface $fieldDefinition
-  ) {
+  public static function propertyDefinitions(FieldStorageDefinitionInterface $fieldDefinition) {
     // Prevent early t() calls by using the TranslatableMarkup.
     $properties['stage'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Stage'))
@@ -177,23 +173,28 @@ class TestMetadata extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public function isEmpty() {
+  public function isEmpty(): bool {
     // Stage can be NULL, so we don't check that here.
-    $viewports = $this->get('viewport_count')->getValue();
-    $scenarios = $this->get('scenario_count')->getValue();
-    $datetime = $this->get('datetime')->getValue();
-    $duration = $this->get('duration')->getValue();
-    $passed = $this->get('passed_count')->getValue();
-    $failed = $this->get('failed_count')->getValue();
-    $success = $this->get('success')->getValue();
+    $fields = [
+      'viewport_count',
+      'scenario_count',
+      'datetime',
+      'duration',
+      'passed_count',
+      'failed_count',
+      'success',
+    ];
 
-    return $datetime === NULL || $datetime === '' ||
-      $duration === NULL || $duration === '' ||
-      $failed === NULL || $failed === '' ||
-      $success === NULL || $success === '' ||
-      $viewports === NULL || $viewports === '' ||
-      $scenarios === NULL || $scenarios === '' ||
-      $passed === NULL || $passed === '';
+    // If any of the properties is empty, consider the fields empty.
+    foreach ($fields as $field) {
+      $value = $this->get($field)->getValue();
+
+      if ($value === NULL || $value === '') {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
 }

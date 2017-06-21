@@ -14,11 +14,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class EntityReferenceItemNormalizer extends ComplexDataNormalizer {
 
   /**
-   * The interface or class that this Normalizer supports.
-   *
-   * @var string
+   * EntityReferenceItemNormalizer constructor.
    */
-  protected $supportedInterfaceOrClass = [EntityReferenceItem::class];
+  public function __construct() {
+    $this->supportedInterfaceOrClass = [EntityReferenceItem::class];
+  }
 
   /**
    * {@inheritdoc}

@@ -17,7 +17,7 @@ class EntityBundleLabel extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function usesGroupBy() {
+  public function usesGroupBy(): bool {
     return FALSE;
   }
 
@@ -31,7 +31,7 @@ class EntityBundleLabel extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  protected function defineOptions() {
+  protected function defineOptions(): array {
     $options = parent::defineOptions();
 
     $options['hide_alter_empty'] = ['default' => FALSE];
