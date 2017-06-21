@@ -72,6 +72,7 @@
         "drupal/examples": "1.x-dev",
         "drupal/maillog": "1.x-dev",
         "drupal/restui": "1.x-dev",
+        "drupal/security_review": "1.x-dev",
         "drupal/toolbar_anti_flicker": "^2.5",
         "jcalderonzumba/gastonjs": "~1.0.2",
         "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
@@ -125,6 +126,11 @@
             "drush/contrib/{$name}": [
                 "type:drupal-drush"
             ]
+        },
+        "patches": {
+            "drupal/security_review": {
+                "log() argument is null": "https://www.drupal.org/files/issues/security_review-fatal_error_when_running_the_review-2815487-5.patch"
+            }
         }
     },
     "config": {

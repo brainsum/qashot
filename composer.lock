@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c7e9f34a73dafe2ceb6693381dd7eb18",
+    "content-hash": "6e9e8e1cd84ff1b219f59514e3b30383",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5545,6 +5545,55 @@
             "time": "2017-06-08 10:55:43"
         },
         {
+            "name": "drupal/security_review",
+            "version": "dev-1.x",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupal.org/project/security_review",
+                "reference": "35ebae445bb260e961e47c4c58efe7c50c228999"
+            },
+            "require": {
+                "drupal/core": "~8.0"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.x": "1.x-dev"
+                },
+                "drupal": {
+                    "version": "8.x-1.x-dev",
+                    "datestamp": "1476978839"
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "banviktor",
+                    "homepage": "https://www.drupal.org/user/3176333"
+                },
+                {
+                    "name": "coltrane",
+                    "homepage": "https://www.drupal.org/user/91990"
+                },
+                {
+                    "name": "dsnopek",
+                    "homepage": "https://www.drupal.org/user/266527"
+                },
+                {
+                    "name": "greggles",
+                    "homepage": "https://www.drupal.org/user/36762"
+                }
+            ],
+            "description": "Site security and configuration review module.",
+            "homepage": "https://www.drupal.org/project/security_review",
+            "support": {
+                "source": "http://cgit.drupalcode.org/security_review"
+            }
+        },
+        {
             "name": "drupal/toolbar_anti_flicker",
             "version": "2.6.0",
             "source": {
@@ -7100,7 +7149,8 @@
         "drupal/cors_ui": 20,
         "drupal/examples": 20,
         "drupal/maillog": 20,
-        "drupal/restui": 20
+        "drupal/restui": 20,
+        "drupal/security_review": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
