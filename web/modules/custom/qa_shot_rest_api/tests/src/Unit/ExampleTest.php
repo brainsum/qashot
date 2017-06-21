@@ -3,7 +3,7 @@
 namespace Drupal\Tests\qa_shot_rest_api\Unit;
 
 /**
- * Class ExampleTest
+ * Class ExampleTest.
  *
  * @package Drupal\Tests\qa_shot_rest_api\Unit
  *
@@ -11,7 +11,13 @@ namespace Drupal\Tests\qa_shot_rest_api\Unit;
  */
 class ExampleTest extends \PHPUnit_Framework_TestCase {
 
-  public static function addProvider() {
+  /**
+   * Data provider.
+   *
+   * @return array
+   *   The provided data.
+   */
+  public static function addProvider(): array {
     return array(
       array(0, 0, 0),
       array(0, 1, 1),
@@ -19,6 +25,12 @@ class ExampleTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
+   * Example test for addition.
+   *
+   * @param int $a
+   * @param int $b
+   * @param int $c
+   *
    * @dataProvider addProvider
    */
   public function testAdd($a, $b, $c) {

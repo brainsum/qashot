@@ -6,8 +6,8 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,6 +43,8 @@ class ApiController extends ControllerBase {
    * {@inheritdoc}
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -83,7 +85,7 @@ class ApiController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
    */
-  public function runTest(Request $request) {
+  public function runTest(Request $request): JsonResponse {
     $settings = $this->parseRunnerSettings($request);
     $stage = $settings['stage'];
     $frontendUrl = $settings['frontend_url'];
@@ -92,7 +94,7 @@ class ApiController extends ControllerBase {
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
     $storedFrontendUrl = $entity->getFrontendUrl();
-    if (empty($storedFrontendUrl) || $storedFrontendUrl !== $frontendUrl) {
+    if (NULL === $storedFrontendUrl || $storedFrontendUrl !== $frontendUrl) {
       $entity->setFrontendUrl($frontendUrl);
       $entity->save();
     }
@@ -167,7 +169,7 @@ class ApiController extends ControllerBase {
    * @return \Drupal\qa_shot\Entity\QAShotTest
    *   The entity.
    */
-  private function loadEntityFromId($entityId) {
+  private function loadEntityFromId($entityId): QAShotTest {
     if (!is_numeric($entityId)) {
       throw new BadRequestHttpException(
         t('The supplied parameter ( @param ) is not valid.', [
@@ -204,7 +206,7 @@ class ApiController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
    */
-  public function testList(Request $request) {
+  public function testList(Request $request): JsonResponse {
     $page = (int) $request->query->get('page', 1);
     $page = $page < 1 ? 1 : $page;
     $limit = (int) $request->query->get('limit', 10);
@@ -248,7 +250,7 @@ class ApiController extends ControllerBase {
    * @return array
    *   The pager as array.
    */
-  private function generatePager($page, $limit) {
+  private function generatePager($page, $limit): array {
     $totalEntityCount = $this->testStorage->getQuery()->count()->execute();
     $totalPageCount = (int) ceil($totalEntityCount / $limit);
 
@@ -301,7 +303,7 @@ class ApiController extends ControllerBase {
    * @return \Drupal\Core\Access\AccessResult
    *   The permission-check result.
    */
-  public function access(AccountInterface $account) {
+  public function access(AccountInterface $account): AccessResult {
     if ((int) $account->id() === 1) {
       return AccessResult::allowed();
     }
