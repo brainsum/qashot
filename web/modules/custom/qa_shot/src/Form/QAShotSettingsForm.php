@@ -143,6 +143,13 @@ class QAShotSettingsForm extends ConfigFormBase {
       '#open' => TRUE,
     ];
 
+    $form['backstopjs']['resemble_output_options']['fallback_color'] = [
+      '#type' => 'jquery_colorpicker',
+      '#title' => $this->t('Fallback color'),
+      '#description' => $this->t('The global fallback for diff error highlighting. You should use a bright and ugly color.'),
+      '#default_value' => $config->get('backstopjs.resemble_output_options.fallback_color') ?? 'FF00FF',
+    ];
+
     $form['backstopjs']['resemble_output_options']['error_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Error type'),
@@ -214,6 +221,7 @@ class QAShotSettingsForm extends ConfigFormBase {
       'transparency',
       'large_image_threshold',
       'use_cross_origin',
+      'fallback_color',
     ];
     foreach ($resembleOptions as $option) {
       $configKey = "backstopjs.resemble_output_options.$option";

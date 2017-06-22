@@ -13,7 +13,7 @@ entity_type: qa_shot_test
 bundle: before_after
 label: 'Diff color'
 description: 'Select a bright and ugly color. It is going to be used as the highlight color for the diff image.'
-required: true
+required: false
 translatable: true
 default_value:
   -

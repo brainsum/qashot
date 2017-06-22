@@ -147,10 +147,24 @@ class ConfigurationConverter {
    *   The resembleOutputOptions array.
    */
   public function generateResembleOptions(FieldItemListInterface $diffColorField): array {
-    $hex = $diffColorField->getValue()[0]['value'];
-    $red = hexdec(substr($hex, 0, 2));
-    $green = hexdec(substr($hex, 2, 2));
-    $blue = hexdec(substr($hex, 4, 2));
+    $red = 255;
+    $green = 0;
+    $blue = 255;
+    // Allow diff color to be set on an entity level.
+    if ($hexValue = $diffColorField->getValue()) {
+      $hex = $hexValue[0]['value'];
+      $red = hexdec(substr($hex, 0, 2));
+      $green = hexdec(substr($hex, 2, 2));
+      $blue = hexdec(substr($hex, 4, 2));
+    }
+    // If for some reason it's not set, use the global config.
+    // If it's also not set, use rgb(255, 0, 255).
+    elseif ($hexValue = $this->config->get('backstopjs.resemble_output_options.fallback_color')) {
+      $hex = $hexValue;
+      $red = hexdec(substr($hex, 0, 2));
+      $green = hexdec(substr($hex, 2, 2));
+      $blue = hexdec(substr($hex, 4, 2));
+    }
 
     $output = [
       'errorColor' => [
