@@ -24,11 +24,19 @@ use Drupal\Core\Url;
 function backstopjs_form_qa_shot_admin_settings_alter(array &$form, FormStateInterface $form_state, $form_id) {
   /** @var \Drupal\Core\Config\ImmutableConfig $config */
   $config = \Drupal::configFactory()->get('qa_shot.settings');
+  /** @var \Drupal\backstopjs\Service\Backstop $backstop */
+  $backstop = \Drupal::service('backstopjs.backstop');
 
   $form['backstopjs'] = [
     '#type' => 'details',
     '#title' => t('Backstop JS'),
     '#open' => TRUE,
+  ];
+
+  $form['backstopjs']['backstopjs_status'] = [
+    '#type' => 'markup',
+    '#markup' => 'Results for using pgrep to search for BackstopJS: ' . $backstop->getStatus(),
+    '#title' => t('BackstopJS status'),
   ];
 
   $form['backstopjs']['async_compare_limit'] = [

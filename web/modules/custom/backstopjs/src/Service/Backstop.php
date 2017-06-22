@@ -483,4 +483,21 @@ class Backstop extends TestBackendBase {
     $this->backstopFileSystem->removedUnusedFilesForTest($entity);
   }
 
+  /**
+   * Returns the status of backstopjs.
+   *
+   * @return string
+   *   The status as string.
+   */
+  public function getStatus(): string {
+    $checkerCommand = escapeshellcmd('pgrep -l -a -f backstop');
+    exec($checkerCommand, $execOutput, $status);
+
+    $result = array_filter($execOutput, function ($row) use ($checkerCommand) {
+      return strpos($row, $checkerCommand) === FALSE;
+    });
+
+    return json_encode(['output' => $result, 'status' => $status]);
+  }
+
 }
