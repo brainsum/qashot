@@ -5,3 +5,7 @@ backstopjs:
     large_image_threshold: '1200'
     use_cross_origin: 1
     fallback_color: FF00FF
+  async_compare_limit: '30'
+  test_engine: phantomjs
+  debug_mode: '0'
+  mismatch_threshold: '0.00'

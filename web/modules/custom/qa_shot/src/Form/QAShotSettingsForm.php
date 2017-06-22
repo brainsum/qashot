@@ -137,6 +137,36 @@ class QAShotSettingsForm extends ConfigFormBase {
       '#open' => TRUE,
     ];
 
+    $form['backstopjs']['async_compare_limit'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Parallel comparison limit'),
+      '#description' => $this->t('Limit the amount of parallel image comparisons. Lower value results in slower comparisons and lower RAM usage. As a (very approximate) rule of thumb, BackstopJS will use 100MB RAM plus approximately 5 MB for each concurrent image comparison.'),
+      '#default_value' => $config->get('backstopjs.async_compare_limit') ?? 30,
+      '#min' => 1,
+      '#max' => 100,
+    ];
+
+    $form['backstopjs']['test_engine'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Test engine'),
+      '#options' => [
+        'phantomjs' => $this->t('PhantomJS'),
+        'slimerjs' => $this->t('SlimerJS'),
+      ],
+      '#default_value' => $config->get('backstopjs.test_engine') ?? 'phantomjs',
+      '#description' => $this->t('PhantomJS uses webkit (e.g. Chrome), SlimerJS uses gecko (e.g. Firefox).'),
+    ];
+
+    $form['backstopjs']['mismatch_threshold'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Mismatch Threshold'),
+      '#description' => $this->t('The amount of difference BackstopJS will tolerate before marking a test screenshot as "failed". 0 does not allow any differences.'),
+      '#default_value' => $config->get('backstopjs.mismatch_threshold') ?? 0.00,
+      '#min' => 0.00,
+      '#max' => 100.00,
+      '#step' => 0.1,
+    ];
+
     $form['backstopjs']['resemble_output_options'] = [
       '#type' => 'details',
       '#title' => t('Resemble output options'),
@@ -195,6 +225,17 @@ class QAShotSettingsForm extends ConfigFormBase {
       '#disabled' => TRUE,
     ];
 
+    $form['backstopjs']['debug_mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Enable debug mode'),
+      '#options' => [
+        1 => 'Yes',
+        0 => 'No',
+      ],
+      '#default_value' => $config->get('backstopjs.debug_mode') ?? 0,
+      '#description' => $this->t('Yes results in a verbose output so more data is available. The data is not available for users, only admins.'),
+    ];
+
     return $form;
   }
 
@@ -215,6 +256,11 @@ class QAShotSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->configFactory()->getEditable('qa_shot.settings');
+
+    $config->set('backstopjs.async_compare_limit', $form_state->getValue(['backstopjs', 'async_compare_limit']));
+    $config->set('backstopjs.test_engine', $form_state->getValue(['backstopjs', 'test_engine']));
+    $config->set('backstopjs.debug_mode', $form_state->getValue(['backstopjs', 'debug_mode']));
+    $config->set('backstopjs.mismatch_threshold', $form_state->getValue(['backstopjs', 'mismatch_threshold']));
 
     $resembleOptions = [
       'error_type',

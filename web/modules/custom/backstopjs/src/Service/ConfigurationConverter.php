@@ -109,7 +109,7 @@ class ConfigurationConverter {
       ],
       // 'onBeforeScript' => 'onBefore.js', //.
       // 'onReadyScript' => 'onReady.js', //.
-      'engine' => $testEngine ?? 'phantomjs',
+      'engine' => $testEngine ?? $this->config->get('backstopjs.test_engine'),
       'report' => [
         // Skipping 'browser' will still generate it, but it won't try to open
         // the generated report. For reasons.
@@ -122,14 +122,14 @@ class ConfigurationConverter {
         '--ssl-protocol=any',
       ],
       'resembleOutputOptions' => $this->generateResembleOptions($entity->get('field_diff_color')),
-      'asyncCompareLimit' => 10,
+      'asyncCompareLimit' => (int) $this->config->get('backstopjs.async_compare_limit'),
       'debug' => FALSE,
     ];
 
     $mapConfigToArray['viewports'] = $this->viewportToArray($entity->getFieldViewport());
     $mapConfigToArray['scenarios'] = $this->scenarioToArray($entity->getFieldScenario(), $entity->getSelectorsToHide());
 
-    if ($withDebug === TRUE) {
+    if (TRUE === $withDebug || TRUE === (bool) $this->config->get('backstopjs.debug_mode')) {
       $mapConfigToArray['debug'] = TRUE;
       $mapConfigToArray['casperFlags'][] = '--verbose';
     }
@@ -255,11 +255,12 @@ class ConfigurationConverter {
         $currentScenario['referenceUrl'] = (string) $referenceUrl;
       }
 
+      $misMatch = $this->config->get('backstopjs.mismatch_threshold') ?? 0.0;
       $currentScenario += [
         'url' => (string) $scenario->get('field_test_url')->getValue()[0]['uri'],
         'readyEvent' => NULL,
         'delay' => 5000,
-        'misMatchThreshold' => 0.0,
+        'misMatchThreshold' => (float) $misMatch,
         'selectors' => [
           'document',
         ],
