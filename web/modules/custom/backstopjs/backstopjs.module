@@ -127,7 +127,7 @@ function backstopjs_form_qa_shot_admin_settings_alter(array &$form, FormStateInt
       0 => 'No',
     ],
     '#default_value' => $config->get('backstopjs.debug_mode') ?? 0,
-    '#description' => t('Yes results in a verbose output so more data is available. The data is not available for users, only admins.'),
+    '#description' => t('"Yes" results in a verbose output so more data is available in the logs.'),
   ];
 
   $form['actions']['submit']['#submit'][] = '_backstopjs_qa_shot_admin_settings_submit_handler';
