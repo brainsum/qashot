@@ -6,3 +6,4 @@ package: QAShot
 dependencies:
   - paragraphs
   - serialization
+  - jquery_colorpicker
