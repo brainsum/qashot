@@ -42,21 +42,22 @@
         }
     ],
     "require": {
-        "roave/security-advisories": "dev-master",
         "php": "^7.0",
         "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6",
         "drupal-composer/drupal-scaffold": "^2.2",
-        "webflo/drupal-finder": "^0.3.0",
-        "webmozart/path-util": "^2.3",
-        "drush/drush": "~8.0",
-        "drupal/core": "~8.0",
-        "drupal/maxlength": "~1.0",
-        "drupal/bootstrap": "^3.1",
+        "drupal-composer/drupal-security-advisories": "8.x-dev",
         "drupal/adminimal_theme": "^1.3",
-        "php-ai/php-ml": "^0.4.1",
+        "drupal/bootstrap": "^3.1",
+        "drupal/core": "~8.0",
+        "drupal/inline_entity_form": "^1.0",
+        "drupal/maxlength": "~1.0",
         "drupal/paragraphs": "^1.1",
-        "drupal/inline_entity_form": "^1.0"
+        "drush/drush": "~8.0",
+        "php-ai/php-ml": "^0.4.1",
+        "roave/security-advisories": "dev-master",
+        "webflo/drupal-finder": "^0.3.0",
+        "webmozart/path-util": "^2.3"
     },
     "require-dev": {
         "behat/mink": "^1.7",

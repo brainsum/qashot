@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff1301a4bc5aac8ad050545d8d0eae05",
+    "content-hash": "1ad446498499b0aa5f19a6585ba8256c",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -853,6 +853,55 @@
             "time": "2017-05-05T21:26:28+00:00"
         },
         {
+            "name": "drupal-composer/drupal-security-advisories",
+            "version": "8.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/drupal-composer/drupal-security-advisories.git",
+                "reference": "51598ec11efcc8f490e5bc9b26137972c8964c74"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/drupal-composer/drupal-security-advisories/zipball/51598ec11efcc8f490e5bc9b26137972c8964c74",
+                "reference": "51598ec11efcc8f490e5bc9b26137972c8964c74",
+                "shasum": ""
+            },
+            "conflict": {
+                "drupal/acquia_contenthub": "<1.0,<1.4",
+                "drupal/auto_login_url": "<1.2",
+                "drupal/bootstrap": "<3.5",
+                "drupal/cshs": "<1.0-beta2",
+                "drupal/drd": "<3.2",
+                "drupal/drd_agent": "<3.1",
+                "drupal/drupal": "<8.0.0-beta2,<8.0.4,<8.1.3,<8.1.7,<8.1.10,<8.2.3,<8.2.7,<8.2.8,<8.3.1,<8.3.4",
+                "drupal/ds": "<2.7,<3.0",
+                "drupal/dynamic_entity_reference": "<1.0-beta2",
+                "drupal/echo": "<1.7",
+                "drupal/editor_file": "<1.2",
+                "drupal/google_analytics": "<2.1",
+                "drupal/hotjar": "<1.0",
+                "drupal/instagram_block": "<2.0-alpha2",
+                "drupal/ldap": "<3.0-alpha1,<3.0-beta2",
+                "drupal/like_dislike": "<1.1",
+                "drupal/linkit": "<4.3",
+                "drupal/nodejs": "<1.0",
+                "drupal/panels": "<3.0-beta5",
+                "drupal/permissions_by_term": "<1.11",
+                "drupal/piwik": "<1.1",
+                "drupal/prlp": "<1.3",
+                "drupal/require_login": "<1.8",
+                "drupal/search_api": "<1.0-alpha14",
+                "drupal/swiftmailer": "<1.0-beta1",
+                "drupal/xmlsitemap": "<1.0-alpha2"
+            },
+            "type": "metapackage",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "time": "2017-06-21T19:08:06+00:00"
+        },
+        {
             "name": "drupal/adminimal_theme",
             "version": "1.3.0",
             "source": {
@@ -954,16 +1003,16 @@
         },
         {
             "name": "drupal/core",
-            "version": "8.3.3",
+            "version": "8.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
-                "reference": "98da955d81c79f1a753536ab9c9dad5f80a72922"
+                "reference": "f34eee7255142ab5416107972ef13d011f11e163"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core/zipball/98da955d81c79f1a753536ab9c9dad5f80a72922",
-                "reference": "98da955d81c79f1a753536ab9c9dad5f80a72922",
+                "url": "https://api.github.com/repos/drupal/core/zipball/f34eee7255142ab5416107972ef13d011f11e163",
+                "reference": "f34eee7255142ab5416107972ef13d011f11e163",
                 "shasum": ""
             },
             "require": {
@@ -1135,7 +1184,7 @@
                 "GPL-2.0+"
             ],
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
-            "time": "2017-06-07T17:35:30+00:00"
+            "time": "2017-06-21T18:13:27+00:00"
         },
         {
             "name": "drupal/entity_reference_revisions",
@@ -6204,16 +6253,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.35",
+            "version": "4.8.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "791b1a67c25af50e230f841ee7a9c6eba507dc87"
+                "reference": "46023de9a91eec7dfb06cc56cb4e260017298517"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/791b1a67c25af50e230f841ee7a9c6eba507dc87",
-                "reference": "791b1a67c25af50e230f841ee7a9c6eba507dc87",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/46023de9a91eec7dfb06cc56cb4e260017298517",
+                "reference": "46023de9a91eec7dfb06cc56cb4e260017298517",
                 "shasum": ""
             },
             "require": {
@@ -6272,7 +6321,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-02-06T05:18:07+00:00"
+            "time": "2017-06-21T08:07:12+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -7149,6 +7198,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "drupal-composer/drupal-security-advisories": 20,
         "roave/security-advisories": 20,
         "drupal/cors_ui": 20,
         "drupal/examples": 20,
