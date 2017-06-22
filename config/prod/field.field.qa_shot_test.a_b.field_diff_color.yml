@@ -1,0 +1,23 @@
+uuid: ccae12f5-f520-40d6-be27-8977f40dead1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_diff_color
+    - qa_shot.qa_shot_test_type.a_b
+  module:
+    - jquery_colorpicker
+id: qa_shot_test.a_b.field_diff_color
+field_name: field_diff_color
+entity_type: qa_shot_test
+bundle: a_b
+label: 'Diff color'
+description: 'Select a bright and ugly color. It is going to be used as the highlight color for the diff image.'
+required: true
+translatable: false
+default_value:
+  -
+    value: ff00ff
+default_value_callback: ''
+settings: {  }
+field_type: jquery_colorpicker

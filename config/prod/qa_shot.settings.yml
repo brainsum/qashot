@@ -1,0 +1,6 @@
+backstopjs:
+  resemble_output_options:
+    error_type: movement
+    transparency: '0.4'
+    large_image_threshold: '1200'
+    use_cross_origin: 1

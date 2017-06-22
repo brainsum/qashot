@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.qa_shot_test.a_b.field_configuration_path
+    - field.field.qa_shot_test.a_b.field_diff_color
     - field.field.qa_shot_test.a_b.field_html_report_path
     - field.field.qa_shot_test.a_b.field_scenario
     - field.field.qa_shot_test.a_b.field_state_in_queue
@@ -12,12 +13,20 @@ dependencies:
     - qa_shot.qa_shot_test_type.a_b
   module:
     - entity_reference_revisions
+    - jquery_colorpicker
     - options
 id: qa_shot_test.a_b.default
 targetEntityType: qa_shot_test
 bundle: a_b
 mode: default
 content:
+  field_diff_color:
+    weight: 6
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: jquery_colorpicker_color_display
+    region: content
   field_scenario:
     type: entity_reference_revisions_entity_view
     weight: 3

@@ -23,6 +23,7 @@ module:
   help: 0
   image: 0
   inline_entity_form: 0
+  jquery_colorpicker: 0
   kint: 0
   link: 0
   maillog: 0

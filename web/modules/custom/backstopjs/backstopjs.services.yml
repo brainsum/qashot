@@ -7,4 +7,4 @@ services:
     arguments: ['@backstopjs.file_system', '@logger.factory']
   backstopjs.config_converter:
     class: Drupal\backstopjs\Service\ConfigurationConverter
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@config.factory']

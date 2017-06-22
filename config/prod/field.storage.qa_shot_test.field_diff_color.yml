@@ -1,0 +1,19 @@
+uuid: f49349f4-c8cc-42ec-8a60-c58c6b5014ef
+langcode: en
+status: true
+dependencies:
+  module:
+    - jquery_colorpicker
+    - qa_shot
+id: qa_shot_test.field_diff_color
+field_name: field_diff_color
+entity_type: qa_shot_test
+type: jquery_colorpicker
+settings: {  }
+module: jquery_colorpicker
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

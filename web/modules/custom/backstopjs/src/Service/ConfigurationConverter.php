@@ -2,7 +2,9 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
@@ -47,19 +49,29 @@ class ConfigurationConverter {
   private $paragraphStorage;
 
   /**
+   * The config.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  private $config;
+
+  /**
    * ConfigurationConverter constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   EntityTypeManager service.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Config factory.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, ConfigFactoryInterface $configFactory) {
     $this->privateDataPath = PrivateStream::basePath() . DIRECTORY_SEPARATOR . FileSystem::DATA_BASE_FOLDER;
     $this->publicDataPath = PublicStream::basePath() . DIRECTORY_SEPARATOR . FileSystem::DATA_BASE_FOLDER;
 
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->paragraphStorage = $entityTypeManager->getStorage('paragraph');
+    $this->config = $configFactory->get('qa_shot.settings');
   }
 
   /**
@@ -109,25 +121,7 @@ class ConfigurationConverter {
         '--ignore-ssl-errors=true',
         '--ssl-protocol=any',
       ],
-      'resembleOutputOptions' => [
-        'errorColor' => [
-          'red' => 255,
-          'green' => 0,
-          'blue' => 255,
-        ],
-        // Can be 'flat' or 'movement'.
-        // Movement: Merges error color with base image
-        // which makes it a little easier to spot movement.
-        'errorType' => 'movement',
-        // Fade unchanged areas to make changed areas more apparent.
-        'transparency' => 0.3,
-        // Set as 0 to disable.
-        'largeImageThreshold' => 1200,
-        // Set to FALSE for DATA URIs.
-        // @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
-        // Note: This shouldn't matter here.
-        'useCrossOrigin' => TRUE,
-      ],
+      'resembleOutputOptions' => $this->generateResembleOptions($entity->get('field_diff_color')),
       'asyncCompareLimit' => 10,
       'debug' => FALSE,
     ];
@@ -141,6 +135,44 @@ class ConfigurationConverter {
     }
 
     return $mapConfigToArray;
+  }
+
+  /**
+   * Generates the resemble output array.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $diffColorField
+   *   The diff_color field.
+   *
+   * @return array
+   *   The resembleOutputOptions array.
+   */
+  public function generateResembleOptions(FieldItemListInterface $diffColorField): array {
+    $hex = $diffColorField->getValue()[0]['value'];
+    $red = hexdec(substr($hex, 0, 2));
+    $green = hexdec(substr($hex, 2, 2));
+    $blue = hexdec(substr($hex, 4, 2));
+
+    $output = [
+      'errorColor' => [
+        'red' => $red,
+        'green' => $green,
+        'blue' => $blue,
+      ],
+      // Can be 'flat' or 'movement'.
+      // Movement: Merges error color with base image
+      // which makes it a little easier to spot movement.
+      'errorType' => $this->config->get('backstopjs.resemble_output_options.error_type'),
+      // Fade unchanged areas to make changed areas more apparent.
+      'transparency' => $this->config->get('backstopjs.resemble_output_options.transparency'),
+      // Set as 0 to disable.
+      'largeImageThreshold' => $this->config->get('backstopjs.resemble_output_options.large_image_threshold'),
+      // Set to FALSE for DATA URIs.
+      // @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
+      // Note: This shouldn't matter here.
+      'useCrossOrigin' => (bool) $this->config->get('backstopjs.resemble_output_options.use_cross_origin'),
+    ];
+
+    return $output;
   }
 
   /**
