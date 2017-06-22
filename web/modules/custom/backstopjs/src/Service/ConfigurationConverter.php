@@ -98,8 +98,8 @@ class ConfigurationConverter {
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
       'id' => $entityId,
-      'viewports' => [],
-      'scenarios' => [],
+      'viewports' => $this->viewportToArray($entity->getFieldViewport()),
+      'scenarios' => $this->scenarioToArray($entity->getFieldScenario(), $entity->getSelectorsToHide()),
       'paths' => [
         'casper_scripts' => $private . '/casper_scripts',
         'bitmaps_reference' => $public . '/reference',
@@ -125,9 +125,6 @@ class ConfigurationConverter {
       'asyncCompareLimit' => (int) $this->config->get('backstopjs.async_compare_limit'),
       'debug' => FALSE,
     ];
-
-    $mapConfigToArray['viewports'] = $this->viewportToArray($entity->getFieldViewport());
-    $mapConfigToArray['scenarios'] = $this->scenarioToArray($entity->getFieldScenario(), $entity->getSelectorsToHide());
 
     if (TRUE === $withDebug || TRUE === (bool) $this->config->get('backstopjs.debug_mode')) {
       $mapConfigToArray['debug'] = TRUE;
