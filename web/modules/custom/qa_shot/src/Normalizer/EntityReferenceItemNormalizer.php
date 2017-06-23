@@ -24,23 +24,13 @@ class EntityReferenceItemNormalizer extends ComplexDataNormalizer {
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = []) {
-    $values = parent::normalize($fieldItem, $format, $context);
-
+    $value = NULL;
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     if ($entity = $fieldItem->get('entity')->getValue()) {
-      $values['target_type'] = $entity->getEntityTypeId();
-      // Add the target entity UUID to the normalized output values.
-      $values['target_uuid'] = $entity->uuid();
-
-      // Add a 'url' value if there is a reference and a canonical URL. Hard
-      // code 'canonical' here as config entities override the default $rel
-      // parameter value to 'edit-form.
-      if ($url = $entity->url('canonical')) {
-        $values['url'] = $url;
-      }
+      $value = $entity->id();
     }
 
-    return $values;
+    return $value;
   }
 
 }

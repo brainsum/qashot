@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Validation\Plugin\Validation\Constraint\CountConstraint;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\serialization\Normalizer\ComplexDataNormalizer;
@@ -71,13 +72,28 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
     $attributes = [];
     /** @var \Drupal\Core\TypedData\TypedDataInterface $field */
     foreach ($object as $name => $field) {
-
       // @fixme This is just a hotfix.
       if ($name === 'result') {
-        $attributes[$name] = $this->serializer->normalize($this->computeResultField($field), $format, $context);
+        $attributes[$name] = $this->serializer->normalize($this->computeResultField($field), $format, $context + ['qa_shot_field_name' => $name]);
         continue;
       }
-      $attributes[$name] = $this->serializer->normalize($field, $format, $context);
+
+      $countConstraint = -1;
+      foreach ($field->getConstraints() as $constraint) {
+        if (get_class($constraint) === CountConstraint::class) {
+          /** @var \Drupal\Core\Validation\Plugin\Validation\Constraint\CountConstraint $constraint */
+          $countConstraint = $constraint->max;
+          break;
+        }
+      }
+
+      // Single item arrays should only contain the value.
+      $value = $this->serializer->normalize($field, $format, $context + ['qa_shot_field_name' => $name]);
+      if ($countConstraint === 1 && is_array($value) && count($value) === 1) {
+        $value = reset($value);
+      }
+
+      $attributes[$name] = $value;
     }
     return $attributes;
   }

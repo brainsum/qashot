@@ -26,3 +26,64 @@ services:
     class: Drupal\qa_shot\Normalizer\EntityReferenceItemNormalizer
     tags:
       - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.date_time_item:
+    class: Drupal\qa_shot\Normalizer\DateTimeItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.boolean_item:
+    class: Drupal\qa_shot\Normalizer\BooleanItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.changed_item:
+    class: Drupal\qa_shot\Normalizer\ChangedItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.created_item:
+    class: Drupal\qa_shot\Normalizer\CreatedItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.language_item:
+    class: Drupal\qa_shot\Normalizer\LanguageItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.list_string_item:
+    class: Drupal\qa_shot\Normalizer\ListStringItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.string_item:
+    class: Drupal\qa_shot\Normalizer\StringItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.test_metadata_item:
+    class: Drupal\qa_shot\Normalizer\TestMetadataItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.uuid_item:
+    class: Drupal\qa_shot\Normalizer\UuidItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.jquery_colorpicker_item:
+    class: Drupal\qa_shot\Normalizer\JQueryColorpickerItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.integer_item:
+    class: Drupal\qa_shot\Normalizer\IntegerItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot.normalizer.item:
+    class: Drupal\qa_shot\Normalizer\ItemNormalizer
+    tags:
+      - { name: normalizer, priority: 10 }
+
