@@ -3,16 +3,11 @@
 namespace Drupal\qa_shot\Normalizer;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityTypeRepositoryInterface;
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\entity_reference_revisions\Plugin\Field\FieldType\EntityReferenceRevisionsItem;
-use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\serialization\Normalizer\ComplexDataNormalizer;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -127,7 +122,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
       throw new InvalidArgumentException('The field item passed in via $context[\'target_instance\'] must have a parent set.');
     }
 
-    /** @var FieldItemListInterface $fieldItem */
+    /** @var \Drupal\Core\Field\FieldItemListInterface $fieldItem */
     $fieldItem = $context['target_instance'];
 
     $fieldHandlerSettings = $fieldItem->getParent()->getSettings();

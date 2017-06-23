@@ -71,6 +71,7 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
     $attributes = [];
     /** @var \Drupal\Core\TypedData\TypedDataInterface $field */
     foreach ($object as $name => $field) {
+
       // @fixme This is just a hotfix.
       if ($name === 'result') {
         $attributes[$name] = $this->serializer->normalize($this->computeResultField($field), $format, $context);
