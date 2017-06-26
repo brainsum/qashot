@@ -163,7 +163,7 @@ class Backstop extends TestBackendBase {
    * @return array
    *   The screenshots.
    */
-  private function parseScreenshots(QAShotTestInterface $entity): array {
+  public function parseScreenshots(QAShotTestInterface $entity): array {
     $screenshots = [];
 
     $reportBasePath = str_replace('/html_report/index.html', '', $entity->getHtmlReportPath());
@@ -179,29 +179,30 @@ class Backstop extends TestBackendBase {
     /** @var array[] $screenshotConfigData */
     $screenshotConfigData = json_decode(str_replace(['report(', ');'], '', $screenshotConfig), TRUE);
 
-    // @todo: Change.
-    $scenarioIndex = 0;
-    $totalViewportLimit = $entity->getViewportCount() - 1;
-    $viewportIndex = 0;
+    // @todo: Load paragraphs, match screenshot names for security.
+    // $paragraphsStorage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    $scenarioIds = array_map(function ($item) {
+      return $item['target_id'];
+    }, $entity->getFieldScenario()->getValue(TRUE));
+    $viewportIds = array_map(function ($item) {
+      return $item['target_id'];
+    }, $entity->getFieldViewport()->getValue(TRUE));
 
     foreach ($screenshotConfigData['tests'] as $screenshot) {
       $screenshots[] = [
-        'scenario_delta' => $scenarioIndex,
-        'viewport_delta' => $viewportIndex,
+        'scenario_id' => current($scenarioIds),
+        'viewport_id' => current($viewportIds),
         'reference' => str_replace('../', $entity->id() . '/', $screenshot['pair']['reference']),
         'test' => str_replace('../', $entity->id() . '/', $screenshot['pair']['test']),
         'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('../', $entity->id() . '/', $screenshot['pair']['diffImage']) : '',
         'success' => $screenshot['status'] === 'pass',
       ];
 
-      // When the viewportIndex reaches the limit, we have to reset it to 0.
-      // We also have to increase the scenarioIndex.
-      if ($viewportIndex === $totalViewportLimit) {
-        ++$scenarioIndex;
-        $viewportIndex = 0;
-      }
-      else {
-        ++$viewportIndex;
+      // When we reach the last viewport, we have to start over.
+      // We also have to get the next scenario.
+      if (FALSE === next($viewportIds)) {
+        next($scenarioIds);
+        reset($viewportIds);
       }
     }
 
