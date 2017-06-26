@@ -289,3 +289,13 @@ function qa_shot_update_8305() {
   field_purge_batch(100);
   drupal_flush_all_caches();
 }
+
+/**
+ * Truncate results and metadata in preparation of field updates.
+ */
+function qa_shot_update_8306() {
+  $database = \Drupal::database();
+  $database->truncate('qa_shot_test__result')->execute();
+  $database->truncate('qa_shot_test__metadata_last_run')->execute();
+  $database->truncate('qa_shot_test__metadata_lifetime')->execute();
+}

@@ -35,13 +35,19 @@ class Result extends FieldItemBase {
   public static function schema(FieldStorageDefinitionInterface $fieldDefinition): array {
     $schema = [
       'columns' => [
-        'scenario_delta' => [
+        'id' => [
+          'description' => 'The primary identifier for a result.',
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'scenario_id' => [
           'description' => 'The delta of the scenario.',
           'type' => 'int',
           'size' => 'normal',
           'unsigned' => TRUE,
         ],
-        'viewport_delta' => [
+        'viewport_id' => [
           'description' => 'The delta of the viewport.',
           'type' => 'int',
           'size' => 'normal',
@@ -70,6 +76,12 @@ class Result extends FieldItemBase {
           'default' => 0,
         ],
       ],
+      'primary key' => [
+        'id',
+      ],
+      'indexes' => [
+        'result_id' => ['id'],
+      ],
     ];
 
     return $schema;
@@ -79,11 +91,15 @@ class Result extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $fieldDefinition) {
-    $properties['scenario_delta'] = DataDefinition::create('integer')
+    $properties['id'] = DataDefinition::create('integer')
+      ->setLabel(new TranslatableMarkup('ID'))
+      ->setDescription('The result ID.');
+
+    $properties['scenario_id'] = DataDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Scenario (Delta)'))
       ->setDescription('The delta of the scenario.');
 
-    $properties['viewport_delta'] = DataDefinition::create('integer')
+    $properties['viewport_id'] = DataDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Viewport (Delta)'))
       ->setDescription('The delta of the viewport.');
 

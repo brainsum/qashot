@@ -188,10 +188,13 @@ class Backstop extends TestBackendBase {
       return $item['target_id'];
     }, $entity->getFieldViewport()->getValue(TRUE));
 
+//    reset($viewportIds);
+//    reset($scenarioIds);
+
     foreach ($screenshotConfigData['tests'] as $screenshot) {
       $screenshots[] = [
-        'scenario_id' => current($scenarioIds),
-        'viewport_id' => current($viewportIds),
+        'scenario_id' => (int) current($scenarioIds),
+        'viewport_id' => (int) current($viewportIds),
         'reference' => str_replace('../', $entity->id() . '/', $screenshot['pair']['reference']),
         'test' => str_replace('../', $entity->id() . '/', $screenshot['pair']['test']),
         'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('../', $entity->id() . '/', $screenshot['pair']['diffImage']) : '',

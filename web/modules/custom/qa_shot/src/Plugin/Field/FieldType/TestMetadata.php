@@ -41,6 +41,12 @@ class TestMetadata extends FieldItemBase {
     // Unsigned big float is used for double precision.
     $schema = [
       'columns' => [
+        'id' => [
+          'description' => 'The primary identifier for a metadata.',
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
         'stage' => [
           'description' => 'The test stage of the run.',
           'type' => 'varchar',
@@ -101,6 +107,12 @@ class TestMetadata extends FieldItemBase {
           'default' => 0,
         ],
       ],
+      'primary key' => [
+        'id',
+      ],
+      'indexes' => [
+        'metadata_id' => ['id'],
+      ],
     ];
 
     return $schema;
@@ -110,6 +122,11 @@ class TestMetadata extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $fieldDefinition) {
+    $properties['id'] = DataDefinition::create('integer')
+      ->setLabel(new TranslatableMarkup('ID'))
+      ->setDescription('The metadata ID.')
+      ->setRequired(TRUE);
+
     // Prevent early t() calls by using the TranslatableMarkup.
     $properties['stage'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Stage'))

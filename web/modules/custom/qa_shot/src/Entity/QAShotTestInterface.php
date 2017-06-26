@@ -233,18 +233,18 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   /**
    * Returns the lifetime metadata.
    *
-   * @return \Drupal\Core\Field\FieldItemListInterface
+   * @return array
    *   The metadata field.
    */
-  public function getLifetimeMetadataValue(): FieldItemListInterface;
+  public function getLifetimeMetadataValue(): array;
 
   /**
    * Returns the last run metadata.
    *
-   * @return \Drupal\Core\Field\FieldItemListInterface
+   * @return array
    *   The metadata field.
    */
-  public function getLastRunMetadataValue(): FieldItemListInterface;
+  public function getLastRunMetadataValue(): array;
 
   /**
    * Sets the result.
@@ -260,10 +260,10 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   /**
    * Returns the result.
    *
-   * @return \Drupal\Core\Field\FieldItemListInterface
+   * @return array
    *   The result field.
    */
-  public function getResultValue(): FieldItemListInterface;
+  public function getResultValue(): array;
 
   /**
    * Set the frontend URL.

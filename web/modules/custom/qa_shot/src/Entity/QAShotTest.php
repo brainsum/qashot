@@ -126,7 +126,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getOwner() {
+  public function getOwner(): UserInterface {
     return $this->get('user_id')->entity;
   }
 
@@ -325,21 +325,21 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLastRunMetadataValue(): FieldItemListInterface {
+  public function getLastRunMetadataValue(): array {
     return $this->get('metadata_last_run')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLifetimeMetadataValue(): FieldItemListInterface {
+  public function getLifetimeMetadataValue(): array {
     return $this->get('metadata_lifetime')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getResultValue(): FieldItemListInterface {
+  public function getResultValue(): array {
     return $this->get('result')->getValue();
   }
 
