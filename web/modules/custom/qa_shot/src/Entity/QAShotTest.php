@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
+use Drupal\qa_shot\Plugin\DataType\ComputedLastRunMetadata;
 use Drupal\user\UserInterface;
 
 /**
@@ -273,52 +274,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function addMetadata(array $metadata): QAShotTestInterface {
-    // Add the supplied metadata to the metadata_lifetime field.
     $this->get('metadata_lifetime')->appendItem($metadata);
-
-
-    // If this is the first stage of a test, or the test has only one stage,
-    // We just set it as the value.
-    if (
-      $this->bundle() === 'a_b' ||
-      ($this->bundle() === 'before_after' && $metadata['stage'] === 'before')
-    ) {
-      $this->get('metadata_last_run')->setValue($metadata);
-      return $this;
-    }
-
-    // @todo: Generalize this, so inconsistencies can't happen when
-    // more than 2 stages are available.
-    // E.g. the current code will lead to an inconsistent metadata_last_run
-    // when stages are run in this order: 1, 2, 3, 2.
-    //
-    // Proposal:
-    // * get stage index
-    // * remove any stages with indexes >= than the current.
-    // * append the new metadata.
-    //
-    // Also, maybe @todo to add stages as taxonomies.
-    // Vocabulary: entity bundle machine name
-    // Terms: current names.
-    // This way, we can also get deltas == indexes.
-    $updateKey = NULL;
-
-    foreach ($this->getLastRunMetadataValue() as $key => $item) {
-      // If the given stage is already in the field, update.
-      if ($item['stage'] === $metadata['stage']) {
-        $updateKey = $key;
-        // There shouldn't be another item with this stage value, so break.
-        break;
-      }
-    }
-
-    if (NULL === $updateKey) {
-      $this->get('metadata_last_run')->appendItem($metadata);
-    }
-    else {
-      $this->get('metadata_last_run')->set($updateKey, $metadata);
-    }
-
     return $this;
   }
 
@@ -504,12 +460,15 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setDisplayConfigurable('view', TRUE);
 
     // This field stores metadata for the last run.
-    // Last run means a full test run.
-    // @todo: Maybe make this computed?
+    // Last run means a full test run, so every stage that's required.
+    // E.g Before/After has 2 stages, before and after.
     $fields['metadata_last_run'] = BaseFieldDefinition::create('qa_shot_test_metadata')
       ->setLabel(t('Metadata (Last run)'))
-      ->setDescription(t('Stores metadata for the last run.'))
-      ->setCardinality(-1);
+      ->setDescription(t('Metadata for the last run.'))
+      ->setCardinality(-1)
+      ->setComputed(TRUE)
+      ->setClass(ComputedLastRunMetadata::class)
+      ->setSetting('data source', 'metadata_lifetime');
 
     // This field stores metadata for every run.
     $fields['metadata_lifetime'] = BaseFieldDefinition::create('qa_shot_test_metadata')

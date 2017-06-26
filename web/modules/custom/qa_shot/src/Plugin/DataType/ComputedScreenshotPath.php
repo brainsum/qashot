@@ -32,7 +32,7 @@ class ComputedScreenshotPath extends TypedData {
     parent::__construct($definition, $name, $parent);
 
     if ($definition->getSetting($this::SETTING_NAME) === NULL) {
-      throw new \InvalidArgumentException("The definition's 'url source' key has to specify the name of the url property to be processed.");
+      throw new \InvalidArgumentException("The definition's '" . $this::SETTING_NAME . "' key has to specify the name of the url property to be processed.");
     }
   }
 
