@@ -8,6 +8,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\user\UserInterface;
 
 /**
@@ -87,21 +89,21 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getType() {
+  public function getType(): string {
     return $this->bundle();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getName() {
+  public function getName(): string {
     return $this->get('name')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setName($name) {
+  public function setName($name): QAShotTestInterface {
     $this->set('name', $name);
     return $this;
   }
@@ -109,14 +111,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCreatedTime() {
+  public function getCreatedTime(): int {
     return $this->get('created')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setCreatedTime($timestamp) {
+  public function setCreatedTime($timestamp): QAShotTestInterface {
     $this->set('created', $timestamp);
     return $this;
   }
@@ -146,7 +148,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function setOwner(UserInterface $account) {
+  public function setOwner(UserInterface $account): QAShotTestInterface {
     $this->set('user_id', $account->id());
     return $this;
   }
@@ -154,14 +156,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getInitiator() {
+  public function getInitiator(): UserInterface {
     return $this->get('initiator_id')->entity;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setInitiator(UserInterface $account) {
+  public function setInitiator(UserInterface $account): QAShotTestInterface {
     $this->set('initiator_id', $account->id());
     return $this;
   }
@@ -176,7 +178,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function setInitiatorId($uid) {
+  public function setInitiatorId($uid): QAShotTestInterface {
     $this->set('initiator_id', $uid);
     return $this;
   }
@@ -184,14 +186,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getInitiatedTime() {
+  public function getInitiatedTime(): int {
     return $this->get('initiated')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setInitiatedTime($timestamp) {
+  public function setInitiatedTime($timestamp): QAShotTestInterface {
     $this->set('initiated', $timestamp);
     return $this;
   }
@@ -199,14 +201,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function isPublished() {
+  public function isPublished(): bool {
     return (bool) $this->getEntityKey('status');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setPublished($published) {
+  public function setPublished($published): QAShotTestInterface {
     $this->set('status', $published ? TRUE : FALSE);
     return $this;
   }
@@ -214,63 +216,63 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getFieldViewport() {
+  public function getFieldViewport(): EntityReferenceRevisionsFieldItemList {
     return $this->get('field_viewport');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getViewportCount() {
+  public function getViewportCount(): int {
     return $this->getFieldViewport()->count();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFieldScenario() {
+  public function getFieldScenario(): EntityReferenceRevisionsFieldItemList {
     return $this->get('field_scenario');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getScenarioCount() {
+  public function getScenarioCount(): int {
     return $this->getFieldScenario()->count();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getConfigurationPath() {
+  public function getConfigurationPath(): string {
     return $this->get('field_configuration_path')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setConfigurationPath($configurationPath) {
+  public function setConfigurationPath($configurationPath): QAShotTestInterface {
     return $this->set('field_configuration_path', $configurationPath);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHtmlReportPath() {
+  public function getHtmlReportPath(): string {
     return $this->get('field_html_report_path')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setHtmlReportPath($htmlReportPath) {
+  public function setHtmlReportPath($htmlReportPath): QAShotTestInterface {
     return $this->set('field_html_report_path', $htmlReportPath);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function addMetadata(array $metadata) {
+  public function addMetadata(array $metadata): QAShotTestInterface {
     // Add the supplied metadata to the metadata_lifetime field.
     $this->get('metadata_lifetime')->appendItem($metadata);
 
@@ -323,28 +325,28 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLastRunMetadataValue() {
+  public function getLastRunMetadataValue(): FieldItemListInterface {
     return $this->get('metadata_last_run')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLifetimeMetadataValue() {
+  public function getLifetimeMetadataValue(): FieldItemListInterface {
     return $this->get('metadata_lifetime')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getResultValue() {
+  public function getResultValue(): FieldItemListInterface {
     return $this->get('result')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getSelectorsToHide() {
+  public function getSelectorsToHide(): array {
     /** @var \Drupal\Core\Field\FieldItemList $field */
     $field = $this->get('selectors_to_hide')->getValue();
 
@@ -362,14 +364,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function setSelectorsToHide(array $selectors) {
+  public function setSelectorsToHide(array $selectors): QAShotTestInterface {
     return $this->set('selectors_to_hide', $selectors);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setResult(array $result) {
+  public function setResult(array $result): QAShotTestInterface {
     $this->get('result')->setValue($result);
 
     return $this;
@@ -385,7 +387,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function setFrontendUrl($url) {
+  public function setFrontendUrl($url): QAShotTestInterface {
     $this->set('frontend_url', $url);
     return $this;
   }
@@ -393,14 +395,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getQueueStatus() {
+  public function getQueueStatus(): array {
     return $this->get('field_state_in_queue')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHumanReadableQueueStatus() {
+  public function getHumanReadableQueueStatus(): string {
     /** @var \Drupal\Core\Field\FieldItemListInterface $field */
     $field = $this->get('field_state_in_queue');
     return $field->getSetting('allowed_values')[$field->getString()];
@@ -409,7 +411,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function setQueueStatus($status) {
+  public function setQueueStatus($status): QAShotTestInterface {
     $this->set('field_state_in_queue', $status);
     return $this;
   }
@@ -417,7 +419,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTestEngine() {
+  public function getTestEngine(): string {
     return $this->get('field_tester_engine')->value;
   }
 

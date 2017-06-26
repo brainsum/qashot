@@ -4,6 +4,8 @@ namespace Drupal\qa_shot\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\user\EntityOwnerInterface;
 use Drupal\user\UserInterface;
 
@@ -20,7 +22,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string
    *   The QAShot Test type.
    */
-  public function getType();
+  public function getType(): string;
 
   /**
    * Gets the QAShot Test name.
@@ -28,7 +30,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string
    *   Name of the QAShot Test.
    */
-  public function getName();
+  public function getName(): string;
 
   /**
    * Sets the QAShot Test name.
@@ -39,7 +41,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setName($name);
+  public function setName($name): QAShotTestInterface;
 
   /**
    * Get the user who initiated the test.
@@ -47,7 +49,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\user\UserInterface|null
    *   The user object or NULL, if it has not been run yet.
    */
-  public function getInitiator();
+  public function getInitiator(): UserInterface;
 
   /**
    * Set the user who initiated the test.
@@ -58,7 +60,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The test object for chaining.
    */
-  public function setInitiator(UserInterface $account);
+  public function setInitiator(UserInterface $account): QAShotTestInterface;
 
   /**
    * Get the Id of the user who initiated the test.
@@ -77,7 +79,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The test object for chaining.
    */
-  public function setInitiatorId($uid);
+  public function setInitiatorId($uid): QAShotTestInterface;
 
   /**
    * Gets the QAShot Test creation timestamp.
@@ -85,7 +87,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return int
    *   Creation timestamp of the QAShot Test.
    */
-  public function getCreatedTime();
+  public function getCreatedTime(): int;
 
   /**
    * Sets the QAShot Test creation timestamp.
@@ -96,7 +98,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setCreatedTime($timestamp);
+  public function setCreatedTime($timestamp): QAShotTestInterface;
 
   /**
    * Gets the QAShot Test run initiation timestamp.
@@ -104,7 +106,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return int
    *   Initiation timestamp of the QAShot Test.
    */
-  public function getInitiatedTime();
+  public function getInitiatedTime(): int;
 
   /**
    * Sets the QAShot Test run initiation timestamp.
@@ -115,7 +117,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setInitiatedTime($timestamp);
+  public function setInitiatedTime($timestamp): QAShotTestInterface;
 
   /**
    * Returns the QAShot Test published status indicator.
@@ -125,7 +127,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return bool
    *   TRUE if the QAShot Test is published.
    */
-  public function isPublished();
+  public function isPublished(): bool;
 
   /**
    * Sets the published status of a QAShot Test.
@@ -137,7 +139,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setPublished($published);
+  public function setPublished($published): QAShotTestInterface;
 
   /**
    * Return the viewport field.
@@ -145,7 +147,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList
    *   The Viewport field.
    */
-  public function getFieldViewport();
+  public function getFieldViewport(): EntityReferenceRevisionsFieldItemList;
 
   /**
    * Return the count of the viewports.
@@ -153,7 +155,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return int
    *   The count of viewports.
    */
-  public function getViewportCount();
+  public function getViewportCount(): int;
 
   /**
    * Return the scenario field.
@@ -161,7 +163,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList
    *   The Scenario field.
    */
-  public function getFieldScenario();
+  public function getFieldScenario(): EntityReferenceRevisionsFieldItemList;
 
   /**
    * Return the count of the scenarios.
@@ -169,7 +171,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return int
    *   The count of scenarios.
    */
-  public function getScenarioCount();
+  public function getScenarioCount(): int;
 
   /**
    * Return the path to the backstop.json configuration.
@@ -177,7 +179,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string
    *   The path to the config.
    */
-  public function getConfigurationPath();
+  public function getConfigurationPath(): string;
 
   /**
    * Set the configuration path.
@@ -188,7 +190,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setConfigurationPath($configurationPath);
+  public function setConfigurationPath($configurationPath): QAShotTestInterface;
 
   /**
    * Return the path to the backstop-generated report.
@@ -196,7 +198,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string
    *   The path to the Backstop-generated report.
    */
-  public function getHtmlReportPath();
+  public function getHtmlReportPath(): string;
 
   /**
    * Set the report path.
@@ -207,7 +209,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setHtmlReportPath($htmlReportPath);
+  public function setHtmlReportPath($htmlReportPath): QAShotTestInterface;
 
   /**
    * Adds metadata to the entity.
@@ -226,7 +228,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function addMetadata(array $metadata);
+  public function addMetadata(array $metadata): QAShotTestInterface;
 
   /**
    * Returns the lifetime metadata.
@@ -234,7 +236,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\Core\Field\FieldItemListInterface
    *   The metadata field.
    */
-  public function getLifetimeMetadataValue();
+  public function getLifetimeMetadataValue(): FieldItemListInterface;
 
   /**
    * Returns the last run metadata.
@@ -242,7 +244,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\Core\Field\FieldItemListInterface
    *   The metadata field.
    */
-  public function getLastRunMetadataValue();
+  public function getLastRunMetadataValue(): FieldItemListInterface;
 
   /**
    * Sets the result.
@@ -253,7 +255,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setResult(array $result);
+  public function setResult(array $result): QAShotTestInterface;
 
   /**
    * Returns the result.
@@ -261,7 +263,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\Core\Field\FieldItemListInterface
    *   The result field.
    */
-  public function getResultValue();
+  public function getResultValue(): FieldItemListInterface;
 
   /**
    * Set the frontend URL.
@@ -272,7 +274,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setFrontendUrl($url);
+  public function setFrontendUrl($url): QAShotTestInterface;
 
   /**
    * Get the frontend URL.
@@ -288,7 +290,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return array
    *   The value.
    */
-  public function getQueueStatus();
+  public function getQueueStatus(): array;
 
   /**
    * Get current queue status.
@@ -296,7 +298,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string
    *   The status.
    */
-  public function getHumanReadableQueueStatus();
+  public function getHumanReadableQueueStatus(): string;
 
   /**
    * Set current queue status.
@@ -307,7 +309,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The called QAShot Test entity.
    */
-  public function setQueueStatus($status);
+  public function setQueueStatus($status): QAShotTestInterface;
 
   /**
    * Get the 'selectors_to_hide' field value.
@@ -315,7 +317,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return array
    *   The field value as array.
    */
-  public function getSelectorsToHide();
+  public function getSelectorsToHide(): array;
 
   /**
    * Set the 'selectors_to_hide' field value.
@@ -326,7 +328,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The entity for chaining.
    */
-  public function setSelectorsToHide(array $selectors);
+  public function setSelectorsToHide(array $selectors): QAShotTestInterface;
 
   /**
    * Returns the selected engine, e.g. phantomjs.
@@ -334,7 +336,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string
    *   The value.
    */
-  public function getTestEngine();
+  public function getTestEngine(): string;
 
   /**
    * Run the test entity.
