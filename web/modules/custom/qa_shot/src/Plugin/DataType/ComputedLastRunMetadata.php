@@ -92,34 +92,11 @@ class ComputedLastRunMetadata extends TypedData {
       $result[] = $data;
     }
 
-    // Sort results by ID.
-    // This way, the results are in chronological order.
-    // Note: 'datetime' could also be used, but ID should be faster (even
-    // if it's just an unnoticeable increase in speed).
-    usort($result, [$this, 'compareMetadata']);
+    // We process the $data array in reverse order,
+    // so we also reverse the $result.
+    $result = array_reverse($result);
 
     return $result;
-  }
-
-  /**
-   * Helper callback function to compare two arrays of metadata by ID.
-   *
-   * Used with usort.
-   *
-   * @param array $first
-   *   The first array.
-   * @param array $second
-   *   The second array.
-   *
-   * @return int
-   *   The retun value.
-   */
-  public function compareMetadata(array $first, array $second): int {
-    if ($first['id'] === $second['id']) {
-      return 0;
-    }
-
-    return ($first['id'] < $second['id']) ? -1 : 1;
   }
 
   /**
