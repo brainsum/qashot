@@ -7,6 +7,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -274,21 +275,21 @@ class ApiController extends ControllerBase {
       // The total count of pages.
       'total_pages' => (string) $totalPageCount,
       'links' => [
-        'self' => $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions),
+        'self' => Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions),
       ],
     ];
 
     if ($page > 1) {
       $routeParams['page'] = $page - 1;
-      $pager['links']['previous'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['previous'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
       $routeParams['page'] = 1;
-      $pager['links']['first'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['first'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
     }
     if ($page < $totalPageCount) {
       $routeParams['page'] = $page + 1;
-      $pager['links']['next'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['next'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
       $routeParams['page'] = $totalPageCount;
-      $pager['links']['last'] = $this->urlGenerator->generateFromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['last'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
     }
 
     return $pager;
