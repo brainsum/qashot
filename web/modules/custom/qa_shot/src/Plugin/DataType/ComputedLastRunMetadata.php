@@ -14,9 +14,9 @@ use Drupal\Core\TypedData\TypedDataInterface;
 class ComputedLastRunMetadata extends TypedData {
 
   /**
-   * Cached processed url.
+   * Cached processed data.
    *
-   * @var string|null
+   * @var array
    */
   protected $processed;
 
@@ -47,13 +47,12 @@ class ComputedLastRunMetadata extends TypedData {
     $parent = $this->getParent();
     $property = $parent->get($this->definition->getSetting($this::SETTING_NAME));
     $data = $property->getValue();
-    $bundle = $parent->get('type')->target_id;
 
     if (empty($data)) {
       $this->processed = [];
     }
     else {
-      $this->processed = $this->getLastItems($data, $bundle);
+      $this->processed = $this->getLastItems($data);
     }
 
     return $this->processed;
@@ -134,14 +133,12 @@ class ComputedLastRunMetadata extends TypedData {
     }
   }
 
-  /**
-   * This is required for some reason.
-   */
+  // No idea why these are required, but whatever.
   public function setLangcode() {}
-
-  /**
-   * This is required for some reason.
-   */
   public function getLangcode() {}
+  public function preSave() {}
+  public function postSave($update) {}
+  public function delete() {}
+  public function deleteRevision() {}
 
 }

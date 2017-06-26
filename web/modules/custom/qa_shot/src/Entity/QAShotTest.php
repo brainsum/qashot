@@ -245,7 +245,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConfigurationPath(): string {
+  public function getConfigurationPath() {
     return $this->get('field_configuration_path')->value;
   }
 
@@ -259,7 +259,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getHtmlReportPath(): string {
+  public function getHtmlReportPath() {
     return $this->get('field_html_report_path')->value;
   }
 
@@ -465,7 +465,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $fields['metadata_last_run'] = BaseFieldDefinition::create('qa_shot_test_metadata')
       ->setLabel(t('Metadata (Last run)'))
       ->setDescription(t('Metadata for the last run.'))
-      ->setCardinality(-1)
       ->setComputed(TRUE)
       ->setClass(ComputedLastRunMetadata::class)
       ->setSetting('data source', 'metadata_lifetime');

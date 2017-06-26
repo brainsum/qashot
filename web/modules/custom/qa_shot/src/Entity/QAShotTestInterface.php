@@ -176,10 +176,10 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   /**
    * Return the path to the backstop.json configuration.
    *
-   * @return string
+   * @return string|null
    *   The path to the config.
    */
-  public function getConfigurationPath(): string;
+  public function getConfigurationPath();
 
   /**
    * Set the configuration path.
@@ -195,10 +195,10 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   /**
    * Return the path to the backstop-generated report.
    *
-   * @return string
+   * @return string|null
    *   The path to the Backstop-generated report.
    */
-  public function getHtmlReportPath(): string;
+  public function getHtmlReportPath();
 
   /**
    * Set the report path.
