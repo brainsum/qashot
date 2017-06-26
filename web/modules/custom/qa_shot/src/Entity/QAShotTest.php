@@ -327,6 +327,31 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function getSelectorsToRemove(): array {
+    /** @var \Drupal\Core\Field\FieldItemList $field */
+    $field = $this->get('selectors_to_remove')->getValue();
+
+    $fieldValue = [];
+
+    /** @var array $item */
+    foreach ($field as $item) {
+      $fieldValue[] = $item['value'];
+    }
+
+    return $fieldValue;
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setSelectorsToRemove(array $selectors): QAShotTestInterface {
+    return $this->set('selectors_to_remove', $selectors);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function setResult(array $result): QAShotTestInterface {
     $this->get('result')->setValue($result);
 
@@ -451,6 +476,26 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
         'weight' => 10,
+      ))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['selectors_to_remove'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Selectors to remove'))
+      ->setDescription(t('Selectors that should be removed from the DOM. Can be an element ID (#my-id), Class (.my-class) or XPath.'))
+      ->setCardinality(-1)
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 11,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => 11,
       ))
       ->setSettings(array(
         'max_length' => 255,

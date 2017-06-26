@@ -21,7 +21,7 @@ bundle: before_after
 mode: default
 content:
   field_diff_color:
-    weight: 6
+    weight: 7
     label: above
     settings: {  }
     third_party_settings: {  }
@@ -44,7 +44,7 @@ content:
     type: list_default
     region: content
   field_tester_engine:
-    weight: 5
+    weight: 6
     label: above
     settings: {  }
     third_party_settings: {  }
@@ -71,6 +71,14 @@ content:
     label: above
     type: string
     weight: 4
+    region: content
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  selectors_to_remove:
+    label: above
+    type: string
+    weight: 5
     region: content
     settings:
       link_to_entity: false

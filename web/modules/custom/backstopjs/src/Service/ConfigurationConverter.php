@@ -99,7 +99,7 @@ class ConfigurationConverter {
       // @todo: maybe id + revision id.
       'id' => $entityId,
       'viewports' => $this->viewportToArray($entity->getFieldViewport()),
-      'scenarios' => $this->scenarioToArray($entity->getFieldScenario(), $entity->getSelectorsToHide()),
+      'scenarios' => $this->scenarioToArray($entity->getFieldScenario(), $entity->getSelectorsToHide(), $entity->getSelectorsToRemove()),
       'paths' => [
         'casper_scripts' => $private . '/casper_scripts',
         'bitmaps_reference' => $public . '/reference',
@@ -226,13 +226,16 @@ class ConfigurationConverter {
    * @param string[] $selectorsToHide
    *   An array of selectors that should be visually hidden.
    *   The values are merged with the default ones.
+   * @param string[] $selectorsToRemove
+   *   An array of selectors that should be removed from te DOM.
+   *   The values are merged with the default ones.
    *
    * @throws \InvalidArgumentException
    *
    * @return array
    *   Array representation of the scenario field.
    */
-  public function scenarioToArray(EntityReferenceRevisionsFieldItemList $scenarioField, array $selectorsToHide): array {
+  public function scenarioToArray(EntityReferenceRevisionsFieldItemList $scenarioField, array $selectorsToHide, array $selectorsToRemove): array {
     $scenarioData = [];
 
     // Flatten the field values from target_id + revision_target_id
@@ -261,7 +264,7 @@ class ConfigurationConverter {
         'selectors' => [
           'document',
         ],
-        'removeSelectors' => [],
+        'removeSelectors' => $selectorsToRemove,
         'hideSelectors' => $selectorsToHide,
         'onBeforeScript' => 'onBefore.js',
         'onReadyScript' => 'onReady.js',

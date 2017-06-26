@@ -331,6 +331,25 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function setSelectorsToHide(array $selectors): QAShotTestInterface;
 
   /**
+   * Get the 'selectors_to_remove' field value.
+   *
+   * @return array
+   *   The field value as array.
+   */
+  public function getSelectorsToRemove(): array;
+
+  /**
+   * Set the 'selectors_to_remove' field value.
+   *
+   * @param string[] $selectors
+   *   The list of selectors.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The entity for chaining.
+   */
+  public function setSelectorsToRemove(array $selectors): QAShotTestInterface;
+
+  /**
    * Returns the selected engine, e.g. phantomjs.
    *
    * @return string

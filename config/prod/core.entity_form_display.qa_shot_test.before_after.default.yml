@@ -20,7 +20,7 @@ bundle: before_after
 mode: default
 content:
   field_diff_color:
-    weight: 5
+    weight: 6
     settings:
       color: FFFFFF
     third_party_settings: {  }
@@ -39,7 +39,7 @@ content:
     type: entity_reference_paragraphs
     region: content
   field_tester_engine:
-    weight: 4
+    weight: 5
     settings: {  }
     third_party_settings: {  }
     type: options_select
@@ -67,6 +67,14 @@ content:
   selectors_to_hide:
     type: string_textfield
     weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  selectors_to_remove:
+    type: string_textfield
+    weight: 4
     region: content
     settings:
       size: 60
