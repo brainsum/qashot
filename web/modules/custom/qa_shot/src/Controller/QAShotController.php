@@ -3,10 +3,13 @@
 namespace Drupal\qa_shot\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
+use function PHPSTORM_META\type;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -54,9 +57,17 @@ class QAShotController extends ControllerBase {
     }
 
     $reportUrl = file_create_url($entity->getHtmlReportPath());
-
     $lastRun = $entity->getLastRunMetadataValue();
-    $reportTimestamp = empty($lastRun) ? NULL : end($lastRun)['datetime'];
+    $reportTime = empty($lastRun) ? NULL : end($lastRun)['datetime'];
+
+    // If the report time is not NULL, format it to an '.. ago' string.
+    if (NULL !== $reportTime) {
+      $reportTimestamp = (new \DateTime($reportTime))->getTimestamp();
+      /** @var \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter */
+      $dateFormatter = \Drupal::service('date.formatter');
+      $currentTimestamp = \Drupal::time()->getRequestTime();
+      $reportTime = 'from ' . $dateFormatter->formatDiff($currentTimestamp, $reportTimestamp) . ' ago';
+    }
 
     $build = [
       '#type' => 'markup',
@@ -64,7 +75,7 @@ class QAShotController extends ControllerBase {
       '#queue_status' => $entity->getHumanReadableQueueStatus(),
       '#html_report_url' => $reportUrl,
       '#entity' => $entity,
-      '#report_timestamp' => $reportTimestamp,
+      '#report_time' => $reportTime,
     ];
 
     return $build;

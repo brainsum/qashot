@@ -43,7 +43,7 @@ function qa_shot_theme() {
     'variables' => [
       'entity' => NULL,
       'html_report_url' => NULL,
-      'report_timestamp' => NULL,
+      'report_time' => NULL,
       'queue_status' => NULL,
     ],
   ];
