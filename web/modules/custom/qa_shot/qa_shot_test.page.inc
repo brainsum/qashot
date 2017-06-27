@@ -48,12 +48,25 @@ function template_preprocess_qa_shot_test(array &$variables) {
   $runAttributes = $attributes;
   $runAttributes['class'][] = 'btn-primary';
 
-  $variables['report_path'] = [
-    '#title' => 'HTML Report Path',
-    '#type' => 'link',
-    '#url' => Url::fromUserInput('/' . $qaShotTest->getHtmlReportPath(), $urlOptions),
-    '#attributes' => $reportAttributes,
-  ];
+  if ($reportPath = $qaShotTest->getHtmlReportPath()) {
+    $lastRun = $qaShotTest->getLastRunMetadataValue();
+    $reportTimestamp = empty($lastRun) ? '' : end($lastRun)['datetime'];
+    $variables['report_path'] = [
+      '#type' => 'link',
+      '#url' => Url::fromUserInput('/' . $reportPath, $urlOptions),
+      '#attributes' => $reportAttributes,
+    ];
+
+    if ('' === $reportTimestamp) {
+      $variables['report_path']['#title'] = t('HTML Report');
+      $variables['report_path']['#disabled'] = TRUE;
+    }
+    else {
+      $variables['report_path']['#title'] = t('HTML Report from @timestamp', [
+        '@timestamp' => $reportTimestamp,
+      ]);
+    }
+  }
 
   $variables['run_path'] = [
     '#title' => 'Add test to queue',

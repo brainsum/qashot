@@ -55,12 +55,16 @@ class QAShotController extends ControllerBase {
 
     $reportUrl = file_create_url($entity->getHtmlReportPath());
 
+    $lastRun = $entity->getLastRunMetadataValue();
+    $reportTimestamp = empty($lastRun) ? NULL : end($lastRun)['datetime'];
+
     $build = [
       '#type' => 'markup',
       '#theme' => 'qa_shot__qa_shot_test__run',
       '#queue_status' => $entity->getHumanReadableQueueStatus(),
       '#html_report_url' => $reportUrl,
       '#entity' => $entity,
+      '#report_timestamp' => $reportTimestamp,
     ];
 
     return $build;
