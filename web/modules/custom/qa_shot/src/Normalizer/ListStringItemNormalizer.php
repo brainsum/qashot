@@ -23,7 +23,7 @@ class ListStringItemNormalizer extends NormalizerBase {
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\ListStringItem $fieldItem */
+    /** @var \Drupal\options\Plugin\Field\FieldType\ListStringItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

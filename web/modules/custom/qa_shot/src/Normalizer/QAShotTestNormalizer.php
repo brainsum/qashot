@@ -86,12 +86,16 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
           break;
         }
       }
-
       // Single item arrays should only contain the value.
       $value = $this->serializer->normalize($field, $format, $context + ['qa_shot_field_name' => $name]);
+      // @todo FIXME
+      if ($name === 'frontend_url') {
+        $value = empty($value) ? '' : $value;
+      }
       if ($countConstraint === 1 && is_array($value) && count($value) === 1) {
         $value = reset($value);
       }
+
 
       $attributes[$name] = $value;
     }

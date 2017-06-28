@@ -532,7 +532,8 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setSettings(array(
         'max_length' => 2000,
         'text_processing' => 0,
-      ));
+      ))
+      ->setCardinality(1);
 
     return $fields;
   }
@@ -540,7 +541,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function run($stage, $origin = 'drupal') {
+  public function run($stage, $origin = 'drupal'): string {
     // Since you can't get queued items, use the state API as a workaround.
     /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
     $testQueueState = \Drupal::service('qa_shot.test_queue_state');

@@ -86,4 +86,3 @@ services:
     class: Drupal\qa_shot\Normalizer\ItemNormalizer
     tags:
       - { name: normalizer, priority: 10 }
-
