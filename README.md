@@ -9,7 +9,8 @@ Features:
 * UI to manage BackstopJS test cases.
 
 ## Docker
-A custom docker image is used. It was based on the Docker4Drupal environment (an older version).
+The project comes with a docker-compose.yml based on the Docker4Drupal environment (v1.3.0).
+A custom docker image is used for the PHP container, as we needed to include BackstopJS and its dependencies.
 Name: havelantmate/drupal_php:Backstop2.6.13-SlimerJS
 Contents:
 * BackstopJS 2.6.13
