@@ -1,29 +1,29 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
-use Drupal\qa_shot\Plugin\Field\FieldType\TestMetadata;
+use Drupal\Core\Field\Plugin\Field\FieldType\UuidItem;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 /**
- * Class TestMetadataItemNormalizer.
+ * Class UuidItemNormalizer.
  *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class TestMetadataItemNormalizer extends NormalizerBase {
+class UuidItemNormalizer extends NormalizerBase {
 
   /**
-   * TestMetadataItemNormalizer constructor.
+   * UuidItemNormalizer constructor.
    */
   public function __construct() {
-    $this->supportedInterfaceOrClass = [TestMetadata::class];
+    $this->supportedInterfaceOrClass = [UuidItem::class];
   }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\TestMetadata $fieldItem */
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\UuidItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

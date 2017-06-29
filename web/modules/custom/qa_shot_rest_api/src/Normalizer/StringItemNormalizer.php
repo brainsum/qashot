@@ -1,29 +1,29 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
-use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
+use Drupal\Core\Field\Plugin\Field\FieldType\StringItem;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 /**
- * Class DateTimeItemNormalizer.
+ * Class StringItemNormalizer.
  *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class DateTimeItemNormalizer extends NormalizerBase {
+class StringItemNormalizer extends NormalizerBase {
 
   /**
-   * DateTimeItemNormalizer constructor.
+   * StringItemNormalizer constructor.
    */
   public function __construct() {
-    $this->supportedInterfaceOrClass = [DateTimeItem::class];
+    $this->supportedInterfaceOrClass = [StringItem::class];
   }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\datetime\Plugin\Field\FieldType\DateTimeItem $fieldItem */
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\StringItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

@@ -1,29 +1,29 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
-use Drupal\Core\Field\Plugin\Field\FieldType\BooleanItem;
+use Drupal\qa_shot\Plugin\Field\FieldType\TestMetadata;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 /**
- * Class BooleanItemNormalizer.
+ * Class TestMetadataItemNormalizer.
  *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class BooleanItemNormalizer extends NormalizerBase {
+class TestMetadataItemNormalizer extends NormalizerBase {
 
   /**
-   * BooleanItemNormalizer constructor.
+   * TestMetadataItemNormalizer constructor.
    */
   public function __construct() {
-    $this->supportedInterfaceOrClass = [BooleanItem::class];
+    $this->supportedInterfaceOrClass = [TestMetadata::class];
   }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\BooleanItem $fieldItem */
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\TestMetadata $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

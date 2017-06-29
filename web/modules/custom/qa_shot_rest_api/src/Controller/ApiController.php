@@ -101,7 +101,7 @@ class ApiController extends ControllerBase {
     }
 
     try {
-      $message = $entity->run($stage, 'api');
+      $message = $entity->run($stage, 'rest_api');
       $responseCode = 'added_to_queue' === $message ? 201 : 202;
     }
     catch (QAShotBaseException $e) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
 use Drupal\Core\Field\Plugin\Field\FieldType\IntegerItem;
 use Drupal\serialization\Normalizer\NormalizerBase;
@@ -8,7 +8,7 @@ use Drupal\serialization\Normalizer\NormalizerBase;
 /**
  * Class IntegerItemNormalizer.
  *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
 class IntegerItemNormalizer extends NormalizerBase {
 

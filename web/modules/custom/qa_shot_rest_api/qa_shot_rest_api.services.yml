@@ -1,0 +1,77 @@
+services:
+  qa_shot_rest_api.normalizer.qa_shot_test:
+    class: Drupal\qa_shot_rest_api\Normalizer\QAShotTestNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+
+  qa_shot_rest_api.normalizer.entity_reference_revisions_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\EntityReferenceRevisionsItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+    arguments: ['@entity_type.manager', '@entity_type.repository', '@entity_field.manager']
+
+  qa_shot_rest_api.normalizer.entity_reference_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\EntityReferenceItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.date_time_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\DateTimeItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.boolean_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\BooleanItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.changed_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\ChangedItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.created_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\CreatedItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.language_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\LanguageItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.list_string_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\ListStringItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.string_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\StringItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.test_metadata_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\TestMetadataItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.uuid_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\UuidItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.jquery_colorpicker_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\JQueryColorpickerItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.integer_item:
+    class: Drupal\qa_shot_rest_api\Normalizer\IntegerItemNormalizer
+    tags:
+      - { name: normalizer, priority: 15 }
+
+  qa_shot_rest_api.normalizer.item:
+    class: Drupal\qa_shot_rest_api\Normalizer\ItemNormalizer
+    tags:
+      - { name: normalizer, priority: 10 }

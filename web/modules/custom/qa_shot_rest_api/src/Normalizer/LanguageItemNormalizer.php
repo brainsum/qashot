@@ -1,29 +1,29 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
-use Drupal\Core\Field\Plugin\Field\FieldType\CreatedItem;
+use Drupal\Core\Field\Plugin\Field\FieldType\LanguageItem;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 /**
- * Class CreatedItemNormalizer.
+ * Class LanguageItemNormalizer.
  *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class CreatedItemNormalizer extends NormalizerBase {
+class LanguageItemNormalizer extends NormalizerBase {
 
   /**
-   * CreatedItemNormalizer constructor.
+   * LanguageItemNormalizer constructor.
    */
   public function __construct() {
-    $this->supportedInterfaceOrClass = [CreatedItem::class];
+    $this->supportedInterfaceOrClass = [LanguageItem::class];
   }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\CreatedItem $fieldItem */
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\LanguageItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

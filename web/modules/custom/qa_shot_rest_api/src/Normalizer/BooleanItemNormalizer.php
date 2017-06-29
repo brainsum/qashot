@@ -1,31 +1,29 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
-use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Field\Plugin\Field\FieldType\BooleanItem;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 /**
- * Class ItemNormalizer.
+ * Class BooleanItemNormalizer.
  *
- * This is only a fallback class.
- *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class ItemNormalizer extends NormalizerBase {
+class BooleanItemNormalizer extends NormalizerBase {
 
   /**
-   * ItemNormalizer constructor.
+   * BooleanItemNormalizer constructor.
    */
   public function __construct() {
-    $this->supportedInterfaceOrClass = [FieldItemInterface::class];
+    $this->supportedInterfaceOrClass = [BooleanItem::class];
   }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\Core\Field\FieldItemInterface $fieldItem */
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\BooleanItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

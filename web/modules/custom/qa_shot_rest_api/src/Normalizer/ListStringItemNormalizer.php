@@ -1,29 +1,29 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
-use Drupal\Core\Field\Plugin\Field\FieldType\StringItem;
+use Drupal\options\Plugin\Field\FieldType\ListStringItem;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 /**
- * Class StringItemNormalizer.
+ * Class ListStringItemNormalizer.
  *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class StringItemNormalizer extends NormalizerBase {
+class ListStringItemNormalizer extends NormalizerBase {
 
   /**
-   * StringItemNormalizer constructor.
+   * ListStringItemNormalizer constructor.
    */
   public function __construct() {
-    $this->supportedInterfaceOrClass = [StringItem::class];
+    $this->supportedInterfaceOrClass = [ListStringItem::class];
   }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\StringItem $fieldItem */
+    /** @var \Drupal\options\Plugin\Field\FieldType\ListStringItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

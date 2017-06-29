@@ -1,29 +1,29 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
-use Drupal\Core\Field\Plugin\Field\FieldType\ChangedItem;
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 /**
- * Class ChangedItemNormalizer.
+ * Class DateTimeItemNormalizer.
  *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class ChangedItemNormalizer extends NormalizerBase {
+class DateTimeItemNormalizer extends NormalizerBase {
 
   /**
-   * ChangedItemNormalizer constructor.
+   * DateTimeItemNormalizer constructor.
    */
   public function __construct() {
-    $this->supportedInterfaceOrClass = [ChangedItem::class];
+    $this->supportedInterfaceOrClass = [DateTimeItem::class];
   }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($fieldItem, $format = NULL, array $context = array()) {
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\ChangedItem $fieldItem */
+    /** @var \Drupal\datetime\Plugin\Field\FieldType\DateTimeItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
       return $value['value'];

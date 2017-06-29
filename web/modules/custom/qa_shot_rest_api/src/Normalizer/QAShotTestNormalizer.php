@@ -1,26 +1,27 @@
 <?php
 
-namespace Drupal\qa_shot\Normalizer;
+namespace Drupal\qa_shot_rest_api\Normalizer;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityTypeRepositoryInterface;
-use Drupal\entity_reference_revisions\Plugin\Field\FieldType\EntityReferenceRevisionsItem;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Validation\Plugin\Validation\Constraint\CountConstraint;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\serialization\Normalizer\ComplexDataNormalizer;
+use Drupal\serialization\Normalizer\FieldableEntityNormalizerTrait;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 /**
- * Class EntityReferenceRevisionsItemNormalizer.
+ * Class QAShotTestNormalizer.
  *
- * Used to normalize and denormalize EntityReferenceRevisionsItem items.
- * Most notably, the Paragraph type fields.
- *
- * @package Drupal\qa_shot\Normalizer
+ * @package Drupal\qa_shot_rest_api\Normalizer
  */
-class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer implements DenormalizerInterface {
+class QAShotTestNormalizer extends ComplexDataNormalizer implements DenormalizerInterface {
+
+  use FieldableEntityNormalizerTrait;
 
   /**
    * The entity type manager.
@@ -59,90 +60,90 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
     $this->entityTypeRepository = $entityTypeRepository;
     $this->entityFieldManager = $entityFieldManager;
 
-    $this->supportedInterfaceOrClass = [EntityReferenceRevisionsItem::class];
+    $this->supportedInterfaceOrClass = [QAShotTestInterface::class];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($fieldItem, $format = NULL, array $context = []) {
-    /** @var \Drupal\Core\Entity\EntityInterface $entity */
-    if ($entity = $fieldItem->get('entity')->getValue()) {
-      // Simplify the entity array representation to only the
-      // id, revision_id and field_ prefixed items.
-      $simplifiedEntity = array_filter($entity->toArray(), function ($key) {
-        $isId = in_array($key, ['id', 'revision_id'], TRUE);
-        $isField = (strpos($key, 'field_') === 0);
+  public function normalize($object, $format = NULL, array $context = []) {
+    $attributes = [];
+    /** @var \Drupal\Core\TypedData\TypedDataInterface $field */
+    foreach ($object as $name => $field) {
+      // @fixme This is just a hotfix.
+      if ($name === 'result') {
+        $attributes[$name] = $this->serializer->normalize($this->computeResultField($field), $format, $context + ['qa_shot_field_name' => $name]);
+        continue;
+      }
 
-        return $isId || $isField;
-      }, ARRAY_FILTER_USE_KEY);
-
-      // Simplify the remaining fields.
-      $values = array_map(function ($value) {
-        if (!is_array($value)) {
-          return $value;
+      $countConstraint = -1;
+      foreach ($field->getConstraints() as $constraint) {
+        if (get_class($constraint) === CountConstraint::class) {
+          /** @var \Drupal\Core\Validation\Plugin\Validation\Constraint\CountConstraint $constraint */
+          $countConstraint = $constraint->max;
+          break;
         }
+      }
+      // Single item arrays should only contain the value.
+      $value = $this->serializer->normalize($field, $format, $context + ['qa_shot_field_name' => $name]);
+      // @todo FIXME
+      if ($name === 'frontend_url') {
+        $value = empty($value) ? '' : $value;
+      }
+      if ($countConstraint === 1 && is_array($value) && count($value) === 1) {
+        $value = reset($value);
+      }
 
-        $itemValue = [];
-        // @todo @fixme.
-        foreach ($value as $item) {
-          if (isset($item['uri'])) {
-            $itemValue[] = $item['uri'];
-          }
-          else {
-            $itemValue[] = $item['value'];
-          }
-        }
 
-        return count($itemValue) > 1 ? $itemValue : $itemValue[0];
-      }, $simplifiedEntity);
+      $attributes[$name] = $value;
     }
-    // Fallback.
-    else {
-      $values = parent::normalize($fieldItem, $format, $context);
-    }
-
-    // Return an array/scalar.
-    return $values;
+    return $attributes;
   }
 
   /**
-   * @param mixed $data
-   * @param string $class
-   * @param null $format
-   * @param array $context
+   * Hotfix.
    *
-   * @return
+   * @param $result
+   * @return array
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
-    if (!isset($context['target_instance'])) {
-      throw new InvalidArgumentException('$context[\'target_instance\'] must be set to denormalize with the FieldItemNormalizer');
+  private function computeResultField($result) {
+    $computedValue = [];
+
+    /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Result $item */
+    foreach ($result as $delta => $item) {
+      /** @var \Drupal\Core\TypedData\TypedDataInterface $property */
+      foreach ($item->getProperties(TRUE) as $name => $property) {
+        $computedValue[$delta][$name] = $property->getValue();
+      }
     }
-    if ($context['target_instance']->getParent() === NULL) {
-      throw new InvalidArgumentException('The field item passed in via $context[\'target_instance\'] must have a parent set.');
-    }
 
-    /** @var \Drupal\Core\Field\FieldItemListInterface $fieldItem */
-    $fieldItem = $context['target_instance'];
+    return $computedValue;
+  }
 
-    $fieldHandlerSettings = $fieldItem->getParent()->getSettings();
-    $context['entity_type'] = $fieldHandlerSettings['target_type'];
-
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\Exception\AmbiguousEntityClassException
+   * @throws \Drupal\Core\Entity\Exception\NoCorrespondingEntityClassException
+   */
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     $entityTypeId = $this->determineEntityTypeId($class, $context);
     $entityTypeDefinition = $this->getEntityTypeDefinition($entityTypeId);
-    // The bundle property will be required to denormalize a bundleable
-    // entity.
-    if ($entityTypeDefinition->hasKey('bundle')) {
-      $data['type'] = array_values($fieldHandlerSettings['handler_settings']['target_bundles'])[0];
 
+    // The bundle property will be required to denormalize a bundleable
+    // fieldable entity.
+    if ($entityTypeDefinition->hasKey('bundle') && $entityTypeDefinition->entityClassImplements(FieldableEntityInterface::class)) {
       // Get an array containing the bundle only. This also remove the bundle
       // key from the $data array.
       $bundleData = $this->extractBundleData($data, $entityTypeDefinition);
 
-      $bundleData = array_merge($bundleData, $data);
-
       // Create the entity from bundle data only, then apply field values after.
       $entity = $this->entityTypeManager->getStorage($entityTypeId)->create($bundleData);
+
+      $this->denormalizeFieldData($data, $entity, $format, $context);
     }
     else {
       // Create the entity from all data.
@@ -152,9 +153,8 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
     // Pass the names of the fields whose values can be merged.
     // @todo https://www.drupal.org/node/2456257 remove this.
     $entity->_restSubmittedFields = array_keys($data);
-    $fieldItem->setValue($entity);
 
-    return $fieldItem;
+    return $entity;
   }
 
   /**
