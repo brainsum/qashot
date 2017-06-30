@@ -196,7 +196,6 @@ function qa_shot_update_8303() {
  * Create a new field_scenario for paragraphs.
  */
 function qa_shot_update_8304() {
-  // include_once DRUPAL_ROOT . '/modules/custom/qa_shot/qa_shot.install';
   field_purge_batch(100);
   drupal_flush_all_caches();
   $entityTypeManager = \Drupal::entityTypeManager();
