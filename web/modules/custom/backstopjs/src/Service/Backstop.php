@@ -3,6 +3,9 @@
 namespace Drupal\backstopjs\Service;
 
 use Drupal\backstopjs\Exception\EmptyResultsException;
+use Drupal\backstopjs\Exception\FileOpenException;
+use Drupal\backstopjs\Exception\FileWriteException;
+use Drupal\backstopjs\Exception\FolderCreateException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
@@ -423,7 +426,23 @@ class Backstop extends TestBackendBase {
       }
     }
 
-    dpm($execOutput);
+    try {
+      $debugPath = $this->backstopFileSystem->getPrivateFiles() . '/' . $entity->id() . '/debug';
+      $debugFile = time() . '.debug.txt';
+      $this->backstopFileSystem->createFolder($debugPath);
+      $this->backstopFileSystem->createConfigFile($debugPath . '/' . $debugFile, var_export($execOutput, TRUE));
+    }
+    catch (\Exception $e) {
+      $log = $e instanceof FolderCreateException || $e instanceof FileWriteException || $e instanceof FileOpenException;
+      if ($log) {
+        $this->logger->debug('Could not create debug files for entity ' . $entity->id() . '.');
+      }
+      else {
+        throw $e;
+      }
+
+    }
+
     if (!$results['bitmapGenerationSuccess']) {
       $results['result'] = FALSE;
       drupal_set_message('Bitmap generation failed.');
