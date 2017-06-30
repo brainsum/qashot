@@ -325,3 +325,12 @@ function qa_shot_update_8307() {
     }
   }
 }
+
+/**
+ * Clear the core queue table from qa_shot queues.
+ */
+function qa_shot_update_8308() {
+  $query = \Drupal::database()->delete('queue');
+  $query->condition('name', 'cron_run_qa_shot_test');
+  $query->execute();
+}

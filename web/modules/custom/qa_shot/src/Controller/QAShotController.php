@@ -3,15 +3,10 @@
 namespace Drupal\qa_shot\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
-use function PHPSTORM_META\type;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class QAShotController.
@@ -19,6 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 class QAShotController extends ControllerBase {
 
   /**
+   * The entity.
+   *
    * @var \Drupal\qa_shot\Entity\QAShotTest
    */
   private $entity;
@@ -32,7 +29,7 @@ class QAShotController extends ControllerBase {
    * @return bool
    *   If there's error it will return true otherwise false.
    */
-  private function loadEntity(RouteMatchInterface $routeMatch) {
+  private function loadEntity(RouteMatchInterface $routeMatch): bool {
     $entityId = $routeMatch->getParameters()->get('qa_shot_test');
 
     // @todo: if we come here via the edit form "Run Test" button,
