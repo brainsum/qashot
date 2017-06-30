@@ -306,7 +306,7 @@ class QAShotQueue implements QAShotQueueInterface {
    * {@inheritdoc}
    */
   public function clearQueue() {
-    $this->connection->truncate('queue')->execute();
+    $this->connection->truncate(static::TABLE_NAME)->execute();
   }
 
   /**
