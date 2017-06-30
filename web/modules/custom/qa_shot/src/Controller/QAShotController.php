@@ -68,7 +68,7 @@ class QAShotController extends ControllerBase {
       }
     }
     else {
-      drupal_set_message($this->t('Running this type of test is not yet supported.', 'error'));
+      drupal_set_message($this->t('Running this type of test is not yet supported.'), 'error');
     }
 
     return $this->redirect('entity.qa_shot_test.run', ['qa_shot_test' => $this->entity->id()]);
