@@ -66,8 +66,8 @@ class ConfigurationConverter {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(EntityTypeManagerInterface $entityTypeManager, ConfigFactoryInterface $configFactory) {
-    $this->privateDataPath = PrivateStream::basePath() . DIRECTORY_SEPARATOR . FileSystem::DATA_BASE_FOLDER;
-    $this->publicDataPath = PublicStream::basePath() . DIRECTORY_SEPARATOR . FileSystem::DATA_BASE_FOLDER;
+    $this->privateDataPath = PrivateStream::basePath() . '/' . FileSystem::DATA_BASE_FOLDER;
+    $this->publicDataPath = PublicStream::basePath() . '/' . FileSystem::DATA_BASE_FOLDER;
 
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->paragraphStorage = $entityTypeManager->getStorage('paragraph');
@@ -91,8 +91,8 @@ class ConfigurationConverter {
     // @todo: get some field values global settings
 
     $entityId = $entity->id();
-    $private = $this->privateDataPath . DIRECTORY_SEPARATOR . $entityId;
-    $public = $this->publicDataPath . DIRECTORY_SEPARATOR . $entityId;
+    $private = $this->privateDataPath . '/' . $entityId;
+    $public = $this->publicDataPath . '/' . $entityId;
     $testEngine = $entity->getTestEngine();
 
     $mapConfigToArray = [
@@ -370,7 +370,7 @@ class ConfigurationConverter {
     ];
 
     foreach ($ids as $id) {
-      $this->jsonFileToEntity($basePath . "/$id/backstop.json");
+      $this->jsonFileToEntity($basePath . '/' . $id . '/backstop.json');
     }
   }
 
@@ -395,7 +395,7 @@ class ConfigurationConverter {
 
     foreach ($ids as $id) {
       /** @var string $fileData */
-      $fileData = file_get_contents($basePath . "/$id/backstop.json");
+      $fileData = file_get_contents($basePath . '/' . $id . '/backstop.json');
       /** @var array $jsonData */
       $jsonData = json_decode($fileData, TRUE);
 

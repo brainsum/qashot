@@ -358,13 +358,13 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getTestEngine(): string;
 
   /**
-   * Run the test entity.
+   * Add the test to the queue.
    *
    * @param string|null $stage
    *   The stage of the run.
    * @param string $origin
-   *   The origin of the run request. Can be 'drupal' or 'api'.
+   *   The origin of the run request. Can be 'drupal' or 'rest_api'.
    */
-  public function run($stage, $origin = 'drupal');
+  public function queue($stage, $origin = 'drupal');
 
 }

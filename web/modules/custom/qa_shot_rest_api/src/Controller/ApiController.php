@@ -86,7 +86,7 @@ class ApiController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
    */
-  public function runTest(Request $request): JsonResponse {
+  public function queueTest(Request $request): JsonResponse {
     $settings = $this->parseRunnerSettings($request);
     $stage = $settings['stage'];
     $frontendUrl = $settings['frontend_url'];
@@ -101,7 +101,7 @@ class ApiController extends ControllerBase {
     }
 
     try {
-      $message = $entity->run($stage, 'rest_api');
+      $message = $entity->queue($stage, 'rest_api');
       $responseCode = 'added_to_queue' === $message ? 201 : 202;
     }
     catch (QAShotBaseException $e) {

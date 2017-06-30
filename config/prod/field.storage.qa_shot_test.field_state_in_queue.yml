@@ -15,6 +15,9 @@ settings:
       value: idle
       label: Idle
     -
+      value: waiting
+      label: 'Queued to run'
+    -
       value: queued
       label: 'Queued to run'
     -

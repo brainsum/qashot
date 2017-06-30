@@ -8,7 +8,7 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\qa_shot\Service\TestQueueState;
+use Drupal\qa_shot\Queue\QAShotQueueFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -21,9 +21,9 @@ class QAShotSettingsForm extends ConfigFormBase {
   /**
    * The queue state.
    *
-   * @var \Drupal\qa_shot\Service\TestQueueState
+   * @var \Drupal\qa_shot\Queue\QAShotQueueFactory
    */
-  protected $queueState;
+  protected $queue;
 
   /**
    * Database connection.
@@ -45,7 +45,7 @@ class QAShotSettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('qa_shot.test_queue_state'),
+      $container->get('qa_shot.test_queue_factory'),
       $container->get('database'),
       $container->get('datetime.time')
     );
@@ -56,8 +56,8 @@ class QAShotSettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Config factory.
-   * @param \Drupal\qa_shot\Service\TestQueueState $queueState
-   *   Queue state.
+   * @param \Drupal\qa_shot\Queue\QAShotQueueFactory $queueFactory
+   *   Queue.
    * @param \Drupal\Core\Database\Connection $databaseConnection
    *   Database connection.
    * @param \Drupal\Component\Datetime\TimeInterface $time
@@ -65,13 +65,13 @@ class QAShotSettingsForm extends ConfigFormBase {
    */
   public function __construct(
     ConfigFactoryInterface $configFactory,
-    TestQueueState $queueState,
+    QAShotQueueFactory $queueFactory,
     Connection $databaseConnection,
     TimeInterface $time
   ) {
     parent::__construct($configFactory);
 
-    $this->queueState = $queueState;
+    $this->queue = $queueFactory->get('cron_run_qa_shot_test');
     $this->database = $databaseConnection;
     $this->time = $time;
   }
@@ -117,7 +117,7 @@ class QAShotSettingsForm extends ConfigFormBase {
         'date' => $this->t('Date'),
         'stage' => $this->t('Stage'),
         'origin' => $this->t('Origin'),
-        'item_id' => $this->t('Item ID'),
+        'queue_name' => $this->t('Queue name'),
       ],
       '#rows' => $this->createQueueTableRows(),
     ];
@@ -140,7 +140,7 @@ class QAShotSettingsForm extends ConfigFormBase {
    *   The form state.
    */
   public function submitQueueClearAll(array &$form, FormStateInterface $form_state) {
-    $this->queueState->clearQueue();
+    $this->queue->clearQueue();
   }
 
   /**
@@ -150,60 +150,25 @@ class QAShotSettingsForm extends ConfigFormBase {
    *   The rows.
    */
   private function createQueueTableRows(): array {
-    $stateQueue = $this->queueState->getQueue();
-    /** @var \stdClass[] $databaseQueue */
-    $databaseQueue = $this->database
-      ->select('queue')
-      ->fields('queue')
-      ->execute()
-      ->fetchAll();
-
+    $items = $this->queue->getItems();
     $queueTableRows = [];
     $index = 0;
 
-    // Set an 'Empty message' as the default.
-    $queueTableRows[$index]['test_id'] = 'The queue is empty.';
+    // Default 'table empty' message row.
+    $queueTableRows[$index]['test_id'] = 'There are no tests in the queue.';
     $queueTableRows[$index]['status'] = '';
     $queueTableRows[$index]['date'] = '';
     $queueTableRows[$index]['stage'] = '';
     $queueTableRows[$index]['origin'] = '';
-    $queueTableRows[$index]['item_id'] = '';
+    $queueTableRows[$index]['queue_name'] = '';
 
-    /** @var \stdClass $item */
-    // Go through the database queue.
-    // If an item is in the database and also in the state,
-    // then we update the status and date from the state.
-    foreach ($databaseQueue as $item) {
-      $data = unserialize($item->data, [\stdClass::class]);
-
-      $queueTableRows[$index]['test_id'] = $data->entityId;
-      // Default state should be 'inconsistent'.
-      $queueTableRows[$index]['status'] = $this->t('Inconsistent (In database, not in state)');
-      $queueTableRows[$index]['date'] = $this->formatTimestamp($item->created);
-      $queueTableRows[$index]['stage'] = empty($data->stage) ? '-' : $data->stage;
-      $queueTableRows[$index]['origin'] = $data->origin;
-      $queueTableRows[$index]['item_id'] = $item->item_id;
-
-      if (isset($stateQueue[$data->entityId])) {
-        $queueTableRows[$index]['status'] = $stateQueue[$data->entityId]['status'];
-        $queueTableRows[$index]['date'] = $stateQueue[$data->entityId]['date'];
-        unset($stateQueue[$data->entityId]);
-      }
-
-      ++$index;
-    }
-
-    // If there are leftover items in the state,
-    // flag them as inconsistent.
-    foreach ($stateQueue as $entityId => $data) {
-      $queueTableRows[$index]['test_id'] = $entityId;
-      $queueTableRows[$index]['status'] = $this->t('@status, but inconsistent (In state, not in database)', [
-        '@status' => $data['status'],
-      ]);
-      $queueTableRows[$index]['date'] = $data['$data'];
-      $queueTableRows[$index]['stage'] = '-';
-      $queueTableRows[$index]['origin'] = '-';
-      $queueTableRows[$index]['item_id'] = '-';
+    foreach ($items as $item) {
+      $queueTableRows[$index]['test_id'] = $item->tid;
+      $queueTableRows[$index]['status'] = $item->status;
+      $queueTableRows[$index]['date'] = $item->created;
+      $queueTableRows[$index]['stage'] = (NULL === $item->stage) ? '-' : $item->stage;
+      $queueTableRows[$index]['origin'] = $item->origin;
+      $queueTableRows[$index]['queue_name'] = $item->queue_name;
 
       ++$index;
     }

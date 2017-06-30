@@ -79,8 +79,8 @@ class FileSystem {
     ConfigurationConverter $configConverter,
     EntityTypeManagerInterface $entityTypeManager
   ) {
-    $this->privateFiles = PrivateStream::basePath() . DIRECTORY_SEPARATOR . $this::DATA_BASE_FOLDER;
-    $this->publicFiles = PublicStream::basePath() . DIRECTORY_SEPARATOR . $this::DATA_BASE_FOLDER;
+    $this->privateFiles = PrivateStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
+    $this->publicFiles = PublicStream::basePath() . '/' . $this::DATA_BASE_FOLDER;
 
     $this->fileSystem = $fileSystem;
     $this->configConverter = $configConverter;
@@ -339,8 +339,8 @@ class FileSystem {
 
     // Remove data for the missing entities.
     foreach ($stuckTestData as $data) {
-      $this->removeDirectory($this->publicFiles . DIRECTORY_SEPARATOR . $data);
-      $this->removeDirectory($this->privateFiles . DIRECTORY_SEPARATOR . $data);
+      $this->removeDirectory($this->publicFiles . '/' . $data);
+      $this->removeDirectory($this->privateFiles . '/' . $data);
     }
   }
 
@@ -351,7 +351,7 @@ class FileSystem {
    *   The test entity ID.
    */
   public function removedUnusedFilesByTestId($testId) {
-    $dataFolder = $this->publicFiles . DIRECTORY_SEPARATOR . $testId . DIRECTORY_SEPARATOR . 'test';
+    $dataFolder = $this->publicFiles . '/' . $testId . '/test';
 
     if (!is_dir($dataFolder)) {
       return;
@@ -367,7 +367,7 @@ class FileSystem {
     }
 
     foreach ($folders as $folder) {
-      $this->removeDirectory($dataFolder . DIRECTORY_SEPARATOR . $folder);
+      $this->removeDirectory($dataFolder . '/' . $folder);
     }
   }
 

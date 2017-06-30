@@ -8,9 +8,9 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\qa_shot\Plugin\DataType\ComputedLastRunMetadata;
+use Drupal\qa_shot\Queue\QAShotQueue;
 use Drupal\user\UserInterface;
 
 /**
@@ -78,7 +78,17 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public static function preDelete(EntityStorageInterface $storage, array $entities) {
+    // @todo: don't allow if it's running.
+    // TODO: Implement preDelete() method.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function delete() {
+    // @todo: Remove from the queue.
+
     // @todo: Generalize.
     /** @var \Drupal\qa_shot\TestBackendInterface $testBackend */
     $testBackend = \Drupal::service('backstopjs.backstop');
@@ -541,46 +551,47 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function run($stage, $origin = 'drupal'): string {
-    // Since you can't get queued items, use the state API as a workaround.
-    /** @var \Drupal\qa_shot\Service\TestQueueState $testQueueState */
-    $testQueueState = \Drupal::service('qa_shot.test_queue_state');
+  public function queue($stage, $origin = 'drupal'): string {
+    /** @var \Drupal\qa_shot\Queue\QAShotQueueFactory $queueFactory */
+    $queueFactory = \Drupal::service('qa_shot.test_queue_factory');
+    // Get our QueueWorker.
+    /** @var \Drupal\qa_shot\Queue\QAShotQueueInterface $testQueue */
+    $testQueue = $queueFactory->get('cron_run_qa_shot_test');
+
+    // Add the test entity and the requested stage to the item.
+    // @todo: Change?
+    $queueItem = new \stdClass();
+    $queueItem->tid = $this->id();
+    $queueItem->stage = $stage;
+    $queueItem->origin = $origin;
+    $queueItem->data = NULL;
 
     // Try to add the test to the queue.
-    if ($testQueueState->add($this->id())) {
+    if (FALSE !== $testQueue->createItem($queueItem)) {
       try {
-        // If we successfully added it to the queue state, we set
+        // If we successfully added it to the queue, we set
         // the current user as the initiator and also save the current time.
         $currentUser = \Drupal::currentUser();
         $this->setInitiatorId($currentUser->id());
         $this->setInitiatedTime(\Drupal::time()->getRequestTime());
+        $this->setQueueStatus(QAShotQueue::QUEUE_STATUS_WAITING);
         $this->save();
       }
       catch (EntityStorageException $e) {
-        // If saving the entity fails, remove it from the queue.
-        $testQueueState->remove($this->id());
+        \Drupal::logger('qa_shot')->warning('Saving the entity data in QAShot::run failed. @msg', [
+          '@msg' => $e->getMessage(),
+        ]);
+        // If updating the entity fails, remove it from the queue.
+        $testQueue->deleteItem($queueItem);
         // Throw the caught exception again.
         throw $e;
       }
 
-      /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
-      $queueFactory = \Drupal::service('queue');
-      // Get our QueueWorker.
-      /** @var \Drupal\Core\Queue\ReliableQueueInterface $testQueue */
-      $testQueue = $queueFactory->get('cron_run_qa_shot_test', TRUE);
-
-      // Add the test entity and the requested stage to the item.
-      $queueItem = new \stdClass();
-      $queueItem->entityId = $this->id();
-      $queueItem->stage = $stage;
-      $queueItem->origin = $origin;
-      // Add the item to the queue.
-      $testQueue->createItem($queueItem);
       drupal_set_message('The test has been queued to run. Check back later for the results.', 'info');
       return 'added_to_queue';
     }
 
-    // If we can't, it's already in the queue state.
+    // If we can't create, it's already in the queue.
     return 'already_in_queue';
   }
 

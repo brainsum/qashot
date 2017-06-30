@@ -6,11 +6,13 @@
  */
 
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\qa_shot\QAShotSchemaDefinitions;
+use Drupal\qa_shot\Queue\QAShotQueue;
 
 /**
  * Implements hook_requirements().
  */
-function qa_shot_requirements($phase) {
+function qa_shot_requirements() {
   $requirements = [];
 
   $requirements['qa_shot_required_php_version'] = [
@@ -25,6 +27,15 @@ function qa_shot_requirements($phase) {
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_schema().
+ */
+function qa_shot_schema() {
+  $schemaDefinitions = new QAShotSchemaDefinitions();
+
+  return $schemaDefinitions->everySchema();
 }
 
 /**
@@ -298,4 +309,19 @@ function qa_shot_update_8306() {
   $database->truncate('qa_shot_test__result')->execute();
   $database->truncate('qa_shot_test__metadata_last_run')->execute();
   $database->truncate('qa_shot_test__metadata_lifetime')->execute();
+}
+
+/**
+ * Add custom queue table.
+ */
+function qa_shot_update_8307() {
+  $schemaDefinitions = new QAShotSchemaDefinitions();
+  $queueSchema = $schemaDefinitions->queueSchema();
+  $database_schema = \Drupal::database()->schema();
+
+  foreach ($queueSchema as $tableName => $schema) {
+    if (!$database_schema->tableExists($tableName)) {
+      $database_schema->createTable($tableName, $schema);
+    }
+  }
 }
