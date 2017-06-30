@@ -93,7 +93,7 @@ class QAShotQueue implements QAShotQueueInterface {
     }
     catch (\Exception $e) {
       // @todo: log
-      throw $e;
+      return FALSE;
     }
 
     return $itemId;
