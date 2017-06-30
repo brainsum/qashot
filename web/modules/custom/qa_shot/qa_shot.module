@@ -112,14 +112,9 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
   $entity = $form_state->getFormObject()->getEntity();
 
   $form_state->setRedirect(
-    'entity.qa_shot_test.run',
+    'entity.qa_shot_test.add_to_queue',
     [
       'qa_shot_test' => $entity->id(),
-    ],
-    [
-      'query' => [
-        'start_now' => TRUE,
-      ],
     ]
   );
 }

@@ -78,9 +78,9 @@ function template_preprocess_qa_shot_test(array &$variables) {
   $variables['run_path'] = [
     '#title' => 'Add test to queue',
     '#type' => 'link',
-    '#url' => Url::fromRoute('entity.qa_shot_test.run', [
+    '#url' => Url::fromRoute('entity.qa_shot_test.add_to_queue', [
       'qa_shot_test' => $qaShotTest->id(),
-    ], $urlOptions + ['query' => ['start_now' => TRUE]]),
+    ], $urlOptions),
     '#attributes' => $runAttributes,
   ];
 }
