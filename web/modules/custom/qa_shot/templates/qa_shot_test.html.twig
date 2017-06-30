@@ -24,5 +24,8 @@
       {{- report_path -}} <br/>
       {{- run_path -}} <br/>
     </div>
+    {% if debug %}
+        {{ debug }}
+    {% endif %}
   {% endif %}
 </div>

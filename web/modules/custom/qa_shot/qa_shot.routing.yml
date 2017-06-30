@@ -6,6 +6,14 @@ entity.qa_shot_test.run:
   requirements:
     _permission: 'edit qashot test entities'
 
+entity.qa_shot_test.debug:
+  path: 'qa_shot_test/{qa_shot_test}/{file_name}/debug'
+  defaults:
+    _controller: '\Drupal\qa_shot\Controller\QAShotController::displayDebugFile'
+    _title: 'File'
+  requirements:
+    _permission: 'view qa_shot debug data'
+
 entity.qa_shot_test.add_to_queue:
   path: 'qa_shot_test/{qa_shot_test}/add_queue'
   defaults:

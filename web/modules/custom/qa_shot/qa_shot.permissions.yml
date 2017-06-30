@@ -25,3 +25,6 @@ view published qashot test entities:
 
 view unpublished qashot test entities:
   title: 'View unpublished QAShot Test entities'
+
+view qa_shot debug data:
+  title: 'View QAShot debug data'

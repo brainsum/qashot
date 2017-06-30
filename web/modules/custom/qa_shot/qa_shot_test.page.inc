@@ -7,7 +7,9 @@
  * Page callback for QAShot Test entities.
  */
 
+use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
+use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\Url;
 
 /**
@@ -83,4 +85,42 @@ function template_preprocess_qa_shot_test(array &$variables) {
     ], $urlOptions),
     '#attributes' => $runAttributes,
   ];
+
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('view qa_shot debug data') || $user->id() === 1) {
+    $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $qaShotTest->id() . '/debug';
+
+    $iterator = new \RecursiveDirectoryIterator($debugPath, \RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new \RecursiveIteratorIterator($iterator,
+      \RecursiveIteratorIterator::CHILD_FIRST);
+
+    $rows = [];
+    /** @var \SplFileInfo $file */
+    foreach ($files as $file) {
+      if (!$file->isDir()) {
+        $rows[] = [
+          'file' => Link::fromTextAndUrl(
+            $file->getFilename(),
+            Url::fromRoute('entity.qa_shot_test.debug', [
+              'qa_shot_test' => $qaShotTest->id(),
+              'file_name' => urlencode($file->getFilename()),
+            ])
+          ),
+        ];
+      }
+    }
+
+    $debug = [
+      '#type' => 'table',
+      '#caption' => t('Debug data'),
+      '#header' => [
+        'file' => t('Debug file'),
+      ],
+      '#rows' => $rows,
+    ];
+
+    /** @var \Drupal\Core\Render\RendererInterface $renderer */
+    $renderer = \Drupal::service('renderer');
+    $variables['debug'] = $renderer->render($debug);
+  }
 }

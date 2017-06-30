@@ -4,6 +4,7 @@ namespace Drupal\qa_shot\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
@@ -107,6 +108,27 @@ class QAShotController extends ControllerBase {
     ];
 
     return $build;
+  }
+
+  /**
+   * Disaplays a private debug file.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
+   *   Route match interface.
+   *
+   * @return array
+   *   Return the markup render array.
+   */
+  public function displayDebugFile(RouteMatchInterface $routeMatch): array {
+    $entityId = $routeMatch->getParameters()->get('qa_shot_test');
+    $fileName = $routeMatch->getParameters()->get('file_name');
+
+    $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $entityId . '/debug/' . $fileName;
+    $contents = file_get_contents($debugPath);
+
+    return [
+      '#markup' => '<pre>' . $contents . '</pre>',
+    ];
   }
 
 }
