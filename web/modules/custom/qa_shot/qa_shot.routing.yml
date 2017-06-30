@@ -6,6 +6,14 @@ entity.qa_shot_test.run:
   requirements:
     _permission: 'edit qashot test entities'
 
+entity.qa_shot_test.add_to_queue:
+  path: 'qa_shot_test/{qa_shot_test}/add_queue'
+  defaults:
+    _controller: '\Drupal\qa_shot\Controller\QAShotController::entityAddToQueue'
+    _title: 'Status'
+  requirements:
+    _permission: 'edit qashot test entities'
+
 qa_shot.settings:
   path: '/admin/config/qa_shot'
   defaults:

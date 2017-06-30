@@ -18,6 +18,63 @@ use Symfony\Component\HttpFoundation\Request;
 class QAShotController extends ControllerBase {
 
   /**
+   * @var \Drupal\qa_shot\Entity\QAShotTest
+   */
+  private $entity;
+
+  /**
+   * Load entity to controller functions.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
+   *   Route match object.
+   *
+   * @return boolean
+   *   If there's error it will return true otherwise false.
+   */
+  private function loadEntity(RouteMatchInterface $routeMatch) {
+    $entityId = $routeMatch->getParameters()->get('qa_shot_test');
+
+    // @todo: if we come here via the edit form "Run Test" button,
+    // automatically start the test
+    // if just opening, show list of previous results:
+    // Time, Who started it, pass/fail, html report link
+    $this->entity = QAShotTest::load($entityId);
+    return (!$this->entity || !$this->entity instanceof QAShotTestInterface);
+  }
+
+  /**
+   * Route controller for the "add_to_queue" route.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
+   *   Route match object.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The HTTP request.
+   *
+   * @return null
+   *   This controller will redirect to another page, so there's no return stuff.
+   */
+  public function entityAddToQueue(RouteMatchInterface $routeMatch, Request $request) {
+    if ($this->loadEntity($routeMatch)) {
+      return ['#markup' => 'Invalid entity.'];
+    }
+
+    if ('a_b' === $this->entity->bundle()) {
+      // If we come from a valid route, run the tests.
+      try {
+        $this->entity->run(NULL, 'drupal');
+      }
+      catch (QAShotBaseException $e) {
+        drupal_set_message($e->getMessage(), 'error');
+      }
+    }
+    else {
+      drupal_set_message($this->t('Running this type of test is not yet supported.', 'error'));
+    }
+
+    return $this->redirect('entity.qa_shot_test.run', ['qa_shot_test' => $this->entity->id()]);
+  }
+
+  /**
    * Route controller for the "Run" route.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
@@ -29,35 +86,12 @@ class QAShotController extends ControllerBase {
    *   The configured template.
    */
   public function entityRunPage(RouteMatchInterface $routeMatch, Request $request) {
-    $entityId = $routeMatch->getParameters()->get('qa_shot_test');
-
-    // @todo: if we come here via the edit form "Run Test" button,
-    // automatically start the test
-    // if just opening, show list of previous results:
-    // Time, Who started it, pass/fail, html report link
-    $entity = QAShotTest::load($entityId);
-    if (!$entity || !$entity instanceof QAShotTestInterface) {
+    if ($this->loadEntity($routeMatch)) {
       return ['#markup' => 'Invalid entity.'];
     }
 
-    // @fixme
-    if ('a_b' === $entity->bundle()) {
-      if ((int) $request->query->get('start_now') === 1) {
-        // If we come from a valid route, run the tests.
-        try {
-          $entity->run(NULL, 'drupal');
-        }
-        catch (QAShotBaseException $e) {
-          drupal_set_message($e->getMessage(), 'error');
-        }
-      }
-    }
-    else {
-      drupal_set_message($this->t('Running this type of test is not yet supported.', 'error'));
-    }
-
-    $reportUrl = file_create_url($entity->getHtmlReportPath());
-    $lastRun = $entity->getLastRunMetadataValue();
+    $reportUrl = file_create_url($this->entity->getHtmlReportPath());
+    $lastRun = $this->entity->getLastRunMetadataValue();
     $reportTime = empty($lastRun) ? NULL : end($lastRun)['datetime'];
 
     // If the report time is not NULL, format it to an '.. ago' string.
@@ -72,9 +106,9 @@ class QAShotController extends ControllerBase {
     $build = [
       '#type' => 'markup',
       '#theme' => 'qa_shot__qa_shot_test__run',
-      '#queue_status' => $entity->getHumanReadableQueueStatus(),
+      '#queue_status' => $this->entity->getHumanReadableQueueStatus(),
       '#html_report_url' => $reportUrl,
-      '#entity' => $entity,
+      '#entity' => $this->entity,
       '#report_time' => $reportTime,
     ];
 
