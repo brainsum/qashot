@@ -98,9 +98,12 @@ function template_preprocess_qa_shot_test(array &$variables) {
     /** @var \SplFileInfo $file */
     foreach ($files as $file) {
       if (!$file->isDir()) {
+        $filename = trim(explode('.', $file->getFilename())[0]);
+        $filename = (new \DateTime())->setTimestamp((int) $filename)->format('Y-m-d H:i:s');
+
         $rows[] = [
           'file' => Link::fromTextAndUrl(
-            $file->getFilename(),
+            $filename,
             Url::fromRoute('entity.qa_shot_test.debug', [
               'qa_shot_test' => $qaShotTest->id(),
               'file_name' => urlencode($file->getFilename()),
