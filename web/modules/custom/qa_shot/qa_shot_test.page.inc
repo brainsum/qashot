@@ -90,40 +90,42 @@ function template_preprocess_qa_shot_test(array &$variables) {
   if ($user->hasPermission('view qa_shot debug data') || $user->id() === 1) {
     $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $qaShotTest->id() . '/debug';
 
-    $iterator = new \RecursiveDirectoryIterator($debugPath, \RecursiveDirectoryIterator::SKIP_DOTS);
-    $files = new \RecursiveIteratorIterator($iterator,
-      \RecursiveIteratorIterator::CHILD_FIRST);
+    if (is_dir($debugPath)) {
+      $iterator = new \RecursiveDirectoryIterator($debugPath, \RecursiveDirectoryIterator::SKIP_DOTS);
+      $files = new \RecursiveIteratorIterator($iterator,
+        \RecursiveIteratorIterator::CHILD_FIRST);
 
-    $rows = [];
-    /** @var \SplFileInfo $file */
-    foreach ($files as $file) {
-      if (!$file->isDir()) {
-        $filename = trim(explode('.', $file->getFilename())[0]);
-        $filename = (new \DateTime())->setTimestamp((int) $filename)->format('Y-m-d H:i:s');
+      $rows = [];
+      /** @var \SplFileInfo $file */
+      foreach ($files as $file) {
+        if (!$file->isDir()) {
+          $filename = trim(explode('.', $file->getFilename())[0]);
+          $filename = (new \DateTime())->setTimestamp((int) $filename)->format('Y-m-d H:i:s');
 
-        $rows[] = [
-          'file' => Link::fromTextAndUrl(
-            $filename,
-            Url::fromRoute('entity.qa_shot_test.debug', [
-              'qa_shot_test' => $qaShotTest->id(),
-              'file_name' => urlencode($file->getFilename()),
-            ])
-          ),
-        ];
+          $rows[] = [
+            'file' => Link::fromTextAndUrl(
+              $filename,
+              Url::fromRoute('entity.qa_shot_test.debug', [
+                'qa_shot_test' => $qaShotTest->id(),
+                'file_name' => urlencode($file->getFilename()),
+              ])
+            ),
+          ];
+        }
       }
+
+      $debug = [
+        '#type' => 'table',
+        '#caption' => t('Debug data'),
+        '#header' => [
+          'file' => t('Debug file'),
+        ],
+        '#rows' => $rows,
+      ];
+
+      /** @var \Drupal\Core\Render\RendererInterface $renderer */
+      $renderer = \Drupal::service('renderer');
+      $variables['debug'] = $renderer->render($debug);
     }
-
-    $debug = [
-      '#type' => 'table',
-      '#caption' => t('Debug data'),
-      '#header' => [
-        'file' => t('Debug file'),
-      ],
-      '#rows' => $rows,
-    ];
-
-    /** @var \Drupal\Core\Render\RendererInterface $renderer */
-    $renderer = \Drupal::service('renderer');
-    $variables['debug'] = $renderer->render($debug);
   }
 }

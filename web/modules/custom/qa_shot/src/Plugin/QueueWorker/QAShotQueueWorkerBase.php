@@ -2,9 +2,10 @@
 
 namespace Drupal\qa_shot\Plugin\QueueWorker;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Queue\QueueWorkerBase;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Drupal\qa_shot\Queue\QAShotQueueWorkerInterface;
 use Drupal\qa_shot\Service\TestNotification;
 use Drupal\qa_shot\TestBackendInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @package Drupal\qa_shot\Plugin\QueueWorker
  */
-abstract class QAShotQueueWorkerBase extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+abstract class QAShotQueueWorkerBase extends PluginBase implements QAShotQueueWorkerInterface, ContainerFactoryPluginInterface {
 
   /**
    * TestBackend service.
@@ -31,13 +32,6 @@ abstract class QAShotQueueWorkerBase extends QueueWorkerBase implements Containe
   protected $notification;
 
   /**
-   * QAShot Test storage.
-   *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
-   */
-  protected $testStorage;
-
-  /**
    * {@inheritdoc}
    */
   public static function create(
@@ -51,8 +45,7 @@ abstract class QAShotQueueWorkerBase extends QueueWorkerBase implements Containe
       $plugin_id,
       $plugin_definition,
       $container->get('backstopjs.backstop'),
-      $container->get('qa_shot.test_notification'),
-      $container->get('entity_type.manager')
+      $container->get('qa_shot.test_notification')
     );
   }
 
@@ -69,30 +62,23 @@ abstract class QAShotQueueWorkerBase extends QueueWorkerBase implements Containe
    *   The test backend (e.g BackstopJS).
    * @param \Drupal\qa_shot\Service\TestNotification $notification
    *   The notification service.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   Entity type manager.
    */
   public function __construct(
     array $configuration,
     $pluginId,
     $pluginDefinition,
     TestBackendInterface $testBackend,
-    TestNotification $notification,
-    EntityTypeManagerInterface $entityTypeManager
+    TestNotification $notification
   ) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
     $this->testBackend = $testBackend;
     $this->notification = $notification;
-    $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function processItem($item) {
-    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
-    $entity = $this->testStorage->load($item->tid);
-
+  public function processItem($item, QAShotTestInterface $entity) {
     $this->testBackend->runTestBySettings($entity, $item->stage);
     $this->notification->sendNotification($entity, $item->origin);
     $this->testBackend->removeUnusedFilesForTest($entity);

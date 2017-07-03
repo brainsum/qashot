@@ -129,7 +129,7 @@ class QAShotQueue implements QAShotQueueInterface {
    * @throws \Exception
    * @throws \InvalidArgumentException
    */
-  public function releaseItem($item) {
+  public function releaseItem($item): bool {
     try {
       $update = $this->connection->update(static::TABLE_NAME)
         ->fields([
@@ -150,7 +150,7 @@ class QAShotQueue implements QAShotQueueInterface {
    *
    * @throws \Exception
    */
-  public function numberOfItems($status = NULL) {
+  public function numberOfItems($status = NULL): int {
     try {
       $query = $this->connection->select(static::TABLE_NAME);
       $query->condition('queue_name', $this->name);

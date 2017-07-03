@@ -175,7 +175,7 @@ class QAShotQueueRunner {
 
       try {
         drupal_set_message(t('Processing test @id from @name queue.', ['@name' => $name, '@id' => $item->tid]));
-        $worker->processItem($item);
+        $worker->processItem($item, $entity);
         $queue->deleteItem($item);
         $count++;
 

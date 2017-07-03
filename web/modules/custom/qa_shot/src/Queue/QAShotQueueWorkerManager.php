@@ -5,7 +5,6 @@ namespace Drupal\qa_shot\Queue;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
-use Drupal\Core\Queue\QueueWorkerInterface;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
 use Drupal\qa_shot\Annotation\QAShotQueueWorker;
 
@@ -38,7 +37,7 @@ class QAShotQueueWorkerManager extends DefaultPluginManager implements QueueWork
       'Plugin/QueueWorker',
       $namespaces,
       $moduleHandler,
-      QueueWorkerInterface::class,
+      QAShotQueueWorkerInterface::class,
       QAShotQueueWorker::class
     );
 
