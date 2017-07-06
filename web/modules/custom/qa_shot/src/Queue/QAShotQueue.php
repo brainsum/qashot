@@ -96,6 +96,14 @@ class QAShotQueue implements QAShotQueueInterface {
       return FALSE;
     }
 
+    // @todo: dep.inj.
+    \Drupal::logger('qa_shot_queue')->info(
+      t('Test with ID #@testID status changed to @status.', [
+        '@testID' => $item->tid,
+        '@status' => QAShotQueue::QUEUE_STATUS_WAITING,
+      ])
+    );
+
     return $itemId;
   }
 
