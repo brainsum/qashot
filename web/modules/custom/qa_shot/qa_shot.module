@@ -23,6 +23,42 @@ function qa_shot_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
+// @todo: implement this garbage collection here for our custom queues.
+///**
+// * Implements hook_cron().
+// *
+// * Remove older rows from flood, batch cache and expirable keyvalue tables.
+// */
+//function system_cron() {
+//  // Clean up the flood.
+//  \Drupal::flood()->garbageCollection();
+//
+//  foreach (Cache::getBins() as $cache_backend) {
+//    $cache_backend->garbageCollection();
+//  }
+//
+//  // Clean up the expirable key value database store.
+//  if (\Drupal::service('keyvalue.expirable.database') instanceof KeyValueDatabaseExpirableFactory) {
+//    \Drupal::service('keyvalue.expirable.database')->garbageCollection();
+//  }
+//
+//  // Clean up any garbage in the queue service.
+//  $queue_worker_manager = \Drupal::service('plugin.manager.queue_worker');
+//  $queue_factory = \Drupal::service('queue');
+//
+//  foreach (array_keys($queue_worker_manager->getDefinitions()) as $queue_name) {
+//    $queue = $queue_factory->get($queue_name);
+//
+//    if ($queue instanceof QueueGarbageCollectionInterface) {
+//      $queue->garbageCollection();
+//    }
+//  }
+//
+//  // Clean up PHP storage.
+//  PhpStorageFactory::get('container')->garbageCollection();
+//  PhpStorageFactory::get('service_container')->garbageCollection();
+//}
+
 /**
  * Implements hook_theme().
  */

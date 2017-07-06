@@ -8,6 +8,7 @@
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\qa_shot\QAShotSchemaDefinitions;
 use Drupal\qa_shot\Queue\QAShotQueue;
+use Drupal\system\Entity\Action;
 
 /**
  * Implements hook_requirements().
@@ -332,4 +333,20 @@ function qa_shot_update_8308() {
   $query = \Drupal::database()->delete('queue');
   $query->condition('name', 'cron_run_qa_shot_test');
   $query->execute();
+}
+
+/**
+ * Create the action 'qa_shot_queue_test'.
+ */
+function qa_shot_update_8309() {
+  $actionId = 'qa_shot_queue_test';
+  if (!Action::load($actionId)) {
+    $action = Action::create([
+      'id' => $actionId,
+      'type' => 'qa_shot_test',
+      'label' => t('Add the test to the queue'),
+      'plugin' => $actionId,
+    ]);
+    $action->trustData()->save();
+  }
 }
