@@ -49,7 +49,9 @@ class CliQueueRunner {
       }
 
       $limit = isset($queue['cron']['time']) ? $queue['cron']['time'] : 15;
+      ob_start();
       $count += $runner->run($queue['id'], $limit);
+      echo ob_get_clean();
 
       echo t('Post-run: Number of tests currently in the queue: @number', [
         '@number' => $queueInstance->numberOfItems(),
