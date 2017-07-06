@@ -1,0 +1,11 @@
+uuid: eedda999-9b88-4a8e-8ecb-a7aa4fe86008
+langcode: en
+status: true
+dependencies:
+  module:
+    - qa_shot
+id: qa_shot_queue_test
+label: 'Add the test to the queue'
+type: qa_shot_test
+plugin: qa_shot_queue_test
+configuration: {  }
