@@ -3,6 +3,7 @@
 namespace Drupal\qa_shot\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\qa_shot\Entity\QAShotTest;
@@ -91,11 +92,10 @@ class QAShotController extends ControllerBase {
 
     // If the report time is not NULL, format it to an '.. ago' string.
     if (NULL !== $reportTime) {
-      $reportTimestamp = (new \DateTime($reportTime))->getTimestamp();
-      /** @var \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter */
-      $dateFormatter = \Drupal::service('date.formatter');
-      $currentTimestamp = \Drupal::time()->getRequestTime();
-      $reportTime = 'from ' . $dateFormatter->formatDiff($currentTimestamp, $reportTimestamp) . ' ago';
+      /** @var \Drupal\qa_shot\Service\DataFormatter $service */
+      $dataFormatter = \Drupal::service('qa_shot.data_formatter');
+      $reportDateTime = new DrupalDateTime($reportTime);
+      $reportTime = $dataFormatter->dateAsAgo($reportDateTime);
     }
 
     $build = [

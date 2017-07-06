@@ -7,10 +7,12 @@
  * Page callback for QAShot Test entities.
  */
 
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\Url;
+use Drupal\qa_shot\Component\Render\ReportPathMarkup;
 
 /**
  * Prepares variables for QAShot Test templates.
@@ -42,39 +44,13 @@ function template_preprocess_qa_shot_test(array &$variables) {
     'role' => ['button'],
   ];
 
-  $reportAttributes = $attributes;
-  $reportAttributes['class'][] = 'btn-info';
-  $reportAttributes['target'] = ['_blank'];
-  $reportAttributes['rel'] = ['noopener'];
-
   $runAttributes = $attributes;
   $runAttributes['class'][] = 'btn-primary';
 
   if ($reportPath = $qaShotTest->getHtmlReportPath()) {
     $lastRun = $qaShotTest->getLastRunMetadataValue();
     $reportTime = empty($lastRun) ? '' : end($lastRun)['datetime'];
-    $variables['report_path'] = [
-      '#type' => 'link',
-      '#url' => Url::fromUserInput('/' . $reportPath, $urlOptions),
-      '#attributes' => $reportAttributes,
-    ];
-
-    if ('' === $reportTime) {
-      $variables['report_path']['#title'] = t('HTML Report');
-      $variables['report_path']['#disabled'] = TRUE;
-    }
-    else {
-      // Turn the report time into an '.. ago' string.
-      $reportTime = (new \DateTime($reportTime))->getTimestamp();
-      /** @var \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter */
-      $dateFormatter = \Drupal::service('date.formatter');
-      $currentTimestamp = \Drupal::time()->getRequestTime();
-      $reportTime = 'from ' . $dateFormatter->formatDiff($currentTimestamp, $reportTime) . ' ago';
-
-      $variables['report_path']['#title'] = t('HTML Report @timestamp', [
-        '@timestamp' => $reportTime,
-      ]);
-    }
+    $variables['report_path'] = (new ReportPathMarkup($reportPath, $reportTime))->getLink();
   }
 
   $variables['run_path'] = [

@@ -4,6 +4,9 @@ services:
     tags:
       - { name: event_subscriber }
 
+  qa_shot.data_formatter:
+    class: Drupal\qa_shot\Service\DataFormatter
+
   qa_shot.test_queue_factory:
     class: Drupal\qa_shot\Queue\QAShotQueueFactory
     arguments: ['@database']

@@ -8,7 +8,7 @@
         No test report found.
     {% else %}
         {# @todo: this is for testing only, proper way needed for serving this page for opening #}
-        <a href="{{ html_report_url }}" target="_blank">HTML Report {% if report_time %}{{ report_time }}{% endif %}</a>
+        <a href="{{ html_report_url }}" target="_blank">HTML Report {% if report_time %}from {{ report_time }}{% endif %}</a>
     {% endif %}
     </p>
 </div>
