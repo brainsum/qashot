@@ -14,6 +14,20 @@ use Drupal\Core\Datetime\DrupalDateTime;
 class DataFormatter {
 
   /**
+   * Formats a timestamp as a time interval.
+   *
+   * @param int $timestamp
+   *   The timestamp.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface
+   *   The formatted date/time string using the past or future format setting.
+   */
+  public function timestampAsAgo($timestamp): MarkupInterface {
+    $date = DrupalDateTime::createFromTimestamp($timestamp);
+    return $this->dateAsAgo($date);
+  }
+
+  /**
    * Formats a date/time as a time interval.
    *
    * @param \Drupal\Core\Datetime\DrupalDateTime $date

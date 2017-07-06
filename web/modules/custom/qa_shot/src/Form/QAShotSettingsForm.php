@@ -9,6 +9,7 @@ use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\qa_shot\Queue\QAShotQueueFactory;
+use Drupal\qa_shot\Service\DataFormatter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -40,6 +41,13 @@ class QAShotSettingsForm extends ConfigFormBase {
   protected $time;
 
   /**
+   * The data formatter.
+   *
+   * @var \Drupal\qa_shot\Service\DataFormatter
+   */
+  protected $dataFormatter;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -47,7 +55,8 @@ class QAShotSettingsForm extends ConfigFormBase {
       $container->get('config.factory'),
       $container->get('qa_shot.test_queue_factory'),
       $container->get('database'),
-      $container->get('datetime.time')
+      $container->get('datetime.time'),
+      $container->get('qa_shot.data_formatter')
     );
   }
 
@@ -62,18 +71,22 @@ class QAShotSettingsForm extends ConfigFormBase {
    *   Database connection.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   Time service.
+   * @param \Drupal\qa_shot\Service\DataFormatter $dataFormatter
+   *   Data formatter service.
    */
   public function __construct(
     ConfigFactoryInterface $configFactory,
     QAShotQueueFactory $queueFactory,
     Connection $databaseConnection,
-    TimeInterface $time
+    TimeInterface $time,
+    DataFormatter $dataFormatter
   ) {
     parent::__construct($configFactory);
 
     $this->queue = $queueFactory->get('cron_run_qa_shot_test');
     $this->database = $databaseConnection;
     $this->time = $time;
+    $this->dataFormatter = $dataFormatter;
   }
 
   /**
@@ -114,7 +127,7 @@ class QAShotSettingsForm extends ConfigFormBase {
       '#header' => [
         'test_id' => $this->t('Test ID'),
         'status' => $this->t('Status'),
-        'date' => $this->t('Date'),
+        'add_date' => $this->t('Add date'),
         'stage' => $this->t('Stage'),
         'origin' => $this->t('Origin'),
         'queue_name' => $this->t('Queue name'),
@@ -157,7 +170,7 @@ class QAShotSettingsForm extends ConfigFormBase {
     // Default 'table empty' message row.
     $queueTableRows[$index]['test_id'] = 'There are no tests in the queue.';
     $queueTableRows[$index]['status'] = '';
-    $queueTableRows[$index]['date'] = '';
+    $queueTableRows[$index]['add_date'] = '';
     $queueTableRows[$index]['stage'] = '';
     $queueTableRows[$index]['origin'] = '';
     $queueTableRows[$index]['queue_name'] = '';
@@ -165,7 +178,7 @@ class QAShotSettingsForm extends ConfigFormBase {
     foreach ($items as $item) {
       $queueTableRows[$index]['test_id'] = $item->tid;
       $queueTableRows[$index]['status'] = $item->status;
-      $queueTableRows[$index]['date'] = $item->created;
+      $queueTableRows[$index]['add_date'] = $this->dataFormatter->timestampAsAgo($item->created);
       $queueTableRows[$index]['stage'] = (NULL === $item->stage) ? '-' : $item->stage;
       $queueTableRows[$index]['origin'] = $item->origin;
       $queueTableRows[$index]['queue_name'] = $item->queue_name;

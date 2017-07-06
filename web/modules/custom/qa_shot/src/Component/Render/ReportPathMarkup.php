@@ -69,6 +69,7 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
       $markup['#title'] = $this->t('HTML Report from @timestamp', [
         '@timestamp' => $reportTime,
       ]);
+      $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s');
     }
 
     return $markup;
