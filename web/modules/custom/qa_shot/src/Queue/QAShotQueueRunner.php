@@ -169,10 +169,6 @@ class QAShotQueueRunner {
       // Set status to run.
       $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_RUNNING, $entity, $queue, $item);
 
-      $this->logger->info(
-        t('Test with ID #@testID status changed to running.', ['@testID' => $item->tid])
-      );
-
       try {
         drupal_set_message(t('Processing test @id from @name queue.', ['@name' => $name, '@id' => $item->tid]));
         $worker->processItem($item, $entity);
@@ -182,7 +178,6 @@ class QAShotQueueRunner {
         // Set entity status to idle.
         $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_IDLE, $entity);
       }
-
       catch (RequeueException $e) {
         // @todo: Set item to error
         $this->logger->warning($e->getMessage());
@@ -205,7 +200,7 @@ class QAShotQueueRunner {
         $this->logger->error($e->getMessage());
         // In case of any other kind of exception, log it and leave the item
         // in the queue to be processed again later.
-        // Set entity status to idle.
+        // Set entity status to error.
         $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_ERROR, $entity, $queue, $item);
         continue;
       }
@@ -239,9 +234,18 @@ class QAShotQueueRunner {
       }
       $entity->setQueueStatus($status);
       $entity->save();
+
+      $this->logger->info(
+        t('Test with ID #@testID status changed to @status.', [
+          '@testID' => $entity->id(),
+          '@status' => $status,
+        ])
+      );
+
     }
     catch (EntityStorageException $e) {
-      \Drupal::logger('qa_shot')->warning('Updating the entity status to "@status" failed. @msg', [
+      $this->logger->warning('Updating the test with ID #@testID status to "@status" failed. @msg', [
+        '@testID' => $entity->id(),
         '@status' => $status,
         '@msg' => $e->getMessage(),
       ]);
