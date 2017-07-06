@@ -37,7 +37,17 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
     $this->time = (NULL === $reportTime) ? '' : $reportTime;
   }
 
-  public function getLink() {
+  /**
+   * Return the path with timestamp as a link.
+   *
+   * @return array
+   *   Render array.
+   */
+  public function getLink(): array {
+    if (!file_exists($this->path)) {
+      return [];
+    }
+
     $urlOptions = ['absolute' => TRUE];
 
     $attributes = [

@@ -131,6 +131,7 @@ class Backstop extends TestBackendBase {
       'backstop_engine' => $results['backstopEngine'],
       'viewport_count' => $entity->getViewportCount(),
       'scenario_count' => $entity->getScenarioCount(),
+      // @todo: Save as timestamp.
       'datetime' => (new \DateTime())->format('Y-m-d H:i:s'),
       'duration' => $endTime - $startTime,
       'passed_count' => $results['passedTestCount'],
