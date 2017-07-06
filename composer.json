@@ -88,7 +88,7 @@
         "drupal/devel": "^1.0",
         "drupal/examples": "1.x-dev",
         "drupal/maillog": "1.x-dev",
-        "drupal/restui": "1.x-dev",
+        "drupal/restui": "^1.0",
         "drupal/security_review": "1.x-dev",
         "drupal/toolbar_anti_flicker": "^2.5",
         "jcalderonzumba/gastonjs": "~1.0.2",
