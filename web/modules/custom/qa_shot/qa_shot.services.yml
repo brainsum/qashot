@@ -1,4 +1,9 @@
 services:
+  qa_shot.route_subscriber:
+    class: Drupal\qa_shot\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
+
   qa_shot.test_queue_factory:
     class: Drupal\qa_shot\Queue\QAShotQueueFactory
     arguments: ['@database']
