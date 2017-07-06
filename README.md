@@ -25,10 +25,6 @@ If you want the tests to run, you have to set up a cron job on the system.
 If you are using the docker environment described in this repo, just use this:
 ( crontab -l ; echo "* * * * * /bin/sh <path-to-project>/run-test-queue.sh" ) | crontab -
 
-As of 2017. March 30, the Automated Cron module has been disabled.
-If you are using the docker environment described in this repo, just use this:
-( crontab -l ; echo "0 2 * * 1 /bin/sh ~/www/weekly-cron.sh" ) | crontab -
-
 See https://www.drupal.org/node/23714 for more cron info.
 
 # Outdated parts (some of it might still work)
