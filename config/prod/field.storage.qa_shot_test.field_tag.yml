@@ -1,0 +1,20 @@
+uuid: 666602d7-28bb-433c-8edc-ca8431f2c7df
+langcode: en
+status: true
+dependencies:
+  module:
+    - qa_shot
+    - taxonomy
+id: qa_shot_test.field_tag
+field_name: field_tag
+entity_type: qa_shot_test
+type: entity_reference
+settings:
+  target_type: taxonomy_term
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
