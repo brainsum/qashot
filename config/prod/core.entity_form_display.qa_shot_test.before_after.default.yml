@@ -8,6 +8,7 @@ dependencies:
     - field.field.qa_shot_test.before_after.field_html_report_path
     - field.field.qa_shot_test.before_after.field_scenario
     - field.field.qa_shot_test.before_after.field_state_in_queue
+    - field.field.qa_shot_test.before_after.field_tag
     - field.field.qa_shot_test.before_after.field_tester_engine
     - field.field.qa_shot_test.before_after.field_viewport
     - qa_shot.qa_shot_test_type.before_after
@@ -37,6 +38,15 @@ content:
       default_paragraph_type: scenario
     third_party_settings: {  }
     type: entity_reference_paragraphs
+    region: content
+  field_tag:
+    weight: 7
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete_tags
     region: content
   field_tester_engine:
     weight: 5

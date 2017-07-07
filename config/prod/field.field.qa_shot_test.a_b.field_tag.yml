@@ -1,0 +1,28 @@
+uuid: 8e6c4e05-9d8e-4a69-9ea9-a52e2f069b1f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_tag
+    - qa_shot.qa_shot_test_type.a_b
+    - taxonomy.vocabulary.tag
+id: qa_shot_test.a_b.field_tag
+field_name: field_tag
+entity_type: qa_shot_test
+bundle: a_b
+label: Tags
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      tag: tag
+    sort:
+      field: _none
+    auto_create: true
+    auto_create_bundle: ''
+field_type: entity_reference

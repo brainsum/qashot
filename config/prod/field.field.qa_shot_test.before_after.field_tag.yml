@@ -1,0 +1,28 @@
+uuid: bf785a52-9090-4cf1-bcf8-9026ded308c3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_tag
+    - qa_shot.qa_shot_test_type.before_after
+    - taxonomy.vocabulary.tag
+id: qa_shot_test.before_after.field_tag
+field_name: field_tag
+entity_type: qa_shot_test
+bundle: before_after
+label: Tags
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      tag: tag
+    sort:
+      field: _none
+    auto_create: true
+    auto_create_bundle: ''
+field_type: entity_reference
