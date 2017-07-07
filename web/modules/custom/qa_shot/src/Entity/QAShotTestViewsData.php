@@ -23,15 +23,6 @@ class QAShotTestViewsData extends EntityViewsData {
       '#global' => [],
     ];
 
-
-    $data['views']['test_queue_status'] = [
-      'title' => t('QAShot Test Queue Status'),
-      'help' => t('Display the current status of the Test in the queue.'),
-      'field' => [
-        'id' => 'test_queue_status',
-      ],
-    ];
-
     $data['views']['entity_bundle_label'] = [
       'title' => t('QAShot Test Bundle Label'),
       'help' => t('Display the label of the entity.'),
