@@ -9,6 +9,7 @@ use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class QAShotController.
@@ -47,11 +48,13 @@ class QAShotController extends ControllerBase {
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
    *   Route match object.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The HTTP request.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse|array
    *   Redirect to the 'status' page.
    */
-  public function entityAddToQueue(RouteMatchInterface $routeMatch) {
+  public function entityAddToQueue(RouteMatchInterface $routeMatch, Request $request) {
     if ($this->loadEntity($routeMatch)) {
       return ['#markup' => 'Invalid entity.'];
     }
@@ -60,6 +63,15 @@ class QAShotController extends ControllerBase {
       // If we come from a valid route, run the tests.
       try {
         $this->entity->queue(NULL);
+      }
+      catch (QAShotBaseException $e) {
+        drupal_set_message($e->getMessage(), 'error');
+      }
+    }
+    elseif ('before_after' === $this->entity->bundle()) {
+      // If we come from a valid route, run the tests.
+      try {
+        $this->entity->queue($request->attributes->get('run_type'));
       }
       catch (QAShotBaseException $e) {
         drupal_set_message($e->getMessage(), 'error');

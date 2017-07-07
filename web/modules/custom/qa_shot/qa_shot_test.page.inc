@@ -53,14 +53,39 @@ function template_preprocess_qa_shot_test(array &$variables) {
     $variables['report_path'] = (new ReportPathMarkup($reportPath, $reportTime))->getLink();
   }
 
-  $variables['run_path'] = [
-    '#title' => 'Add test to queue',
-    '#type' => 'link',
-    '#url' => Url::fromRoute('entity.qa_shot_test.add_to_queue', [
-      'qa_shot_test' => $qaShotTest->id(),
-    ], $urlOptions),
-    '#attributes' => $runAttributes,
-  ];
+  $entity_type = $variables['elements']['#qa_shot_test']->getType();
+  if ($entity_type == "a_b") {
+    $variables['run_path'] = [
+      '#title'      => 'Add test to queue',
+      '#type'       => 'link',
+      '#url'        => Url::fromRoute('entity.qa_shot_test.add_to_queue', [
+        'qa_shot_test' => $qaShotTest->id(),
+      ], $urlOptions),
+      '#attributes' => $runAttributes,
+    ];
+  }
+  elseif ($entity_type == "before_after") {
+    $variables['run_path_reference'] = [
+      '#title'      => 'Queue taking "Before" shots',
+      '#type'       => 'link',
+      '#url'        => Url::fromRoute('entity.qa_shot_test.add_to_queue_reference', [
+        'qa_shot_test' => $qaShotTest->id(),
+      ], $urlOptions),
+      '#attributes' => $runAttributes,
+    ];
+
+    $test_results = $variables['elements']['#qa_shot_test']->getLifetimeMetadataValue();
+    if (count($test_results) > 0) {
+      $variables['run_path_test'] = [
+        '#title'      => 'Queue taking "After" shots',
+        '#type'       => 'link',
+        '#url'        => Url::fromRoute('entity.qa_shot_test.add_to_queue_test', [
+          'qa_shot_test' => $qaShotTest->id(),
+        ], $urlOptions),
+        '#attributes' => $runAttributes,
+      ];
+    }
+  }
 
   $user = \Drupal::currentUser();
   if ($user->hasPermission('view qa_shot debug data') || $user->id() === 1) {

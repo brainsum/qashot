@@ -22,6 +22,24 @@ entity.qa_shot_test.add_to_queue:
   requirements:
     _permission: 'edit qashot test entities'
 
+entity.qa_shot_test.add_to_queue_reference:
+  path: 'qa_shot_test/{qa_shot_test}/add_queue/reference'
+  defaults:
+    _controller: '\Drupal\qa_shot\Controller\QAShotController::entityAddToQueue'
+    _title: 'Status'
+    run_type: 'before'
+  requirements:
+    _permission: 'edit qashot test entities'
+
+entity.qa_shot_test.add_to_queue_test:
+  path: 'qa_shot_test/{qa_shot_test}/add_queue/test'
+  defaults:
+    _controller: '\Drupal\qa_shot\Controller\QAShotController::entityAddToQueue'
+    _title: 'Status'
+    run_type: 'after'
+  requirements:
+    _permission: 'edit qashot test entities'
+
 qa_shot.settings:
   path: '/admin/config/qa_shot'
   defaults:

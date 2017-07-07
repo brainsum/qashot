@@ -197,8 +197,6 @@ class TestMetadata extends FieldItemBase {
       'scenario_count',
       'datetime',
       'duration',
-      'passed_count',
-      'failed_count',
       'success',
     ];
 
