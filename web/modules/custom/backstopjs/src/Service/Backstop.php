@@ -484,7 +484,7 @@ class Backstop extends TestBackendBase {
    *   TRUE for valid, FALSE for invalid.
    */
   private function isCommandValid($command): bool {
-    return in_array($command, array('reference', 'test'), FALSE);
+    return in_array($command, ['reference', 'test'], FALSE);
   }
 
   /**
