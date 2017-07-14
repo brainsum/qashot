@@ -2553,12 +2553,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "0b18b6bbeed070fb900ad78e81ffa1182a57a752"
+                "reference": "c1bdf69b424087447dc8e12d95b373c2b1cc77f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/0b18b6bbeed070fb900ad78e81ffa1182a57a752",
-                "reference": "0b18b6bbeed070fb900ad78e81ffa1182a57a752",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/c1bdf69b424087447dc8e12d95b373c2b1cc77f2",
+                "reference": "c1bdf69b424087447dc8e12d95b373c2b1cc77f2",
                 "shasum": ""
             },
             "conflict": {
@@ -2572,7 +2572,8 @@
                 "codeigniter/framework": "<=3.0.6",
                 "composer/composer": "<=1.0.0-alpha11",
                 "contao-components/mediaelement": ">=2.14.2,<2.21.1",
-                "contao/core": ">=2.11,<3.5.15",
+                "contao/core": ">=2,<3.5.28",
+                "contao/core-bundle": ">=4,<4.4.1",
                 "doctrine/annotations": ">=1,<1.2.7",
                 "doctrine/cache": ">=1,<1.3.2|>=1.4,<1.4.2",
                 "doctrine/common": ">=2,<2.4.3|>=2.5,<2.5.1",
@@ -2681,7 +2682,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2017-06-22T16:43:17+00:00"
+            "time": "2017-07-12T12:45:47+00:00"
         },
         {
             "name": "stack/builder",
@@ -4716,16 +4717,16 @@
         },
         {
             "name": "dflydev/dot-access-configuration",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dflydev/dflydev-dot-access-configuration.git",
-                "reference": "9b65c83159c9003e00284ea1144ad96b69d9c8b9"
+                "reference": "ae6e7138b1d9063d343322cca63994ee1ac5161d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dflydev/dflydev-dot-access-configuration/zipball/9b65c83159c9003e00284ea1144ad96b69d9c8b9",
-                "reference": "9b65c83159c9003e00284ea1144ad96b69d9c8b9",
+                "url": "https://api.github.com/repos/dflydev/dflydev-dot-access-configuration/zipball/ae6e7138b1d9063d343322cca63994ee1ac5161d",
+                "reference": "ae6e7138b1d9063d343322cca63994ee1ac5161d",
                 "shasum": ""
             },
             "require": {
@@ -4772,7 +4773,7 @@
                 "config",
                 "configuration"
             ],
-            "time": "2014-11-14T03:26:12+00:00"
+            "time": "2016-12-12T17:43:40+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -5083,16 +5084,16 @@
         },
         {
             "name": "drupal/console",
-            "version": "1.0.0-rc23",
+            "version": "1.0.0-rc24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hechoendrupal/drupal-console.git",
-                "reference": "2bac21223573f5fd8c4d7b725baf5d404e406b0b"
+                "reference": "72ed29dcfb14a13554f3c81cd88bae9bf1c5b6cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hechoendrupal/drupal-console/zipball/2bac21223573f5fd8c4d7b725baf5d404e406b0b",
-                "reference": "2bac21223573f5fd8c4d7b725baf5d404e406b0b",
+                "url": "https://api.github.com/repos/hechoendrupal/drupal-console/zipball/72ed29dcfb14a13554f3c81cd88bae9bf1c5b6cb",
+                "reference": "72ed29dcfb14a13554f3c81cd88bae9bf1c5b6cb",
                 "shasum": ""
             },
             "require": {
@@ -5100,7 +5101,7 @@
                 "composer/installers": "~1.0",
                 "doctrine/annotations": "1.2.*",
                 "doctrine/collections": "1.3.*",
-                "drupal/console-core": "1.0.0-rc23",
+                "drupal/console-core": "1.0.0-rc24",
                 "drupal/console-dotenv": "~0",
                 "drupal/console-extend-plugin": "~0",
                 "gabordemooij/redbean": "~4.3",
@@ -5158,25 +5159,25 @@
                 "drupal",
                 "symfony"
             ],
-            "time": "2017-06-27T09:27:00+00:00"
+            "time": "2017-07-14T09:18:06+00:00"
         },
         {
             "name": "drupal/console-core",
-            "version": "1.0.0-rc23",
+            "version": "1.0.0-rc24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hechoendrupal/drupal-console-core.git",
-                "reference": "b1f3680ae19a4d00f8b701b060521bab2cccd6b1"
+                "reference": "dcf0f04a97a72b23596398a4ed9daa22a8dd5bd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hechoendrupal/drupal-console-core/zipball/b1f3680ae19a4d00f8b701b060521bab2cccd6b1",
-                "reference": "b1f3680ae19a4d00f8b701b060521bab2cccd6b1",
+                "url": "https://api.github.com/repos/hechoendrupal/drupal-console-core/zipball/dcf0f04a97a72b23596398a4ed9daa22a8dd5bd0",
+                "reference": "dcf0f04a97a72b23596398a4ed9daa22a8dd5bd0",
                 "shasum": ""
             },
             "require": {
-                "dflydev/dot-access-configuration": "1.0.1",
-                "drupal/console-en": "1.0.0-rc23",
+                "dflydev/dot-access-configuration": "^1.0",
+                "drupal/console-en": "1.0.0-rc24",
                 "php": "^5.5.9 || ^7.0",
                 "stecman/symfony-console-completion": "~0.7",
                 "symfony/config": "~2.8",
@@ -5239,7 +5240,7 @@
                 "drupal",
                 "symfony"
             ],
-            "time": "2017-06-27T09:16:56+00:00"
+            "time": "2017-07-14T08:51:18+00:00"
         },
         {
             "name": "drupal/console-dotenv",
@@ -5282,16 +5283,16 @@
         },
         {
             "name": "drupal/console-en",
-            "version": "1.0.0-rc23",
+            "version": "1.0.0-rc24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hechoendrupal/drupal-console-en.git",
-                "reference": "e2461a8cf8bb29aacae0cf0f8a0a2c8d36ed4220"
+                "reference": "3235d0e3fd30e73b55585d746e7ba8dc39ca9281"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hechoendrupal/drupal-console-en/zipball/e2461a8cf8bb29aacae0cf0f8a0a2c8d36ed4220",
-                "reference": "e2461a8cf8bb29aacae0cf0f8a0a2c8d36ed4220",
+                "url": "https://api.github.com/repos/hechoendrupal/drupal-console-en/zipball/3235d0e3fd30e73b55585d746e7ba8dc39ca9281",
+                "reference": "3235d0e3fd30e73b55585d746e7ba8dc39ca9281",
                 "shasum": ""
             },
             "type": "drupal-console-language",
@@ -5332,7 +5333,7 @@
                 "drupal",
                 "symfony"
             ],
-            "time": "2017-06-22T19:05:23+00:00"
+            "time": "2017-07-14T02:44:41+00:00"
         },
         {
             "name": "drupal/console-extend-plugin",
@@ -5497,7 +5498,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.drupal.org/project/examples",
-                "reference": "5f6f369d94e814c51935d024dfe1c1dd218a1887"
+                "reference": "feee7e3a5bd38bc95a80c3dae66d42df4c9cf4d7"
             },
             "require": {
                 "drupal/core": "*"
@@ -5513,7 +5514,7 @@
                 },
                 "drupal": {
                     "version": "8.x-1.x-dev",
-                    "datestamp": "1498942743"
+                    "datestamp": "1499019542"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -5592,8 +5593,7 @@
                 "source": "http://cgit.drupalcode.org/examples",
                 "issues": "https://www.drupal.org/project/issues/examples",
                 "documentation": "https://api.drupal.org/api/examples"
-            },
-            "time": "2017-07-02 18:14:02"
+            }
         },
         {
             "name": "drupal/maillog",
