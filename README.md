@@ -31,9 +31,9 @@ See https://www.drupal.org/node/23714 for more cron info.
 
 The UI part is a standard Drupal installation. Dependencies are managed with composer.
 
-To import the existing configuration, you need to set the site uuid to the exported one:
- `drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y`
-You also need to remove shortcuts from the fresh install, as the standard profile creates some by default:
-`drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'`
+To import the existing configuration, you need to set the site uuid to the exported one:    
+ `drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y`    
+You also need to remove shortcuts from the fresh install, as the standard profile creates some by default:    
+`drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'`    
 
 To run the tests, you need [BackstopJS 2.0](https://github.com/garris/BackstopJS "BackstopJS Repository") installed globally.
