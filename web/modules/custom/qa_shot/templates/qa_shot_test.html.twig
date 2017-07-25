@@ -17,6 +17,7 @@
 #}
 <div{{ attributes.addClass('qa_shot_test') }}>
   {% if content %}
+    {{- status_in_queue -}}
     {{- content -}}
 
     <div>

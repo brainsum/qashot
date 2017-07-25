@@ -9,8 +9,10 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
+use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Plugin\DataType\ComputedLastRunMetadata;
 use Drupal\qa_shot\Queue\QAShotQueue;
+use Drupal\qa_shot\Service\QAShotQueueData;
 use Drupal\user\UserInterface;
 
 /**
@@ -387,24 +389,49 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function getQueueStatus(): array {
-    return $this->get('field_state_in_queue')->getValue();
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $q_data */
+    $q_data = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
+
+    if (empty($q_data)) {
+      return [QAShotQueue::QUEUE_STATUS_IDLE];
+    }
+
+    return [$q_data->status];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getHumanReadableQueueStatus(): string {
-    /** @var \Drupal\Core\Field\FieldItemListInterface $field */
-    $field = $this->get('field_state_in_queue');
-    return $field->getSetting('allowed_values')[$field->getString()];
-  }
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $q_data */
+    $q_data = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
 
-  /**
-   * {@inheritdoc}
-   */
-  public function setQueueStatus($status): QAShotTestInterface {
-    $this->set('field_state_in_queue', $status);
-    return $this;
+    if (empty($q_data)) {
+      return t("Idle");
+    }
+    else {
+      switch ($q_data->status) {
+        case QAShotQueue::QUEUE_STATUS_WAITING:
+          if (!empty($q_data->stage)) {
+            $run_state_type = $q_data->stage == "before" ? "for reference pictures" : "for test pictures";
+            return t("Queued to run (@type)", ["@type" => $run_state_type]);
+          }
+
+          return t("Queued to run");
+          break;
+
+        case QAShotQueue::QUEUE_STATUS_RUNNING:
+          return t("Running, please be patient...");
+          break;
+
+        case QAShotQueue::QUEUE_STATUS_ERROR:
+          return t("There was an error!");
+          break;
+
+        default:
+          throw new QAShotBaseException(t('Unknown queue state!'));
+      }
+    }
   }
 
   /**
@@ -574,7 +601,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
         $currentUser = \Drupal::currentUser();
         $this->setInitiatorId($currentUser->id());
         $this->setInitiatedTime(\Drupal::time()->getRequestTime());
-        $this->setQueueStatus(QAShotQueue::QUEUE_STATUS_WAITING);
         $this->save();
       }
       catch (EntityStorageException $e) {

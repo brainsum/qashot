@@ -47,6 +47,12 @@ function template_preprocess_qa_shot_test(array &$variables) {
   $runAttributes = $attributes;
   $runAttributes['class'][] = 'btn-primary';
 
+  $variables['status_in_queue'] = [
+    '#type' => 'item',
+    '#title' => t('State in queue'),
+    '#markup' => "<div class=\"field--item\">" . $qaShotTest->getHumanReadableQueueStatus() . "</div>",
+  ];
+
   if ($reportPath = $qaShotTest->getHtmlReportPath()) {
     $lastRun = $qaShotTest->getLastRunMetadataValue();
     $reportTime = empty($lastRun) ? '' : end($lastRun)['datetime'];

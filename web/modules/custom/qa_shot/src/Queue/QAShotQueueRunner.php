@@ -232,8 +232,6 @@ class QAShotQueueRunner {
         $item->status = $status;
         $queue->updateItemStatus($item);
       }
-      $entity->setQueueStatus($status);
-      $entity->save();
 
       $this->logger->info(
         t('Test with ID #@testID status changed to @status.', [

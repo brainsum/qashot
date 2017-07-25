@@ -31,6 +31,14 @@ class QAShotTestViewsData extends EntityViewsData {
       ],
     ];
 
+    $data['views']['entity_status_label'] = [
+      'title' => t('QAShot Test Status in queue'),
+      'help' => t('Display the status of the entity in queue.'),
+      'field' => [
+        'id' => 'entity_status_label',
+      ],
+    ];
+
     $data['views']['qa_shot_test_bulk_form'] = [
       'title' => $this->t('Bulk update'),
       'help' => $this->t('Add a form element that lets you run operations on multiple tests.'),

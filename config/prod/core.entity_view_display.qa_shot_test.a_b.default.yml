@@ -7,7 +7,6 @@ dependencies:
     - field.field.qa_shot_test.a_b.field_diff_color
     - field.field.qa_shot_test.a_b.field_html_report_path
     - field.field.qa_shot_test.a_b.field_scenario
-    - field.field.qa_shot_test.a_b.field_state_in_queue
     - field.field.qa_shot_test.a_b.field_tag
     - field.field.qa_shot_test.a_b.field_tester_engine
     - field.field.qa_shot_test.a_b.field_viewport
@@ -37,13 +36,6 @@ content:
       view_mode: default
       link: ''
     third_party_settings: {  }
-  field_state_in_queue:
-    weight: 1
-    label: inline
-    settings: {  }
-    third_party_settings: {  }
-    type: list_default
-    region: content
   field_tag:
     weight: 8
     label: above

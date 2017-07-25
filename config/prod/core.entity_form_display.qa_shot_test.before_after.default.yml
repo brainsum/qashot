@@ -7,7 +7,6 @@ dependencies:
     - field.field.qa_shot_test.before_after.field_diff_color
     - field.field.qa_shot_test.before_after.field_html_report_path
     - field.field.qa_shot_test.before_after.field_scenario
-    - field.field.qa_shot_test.before_after.field_state_in_queue
     - field.field.qa_shot_test.before_after.field_tag
     - field.field.qa_shot_test.before_after.field_tester_engine
     - field.field.qa_shot_test.before_after.field_viewport
@@ -93,4 +92,3 @@ content:
 hidden:
   field_configuration_path: true
   field_html_report_path: true
-  field_state_in_queue: true
