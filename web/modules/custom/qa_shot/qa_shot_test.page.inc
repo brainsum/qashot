@@ -59,6 +59,29 @@ function template_preprocess_qa_shot_test(array &$variables) {
     $variables['report_path'] = (new ReportPathMarkup($reportPath, $reportTime))->getLink();
   }
 
+  list($last_run_time, $last_reference_run_time, $last_test_run_time) = array_values($qaShotTest->getLastRunTimes());
+  if ($last_run_time) {
+    $variables['last_run_time'] = [
+      '#type'   => 'item',
+      '#title'  => t('Last run was at'),
+      '#markup' => "<div class=\"field--item\">" . $last_run_time . "</div>",
+    ];
+  }
+  if ($last_reference_run_time) {
+    $variables['last_reference_run_time'] = [
+      '#type'   => 'item',
+      '#title'  => t('Reference was created at'),
+      '#markup' => "<div class=\"field--item\">" . $last_reference_run_time . "</div>",
+    ];
+  }
+  if ($last_test_run_time) {
+    $variables['last_test_run_time'] = [
+      '#type' => 'item',
+      '#title' => t('Last test was run at'),
+      '#markup' => "<div class=\"field--item\">" . $last_test_run_time . "</div>",
+    ];
+  }
+
   $entity_type = $variables['elements']['#qa_shot_test']->getType();
   if ($entity_type == "a_b") {
     $variables['run_path'] = [

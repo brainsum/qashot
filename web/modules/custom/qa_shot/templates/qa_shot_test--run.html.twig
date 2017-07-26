@@ -2,6 +2,18 @@
     <label>Name: </label> {{ entity.name.value }}
     <br />
     <p>The current status of the test is <b>{{ queue_status }}</b></p>
+    {% if last_run_time %}
+        <p>Last run was at: {{ last_run_time }}</p>
+    {% endif %}
+    {% if last_reference_run_time %}
+        <p>Reference was created at: {{ last_reference_run_time }}</p>
+    {% endif %}
+    {% if last_test_run_time %}
+        <p>Last test was run at: {{ last_test_run_time }}</p>
+    {% endif %}
+    {% if last_test_run_time < last_reference_run_time %}
+        <p>{{ "<b>WARNING!</b> The last run was reference update! At reference update there's no comparation with test image, please run an \"after\" test too."|t }}</p>
+    {% endif %}
     <br />
     <p>
     {% if entity.field_html_report_path is empty or not result_exist %}

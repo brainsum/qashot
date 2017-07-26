@@ -305,6 +305,44 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   }
 
   /**
+   * This function will return the last run times.
+   *
+   * @return array
+   *   It contains the last runtimes in this order:
+   *   last_run_time, last_reference_run_time, last_test_run_time.
+   *
+   * @throws \Drupal\qa_shot\Exception\QAShotBaseException
+   */
+  public function getLastRunTimes(): array {
+    $last_run_time = $last_reference_run_time = $last_test_run_time = NULL;
+    $type = $this->getType();
+
+    if ($type == "before_after") {
+      $metadatas = $this->get('metadata_lifetime')->getValue();
+      foreach ($metadatas as $metadata) {
+        if ($metadata['stage'] == "before") {
+          $last_reference_run_time = $metadata['datetime'];
+        }
+        elseif ($metadata['stage'] == "after") {
+          $last_test_run_time = $metadata['datetime'];
+        }
+      }
+    }
+    elseif ($type == "a_b") {
+      $last_run_time = $this->getLastRunMetadataValue()[0]['datetime'] ?? NULL;
+    }
+    else {
+      throw new QAShotBaseException(t("This function doesn't support this type: @type", ["@type" => $type]));
+    }
+
+    return [
+      "last_run_time" => $last_run_time,
+      "last_reference_run_time" => $last_reference_run_time,
+      "last_test_run_time" => $last_test_run_time,
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getResultValue(): array {

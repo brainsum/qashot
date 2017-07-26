@@ -82,6 +82,9 @@ function qa_shot_theme() {
       'report_time' => NULL,
       'queue_status' => NULL,
       'result_exist' => NULL,
+      'last_run_time' => NULL,
+      'last_reference_run_time' => NULL,
+      'last_test_run_time' => NULL,
     ],
   ];
 

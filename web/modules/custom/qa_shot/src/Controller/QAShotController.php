@@ -118,6 +118,8 @@ class QAShotController extends ControllerBase {
       $reportTime = $dataFormatter->dateAsAgo($reportDateTime);
     }
 
+    list($last_run_time, $last_reference_run_time, $last_test_run_time) = array_values($this->entity->getLastRunTimes());
+
     $build = [
       '#type' => 'markup',
       '#theme' => 'qa_shot__qa_shot_test__run',
@@ -126,6 +128,9 @@ class QAShotController extends ControllerBase {
       '#entity' => $this->entity,
       '#report_time' => $reportTime,
       '#result_exist' => $result_exist,
+      '#last_run_time' => $last_run_time,
+      '#last_reference_run_time' => $last_reference_run_time,
+      '#last_test_run_time' => $last_test_run_time,
     ];
 
     return $build;
