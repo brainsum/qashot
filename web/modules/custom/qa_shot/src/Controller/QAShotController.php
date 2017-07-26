@@ -112,7 +112,7 @@ class QAShotController extends ControllerBase {
 
     // If the report time is not NULL, format it to an '.. ago' string.
     if (NULL !== $reportTime) {
-      /** @var \Drupal\qa_shot\Service\DataFormatter $service */
+      /** @var \Drupal\qa_shot\Service\DataFormatter $dataFormatter */
       $dataFormatter = \Drupal::service('qa_shot.data_formatter');
       $reportDateTime = new DrupalDateTime($reportTime);
       $reportTime = $dataFormatter->dateAsAgo($reportDateTime);
