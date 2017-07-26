@@ -81,6 +81,7 @@ function qa_shot_theme() {
       'html_report_url' => NULL,
       'report_time' => NULL,
       'queue_status' => NULL,
+      'result_exist' => NULL,
     ],
   ];
 

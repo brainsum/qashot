@@ -101,6 +101,14 @@ class QAShotController extends ControllerBase {
     $reportUrl = file_create_url($this->entity->getHtmlReportPath());
     $lastRun = $this->entity->getLastRunMetadataValue();
     $reportTime = empty($lastRun) ? NULL : end($lastRun)['datetime'];
+    $result_exist = FALSE;
+
+    foreach ($this->entity->getLifetimeMetadataValue() as $item) {
+      if ($item['stage'] == NULL || $item['stage'] == 'after') {
+        $result_exist = TRUE;
+        break;
+      }
+    }
 
     // If the report time is not NULL, format it to an '.. ago' string.
     if (NULL !== $reportTime) {
@@ -117,6 +125,7 @@ class QAShotController extends ControllerBase {
       '#html_report_url' => $reportUrl,
       '#entity' => $this->entity,
       '#report_time' => $reportTime,
+      '#result_exist' => $result_exist,
     ];
 
     return $build;
