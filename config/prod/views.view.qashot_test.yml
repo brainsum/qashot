@@ -3,11 +3,9 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.qa_shot_test.field_state_in_queue
     - field.storage.qa_shot_test.field_tag
     - taxonomy.vocabulary.tag
   module:
-    - options
     - qa_shot
     - taxonomy
     - user
@@ -84,12 +82,20 @@ display:
           summary: ''
           description: ''
           columns:
+            qa_shot_test_bulk_form: qa_shot_test_bulk_form
             id: id
             name: name
+            field_tag: field_tag
             entity_bundle_label: entity_bundle_label
             field_state_in_queue: field_state_in_queue
             operations: operations
+            entity_status_label: entity_status_label
           info:
+            qa_shot_test_bulk_form:
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
             id:
               sortable: true
               default_sort_order: asc
@@ -100,6 +106,11 @@ display:
             name:
               sortable: true
               default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            field_tag:
               align: ''
               separator: ''
               empty_column: false
@@ -119,6 +130,13 @@ display:
               empty_column: false
               responsive: ''
             operations:
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            entity_status_label:
+              sortable: true
+              default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
@@ -423,10 +441,10 @@ display:
           empty_zero: false
           hide_alter_empty: false
           plugin_id: entity_bundle_label
-        field_state_in_queue:
-          id: field_state_in_queue
-          table: qa_shot_test__field_state_in_queue
-          field: field_state_in_queue
+        entity_status_label:
+          id: entity_status_label
+          table: views
+          field: entity_status_label
           relationship: none
           group_type: group
           admin_label: ''
@@ -470,21 +488,8 @@ display:
           empty: ''
           hide_empty: false
           empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: list_default
-          settings: {  }
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-          plugin_id: field
+          hide_alter_empty: false
+          plugin_id: entity_status_label
         operations:
           table: qa_shot_test
           field: operations
@@ -604,7 +609,6 @@ display:
         - user
         - user.permissions
       tags:
-        - 'config:field.storage.qa_shot_test.field_state_in_queue'
         - 'config:field.storage.qa_shot_test.field_tag'
   frontpage_list:
     display_plugin: page
@@ -631,5 +635,4 @@ display:
         - user
         - user.permissions
       tags:
-        - 'config:field.storage.qa_shot_test.field_state_in_queue'
         - 'config:field.storage.qa_shot_test.field_tag'

@@ -101,14 +101,24 @@ class QAShotController extends ControllerBase {
     $reportUrl = file_create_url($this->entity->getHtmlReportPath());
     $lastRun = $this->entity->getLastRunMetadataValue();
     $reportTime = empty($lastRun) ? NULL : end($lastRun)['datetime'];
+    $result_exist = FALSE;
+
+    foreach ($this->entity->getLifetimeMetadataValue() as $item) {
+      if ($item['stage'] == NULL || $item['stage'] == 'after') {
+        $result_exist = TRUE;
+        break;
+      }
+    }
 
     // If the report time is not NULL, format it to an '.. ago' string.
     if (NULL !== $reportTime) {
-      /** @var \Drupal\qa_shot\Service\DataFormatter $service */
+      /** @var \Drupal\qa_shot\Service\DataFormatter $dataFormatter */
       $dataFormatter = \Drupal::service('qa_shot.data_formatter');
       $reportDateTime = new DrupalDateTime($reportTime);
       $reportTime = $dataFormatter->dateAsAgo($reportDateTime);
     }
+
+    list($last_run_time, $last_reference_run_time, $last_test_run_time) = array_values($this->entity->getLastRunTimes());
 
     $build = [
       '#type' => 'markup',
@@ -117,6 +127,10 @@ class QAShotController extends ControllerBase {
       '#html_report_url' => $reportUrl,
       '#entity' => $this->entity,
       '#report_time' => $reportTime,
+      '#result_exist' => $result_exist,
+      '#last_run_time' => $last_run_time,
+      '#last_reference_run_time' => $last_reference_run_time,
+      '#last_test_run_time' => $last_test_run_time,
     ];
 
     return $build;

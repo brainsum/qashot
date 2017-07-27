@@ -27,17 +27,13 @@ If you are using the docker environment described in this repo, just use this:
 
 See https://www.drupal.org/node/23714 for more cron info.
 
-# Outdated parts (some of it might still work)
 ## Installation
 
-The UI part is standard Drupal installation. Dependencies are managed with composer.
+The UI part is a standard Drupal installation. Dependencies are managed with composer.
 
-To run the tests, you need [BackstopJS 2.0](https://github.com/garris/BackstopJS "BackstopJS Repository") installed globally. 
+To import the existing configuration, you need to set the site uuid to the exported one:    
+ `drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y`    
+You also need to remove shortcuts from the fresh install, as the standard profile creates some by default:    
+`drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'`    
 
-### Docker4Drupal
-https://github.com/brainsum/qashot/blob/master/environment/docker4drupal/README.md
-### amazee.io (Advice: Use Docker4Drupal instead)
-https://github.com/brainsum/qashot/blob/master/environment/amazee/Readme.md
-
-Background for installation inside an amazee.io container refer to this manual:
-https://docs.google.com/document/d/1GUmDacF-VSw-e1HvzOzaq_Su_Cz0FszPX-_8dr53tnw/edit , then
+To run the tests, you need [BackstopJS 2.0](https://github.com/garris/BackstopJS "BackstopJS Repository") installed globally.

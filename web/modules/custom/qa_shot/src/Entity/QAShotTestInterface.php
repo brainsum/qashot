@@ -301,17 +301,6 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function getHumanReadableQueueStatus(): string;
 
   /**
-   * Set current queue status.
-   *
-   * @param string $status
-   *   The status.
-   *
-   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
-   *   The called QAShot Test entity.
-   */
-  public function setQueueStatus($status): QAShotTestInterface;
-
-  /**
    * Get the 'selectors_to_hide' field value.
    *
    * @return array
