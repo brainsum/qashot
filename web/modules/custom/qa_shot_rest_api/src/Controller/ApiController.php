@@ -212,14 +212,21 @@ class ApiController extends ControllerBase {
     $page = $page < 1 ? 1 : $page;
     $limit = (int) $request->query->get('limit', 10);
     $limit = $limit < 0 ? 0 : $limit;
+    $type = $request->query->get('type', '');
+    $condition = [];
 
     $queryStartIndex = ($page - 1) * $limit;
 
-    $testsIds = $this->testStorage->getQuery()->range($queryStartIndex, $limit)->execute();
+    $query = $this->testStorage->getQuery()->range($queryStartIndex, $limit);
+    if (!empty($type)) {
+      $query->condition('type', $type, '=');
+      $condition['type'] = ['value' => $type, 'operator' => '='];
+    }
+    $testsIds = $query->execute();
     $tests = $this->testStorage->loadMultiple($testsIds);
 
     $responseData = [
-      'pagination' => $this->generatePager($page, $limit),
+      'pagination' => $this->generatePager($page, $limit, $condition),
       'entity' => [],
     ];
 
@@ -243,6 +250,8 @@ class ApiController extends ControllerBase {
    *   The current page.
    * @param int $limit
    *   Items per page.
+   * @param array $condition
+   *   Items condition.
    *
    * @throws \Symfony\Component\Routing\Exception\MissingMandatoryParametersException
    * @throws \Symfony\Component\Routing\Exception\InvalidParameterException
@@ -251,8 +260,12 @@ class ApiController extends ControllerBase {
    * @return array
    *   The pager as array.
    */
-  private function generatePager($page, $limit): array {
-    $totalEntityCount = $this->testStorage->getQuery()->count()->execute();
+  private function generatePager($page, $limit, $condition = []): array {
+    $query = $this->testStorage->getQuery();
+    foreach ($condition as $key => $data) {
+      $query->condition($key, $data['value'], $data['operator']);
+    }
+    $totalEntityCount = $query->count()->execute();
     $totalPageCount = (int) ceil($totalEntityCount / $limit);
 
     $routeParams = [
