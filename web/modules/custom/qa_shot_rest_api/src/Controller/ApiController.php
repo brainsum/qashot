@@ -231,7 +231,7 @@ class ApiController extends ControllerBase {
     ];
 
     foreach ($tests as $test) {
-      $testAsArray = $test->toArray();
+      $testAsArray = $this->serializer->normalize($test);
       $responseData['entity'][] = [
         'id' => $testAsArray['id'],
         'name' => $testAsArray['name'],
