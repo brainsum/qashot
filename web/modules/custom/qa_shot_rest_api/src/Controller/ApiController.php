@@ -237,7 +237,7 @@ class ApiController extends ControllerBase {
         'name' => $testAsArray['name'],
         'type' => $testAsArray['type'],
         // TODO: review, it was a fast fix.
-        'metadata_last_run' => count($testAsArray['metadata_last_run']) > 1 ? $testAsArray['metadata_last_run'][1] : $testAsArray['metadata_last_run'],
+        'metadata_last_run' => count($testAsArray['metadata_last_run']) > 1 ? [$testAsArray['metadata_last_run'][1]] : $testAsArray['metadata_last_run'],
       ];
     }
 
