@@ -289,21 +289,21 @@ class ApiController extends ControllerBase {
       // The total count of pages.
       'total_pages' => (string) $totalPageCount,
       'links' => [
-        'self' => Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions),
+        'self' => Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString(),
       ],
     ];
 
     if ($page > 1) {
       $routeParams['page'] = $page - 1;
-      $pager['links']['previous'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['previous'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
       $routeParams['page'] = 1;
-      $pager['links']['first'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['first'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
     }
     if ($page < $totalPageCount) {
       $routeParams['page'] = $page + 1;
-      $pager['links']['next'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['next'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
       $routeParams['page'] = $totalPageCount;
-      $pager['links']['last'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['last'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
     }
 
     return $pager;
