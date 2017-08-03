@@ -295,7 +295,12 @@ class ApiController extends ControllerBase {
       '_format' => 'json',
       'page' => $page,
       'limit' => $limit,
+      'type' => $limit,
     ];
+
+    foreach ($condition as $key => $data) {
+      $routeParams[$key] = $data['value'];
+    }
 
     $routeOptions = [
       'absolute' => TRUE,
