@@ -121,6 +121,28 @@ class ApiController extends ControllerBase {
   }
 
   /**
+   * Get user as a login function.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws BadRequestHttpException
+   * @throws \InvalidArgumentException
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   * @throws \LogicException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function loginTest(Request $request): JsonResponse {
+    $responseData = [
+      'status' => "success",
+    ];
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
    * Parse the runner settings from the request.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
