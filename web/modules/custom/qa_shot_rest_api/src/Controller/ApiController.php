@@ -121,7 +121,7 @@ class ApiController extends ControllerBase {
   }
 
   /**
-   * Get user as a login function.
+   * For testing login function.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request.
@@ -137,6 +137,42 @@ class ApiController extends ControllerBase {
   public function loginTest(Request $request): JsonResponse {
     $responseData = [
       'status' => "success",
+    ];
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
+   * Get force run a test function.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws BadRequestHttpException
+   * @throws \InvalidArgumentException
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   * @throws \LogicException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function forceRun(Request $request): JsonResponse {
+    $settings = $this->parseRunnerSettings($request);
+    $id = $settings['tid'];
+
+    try {
+      /** @var \Drupal\qa_shot\Service\QAShotImmediatelyTest $test_runner */
+      $test_runner = \Drupal::service('qa_shot.immediately_test');
+      $test_runner->run($id);
+      $status = "success";
+    }
+    catch (QAShotBaseException $e) {
+      $status = $e->getMessage();
+    }
+
+    $responseData = [
+      'tested_id' => $id,
+      'status' => $status,
     ];
 
     return new JsonResponse($responseData);
