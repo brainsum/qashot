@@ -141,7 +141,8 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
 
       $bundleData = array_merge($bundleData, $data);
 
-      // Create the entity from bundle data only, then apply field values after.
+      // Create the entity from bundle data only,
+      // then apply field values after.
       $entity = $this->entityTypeManager->getStorage($entityTypeId)->create($bundleData);
     }
     else {

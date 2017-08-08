@@ -92,6 +92,7 @@ class ComputedLastRunMetadata extends TypedData {
       $result[] = $item;
     }
 
+    // @fixme
     if (count($result) == 2 && $result[0]['stage'] == "after") {
       // We process the $data array in reverse order,
       // so we also reverse the $result.

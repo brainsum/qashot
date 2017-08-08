@@ -153,17 +153,25 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @param int $qaShotTest
    *   The ID of the entity.
    *
-   * @throws NotFoundHttpException
-   * @throws BadRequestHttpException
-   *
    * @return \Drupal\rest\ResourceResponse
    *   The response.
+   *
+   * @throws NotFoundHttpException
+   * @throws BadRequestHttpException
+   * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
    */
   public function get($qaShotTest): ResourceResponse {
     $entity = $this->loadEntityFromId($qaShotTest);
 
+    /** @var \Drupal\Core\Access\AccessResultReasonInterface $entityAccess */
+    $entityAccess = $entity->access('view', NULL, TRUE);
+    if (!$entityAccess->isAllowed()) {
+      throw new AccessDeniedHttpException($entityAccess->getReason() ?: $this->generateFallbackAccessDeniedMessage($entity, 'view'));
+    }
+
     $response = new ResourceResponse($entity, 200);
     $response->addCacheableDependency($entity);
+    $response->addCacheableDependency($entityAccess);
 
     return $response;
   }
@@ -217,7 +225,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     $this->validate($entity);
     try {
       $entity->save();
-      $this->logger->notice('Created entity %type with ID %id.', array('%type' => $entity->getEntityTypeId(), '%id' => $entity->id()));
+      $this->logger->notice('Created entity %type with ID %id.', ['%type' => $entity->getEntityTypeId(), '%id' => $entity->id()]);
 
       // 201 Created responses return the newly created entity in the response
       // body. These responses are not cacheable, so we add no cacheability
@@ -250,7 +258,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     }
     try {
       $entity->delete();
-      $this->logger->notice('Deleted entity %type with ID %id.', array('%type' => $entity->getEntityTypeId(), '%id' => $entity->id()));
+      $this->logger->notice('Deleted entity %type with ID %id.', ['%type' => $entity->getEntityTypeId(), '%id' => $entity->id()]);
 
       // DELETE responses have an empty body.
       return new ModifiedResourceResponse(NULL, 204);
@@ -265,7 +273,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    *
    * @param int|string $entityId
    *   The original entity object.
-   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $updatedEntity
    *   I don't know.
    *
    * @return \Drupal\rest\ModifiedResourceResponse
@@ -277,26 +285,26 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
    */
-  public function patch($entityId, QAShotTestInterface $entity) {
+  public function patch($entityId, QAShotTestInterface $updatedEntity) {
     $originalEntity = $this->loadEntityFromId($entityId);
 
     $definition = $this->getPluginDefinition();
-    if ($entity->getEntityTypeId() !== $definition['entity_type']) {
+    if ($updatedEntity->getEntityTypeId() !== $definition['entity_type']) {
       throw new BadRequestHttpException('Invalid entity type');
     }
     // The denormalizer requires the bundle to be sent for some reason.
     // We don't want to allow the bundle to be changed.
-    if ($originalEntity->bundle() !== $entity->bundle()) {
+    if ($originalEntity->bundle() !== $updatedEntity->bundle()) {
       throw new BadRequestHttpException('Changing the entity type is not allowed.');
     }
-    if (!$entity->access('update')) {
+    if (!$updatedEntity->access('update')) {
       throw new AccessDeniedHttpException();
     }
 
     // Overwrite the received properties.
-    $entityKeys = $entity->getEntityType()->getKeys();
-    foreach ($entity->_restSubmittedFields as $fieldName) {
-      $field = $entity->get($fieldName);
+    $entityKeys = $updatedEntity->getEntityType()->getKeys();
+    foreach ($updatedEntity->_restSubmittedFields as $fieldName) {
+      $field = $updatedEntity->get($fieldName);
 
       // Entity key fields need special treatment: together they uniquely
       // identify the entity. Therefore it does not make sense to modify any of
@@ -304,7 +312,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       // long as their specified values match their current values.
       if (in_array($fieldName, $entityKeys, TRUE)) {
         // Unchanged values for entity keys don't need access checking.
-        if ($originalEntity->get($fieldName)->getValue() === $entity->get($fieldName)->getValue()) {
+        if ($originalEntity->get($fieldName)->getValue() === $updatedEntity->get($fieldName)->getValue()) {
           continue;
         }
         // It is not possible to set the language to NULL as it is automatically
@@ -317,6 +325,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       if (!$originalEntity->get($fieldName)->access('edit')) {
         throw new AccessDeniedHttpException("Access denied on updating field '$fieldName'.");
       }
+
       $originalEntity->set($fieldName, $field->getValue());
     }
 
@@ -324,7 +333,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     $this->validate($originalEntity);
     try {
       $originalEntity->save();
-      $this->logger->notice('Updated entity %type with ID %id.', array('%type' => $originalEntity->getEntityTypeId(), '%id' => $originalEntity->id()));
+      $this->logger->notice('Updated entity %type with ID %id.', ['%type' => $originalEntity->getEntityTypeId(), '%id' => $originalEntity->id()]);
 
       // Return the updated entity in the response body.
       return new ModifiedResourceResponse($originalEntity, 200);
@@ -360,9 +369,9 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
 
     if (NULL === $entity) {
       throw new NotFoundHttpException(
-        t('The QAShot Test with ID @id was not found', array(
+        t('The QAShot Test with ID @id was not found', [
           '@id' => $entityId,
-        ))
+        ])
       );
     }
 
@@ -400,6 +409,26 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
       // 400) and semantic errors in well-formed requests (code 422).
       throw new HttpException(422, $message);
     }
+  }
+
+  /**
+   * Generates a fallback access denied message, when no specific reason is set.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity object.
+   * @param string $operation
+   *   The disallowed entity operation.
+   *
+   * @return string
+   *   The proper message to display in the AccessDeniedHttpException.
+   */
+  protected function generateFallbackAccessDeniedMessage(EntityInterface $entity, $operation): string {
+    $message = "You are not authorized to {$operation} this {$entity->getEntityTypeId()} entity";
+
+    if ($entity->bundle() !== $entity->getEntityTypeId()) {
+      $message .= " of bundle {$entity->bundle()}";
+    }
+    return "{$message}.";
   }
 
 }

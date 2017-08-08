@@ -5,7 +5,6 @@ namespace Drupal\qa_shot_rest_api\Normalizer;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\serialization\Normalizer\ListNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
@@ -30,6 +29,8 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\Serializer\Exception\InvalidArgumentException
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
     if (!isset($context['target_instance'])) {
@@ -37,18 +38,19 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
     }
 
     if (!isset($context['qa_shot_field_name'])) {
-      throw new InvalidArgumentException("\$context['target_instance'] must be set to denormalize with the FieldNormalizer.");
+      throw new InvalidArgumentException("\$context['qa_shot_field_name'] must be set to denormalize with the FieldNormalizer.");
     }
 
     if ($context['target_instance']->getParent() == NULL) {
       throw new InvalidArgumentException("The field passed in via \$context['target_instance'] must have a parent set.");
     }
 
-    /** @var FieldItemListInterface $items */
+    /** @var \Drupal\Core\Field\FieldItemListInterface $items */
     $items = $context['target_instance'];
     $itemClass = $items->getItemDefinition()->getClass();
     $fieldName = $context['qa_shot_field_name'];
 
+    // @fixme: Not elegant, but works.
     if (!is_array($data)) {
       $key = 'value';
       if ($fieldName === 'user_id') {
