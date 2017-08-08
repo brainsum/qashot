@@ -89,12 +89,14 @@ class ComputedLastRunMetadata extends TypedData {
       }
       // Otherwise, cache the stage and add the data to the results.
       $stages[] = $item['stage'];
-      $result[] = $data;
+      $result[] = $item;
     }
 
-    // We process the $data array in reverse order,
-    // so we also reverse the $result.
-    $result = array_reverse($result);
+    if (count($result) == 2 && $result[0]['stage'] == "after") {
+      // We process the $data array in reverse order,
+      // so we also reverse the $result.
+      $result = array_reverse($result);
+    }
 
     return $result;
   }
