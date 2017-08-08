@@ -161,7 +161,7 @@ class ApiController extends ControllerBase {
     $id = $settings['tid'];
 
     try {
-      /** @var \Drupal\qa_shot\Service\QAShotImmediatelyTest $test_runner */
+      /** @var \Drupal\qa_shot\Service\RunTestImmediately $test_runner */
       $test_runner = \Drupal::service('qa_shot.immediately_test');
       $test_runner->run($id);
       $status = "success";

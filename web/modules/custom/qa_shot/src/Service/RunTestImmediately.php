@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Marton
- * Date: 2017. 08. 04.
- * Time: 18:00
- */
 
 namespace Drupal\qa_shot\Service;
-
 
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -21,7 +14,13 @@ use Drupal\qa_shot\Queue\QAShotQueueFactory;
 use Drupal\qa_shot\Queue\QAShotQueueInterface;
 use Drupal\qa_shot\Queue\QAShotQueueWorkerManager;
 
-class QAShotImmediatelyTest {
+/**
+ * Class RunTestImmediately.
+ *
+ * @package Drupal\qa_shot\Service
+ */
+class RunTestImmediately {
+
   /**
    * The manager.
    *
@@ -200,4 +199,5 @@ class QAShotImmediatelyTest {
       throw $e;
     }
   }
+
 }

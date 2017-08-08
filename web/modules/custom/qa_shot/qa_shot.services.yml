@@ -31,5 +31,5 @@ services:
     arguments: ['@database']
 
   qa_shot.immediately_test:
-    class: Drupal\qa_shot\Service\QAShotImmediatelyTest
+    class: Drupal\qa_shot\Service\RunTestImmediately
     arguments: ['@plugin.manager.qa_shot_queue_worker', '@qa_shot.test_queue_factory', '@entity_type.manager', '@logger.factory']
