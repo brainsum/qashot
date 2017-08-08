@@ -27,6 +27,14 @@ class EntityReferenceItemNormalizer extends ComplexDataNormalizer {
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     if ($entity = $fieldItem->get('entity')->getValue()) {
       $value = $entity->id();
+      if ($entity->getEntityTypeId() === 'taxonomy_term') {
+        /** @var \Drupal\taxonomy\Entity\Term $entity */
+        $nameValue = $entity->get('name')->getValue();
+        $value = [
+          'id' => $entity->id(),
+          'name' => reset($nameValue)['value'],
+        ];
+      }
     }
 
     return $value;
