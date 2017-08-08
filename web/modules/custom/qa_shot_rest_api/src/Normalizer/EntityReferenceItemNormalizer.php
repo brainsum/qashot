@@ -4,7 +4,6 @@ namespace Drupal\qa_shot_rest_api\Normalizer;
 
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\serialization\Normalizer\ComplexDataNormalizer;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class EntityReferenceFieldItemNormalizer.
