@@ -4,6 +4,7 @@ namespace Drupal\qa_shot_rest_api\Normalizer;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\serialization\Normalizer\ListNormalizer;
+use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -57,6 +58,29 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
         $key = 'target_id';
       }
       $data = [[$key => $data]];
+    }
+    if ($fieldName === 'field_tag') {
+      $termStorage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+
+      $termData = [];
+      foreach ($data as $termName) {
+        // Load or create term.
+        /** @var \Drupal\Core\Entity\EntityInterface[] $terms */
+        // Try loading the term by name.
+        $terms = $termStorage->loadByProperties(['vid' => 'tag', 'name' => $termName]);
+        // If not there, create it.
+        if (empty($terms)) {
+          $term = $termStorage->create(['vid' => 'tag', 'name' => $termName]);
+        }
+        // Otherwise, use the first existing one.
+        else {
+          $term = reset($terms);
+        }
+
+        $termData[] = $term;
+      }
+
+      $data = $termData;
     }
 
     foreach ($data as $itemData) {
