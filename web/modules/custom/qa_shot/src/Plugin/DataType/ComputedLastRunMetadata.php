@@ -85,7 +85,7 @@ class ComputedLastRunMetadata extends TypedData {
       // If a stage is already added, we reached the termination point.
       if (in_array($item['stage'], $stages, FALSE)) {
         // There shouldn't be another item with this stage value, so break.
-        break;
+        continue;
       }
       // Otherwise, cache the stage and add the data to the results.
       $stages[] = $item['stage'];
