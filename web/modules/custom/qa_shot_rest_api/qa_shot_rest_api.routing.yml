@@ -45,3 +45,27 @@ qa_shot_rest_api.force_run:
      _format: json
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+
+qa_shot_rest_api.last_modification:
+  path: 'api/rest/v1/last_modification'
+  defaults:
+    _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::getLastModification'
+  methods: [POST]
+  options:
+   _auth: ['basic_auth', 'cookie']
+   query:
+     _format: json
+  requirements:
+    _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+
+qa_shot_rest_api.queue_status:
+  path: 'api/rest/v1/queue_status'
+  defaults:
+    _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::getQueueStatus'
+  methods: [POST]
+  options:
+   _auth: ['basic_auth', 'cookie']
+   query:
+     _format: json
+  requirements:
+    _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'

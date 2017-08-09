@@ -302,6 +302,124 @@ class ApiController extends ControllerBase {
   }
 
   /**
+   * Return the list of queue data which related with the sent ids.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws \InvalidArgumentException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function getQueueStatus(Request $request) : JsonResponse {
+    try {
+      $runnerSettings = [];
+      if (!empty($request->getContent())) {
+        $runnerSettings = json_decode($request->getContent(), TRUE);
+      }
+
+      if (empty($runnerSettings)) {
+        throw new BadRequestHttpException('The request parameter is empty. Please set \'tids\' (array) parameter.');
+      }
+
+      if (empty($runnerSettings['tids']) || !is_array($runnerSettings['tids'])) {
+        throw new BadRequestHttpException('The \'tids\' parameter is empty or not an array.');
+      }
+
+      $ids = $runnerSettings['tids'];
+
+      /** @var \Drupal\qa_shot\service\QAShotQueueData $queue_service */
+      $queue_service = \Drupal::service('qa_shot.queue_data');
+
+      $queue_datas = [];
+      foreach ($ids as $id) {
+        $queue_data = $queue_service->getDataFromQueue($id);
+
+        $queue_datas[] = $queue_data ?? FALSE;
+      }
+
+      $responseData = [
+        'queue_datas' => $queue_datas,
+      ];
+    }
+    catch (BadRequestHttpException $e) {
+      $responseData = [
+        'queue_datas' => [],
+        'error' => $e->getMessage(),
+      ];
+    }
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
+   * Return the list of modified data.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws \InvalidArgumentException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function getLastModification(Request $request) : JsonResponse {
+    try {
+      $runnerSettings = [];
+      if (!empty($request->getContent())) {
+        $runnerSettings = json_decode($request->getContent(), TRUE);
+      }
+
+      if (empty($runnerSettings)) {
+        throw new BadRequestHttpException('The request parameter is empty. Please set \'entities\' (array) parameter.');
+      }
+
+      if (empty($runnerSettings['entities']) || !is_array($runnerSettings['entities'])) {
+        throw new BadRequestHttpException('The \'entities\' parameter is empty or not an array.');
+      }
+
+      $req_entities = $runnerSettings['entities'];
+
+      $ids = [];
+      foreach ($req_entities as $req_entity) {
+        $ids[] = $req_entity['tid'];
+      }
+
+      $entities = $this->testStorage->loadMultiple($ids);
+
+      $response_entities = [];
+      $no_changes = [];
+      foreach ($req_entities as $req_entity) {
+        if ($entities[$req_entity['tid']]) {
+          $testAsArray = $this->serializer->normalize($entities[$req_entity['tid']]);
+
+          if ($testAsArray['changed'] > $req_entity['changed']) {
+            $response_entities[] = $testAsArray;
+          }
+          else {
+            $no_changes[] = $req_entity['tid'];
+          }
+        }
+      }
+
+      $responseData = [
+        'updates' => $response_entities,
+        'unchanged' => $no_changes,
+      ];
+    }
+    catch (BadRequestHttpException $e) {
+      $responseData = [
+        'updates' => [],
+        'unchanged' => [],
+        'error' => $e->getMessage(),
+      ];
+    }
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
    * Function to generate a pager.
    *
    * @param int $page
