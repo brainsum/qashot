@@ -131,7 +131,7 @@ function qa_shot_form_alter(
   $form_id
 ) {
   // Display the run button on QAShot edit form only.
-  if($form_id == "qa_shot_test_a_b_edit_form") {
+  if ($form_id == "qa_shot_test_a_b_edit_form") {
     $form['actions']['run'] = array(
       '#type'   => 'submit',
       '#value'  => t('Add test to queue'),
