@@ -52,10 +52,6 @@ class MachineLearning {
       (int) $metadata[0]['scenario_count'],
     ];
 
-    dpm($samples);
-    dpm($targets);
-    dpm($predictFor);
-
     $tmpFilePath = \Drupal::service('file_system')->realpath(PrivateStream::basePath()) . '/qa_test_data/' . $entity->id() . '/tmp/';
     $regression = new SVR(Kernel::LINEAR, 3, 0.1, 1.0, NULL, 0.0, 0.001, 100, TRUE, $tmpFilePath);
     // @note: This is not there by default.
