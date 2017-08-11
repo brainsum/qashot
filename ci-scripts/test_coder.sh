@@ -25,7 +25,7 @@ HAS_ERRORS=0
 code_review () {
   echo "${LWHITE}$1${RESTORE}"
 
-  if ! phpcs --standard="$REVIEW_STANDARD" -p --colors --extensions=php,module,inc,install,test,profile,theme,js,css "$1"; then
+  if ! phpcs --standard="$REVIEW_STANDARD" -p --colors --extensions=php,module,inc,install,test,profile "$1"; then
     HAS_ERRORS=1
   fi
 }
