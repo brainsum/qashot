@@ -1,13 +1,18 @@
-sudo: required
 language: php
+
 php:
 - 7.0
+
 env:
   matrix:
   - CODE_REVIEW=1 REVIEW_STANDARD="Drupal"
   - CODE_REVIEW=1 REVIEW_STANDARD="DrupalPractice"
 
+before_install:
+- export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+
 install:
 - "$TRAVIS_BUILD_DIR/ci-scripts/install_coder.sh"
+
 script:
 - "$TRAVIS_BUILD_DIR/ci-scripts/test_coder.sh"
