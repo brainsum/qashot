@@ -23,52 +23,16 @@ function qa_shot_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
-// @todo: implement this garbage collection here for our custom queues.
-///**
-// * Implements hook_cron().
-// *
-// * Remove older rows from flood, batch cache and expirable keyvalue tables.
-// */
-//function system_cron() {
-//  // Clean up the flood.
-//  \Drupal::flood()->garbageCollection();
-//
-//  foreach (Cache::getBins() as $cache_backend) {
-//    $cache_backend->garbageCollection();
-//  }
-//
-//  // Clean up the expirable key value database store.
-//  if (\Drupal::service('keyvalue.expirable.database') instanceof KeyValueDatabaseExpirableFactory) {
-//    \Drupal::service('keyvalue.expirable.database')->garbageCollection();
-//  }
-//
-//  // Clean up any garbage in the queue service.
-//  $queue_worker_manager = \Drupal::service('plugin.manager.queue_worker');
-//  $queue_factory = \Drupal::service('queue');
-//
-//  foreach (array_keys($queue_worker_manager->getDefinitions()) as $queue_name) {
-//    $queue = $queue_factory->get($queue_name);
-//
-//    if ($queue instanceof QueueGarbageCollectionInterface) {
-//      $queue->garbageCollection();
-//    }
-//  }
-//
-//  // Clean up PHP storage.
-//  PhpStorageFactory::get('container')->garbageCollection();
-//  PhpStorageFactory::get('service_container')->garbageCollection();
-//}
-
 /**
  * Implements hook_theme().
  */
 function qa_shot_theme() {
   $theme = [];
-  $theme['qa_shot_test'] = array(
+  $theme['qa_shot_test'] = [
     'render element' => 'elements',
     'file' => 'qa_shot_test.page.inc',
     'template' => 'qa_shot_test',
-  );
+  ];
   $theme['qa_shot_test_content_add_list'] = [
     'render element' => 'content',
     'variables' => ['content' => NULL],
@@ -95,7 +59,7 @@ function qa_shot_theme() {
  * Implements hook_theme_suggestions_HOOK().
  */
 function qa_shot_theme_suggestions_qa_shot_test(array $variables) {
-  $suggestions = array();
+  $suggestions = [];
   /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
   $entity = $variables['elements']['#qa_shot_test'];
   $sanitized_view_mode = str_replace('.', '_', $variables['elements']['#view_mode']);
@@ -132,33 +96,33 @@ function qa_shot_form_alter(
 ) {
   // Display the run button on QAShot edit form only.
   if ($form_id == "qa_shot_test_a_b_edit_form") {
-    $form['actions']['run'] = array(
+    $form['actions']['run'] = [
       '#type'   => 'submit',
       '#value'  => t('Add test to queue'),
       '#weight' => $form['actions']['submit']['#weight'] + 1,
       // '#ajax' => ['callback' => [$this, 'ajaxCallback']], //.
-      '#submit' => array("qa_shot_qa_shot_test_run_handler"),
-    );
+      '#submit' => ["qa_shot_qa_shot_test_run_handler"],
+    ];
   }
   // Display the run before/after buttons on QAShot edit form only.
   elseif ($form_id == "qa_shot_test_before_after_edit_form") {
-    $form['actions']['run_reference'] = array(
+    $form['actions']['run_reference'] = [
       '#type'   => 'submit',
       '#value'  => t('Queue taking "Before" shots'),
       '#weight' => $form['actions']['submit']['#weight'] + 1,
-      '#submit' => array("qa_shot_qa_shot_test_run_handler"),
-    );
+      '#submit' => ["qa_shot_qa_shot_test_run_handler"],
+    ];
 
     // Show this option only in that case, if there's at least one run.
     // NOTE: Currently any ways the first run is the "before" run.
     $test_metadata = $form_state->getFormObject()->getEntity()->getLifetimeMetadataValue();
     if (count($test_metadata) > 0) {
-      $form['actions']['run_after'] = array(
+      $form['actions']['run_after'] = [
         '#type'   => 'submit',
         '#value'  => t('Queue taking "After" shots'),
         '#weight' => $form['actions']['submit']['#weight'] + 1,
-        '#submit' => array("qa_shot_qa_shot_test_run_handler"),
-      );
+        '#submit' => ["qa_shot_qa_shot_test_run_handler"],
+      ];
     }
   }
 }
