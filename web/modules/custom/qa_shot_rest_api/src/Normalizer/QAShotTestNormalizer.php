@@ -245,4 +245,36 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
     return [$bundleKey => $bundleValue];
   }
 
+  /**
+   * Denormalizes entity data by denormalizing each field individually.
+   *
+   * @param array $data
+   *   The data to denormalize.
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   The fieldable entity to set field values for.
+   * @param string $format
+   *   The serialization format.
+   * @param array $context
+   *   The context data.
+   */
+  protected function denormalizeFieldData(array $data, FieldableEntityInterface $entity, $format, array $context) {
+    foreach ($data as $fieldName => $fieldData) {
+      $fieldItemList = $entity->get($fieldName);
+
+      // Remove any values that were set as a part of entity creation (e.g
+      // uuid). If the incoming field data is set to an empty array, this will
+      // also have the effect of emptying the field in REST module.
+      $fieldItemList->setValue([]);
+      $fieldClass = get_class($fieldItemList);
+
+      if ($fieldData) {
+        // The field instance must be passed in the context so that the field
+        // denormalizer can update field values for the parent entity.
+        $context['qa_shot_field_name'] = $fieldName;
+        $context['target_instance'] = $fieldItemList;
+        $this->serializer->denormalize($fieldData, $fieldClass, $format, $context);
+      }
+    }
+  }
+
 }

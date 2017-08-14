@@ -121,6 +121,64 @@ class ApiController extends ControllerBase {
   }
 
   /**
+   * For testing login function.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws BadRequestHttpException
+   * @throws \InvalidArgumentException
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   * @throws \LogicException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function loginTest(Request $request): JsonResponse {
+    $responseData = [
+      'status' => "success",
+    ];
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
+   * Get force run a test function.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws BadRequestHttpException
+   * @throws \InvalidArgumentException
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   * @throws \LogicException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function forceRun(Request $request): JsonResponse {
+    $settings = $this->parseRunnerSettings($request);
+    $id = $settings['tid'];
+
+    try {
+      /** @var \Drupal\qa_shot\Service\RunTestImmediately $test_runner */
+      $test_runner = \Drupal::service('qa_shot.immediately_test');
+      $test_runner->run($id);
+      $status = "success";
+    }
+    catch (QAShotBaseException $e) {
+      $status = $e->getMessage();
+    }
+
+    $responseData = [
+      'tested_id' => $id,
+      'status' => $status,
+    ];
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
    * Parse the runner settings from the request.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
@@ -212,24 +270,149 @@ class ApiController extends ControllerBase {
     $page = $page < 1 ? 1 : $page;
     $limit = (int) $request->query->get('limit', 10);
     $limit = $limit < 0 ? 0 : $limit;
+    $type = $request->query->get('type', '');
+    $condition = [];
 
     $queryStartIndex = ($page - 1) * $limit;
 
-    $testsIds = $this->testStorage->getQuery()->range($queryStartIndex, $limit)->execute();
+    $query = $this->testStorage->getQuery()->range($queryStartIndex, $limit);
+    if (!empty($type)) {
+      $query->condition('type', $type, '=');
+      $condition['type'] = ['value' => $type, 'operator' => '='];
+    }
+    $testsIds = $query->execute();
     $tests = $this->testStorage->loadMultiple($testsIds);
 
     $responseData = [
-      'pagination' => $this->generatePager($page, $limit),
+      'pagination' => $this->generatePager($page, $limit, $condition),
       'entity' => [],
     ];
 
     foreach ($tests as $test) {
-      $testAsArray = $test->toArray();
+      $testAsArray = $this->serializer->normalize($test);
       $responseData['entity'][] = [
         'id' => $testAsArray['id'],
         'name' => $testAsArray['name'],
         'type' => $testAsArray['type'],
         'metadata_last_run' => $testAsArray['metadata_last_run'],
+      ];
+    }
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
+   * Return the list of queue data which related with the sent ids.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws \InvalidArgumentException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function getQueueStatus(Request $request) : JsonResponse {
+    try {
+      $runnerSettings = [];
+      if (!empty($request->getContent())) {
+        $runnerSettings = json_decode($request->getContent(), TRUE);
+      }
+
+      if (empty($runnerSettings)) {
+        throw new BadRequestHttpException('The request parameter is empty. Please set \'tids\' (array) parameter.');
+      }
+
+      if (empty($runnerSettings['tids']) || !is_array($runnerSettings['tids'])) {
+        throw new BadRequestHttpException('The \'tids\' parameter is empty or not an array.');
+      }
+
+      $ids = $runnerSettings['tids'];
+
+      /** @var \Drupal\qa_shot\service\QAShotQueueData $queue_service */
+      $queue_service = \Drupal::service('qa_shot.queue_data');
+
+      $queue_datas = [];
+      foreach ($ids as $id) {
+        $queue_data = $queue_service->getDataFromQueue($id);
+
+        $queue_datas[] = $queue_data ?? FALSE;
+      }
+
+      $responseData = [
+        'queue_datas' => $queue_datas,
+      ];
+    }
+    catch (BadRequestHttpException $e) {
+      $responseData = [
+        'queue_datas' => [],
+        'error' => $e->getMessage(),
+      ];
+    }
+
+    return new JsonResponse($responseData);
+  }
+
+  /**
+   * Return the list of modified data.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @throws \InvalidArgumentException
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   */
+  public function getLastModification(Request $request) : JsonResponse {
+    try {
+      $runnerSettings = [];
+      if (!empty($request->getContent())) {
+        $runnerSettings = json_decode($request->getContent(), TRUE);
+      }
+
+      if (empty($runnerSettings)) {
+        throw new BadRequestHttpException('The request parameter is empty. Please set \'entities\' (array) parameter.');
+      }
+
+      if (empty($runnerSettings['entities']) || !is_array($runnerSettings['entities'])) {
+        throw new BadRequestHttpException('The \'entities\' parameter is empty or not an array.');
+      }
+
+      $req_entities = $runnerSettings['entities'];
+
+      $ids = [];
+      foreach ($req_entities as $req_entity) {
+        $ids[] = $req_entity['tid'];
+      }
+
+      $entities = $this->testStorage->loadMultiple($ids);
+
+      $response_entities = [];
+      $no_changes = [];
+      foreach ($req_entities as $req_entity) {
+        if ($entities[$req_entity['tid']]) {
+          $testAsArray = $this->serializer->normalize($entities[$req_entity['tid']]);
+
+          if ($testAsArray['changed'] > $req_entity['changed']) {
+            $response_entities[] = $testAsArray;
+          }
+          else {
+            $no_changes[] = $req_entity['tid'];
+          }
+        }
+      }
+
+      $responseData = [
+        'updates' => $response_entities,
+        'unchanged' => $no_changes,
+      ];
+    }
+    catch (BadRequestHttpException $e) {
+      $responseData = [
+        'updates' => [],
+        'unchanged' => [],
+        'error' => $e->getMessage(),
       ];
     }
 
@@ -243,6 +426,8 @@ class ApiController extends ControllerBase {
    *   The current page.
    * @param int $limit
    *   Items per page.
+   * @param array $condition
+   *   Items condition.
    *
    * @throws \Symfony\Component\Routing\Exception\MissingMandatoryParametersException
    * @throws \Symfony\Component\Routing\Exception\InvalidParameterException
@@ -251,15 +436,24 @@ class ApiController extends ControllerBase {
    * @return array
    *   The pager as array.
    */
-  private function generatePager($page, $limit): array {
-    $totalEntityCount = $this->testStorage->getQuery()->count()->execute();
+  private function generatePager($page, $limit, $condition = []): array {
+    $query = $this->testStorage->getQuery();
+    foreach ($condition as $key => $data) {
+      $query->condition($key, $data['value'], $data['operator']);
+    }
+    $totalEntityCount = $query->count()->execute();
     $totalPageCount = (int) ceil($totalEntityCount / $limit);
 
     $routeParams = [
       '_format' => 'json',
       'page' => $page,
       'limit' => $limit,
+      'type' => $limit,
     ];
+
+    foreach ($condition as $key => $data) {
+      $routeParams[$key] = $data['value'];
+    }
 
     $routeOptions = [
       'absolute' => TRUE,
@@ -275,21 +469,21 @@ class ApiController extends ControllerBase {
       // The total count of pages.
       'total_pages' => (string) $totalPageCount,
       'links' => [
-        'self' => Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions),
+        'self' => Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString(),
       ],
     ];
 
     if ($page > 1) {
       $routeParams['page'] = $page - 1;
-      $pager['links']['previous'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['previous'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
       $routeParams['page'] = 1;
-      $pager['links']['first'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['first'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
     }
     if ($page < $totalPageCount) {
       $routeParams['page'] = $page + 1;
-      $pager['links']['next'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['next'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
       $routeParams['page'] = $totalPageCount;
-      $pager['links']['last'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions);
+      $pager['links']['last'] = Url::fromRoute('qa_shot_rest_api.test_list', $routeParams, $routeOptions)->toString();
     }
 
     return $pager;

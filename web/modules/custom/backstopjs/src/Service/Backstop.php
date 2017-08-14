@@ -209,9 +209,9 @@ class Backstop extends TestBackendBase {
       $screenshots[] = [
         'scenario_id' => (int) current($scenarioIds),
         'viewport_id' => (int) current($viewportIds),
-        'reference' => str_replace('../', $entity->id() . '/', $screenshot['pair']['reference']),
-        'test' => str_replace('../', $entity->id() . '/', $screenshot['pair']['test']),
-        'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('../', $entity->id() . '/', $screenshot['pair']['diffImage']) : '',
+        'reference' => str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['reference']),
+        'test' => str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['test']),
+        'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['diffImage']) : '',
         'success' => $screenshot['status'] === 'pass',
       ];
 

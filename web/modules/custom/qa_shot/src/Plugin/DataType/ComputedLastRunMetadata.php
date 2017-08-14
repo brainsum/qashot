@@ -85,16 +85,19 @@ class ComputedLastRunMetadata extends TypedData {
       // If a stage is already added, we reached the termination point.
       if (in_array($item['stage'], $stages, FALSE)) {
         // There shouldn't be another item with this stage value, so break.
-        break;
+        continue;
       }
       // Otherwise, cache the stage and add the data to the results.
       $stages[] = $item['stage'];
-      $result[] = $data;
+      $result[] = $item;
     }
 
-    // We process the $data array in reverse order,
-    // so we also reverse the $result.
-    $result = array_reverse($result);
+    // @fixme
+    if (count($result) == 2 && $result[0]['stage'] == "after") {
+      // We process the $data array in reverse order,
+      // so we also reverse the $result.
+      $result = array_reverse($result);
+    }
 
     return $result;
   }

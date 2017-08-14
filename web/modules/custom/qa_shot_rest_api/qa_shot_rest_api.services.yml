@@ -71,6 +71,11 @@ services:
     tags:
       - { name: normalizer, priority: 15 }
 
+  qa_shot_rest_api.normalizer.field:
+    class: Drupal\qa_shot_rest_api\Normalizer\FieldNormalizer
+    tags:
+      - { name: normalizer, priority: 10 }
+
   qa_shot_rest_api.normalizer.item:
     class: Drupal\qa_shot_rest_api\Normalizer\ItemNormalizer
     tags:
