@@ -2,13 +2,11 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\backstopjs\Component\LocalBackstopJS;
+use Drupal\backstopjs\Component\RemoteBackstopJS;
 use Drupal\backstopjs\Exception\EmptyResultsException;
-use Drupal\backstopjs\Exception\FileOpenException;
-use Drupal\backstopjs\Exception\FileWriteException;
-use Drupal\backstopjs\Exception\FolderCreateException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\backstopjs\Exception\InvalidCommandException;
 use Drupal\backstopjs\Exception\InvalidConfigurationException;
@@ -43,6 +41,13 @@ class Backstop extends TestBackendBase {
   protected $logger;
 
   /**
+   * The Local or Remote BackstopJS.
+   *
+   * @var \Drupal\backstopjs\Component\BackstopJSInterface
+   */
+  protected $backstop;
+
+  /**
    * Backstop constructor.
    *
    * @param \Drupal\backstopjs\Service\FileSystem $backstopFileSystem
@@ -56,6 +61,11 @@ class Backstop extends TestBackendBase {
   ) {
     $this->backstopFileSystem = $backstopFileSystem;
     $this->logger = $loggerChannelFactory->get('backstopjs');
+
+    $local = TRUE;
+    $this->backstop = (TRUE === $local)
+      ? new LocalBackstopJS($backstopFileSystem, $loggerChannelFactory)
+      : new RemoteBackstopJS($backstopFileSystem, $loggerChannelFactory);
   }
 
   /**
@@ -362,116 +372,30 @@ class Backstop extends TestBackendBase {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    *
+   * @return array
+   *   Array with data from the command run.
+   *
    * @throws BackstopAlreadyRunningException
    *   When Backstop is already running.
    * @throws InvalidCommandException
    *   When the supplied command is not a valid BackstopJS command.
-   *
-   * @return array
-   *   Array with data from the command run.
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
    */
   private function runCommand($command, QAShotTestInterface $entity): array {
     if (!$this->isCommandValid($command)) {
       throw new InvalidCommandException("The supplied command '$command' is not valid.");
     }
 
-    $this->checkBackstopRunStatus();
-    /*
-     * @todo: real-time output @see: QAS-90.
-     */
-    // @todo: Add separate function.
+    $this->backstop->checkRunStatus();
+
     $testerEngine = 'phantomjs';
     if ($engine = $entity->getTestEngine()) {
       $testerEngine = $engine;
     }
 
-    // @todo: Add an admin form where the user can input the path of binaries.
-    // @todo: What if local install, not docker/server?
-    // With slimerjs we have to use xvfb-run.
-    $xvfb = '';
-    if ($testerEngine === 'slimerjs') {
-      $xvfb = 'xvfb-run -a ';
-    }
-
-    $backstopCommand = escapeshellcmd($xvfb . 'backstop ' . $command . ' --configPath=' . $entity->getConfigurationPath());
-    /** @var array $execOutput */
-    /** @var int $status */
-    exec($backstopCommand, $execOutput, $status);
-
-    $results = [
-      'result' => TRUE,
-      'passedTestCount' => NULL,
-      'failedTestCount' => NULL,
-      'bitmapGenerationSuccess' => FALSE,
-      'backstopEngine' => $testerEngine,
-    ];
-
-    foreach ($execOutput as $line) {
-      // Search for bitmap generation string.
-      if (strpos($line, 'Bitmap file generation completed.') !== FALSE) {
-        $results['bitmapGenerationSuccess'] = TRUE;
-        continue;
-      }
-
-      // Search for the reports.
-      if (strpos($line, 'report |') !== FALSE) {
-        // Search for the number of passed tests.
-        if ($results['passedTestCount'] === NULL && strpos($line, 'Passed') !== FALSE) {
-          $results['passedTestCount'] = (int) preg_replace('/\D/', '', $line);
-        }
-
-        // Search for the number of failed tests.
-        if ($results['failedTestCount'] === NULL && strpos($line, 'Failed') !== FALSE) {
-          $results['failedTestCount'] = (int) preg_replace('/\D/', '', $line);
-        }
-      }
-    }
-
-    try {
-      $debugPath = $this->backstopFileSystem->getPrivateFiles() . '/' . $entity->id() . '/debug';
-      $debugFile = time() . '.debug.txt';
-      $this->backstopFileSystem->createFolder($debugPath);
-      $this->backstopFileSystem->createConfigFile($debugPath . '/' . $debugFile, var_export($execOutput, TRUE));
-    }
-    catch (\Exception $e) {
-      $log = $e instanceof FolderCreateException || $e instanceof FileWriteException || $e instanceof FileOpenException;
-      if ($log) {
-        $this->logger->debug('Could not create debug files for entity ' . $entity->id() . '.');
-      }
-      else {
-        throw $e;
-      }
-
-    }
-
-    if (!$results['bitmapGenerationSuccess']) {
-      $results['result'] = FALSE;
-      drupal_set_message('Bitmap generation failed.');
-      return $results;
-    }
-
-    /*
-    if ($status !== 0) {
-    // @todo: Here what?
-    }
-     */
-    return $results;
-  }
-
-  /**
-   * Checks whether Backstop is running or not.
-   *
-   * @throws BackstopAlreadyRunningException
-   */
-  private function checkBackstopRunStatus() {
-    $checkerCommand = escapeshellcmd('pgrep -f backstop -c');
-    $res = exec($checkerCommand, $execOutput, $status);
-
-    // > 1 is used since the pgrep command gets included as well.
-    if (is_numeric($res) && (int) $res > 1) {
-      $this->logger->warning('BackstopJS is already running.');
-      throw new BackstopAlreadyRunningException('BackstopJS is already running.');
-    }
+    return $this->backstop->run($testerEngine, $command, $entity);
   }
 
   /**
@@ -514,14 +438,7 @@ class Backstop extends TestBackendBase {
    *   The status as string.
    */
   public function getStatus(): string {
-    $checkerCommand = escapeshellcmd('pgrep -l -a -f backstop');
-    exec($checkerCommand, $execOutput, $status);
-
-    $result = array_filter($execOutput, function ($row) use ($checkerCommand) {
-      return strpos($row, $checkerCommand) === FALSE;
-    });
-
-    return json_encode(['output' => $result, 'status' => $status]);
+    return $this->backstop->getStatus();
   }
 
 }
