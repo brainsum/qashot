@@ -13,8 +13,8 @@ services:
 #      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
 
   php:
-    image: wodby/drupal-php:7.1-2.4.3
-#    image: wodby/drupal-php:7.0-2.4.3
+#    image: wodby/drupal-php:7.1-2.4.3
+    image: wodby/drupal-php:7.0-2.4.3
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: mariadb
