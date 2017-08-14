@@ -20,3 +20,12 @@ services:
 
   mailhog:
     restart: always
+
+  backstop_node:
+    restart: always
+
+  portainer:
+    restart: always
+
+  traefik:
+    restart: always
