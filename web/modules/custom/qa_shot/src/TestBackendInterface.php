@@ -52,4 +52,12 @@ interface TestBackendInterface {
    */
   public function removeUnusedFilesForTest(QAShotTestInterface $entity);
 
+  /**
+   * Returns the status of backstopjs.
+   *
+   * @return string
+   *   The status as string.
+   */
+  public function getStatus(): string;
+
 }

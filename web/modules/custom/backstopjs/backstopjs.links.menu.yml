@@ -1,0 +1,5 @@
+backstopjs.settings:
+  title: 'BackstopJS Settings'
+  parent: system.admin_config_qa_shot
+  route_name: 'backstopjs.settings_form'
+  description: 'Configure BackstopJS.'

@@ -71,7 +71,7 @@ class ConfigurationConverter {
 
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->paragraphStorage = $entityTypeManager->getStorage('paragraph');
-    $this->config = $configFactory->get('qa_shot.settings');
+    $this->config = $configFactory->get('backstopjs.settings');
   }
 
   /**

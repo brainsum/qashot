@@ -1,0 +1,7 @@
+backstopjs.settings_form:
+  path: '/admin/config/qa_shot/backstopjs_settings'
+  defaults:
+    _form: '\Drupal\backstopjs\Form\BackstopjsSettingsForm'
+    _title: 'BackstopJS Settings'
+  requirements:
+    _permission: 'administer backstopjs configuration'

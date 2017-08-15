@@ -1,0 +1,4 @@
+administer backstopjs configuration:
+  title: 'Administer BackstopJS settings'
+  description: 'Allow to access the administration form to configure the module.'
+  restrict access: true

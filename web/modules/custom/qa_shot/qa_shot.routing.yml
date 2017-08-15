@@ -49,7 +49,7 @@ qa_shot.settings:
     _permission: 'access administration pages'
 
 qa_shot.settings_form:
-  path: '/admin/config/qa_shot/settings'
+  path: '/admin/config/qa_shot/qa_shot_settings'
   defaults:
     _form: '\Drupal\qa_shot\Form\QAShotSettingsForm'
     _title: 'QAShot Settings'

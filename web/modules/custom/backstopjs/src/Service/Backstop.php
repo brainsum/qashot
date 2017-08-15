@@ -429,10 +429,7 @@ class Backstop extends TestBackendBase {
   }
 
   /**
-   * Returns the status of backstopjs.
-   *
-   * @return string
-   *   The status as string.
+   * {@inheritdoc}
    */
   public function getStatus(): string {
     return $this->backstop->getStatus();

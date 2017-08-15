@@ -41,7 +41,7 @@ abstract class TestBackendBase implements TestBackendInterface {
    * @return array
    *   The result array of the test run for the provided stage.
    */
-  abstract protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage);
+  abstract protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage): array;
 
   /**
    * Run tests in A/B mode.
@@ -55,6 +55,6 @@ abstract class TestBackendBase implements TestBackendInterface {
    * @return array
    *   The result array of the test run.
    */
-  abstract protected function runABTest(QAShotTestInterface $entity);
+  abstract protected function runAbTest(QAShotTestInterface $entity): array;
 
 }

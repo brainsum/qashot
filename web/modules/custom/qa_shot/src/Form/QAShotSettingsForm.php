@@ -109,8 +109,8 @@ class QAShotSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $form = parent::buildForm($form, $form_state);
-
+    // $form = parent::buildForm($form, $form_state);
+    // Re-add, if actual settings are added.
     $form['#tree'] = TRUE;
     $form['queue'] = [
       '#type' => 'details',
