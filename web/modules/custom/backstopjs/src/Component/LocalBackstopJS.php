@@ -67,7 +67,11 @@ class LocalBackstopJS extends BackstopJSBase {
       $xvfb = 'xvfb-run -a ';
     }
 
-    $backstopCommand = escapeshellcmd($xvfb . 'backstop ' . $command . ' --configPath=' . $entity->getConfigurationPath());
+    $path = $this->config->get('suite.binary_path');
+    $executable = $path ? $path . 'backstop' : 'backstop';
+    $arguments = ' ' . $command . ' --configPath=' . $entity->getConfigurationPath();
+
+    $backstopCommand = escapeshellcmd($xvfb . $executable . $arguments);
     /** @var array $execOutput */
     /** @var int $status */
 
@@ -136,5 +140,8 @@ class LocalBackstopJS extends BackstopJSBase {
 
     return $results;
   }
+
+  // @todo: Move Local related functions here from web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
+  // @todo: Refactor exec-s and etc to use the new functions.
 
 }

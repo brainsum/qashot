@@ -2,9 +2,15 @@ services:
   backstopjs.file_system:
     class: Drupal\backstopjs\Service\FileSystem
     arguments: ['@file_system', '@backstopjs.config_converter', '@entity_type.manager']
+
   backstopjs.backstop:
     class: Drupal\backstopjs\Service\Backstop
-    arguments: ['@backstopjs.file_system', '@logger.factory']
+    arguments: ['@backstopjs.file_system', '@logger.factory', '@backstopjs.worker_factory', '@config.factory']
+
   backstopjs.config_converter:
     class: Drupal\backstopjs\Service\ConfigurationConverter
     arguments: ['@entity_type.manager', '@config.factory']
+
+  backstopjs.worker_factory:
+    class: \Drupal\backstopjs\Component\BackstopJsFactory
+    arguments: ['@backstopjs.file_system', '@logger.factory']

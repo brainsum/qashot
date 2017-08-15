@@ -2,9 +2,11 @@
 
 namespace Drupal\backstopjs\Service;
 
+use Drupal\backstopjs\Component\BackstopJsFactory;
 use Drupal\backstopjs\Component\LocalBackstopJS;
 use Drupal\backstopjs\Component\RemoteBackstopJS;
 use Drupal\backstopjs\Exception\EmptyResultsException;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
@@ -54,18 +56,22 @@ class Backstop extends TestBackendBase {
    *   The BackstopJS file system service.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   The logger channel factory.
+   * @param \Drupal\backstopjs\Component\BackstopJsFactory $backstopJsFactory
+   *   BackstopJS Worker Factory.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The site configuration.
+   *
+   * @throws \InvalidArgumentException
    */
   public function __construct(
     FileSystem $backstopFileSystem,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
+    BackstopJsFactory $backstopJsFactory,
+    ConfigFactoryInterface $configFactory
   ) {
     $this->backstopFileSystem = $backstopFileSystem;
     $this->logger = $loggerChannelFactory->get('backstopjs');
-
-    $local = TRUE;
-    $this->backstop = (TRUE === $local)
-      ? new LocalBackstopJS($backstopFileSystem, $loggerChannelFactory)
-      : new RemoteBackstopJS($backstopFileSystem, $loggerChannelFactory);
+    $this->backstop = $backstopJsFactory->get($configFactory->get('backstopjs.settings')->get('suite.location'));
   }
 
   /**
