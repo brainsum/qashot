@@ -108,13 +108,15 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
   /**
    * Hotfix.
    *
-   * @param $result
+   * @param object $result
    *   The result field.
    *
    * @return array
    *   The computed field values as an array.
    *
    * @throws \Drupal\Core\TypedData\Exception\MissingDataException
+   *
+   * @todo: Get proper type for $result.
    */
   private function computeResultField($result): array {
     $computedValue = [];

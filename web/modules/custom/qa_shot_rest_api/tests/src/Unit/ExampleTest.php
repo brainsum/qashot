@@ -28,8 +28,11 @@ class ExampleTest extends \PHPUnit_Framework_TestCase {
    * Example test for addition.
    *
    * @param int $a
+   *   First number.
    * @param int $b
+   *   Second number.
    * @param int $c
+   *   Expected sum.
    *
    * @dataProvider addProvider
    */
