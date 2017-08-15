@@ -33,7 +33,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *   deriver = "Drupal\qa_shot_rest_api\Plugin\Deriver\QAShotTestDeriver",
  *   uri_paths = {
  *     "canonical" = "/api/rest/v1/qa_shot_test/{qa_shot_test}",
- *     "https://www.drupal.org/link-relations/create" = "/api/rest/v1/qa_shot_test"
+ *     "https://www.drupal.org/link-relations/create" =
+ *   "/api/rest/v1/qa_shot_test"
  *   }
  * )
  */
@@ -303,6 +304,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
 
     // Overwrite the received properties.
     $entityKeys = $updatedEntity->getEntityType()->getKeys();
+    /** @var string $fieldName */
     foreach ($updatedEntity->_restSubmittedFields as $fieldName) {
       $field = $updatedEntity->get($fieldName);
 

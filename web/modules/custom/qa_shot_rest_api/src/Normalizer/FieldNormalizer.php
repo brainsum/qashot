@@ -4,7 +4,6 @@ namespace Drupal\qa_shot_rest_api\Normalizer;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\serialization\Normalizer\ListNormalizer;
-use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -32,6 +31,7 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
    * {@inheritdoc}
    *
    * @throws \Symfony\Component\Serializer\Exception\InvalidArgumentException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
     if (!isset($context['target_instance'])) {
@@ -42,7 +42,7 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
       throw new InvalidArgumentException("\$context['qa_shot_field_name'] must be set to denormalize with the FieldNormalizer.");
     }
 
-    if ($context['target_instance']->getParent() == NULL) {
+    if ($context['target_instance']->getParent() === NULL) {
       throw new InvalidArgumentException("The field passed in via \$context['target_instance'] must have a parent set.");
     }
 
@@ -83,6 +83,7 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
       $data = $termData;
     }
 
+    /** @var array $data */
     foreach ($data as $itemData) {
       // Create a new item and pass it as the target for the unserialization of
       // $item_data. All items in field should have removed before this method

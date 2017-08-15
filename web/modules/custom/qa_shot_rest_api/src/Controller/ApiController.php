@@ -136,7 +136,7 @@ class ApiController extends ControllerBase {
    */
   public function loginTest(Request $request): JsonResponse {
     $responseData = [
-      'status' => "success",
+      'status' => 'success',
     ];
 
     return new JsonResponse($responseData);
@@ -158,20 +158,20 @@ class ApiController extends ControllerBase {
    */
   public function forceRun(Request $request): JsonResponse {
     $settings = $this->parseRunnerSettings($request);
-    $id = $settings['tid'];
+    $tid = $settings['tid'];
 
     try {
       /** @var \Drupal\qa_shot\Service\RunTestImmediately $test_runner */
-      $test_runner = \Drupal::service('qa_shot.immediately_test');
-      $test_runner->run($id);
-      $status = "success";
+      $testRunner = \Drupal::service('qa_shot.immediately_test');
+      $testRunner->run($tid);
+      $status = 'success';
     }
     catch (QAShotBaseException $e) {
       $status = $e->getMessage();
     }
 
     $responseData = [
-      'tested_id' => $id,
+      'tested_id' => $tid,
       'status' => $status,
     ];
 
@@ -242,9 +242,9 @@ class ApiController extends ControllerBase {
 
     if (NULL === $entity) {
       throw new NotFoundHttpException(
-        t('The QAShot Test with ID @id was not found', array(
+        t('The QAShot Test with ID @id was not found', [
           '@id' => $entityId,
-        ))
+        ])
       );
     }
 
@@ -307,12 +307,13 @@ class ApiController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request.
    *
-   * @throws \InvalidArgumentException
-   *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
+   *
+   * @throws \LogicException
+   * @throws \InvalidArgumentException
    */
-  public function getQueueStatus(Request $request) : JsonResponse {
+  public function getQueueStatus(Request $request): JsonResponse {
     try {
       $runnerSettings = [];
       if (!empty($request->getContent())) {
@@ -327,20 +328,21 @@ class ApiController extends ControllerBase {
         throw new BadRequestHttpException('The \'tids\' parameter is empty or not an array.');
       }
 
+      /** @var array $ids */
       $ids = $runnerSettings['tids'];
 
-      /** @var \Drupal\qa_shot\service\QAShotQueueData $queue_service */
-      $queue_service = \Drupal::service('qa_shot.queue_data');
+      /** @var \Drupal\qa_shot\service\QAShotQueueData $queueService */
+      $queueService = \Drupal::service('qa_shot.queue_data');
 
-      $queue_datas = [];
+      $queueData = [];
       foreach ($ids as $id) {
-        $queue_data = $queue_service->getDataFromQueue($id);
+        $data = $queueService->getDataFromQueue($id);
 
-        $queue_datas[] = $queue_data ?? FALSE;
+        $queueData[] = $data ?? FALSE;
       }
 
       $responseData = [
-        'queue_datas' => $queue_datas,
+        'queue_datas' => $queueData,
       ];
     }
     catch (BadRequestHttpException $e) {
@@ -359,12 +361,13 @@ class ApiController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request.
    *
-   * @throws \InvalidArgumentException
-   *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
+   *
+   * @throws \LogicException
+   * @throws \InvalidArgumentException
    */
-  public function getLastModification(Request $request) : JsonResponse {
+  public function getLastModification(Request $request): JsonResponse {
     try {
       $runnerSettings = [];
       if (!empty($request->getContent())) {
@@ -379,33 +382,34 @@ class ApiController extends ControllerBase {
         throw new BadRequestHttpException('The \'entities\' parameter is empty or not an array.');
       }
 
-      $req_entities = $runnerSettings['entities'];
+      /** @var array $requestedEntities */
+      $requestedEntities = $runnerSettings['entities'];
 
       $ids = [];
-      foreach ($req_entities as $req_entity) {
-        $ids[] = $req_entity['tid'];
+      foreach ($requestedEntities as $requestedEntity) {
+        $ids[] = $requestedEntity['tid'];
       }
 
       $entities = $this->testStorage->loadMultiple($ids);
 
-      $response_entities = [];
-      $no_changes = [];
-      foreach ($req_entities as $req_entity) {
-        if ($entities[$req_entity['tid']]) {
-          $testAsArray = $this->serializer->normalize($entities[$req_entity['tid']]);
+      $responseEntities = [];
+      $noChanges = [];
+      foreach ($requestedEntities as $requestedEntity) {
+        if ($entities[$requestedEntity['tid']]) {
+          $testAsArray = $this->serializer->normalize($entities[$requestedEntity['tid']]);
 
-          if ($testAsArray['changed'] > $req_entity['changed']) {
-            $response_entities[] = $testAsArray;
+          if ($testAsArray['changed'] > $requestedEntity['changed']) {
+            $responseEntities[] = $testAsArray;
           }
           else {
-            $no_changes[] = $req_entity['tid'];
+            $noChanges[] = $requestedEntity['tid'];
           }
         }
       }
 
       $responseData = [
-        'updates' => $response_entities,
-        'unchanged' => $no_changes,
+        'updates' => $responseEntities,
+        'unchanged' => $noChanges,
       ];
     }
     catch (BadRequestHttpException $e) {
@@ -436,7 +440,7 @@ class ApiController extends ControllerBase {
    * @return array
    *   The pager as array.
    */
-  private function generatePager($page, $limit, $condition = []): array {
+  private function generatePager($page, $limit, array $condition = []): array {
     $query = $this->testStorage->getQuery();
     foreach ($condition as $key => $data) {
       $query->condition($key, $data['value'], $data['operator']);

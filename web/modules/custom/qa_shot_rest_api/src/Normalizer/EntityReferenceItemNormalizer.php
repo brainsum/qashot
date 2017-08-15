@@ -21,6 +21,8 @@ class EntityReferenceItemNormalizer extends ComplexDataNormalizer {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \InvalidArgumentException
    */
   public function normalize($fieldItem, $format = NULL, array $context = []) {
     $value = NULL;

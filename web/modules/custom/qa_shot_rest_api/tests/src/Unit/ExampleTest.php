@@ -18,10 +18,10 @@ class ExampleTest extends \PHPUnit_Framework_TestCase {
    *   The provided data.
    */
   public static function addProvider(): array {
-    return array(
-      array(0, 0, 0),
-      array(0, 1, 1),
-    );
+    return [
+      [0, 0, 0],
+      [0, 1, 1],
+    ];
   }
 
   /**

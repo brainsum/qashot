@@ -47,8 +47,11 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
    * QAShotTestNormalizer constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityTypeRepositoryInterface $entityTypeRepository
+   *   The entity type repository.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
+   *   The entity field manager.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
@@ -107,25 +110,33 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
   }
 
   /**
-   * @param mixed $data
-   * @param string $class
-   * @param null $format
-   * @param array $context
+   * {@inheritdoc}
    *
-   * @return
+   * @throws \Symfony\Component\Serializer\Exception\InvalidArgumentException
+   * @throws \Drupal\Core\Entity\Exception\AmbiguousEntityClassException
+   * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\Exception\NoCorrespondingEntityClassException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Core\TypedData\Exception\ReadOnlyException
+   * @throws \InvalidArgumentException
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     if (!isset($context['target_instance'])) {
       throw new InvalidArgumentException('$context[\'target_instance\'] must be set to denormalize with the FieldItemNormalizer');
-    }
-    if ($context['target_instance']->getParent() === NULL) {
-      throw new InvalidArgumentException('The field item passed in via $context[\'target_instance\'] must have a parent set.');
     }
 
     /** @var \Drupal\Core\Field\FieldItemListInterface $fieldItem */
     $fieldItem = $context['target_instance'];
 
-    $fieldHandlerSettings = $fieldItem->getParent()->getSettings();
+    /** @var \Drupal\Core\TypedData\TraversableTypedDataInterface $parent */
+    $parent = $fieldItem->getParent();
+
+    if ($parent === NULL) {
+      throw new InvalidArgumentException('The field item passed in via $context[\'target_instance\'] must have a parent set.');
+    }
+
+    $fieldHandlerSettings = $parent->getSettings();
     $context['entity_type'] = $fieldHandlerSettings['target_type'];
 
     $entityTypeId = $this->determineEntityTypeId($class, $context);
@@ -172,7 +183,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
    * @return string
    *   The entity type ID.
    */
-  protected function determineEntityTypeId($class, $context) {
+  protected function determineEntityTypeId($class, array $context): string {
     // Get the entity type ID while letting context override the $class param.
     return !empty($context['entity_type']) ? $context['entity_type'] : $this->entityTypeRepository->getEntityTypeFromClass($class);
   }
@@ -189,7 +200,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
    * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getEntityTypeDefinition($entityTypeId) {
+  protected function getEntityTypeDefinition($entityTypeId): EntityTypeInterface {
     /** @var \Drupal\Core\Entity\EntityTypeInterface $entityTypeDefinition */
     // Get the entity type definition.
     $entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId, FALSE);
@@ -210,12 +221,14 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
    * @param \Drupal\Core\Entity\EntityTypeInterface $entityTypeDefinition
    *   The entity type definition.
    *
-   * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
-   *
    * @return array
    *   The valid bundle name.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \LogicException
+   * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
    */
-  protected function extractBundleData(array &$data, EntityTypeInterface $entityTypeDefinition) {
+  protected function extractBundleData(array &$data, EntityTypeInterface $entityTypeDefinition): array {
     $bundleKey = $entityTypeDefinition->getKey('bundle');
     // Get the base field definitions for this entity type.
     $baseFieldDefinitions = $this->entityFieldManager->getBaseFieldDefinitions($entityTypeDefinition->id());
@@ -239,7 +252,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
     }
 
     // Make sure the submitted bundle is a valid bundle for the entity type.
-    if ($bundleTypes && !in_array($bundleValue, $bundleTypes)) {
+    if ($bundleTypes && !in_array($bundleValue, $bundleTypes, FALSE)) {
       throw new UnexpectedValueException(sprintf('"%s" is not a valid bundle type for denormalization.', $bundleValue));
     }
 

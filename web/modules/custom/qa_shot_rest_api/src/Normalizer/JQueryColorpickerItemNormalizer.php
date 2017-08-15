@@ -22,7 +22,7 @@ class JQueryColorpickerItemNormalizer extends NormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function normalize($fieldItem, $format = NULL, array $context = array()) {
+  public function normalize($fieldItem, $format = NULL, array $context = []) {
     /** @var \Drupal\jquery_colorpicker\Plugin\Field\FieldType\JQueryColorpickerItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {

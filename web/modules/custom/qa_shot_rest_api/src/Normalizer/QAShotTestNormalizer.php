@@ -31,7 +31,7 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
   protected $entityTypeManager;
 
   /**
-   * Entity repository manager.
+   * Entity type repository manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeRepositoryInterface
    */
@@ -48,8 +48,11 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
    * QAShotTestNormalizer constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityTypeRepositoryInterface $entityTypeRepository
+   *   Entity type repository manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
+   *   Entity field manager.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
@@ -65,9 +68,12 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function normalize($object, $format = NULL, array $context = []) {
     $attributes = [];
+    /** @var array $object */
     /** @var \Drupal\Core\TypedData\TypedDataInterface $field */
     foreach ($object as $name => $field) {
       // @fixme This is just a hotfix.
@@ -94,7 +100,6 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
         $value = reset($value);
       }
 
-
       $attributes[$name] = $value;
     }
     return $attributes;
@@ -104,9 +109,14 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
    * Hotfix.
    *
    * @param $result
+   *   The result field.
+   *
    * @return array
+   *   The computed field values as an array.
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
-  private function computeResultField($result) {
+  private function computeResultField($result): array {
     $computedValue = [];
 
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\Result $item */
@@ -128,6 +138,9 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\Exception\AmbiguousEntityClassException
    * @throws \Drupal\Core\Entity\Exception\NoCorrespondingEntityClassException
+   * @throws \Drupal\Core\TypedData\Exception\ReadOnlyException
+   * @throws \LogicException
+   * @throws \InvalidArgumentException
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
     $entityTypeId = $this->determineEntityTypeId($class, $context);
@@ -171,7 +184,7 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
    * @return string
    *   The entity type ID.
    */
-  protected function determineEntityTypeId($class, $context) {
+  protected function determineEntityTypeId($class, array $context): string {
     // Get the entity type ID while letting context override the $class param.
     return !empty($context['entity_type']) ? $context['entity_type'] : $this->entityTypeRepository->getEntityTypeFromClass($class);
   }
@@ -188,7 +201,7 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
    * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getEntityTypeDefinition($entityTypeId) {
+  protected function getEntityTypeDefinition($entityTypeId): EntityTypeInterface {
     /** @var \Drupal\Core\Entity\EntityTypeInterface $entityTypeDefinition */
     // Get the entity type definition.
     $entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId, FALSE);
@@ -209,12 +222,14 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
    * @param \Drupal\Core\Entity\EntityTypeInterface $entityTypeDefinition
    *   The entity type definition.
    *
-   * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
-   *
    * @return array
    *   The valid bundle name.
+   *
+   * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
+   * @throws \LogicException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  protected function extractBundleData(array &$data, EntityTypeInterface $entityTypeDefinition) {
+  protected function extractBundleData(array &$data, EntityTypeInterface $entityTypeDefinition): array {
     $bundleKey = $entityTypeDefinition->getKey('bundle');
     // Get the base field definitions for this entity type.
     $baseFieldDefinitions = $this->entityFieldManager->getBaseFieldDefinitions($entityTypeDefinition->id());
@@ -238,7 +253,7 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
     }
 
     // Make sure the submitted bundle is a valid bundle for the entity type.
-    if ($bundleTypes && !in_array($bundleValue, $bundleTypes)) {
+    if ($bundleTypes && !in_array($bundleValue, $bundleTypes, FALSE)) {
       throw new UnexpectedValueException(sprintf('"%s" is not a valid bundle type for denormalization.', $bundleValue));
     }
 
@@ -256,6 +271,9 @@ class QAShotTestNormalizer extends ComplexDataNormalizer implements Denormalizer
    *   The serialization format.
    * @param array $context
    *   The context data.
+   *
+   * @throws \InvalidArgumentException
+   * @throws \Drupal\Core\TypedData\Exception\ReadOnlyException
    */
   protected function denormalizeFieldData(array $data, FieldableEntityInterface $entity, $format, array $context) {
     foreach ($data as $fieldName => $fieldData) {

@@ -22,7 +22,7 @@ class StringItemNormalizer extends NormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function normalize($fieldItem, $format = NULL, array $context = array()) {
+  public function normalize($fieldItem, $format = NULL, array $context = []) {
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\StringItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {

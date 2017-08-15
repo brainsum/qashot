@@ -184,7 +184,7 @@ class Backstop extends TestBackendBase {
     $screenshotConfigPath = $reportBasePath . '/html_report/config.js';
     $screenshotConfig = file_get_contents($screenshotConfigPath);
     if (FALSE === $screenshotConfig) {
-      dpm('Config file not found at ' . $screenshotConfigPath);
+      $this->logger->notice('Config file not found at ' . $screenshotConfigPath . ' for QAShot test with ID ' . $entity->id());
       return $screenshots;
     }
 
@@ -201,9 +201,6 @@ class Backstop extends TestBackendBase {
     $viewportIds = array_map(function ($item) {
       return $item['target_id'];
     }, $entity->getFieldViewport()->getValue(TRUE));
-
-//    reset($viewportIds);
-//    reset($scenarioIds);
 
     foreach ($screenshotConfigData['tests'] as $screenshot) {
       $screenshots[] = [

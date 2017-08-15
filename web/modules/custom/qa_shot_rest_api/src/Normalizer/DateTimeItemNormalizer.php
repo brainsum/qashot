@@ -22,7 +22,7 @@ class DateTimeItemNormalizer extends NormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function normalize($fieldItem, $format = NULL, array $context = array()) {
+  public function normalize($fieldItem, $format = NULL, array $context = []) {
     /** @var \Drupal\datetime\Plugin\Field\FieldType\DateTimeItem $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {

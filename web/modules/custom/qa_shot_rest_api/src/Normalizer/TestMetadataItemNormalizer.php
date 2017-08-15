@@ -22,7 +22,7 @@ class TestMetadataItemNormalizer extends NormalizerBase {
   /**
    * {@inheritdoc}
    */
-  public function normalize($fieldItem, $format = NULL, array $context = array()) {
+  public function normalize($fieldItem, $format = NULL, array $context = []) {
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\TestMetadata $fieldItem */
     $value = $fieldItem->getValue();
     if (isset($value['value'])) {
