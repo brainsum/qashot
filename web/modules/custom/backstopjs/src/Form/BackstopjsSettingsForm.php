@@ -2,13 +2,10 @@
 
 namespace Drupal\backstopjs\Form;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\qa_shot\TestBackendInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class BackstopjsSettingsForm.
@@ -16,40 +13,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @package Drupal\backstopjs\Form
  */
 class BackstopjsSettingsForm extends ConfigFormBase {
-
-  /**
-   * The BackstopJS service.
-   *
-   * @var \Drupal\qa_shot\TestBackendInterface
-   */
-  protected $backstop;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('backstopjs.backstop')
-    );
-  }
-
-  /**
-   * BackstopjsSettingsForm constructor.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   *   Config factory.
-   * @param \Drupal\qa_shot\TestBackendInterface $backstop
-   *   BackstopJS service.
-   */
-  public function __construct(
-    ConfigFactoryInterface $configFactory,
-    TestBackendInterface $backstop
-  ) {
-    parent::__construct($configFactory);
-
-    $this->backstop = $backstop;
-  }
 
   /**
    * {@inheritdoc}
@@ -83,12 +46,6 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       '#type' => 'details',
       '#title' => t('Backstop JS'),
       '#open' => TRUE,
-    ];
-
-    $form['backstopjs']['backstopjs_status'] = [
-      '#type' => 'markup',
-      '#markup' => 'Results for using pgrep to search for BackstopJS: ' . $this->backstop->getStatus(),
-      '#title' => t('BackstopJS status'),
     ];
 
     $form['backstopjs']['async_compare_limit'] = [

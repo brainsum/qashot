@@ -11,6 +11,11 @@ administer qashot configuration:
   description: 'Allow to access the administration form to configure the module.'
   restrict access: true
 
+administer qashot queue:
+  title: 'Administer QAShot queues'
+  description: 'Allow to access the administration form to configure the queue.'
+  restrict access: true
+
 delete qashot test entities:
   title: 'Delete QAShot Test entities'
 

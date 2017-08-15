@@ -48,4 +48,10 @@ qa_shot.settings:
   title: 'QAShot Settings'
   parent: system.admin_config_qa_shot
   route_name: 'qa_shot.settings_form'
-  description: 'Clear queues, and access other settings.'
+  description: 'QAShot settings.'
+
+qa_shot.queue_list:
+  title: 'QAShot Queue List'
+  parent: system.admin_config_qa_shot
+  route_name: 'qa_shot.queue_list'
+  description: 'Overview or clear queues.'

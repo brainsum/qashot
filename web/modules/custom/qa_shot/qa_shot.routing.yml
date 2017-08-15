@@ -55,3 +55,11 @@ qa_shot.settings_form:
     _title: 'QAShot Settings'
   requirements:
     _permission: 'administer qashot configuration'
+
+qa_shot.queue_list:
+  path: '/admin/config/qa_shot/qa_shot_queue'
+  defaults:
+    _form: '\Drupal\qa_shot\Form\QueueListerForm'
+    _title: 'QAShot Queue'
+  requirements:
+    _permission: 'administer qashot queue'
