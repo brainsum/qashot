@@ -9,7 +9,7 @@ env:
   - CODE_REVIEW=1 REVIEW_STANDARD="DrupalPractice"
 
 before_install:
-- export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+- export PATH="$HOME/.composer/vendor/bin:$PATH"
 
 install:
 - "$TRAVIS_BUILD_DIR/ci-scripts/install_coder.sh"
