@@ -164,7 +164,18 @@ class ApiController extends ControllerBase {
       /** @var \Drupal\qa_shot\Service\RunTestImmediately $test_runner */
       $test_runner = \Drupal::service('qa_shot.immediately_test');
       $test_runner->run($id);
-      $status = "success";
+      $entity = $this->testStorage->load($id);
+      $entityArray = $this->serializer->normalize($entity);
+
+      if ($entityArray['metadata_last_run'][0]['stage'] == "") {
+        $status = $entityArray['metadata_last_run'][0]['failed_count'] == 0 ? "success" : "failed";
+      }
+      elseif ($entityArray['metadata_last_run'][0]['datetime'] > $entityArray['metadata_last_run'][1]['datetime']) {
+        $status = "success";
+      }
+      elseif ($entityArray['metadata_last_run'][0]['datetime'] < $entityArray['metadata_last_run'][1]['datetime']) {
+        $status = $entityArray['metadata_last_run'][1]['failed_count'] == 0 ? "success" : "failed";
+      }
     }
     catch (QAShotBaseException $e) {
       $status = $e->getMessage();
@@ -295,6 +306,7 @@ class ApiController extends ControllerBase {
         'name' => $testAsArray['name'],
         'type' => $testAsArray['type'],
         'metadata_last_run' => $testAsArray['metadata_last_run'],
+        'changed' => $testAsArray['changed'],
       ];
     }
 
@@ -333,14 +345,21 @@ class ApiController extends ControllerBase {
       $queue_service = \Drupal::service('qa_shot.queue_data');
 
       $queue_datas = [];
+      $not_in_queue = [];
       foreach ($ids as $id) {
         $queue_data = $queue_service->getDataFromQueue($id);
 
-        $queue_datas[] = $queue_data ?? FALSE;
+        if ($queue_data) {
+          $queue_datas[] = $queue_data;
+        }
+        else {
+          $not_in_queue[] = $id;
+        }
       }
 
       $responseData = [
         'queue_datas' => $queue_datas,
+        'not_in_queue' => $not_in_queue,
       ];
     }
     catch (BadRequestHttpException $e) {
