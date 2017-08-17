@@ -92,7 +92,7 @@ URL: `\<site\>/api/rest/v1/qa\_shot\_test?\_format=json`
             "height": "768"
         }
     ],
-    "field_tester_engine": "phantomjs", // or "slimerjs"
+    "field_tester_engine": "phantomjs",
     "field_tag": [
         "tag1",
         "tag2",
@@ -198,7 +198,7 @@ URL: `\<site\>/api/rest/v1/qa\_shot\_test/{qa\_shot\_test}?\_format=json`
 ```json
 {
     "name": "RestAPI PATCH test",
-    "type": "a_b", // or "before_after"
+    "type": "a_b",
     "field_scenario": [
         {
             "label": "Google",
@@ -236,7 +236,7 @@ URL: `\<site\>/api/rest/v1/qa\_shot\_test/{qa\_shot\_test}/queue?\_format=json`
 ```json
 {
     "test_stage": "after",
-    "type": "a_b", // or "before_after"
+    "type": "a_b",
     "frontend_url": "http://localhost:8080/path/to/test/view"
 }
 ```
@@ -254,7 +254,8 @@ If no applicable stage is present, send "" (empty string).
 ],
 ```
 Explanation: For a test with the bundle (type) a\_b, send stage as empty. For a test with the before\_after bundle, you can send 'before' or 'after' (note: One per request) as the test\_stage parameter.
-
+- `field_tester_engine` can be: "phantomjs" or "slimerjs"
+- `type` can be: "a_b" or "before_after"
 - Notes:
     - With the current implementation the request can take a while to finish..
     - If the implementation of a runner queue is done (See: QAS-5), this will return immediately.
@@ -275,7 +276,7 @@ Explanation: For a test with the bundle (type) a\_b, send stage as empty. For a 
 
 - Removed 'test\_mode' from the 'Run' parameters, as it was now redundant. The test mode is now determined by the bundle (field: type) of the entity.
 - The 'field\_viewport' field has been renamed to 'viewport'
-- PATCH and POST now require the type of the entity. E.g: "type: [{"target\_id": "a\_b"}]"
+- PATCH and POST now require the type of the entity. E.g: "`type: [{"target_id": "a_b"}]`"
 
 ## Useful links
 

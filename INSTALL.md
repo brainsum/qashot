@@ -4,15 +4,15 @@
     - [Base](#base)
     - [When using docker](#when-using-docker)
     - [Optional](#optional)
-- [Install QAShot on Linux/Mac](#install-qashot-on-linux-mac)
-    - [Install drupal]()
-    - [Install screenshot maker]()
-- [Install QAShot on Linux/Mac with docker](#install-qashot-on-linux-mac-with-docker)
-    - [Install drupal]()
-    - [Install screenshot maker]()
+- [Install QAShot on Linux/Mac](#install-qashot-on-linuxmac)
+    - [Install drupal](#install-drupal)
+    - [Install screenshot maker](#install-screenshot-maker)
+- [Install QAShot on Linux/Mac with docker](#install-qashot-on-linuxmac-with-docker)
+    - [Install drupal](#install-drupal-1)
+    - [Install screenshot maker](#install-screenshot-maker-1)
 - [Install QAShot on Windows](#install-qashot-on-windows)
-    - [Install drupal]()
-    - [Install screenshot maker]()
+    - [Install drupal](#install-drupal-2)
+    - [Install screenshot maker](#install-screenshot-maker-2)
 - [Possible problems](#possible-problems)
 
 ## Prerequirements
@@ -24,7 +24,7 @@
 - drush ([http://docs.drush.org/en/8.x/install-alternative/](http://docs.drush.org/en/8.x/install-alternative/))
 - npm ([https://howtonode.org/how-to-install-nodejs](https://howtonode.org/how-to-install-nodejs), [https://nodejs.org/en/download/](https://nodejs.org/en/download/))
 
-Then continue the traditionally installation with: [Linux/Mac guide](#install-qashot-on-linux-mac) and/or [Windows Guide](#install-qashot-on-windows)
+Then continue the traditionally installation with: [Linux/Mac guide](#install-qashot-on-linuxmac) and/or [Windows Guide](#install-qashot-on-windows)
 
 ### When using docker
 
@@ -34,7 +34,7 @@ Then continue the traditionally installation with: [Linux/Mac guide](#install-qa
     - This guide assumes you installed it so it doesn't need sudo to run
 - docker-compose ([https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/))
 
-Continue with: [Linux/Mac guide with docker](#install-qashot-on-linux-mac-with-docker)
+Continue with: [Linux/Mac guide with docker](#install-qashot-on-linuxmac-with-docker)
 
 ### Optional
 
