@@ -13,7 +13,6 @@ use Drupal\Core\TypedData\DataDefinition;
  * @todo: Add these when needed.
  *   default_widget = "qa_shot_test_metadata",
  *
- *
  * @FieldType(
  *   id = "qa_shot_test_metadata",
  *   label = @Translation("Test Metadata"),

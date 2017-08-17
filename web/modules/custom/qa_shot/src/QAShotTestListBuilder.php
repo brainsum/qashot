@@ -34,9 +34,9 @@ class QAShotTestListBuilder extends EntityListBuilder {
     $row['name'] = $this->l(
       $entity->label(),
       new Url(
-        'entity.qa_shot_test.edit_form', array(
+        'entity.qa_shot_test.edit_form', [
           'qa_shot_test' => $entity->id(),
-        )
+        ]
       )
     );
     return $row + parent::buildRow($entity);

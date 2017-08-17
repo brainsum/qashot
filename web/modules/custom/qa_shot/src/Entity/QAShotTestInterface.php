@@ -4,7 +4,6 @@ namespace Drupal\qa_shot\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\user\EntityOwnerInterface;
 use Drupal\user\UserInterface;
