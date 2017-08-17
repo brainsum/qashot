@@ -37,3 +37,9 @@ You also need to remove shortcuts from the fresh install, as the standard profil
 `drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'`    
 
 To run the tests, you need [BackstopJS 2.0](https://github.com/garris/BackstopJS "BackstopJS Repository") installed globally.
+
+Detailed install guide is in the [INSTALL.md](/INSTALL.md)
+
+## API
+
+At install this project sets automatically a RestApi. For more information how to use it see [API.md](/API.md) file.
