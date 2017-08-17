@@ -94,7 +94,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
           }
         }
 
-        return count($itemValue) > 1 ? $itemValue : $itemValue[0];
+        return count($itemValue) > 1 ? $itemValue : (count($itemValue) === 1 ? $itemValue[0] : NULL);
       }, $simplifiedEntity);
     }
     // Fallback.
