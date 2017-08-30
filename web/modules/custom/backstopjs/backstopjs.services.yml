@@ -13,4 +13,4 @@ services:
 
   backstopjs.worker_factory:
     class: \Drupal\backstopjs\Component\BackstopJsFactory
-    arguments: ['@backstopjs.file_system', '@logger.factory']
+    arguments: ['@backstopjs.file_system', '@logger.factory', '@config.factory']
