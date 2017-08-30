@@ -162,9 +162,20 @@ class ApiController extends ControllerBase {
 
     try {
       /** @var \Drupal\qa_shot\Service\RunTestImmediately $test_runner */
-      $testRunner = \Drupal::service('qa_shot.immediately_test');
-      $testRunner->run($tid);
-      $status = 'success';
+      $test_runner = \Drupal::service('qa_shot.immediately_test');
+      $test_runner->run($tid);
+      $entity = $this->testStorage->load($tid);
+      $entityArray = $this->serializer->normalize($entity);
+
+      if ($entityArray['metadata_last_run'][0]['stage'] == "") {
+        $status = $entityArray['metadata_last_run'][0]['failed_count'] == 0 ? "success" : "failed";
+      }
+      elseif ($entityArray['metadata_last_run'][0]['datetime'] > $entityArray['metadata_last_run'][1]['datetime']) {
+        $status = "success";
+      }
+      elseif ($entityArray['metadata_last_run'][0]['datetime'] < $entityArray['metadata_last_run'][1]['datetime']) {
+        $status = $entityArray['metadata_last_run'][1]['failed_count'] == 0 ? "success" : "failed";
+      }
     }
     catch (QAShotBaseException $e) {
       $status = $e->getMessage();
@@ -295,6 +306,7 @@ class ApiController extends ControllerBase {
         'name' => $testAsArray['name'],
         'type' => $testAsArray['type'],
         'metadata_last_run' => $testAsArray['metadata_last_run'],
+        'changed' => $testAsArray['changed'],
       ];
     }
 
@@ -329,20 +341,26 @@ class ApiController extends ControllerBase {
       }
 
       /** @var array $ids */
-      $ids = $runnerSettings['tids'];
+      $tids = $runnerSettings['tids'];
 
       /** @var \Drupal\qa_shot\service\QAShotQueueData $queueService */
       $queueService = \Drupal::service('qa_shot.queue_data');
 
       $queueData = [];
-      foreach ($ids as $id) {
-        $data = $queueService->getDataFromQueue($id);
-
-        $queueData[] = $data ?? FALSE;
+      $notInQueue = [];
+      foreach ($tids as $tid) {
+        $data = $queueService->getDataFromQueue($tid);
+        if ($data) {
+          $queueData[] = $data;
+        }
+        else {
+          $notInQueue[] = $tid;
+        }
       }
 
       $responseData = [
         'queue_datas' => $queueData,
+        'not_in_queue' => $notInQueue,
       ];
     }
     catch (BadRequestHttpException $e) {

@@ -34,6 +34,7 @@ class QAShotQueueData {
     $this->connection = $connection;
   }
 
+  // @todo: Fixme
   function getDataFromQueue($itemId) {
     $query = $this->connection->select(static::TABLE_NAME);
     $query->fields(static::TABLE_NAME);
