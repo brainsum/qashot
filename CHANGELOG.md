@@ -4,7 +4,9 @@
 * Update scripts so composer is managed by docker.
 * Revert docker from 7.1 to 7.0 PHP
 * Note: From now on, composer should be used from docker. For this, fixing permissions is advised:
-    * sudo chown 82:82 vendor/ web/core/ web/modules/contrib/ web/themes/contrib/ -R
+    * sudo chown 33:33 vendor/ web/core/ web/modules/contrib/ web/themes/contrib/ -R
+    * sudo chown 33:33 private_files/ web/sites/default/files -R
+    * sudo chown 33:33 composer.json composer.lock
 
 ## 2017.08.30
 * Merged the docker_update branch into master
