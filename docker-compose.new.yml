@@ -13,8 +13,7 @@ services:
 #      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
 
   php:
-#    image: wodby/drupal-php:7.0-2.4.3
-    image: havelantmate/drupal_php:Backstop2.6.13-SlimerJS
+    image: wodby/drupal-php:7.0-2.4.3
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: mariadb
@@ -26,51 +25,26 @@ services:
 #      PHP_XDEBUG_DEFAULT_ENABLE: 1
 #      PHP_XDEBUG_REMOTE_CONNECT_BACK: 0         # This is needed to respect remote.host setting bellow
 #      PHP_XDEBUG_REMOTE_HOST: "10.254.254.254"  # You will also need to 'sudo ifconfig lo0 alias 10.254.254.254'
-      # Legacy variables. ------------
-      # @todo: When the node app is ready, switch back to the proper d4d image.
-      DOCKER_ENVIRONMENT: docker4drupal
-      PHP_SITE_NAME: qashot
-      PHP_HOST_NAME: localhost:8000
-      PHP_DOCROOT: web # Relative path inside the /var/www/html/ directory.
-      PHP_WORKING_DIR: web
-      # End of legacy variables. -----
     volumes:
       - ./:/var/www/html
 # Options for macOS users (http://docs.docker4drupal.org/en/latest/macos)
 #      - codebase:/var/www/html:cached # User-guided caching
 #      - docker-sync:/var/www/html # Docker-sync
 
-#  nginx:
-#    image: wodby/drupal-nginx:8-1.13-2.4.2
-#    depends_on:
-#      - php
-#    environment:
-#      NGINX_STATIC_CONTENT_OPEN_FILE_CACHE: "off"
-#      NGINX_ERROR_LOG_LEVEL: debug
-#      NGINX_BACKEND_HOST: php
-#      NGINX_SERVER_ROOT: /var/www/html/web
-#    volumes:
-#      - ./:/var/www/html
-## Options for macOS users (http://docs.docker4drupal.org/en/latest/macos)
-##      - codebase:/var/www/html:cached # User-guided caching
-##      - docker-sync:/var/www/html # Docker-sync
-#    labels:
-#      - 'traefik.backend=nginx'
-#      - 'traefik.port=80'
-#      - 'traefik.frontend.rule=Host:qashot.docker.localhost'
-
-  # @todo: Switch to the new version, when ready.
   nginx:
-    image: wodby/drupal-nginx:1.0.0
+    image: wodby/drupal-nginx:8-1.13-2.4.2
     depends_on:
       - php
     environment:
-      NGINX_SERVER_NAME: localhost
-      NGINX_UPSTREAM_NAME: php
-      NGINX_DOCROOT: web # Relative path inside the /var/www/html/ directory.
-      DRUPAL_VERSION: 8 # Allowed: 7, 8.
-    volumes_from:
-      - php
+      NGINX_STATIC_CONTENT_OPEN_FILE_CACHE: "off"
+      NGINX_ERROR_LOG_LEVEL: debug
+      NGINX_BACKEND_HOST: php
+      NGINX_SERVER_ROOT: /var/www/html/web
+    volumes:
+      - ./:/var/www/html
+# Options for macOS users (http://docs.docker4drupal.org/en/latest/macos)
+#      - codebase:/var/www/html:cached # User-guided caching
+#      - docker-sync:/var/www/html # Docker-sync
     labels:
       - 'traefik.backend=nginx'
       - 'traefik.port=80'
@@ -96,21 +70,21 @@ services:
       - 'traefik.port=8025'
       - 'traefik.frontend.rule=Host:mailhog.drupal.docker.localhost'
 
-#  backstop_node:
-##    image: node:8.3.0-slim
-#    build:
-#      context: ./backstop_node
-#      dockerfile: backstop.dockerfile
-#    working_dir: /app
-#    labels:
-#      - 'traefik.backend=node'
-#      - 'traefik.port=3000'
-##      - 'traefik.frontend.rule=Host:backstop_node.drupal.docker.localhost'
-#    expose:
-#      - "3000"
-#    volumes:
-#      - ./backstop_node:/app
-#    command: sh -c 'yarn && yarn start'
+  backstop_node:
+#    image: node:8.3.0-slim
+    build:
+      context: ./backstop_node
+      dockerfile: backstop.dockerfile
+    working_dir: /app
+    labels:
+      - 'traefik.backend=node'
+      - 'traefik.port=3000'
+#      - 'traefik.frontend.rule=Host:backstop_node.drupal.docker.localhost'
+    expose:
+      - "3000"
+    volumes:
+      - ./backstop_node:/app
+    command: sh -c 'yarn && yarn start'
 
   portainer:
     image: portainer/portainer
