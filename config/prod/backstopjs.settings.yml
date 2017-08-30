@@ -12,3 +12,4 @@ backstopjs:
 suite:
   location: local
   binary_path: ''
+  remote_locations: 'backstop_node:3000'
