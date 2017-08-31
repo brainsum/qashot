@@ -456,15 +456,12 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
           }
 
           return t("Queued to run");
-          break;
 
         case QAShotQueue::QUEUE_STATUS_RUNNING:
           return t("Running, please be patient...");
-          break;
 
         case QAShotQueue::QUEUE_STATUS_ERROR:
           return t("There was an error!");
-          break;
 
         default:
           throw new QAShotBaseException(t('Unknown queue state!'));
@@ -535,7 +532,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
 
-    $fields['initiated'] = BaseFieldDefinition::create('datetime')
+    $fields['initiated'] = BaseFieldDefinition::create('timestamp')
       ->setLabel(t('Initiated'))
       ->setDescription(t('The time that the entity was last initiated.'));
 

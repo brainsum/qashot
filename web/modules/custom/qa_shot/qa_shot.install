@@ -5,6 +5,7 @@
  * Install file for the qa_shot module.
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\qa_shot\QAShotSchemaDefinitions;
 use Drupal\qa_shot\Queue\QAShotQueue;
@@ -348,5 +349,40 @@ function qa_shot_update_8309() {
       'plugin' => $actionId,
     ]);
     $action->trustData()->save();
+  }
+}
+
+/**
+ * Change initiated field's type to 'timestamp' from 'datetime'.
+ */
+function qa_shot_update_8310() {
+  // Save current values.
+  $current_values = \Drupal::database()->query("SELECT id, initiated FROM qa_shot_test WHERE initiated IS NOT NULL")->fetchAllAssoc('id');
+
+  // Set NULL for every record in initiated to be able to change field type.
+  \Drupal::database()->query("UPDATE qa_shot_test SET initiated = NULL")->execute();
+
+  // Change field definition.
+  /* @var $definition_manager \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface */
+  $definition_manager = \Drupal::service('entity.definition_update_manager');
+  $fieldDef = $definition_manager->getFieldStorageDefinition('initiated', 'qa_shot_test');
+  $definition_manager->uninstallFieldStorageDefinition($fieldDef);
+  $definition_manager->installFieldStorageDefinition('initiated', 'qa_shot_test', 'qa_shot', BaseFieldDefinition::create('timestamp')
+    ->setLabel(t('Initiated'))
+    ->setDescription(t('The time that the entity was last initiated.')));
+
+  // Set back deleted values if possible.
+  $trans_conn = \Drupal::database();
+  $transaction = $trans_conn->startTransaction();
+  try {
+    foreach ($current_values as $value) {
+      $trans_conn->update('qa_shot_test')
+        ->fields(['initiated' => $value->initiated])
+        ->condition('id', $value->id, '=')
+        ->execute();
+    }
+  }
+  catch (Exception $e) {
+    watchdog_exception('qashot', $e);
   }
 }
