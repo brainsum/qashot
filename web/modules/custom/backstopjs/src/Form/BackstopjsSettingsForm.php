@@ -2,6 +2,7 @@
 
 namespace Drupal\backstopjs\Form;
 
+use Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
@@ -39,6 +40,13 @@ class BackstopjsSettingsForm extends ConfigFormBase {
   protected $appRoot;
 
   /**
+   * The Backstopjs Worker plugin manager.
+   *
+   * @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager
+   */
+  protected $workerManager;
+
+  /**
    * {@inheritdoc}
    *
    * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
@@ -48,7 +56,8 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('logger.factory'),
-      $container->get('app.root')
+      $container->get('app.root'),
+      $container->get('plugin.manager.backstopjs_worker')
     );
   }
 
@@ -61,15 +70,19 @@ class BackstopjsSettingsForm extends ConfigFormBase {
    *   Logger factory service.
    * @param string $appRoot
    *   The app root path.
+   * @param \Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager $workerManager
+   *   The Backstopjs Worker plugin manager.
    */
   public function __construct(
     ConfigFactoryInterface $configFactory,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    $appRoot
+    $appRoot,
+    BackstopjsWorkerManager $workerManager
   ) {
     parent::__construct($configFactory);
     $this->logger = $loggerChannelFactory->get('backstopjs');
     $this->appRoot = $appRoot;
+    $this->workerManager = $workerManager;
   }
 
   /**
@@ -107,14 +120,15 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       '#title' => $this->t('BackstopJS suite'),
     ];
 
-    $options = [
-      self::LOCAL_SUITE => $this->t('Local binaries'),
-      self::REMOTE_SUITE => $this->t('Remote execution'),
-    ];
+    $options = [];
+    foreach ($this->workerManager->getDefinitions() as $pluginId => $definition) {
+      $options[$pluginId] = $definition['title'];
+    }
+
     $form['suite']['location'] = [
       '#type' => 'radios',
       '#title' => $this->t('Suite'),
-      '#default_value' => $config->get('suite.location') ?? self::LOCAL_SUITE,
+      '#default_value' => $config->get('suite.location') ?? NULL,
       '#options' => $options,
       '#required' => TRUE,
       '#description' => $this->t('Select the location of BackstopJS.'),

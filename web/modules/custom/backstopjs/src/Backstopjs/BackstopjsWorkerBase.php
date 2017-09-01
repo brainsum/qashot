@@ -1,20 +1,26 @@
 <?php
 
-namespace Drupal\backstopjs\Component;
+namespace Drupal\backstopjs\Backstopjs;
 
 use Drupal\backstopjs\Service\FileSystem;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Plugin\PluginBase;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class BackstopJSBase.
  *
  * Base class for BackstopJS.
  *
- * @package Drupal\backstopjs\Component
+ * @package Drupal\backstopjs\Backstopjs
  */
-abstract class BackstopJSBase implements BackstopJSInterface {
+abstract class BackstopjsWorkerBase extends PluginBase implements BackstopjsWorkerInterface, ContainerFactoryPluginInterface {
+
+  use ContainerAwareTrait;
 
   /**
    * Backstop FileSystem.
@@ -38,8 +44,31 @@ abstract class BackstopJSBase implements BackstopJSInterface {
   protected $config;
 
   /**
+   * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('backstopjs.file_system'),
+      $container->get('logger.factory'),
+      $container->get('config.factory')
+    );
+  }
+
+  /**
    * LocalBackstopJS constructor.
    *
+   * @param array $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param array $plugin_definition
+   *   The plugin definition.
    * @param \Drupal\backstopjs\Service\FileSystem $backstopFileSystem
    *   The BackstopJS file system service.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
@@ -48,10 +77,15 @@ abstract class BackstopJSBase implements BackstopJSInterface {
    *   The site config factory.
    */
   public function __construct(
+    array $configuration,
+    $plugin_id,
+    array $plugin_definition,
     FileSystem $backstopFileSystem,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ConfigFactoryInterface $configFactory
   ) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
     $this->backstopFileSystem = $backstopFileSystem;
     $this->logger = $loggerChannelFactory->get('backstopjs');
     $this->config = $configFactory->get('backstopjs.settings');

@@ -2,7 +2,7 @@
 
 namespace Drupal\backstopjs\Service;
 
-use Drupal\backstopjs\Component\BackstopJsFactory;
+use Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory;
 use Drupal\backstopjs\Exception\EmptyResultsException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -46,7 +46,7 @@ class Backstop extends TestBackendBase {
   /**
    * The Local or Remote BackstopJS.
    *
-   * @var \Drupal\backstopjs\Component\BackstopJSInterface
+   * @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerInterface
    */
   protected $backstop;
 
@@ -57,17 +57,18 @@ class Backstop extends TestBackendBase {
    *   The BackstopJS file system service.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   The logger channel factory.
-   * @param \Drupal\backstopjs\Component\BackstopJsFactory $backstopJsFactory
+   * @param \Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory $backstopJsFactory
    *   BackstopJS Worker Factory.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The site configuration.
    *
    * @throws \InvalidArgumentException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(
     FileSystem $backstopFileSystem,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    BackstopJsFactory $backstopJsFactory,
+    BackstopjsWorkerFactory $backstopJsFactory,
     ConfigFactoryInterface $configFactory
   ) {
     $this->backstopFileSystem = $backstopFileSystem;
@@ -92,6 +93,7 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\FileOpenException
    * @throws \Drupal\backstopjs\Exception\FileWriteException
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \InvalidArgumentException
    */
   public function runTestBySettings(QAShotTestInterface $entity, $stage) {
     $mode = $entity->bundle();

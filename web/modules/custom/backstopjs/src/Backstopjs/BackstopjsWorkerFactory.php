@@ -1,19 +1,17 @@
 <?php
 
-namespace Drupal\backstopjs\Component;
+namespace Drupal\backstopjs\Backstopjs;
 
-use Drupal\backstopjs\Form\BackstopjsSettingsForm;
 use Drupal\backstopjs\Service\FileSystem;
-use Drupal\Component\Render\HtmlEscapedText;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Class BackstopJsFactory.
  *
- * @package Drupal\backstopjs\Component
+ * @package Drupal\backstopjs\Backstopjs
  */
-class BackstopJsFactory {
+class BackstopjsWorkerFactory {
 
   /**
    * Instantiated backstopWorkers, keyed by name.
@@ -44,8 +42,17 @@ class BackstopJsFactory {
   protected $configFactory;
 
   /**
+   * BackstopJS worker manager.
+   *
+   * @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager
+   */
+  protected $workerManager;
+
+  /**
    * BackstopJsFactory constructor.
    *
+   * @param \Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager $workerManager
+   *   Plugin manager for Backstopjs Workers.
    * @param \Drupal\backstopjs\Service\FileSystem $backstopFileSystem
    *   BackstopJS FileSystem.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
@@ -54,10 +61,13 @@ class BackstopJsFactory {
    *   The site config factory.
    */
   public function __construct(
+    BackstopjsWorkerManager $workerManager,
     FileSystem $backstopFileSystem,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ConfigFactoryInterface $configFactory
   ) {
+    $this->workerManager = $workerManager;
+
     $this->backstopFileSystem = $backstopFileSystem;
     $this->loggerChannelFactory = $loggerChannelFactory;
     $this->configFactory = $configFactory;
@@ -69,33 +79,14 @@ class BackstopJsFactory {
    * @param string $name
    *   The name of the queue to work with.
    *
-   * @return \Drupal\backstopjs\Component\BackstopJSInterface
+   * @return \Drupal\backstopjs\Backstopjs\BackstopjsWorkerInterface
    *   The BackstopJS worker instance.
    *
-   * @throws \InvalidArgumentException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  public function get($name): BackstopJSInterface {
+  public function get($name): BackstopjsWorkerInterface {
     if (!isset($this->backstopWorkers[$name])) {
-      switch ($name) {
-        case BackstopjsSettingsForm::LOCAL_SUITE:
-          $this->backstopWorkers[$name] = new LocalBackstopJS(
-            $this->backstopFileSystem,
-            $this->loggerChannelFactory,
-            $this->configFactory
-          );
-          break;
-
-        case BackstopjsSettingsForm::REMOTE_SUITE:
-          $this->backstopWorkers[$name] = new RemoteBackstopJS(
-            $this->backstopFileSystem,
-            $this->loggerChannelFactory,
-            $this->configFactory
-          );
-          break;
-
-        default:
-          throw new \InvalidArgumentException('The ' . new HtmlEscapedText($name) . ' is not a valid BackstopJS worker name.');
-      }
+      $this->backstopWorkers[$name] = $this->workerManager->createInstance($name);
     }
     return $this->backstopWorkers[$name];
   }

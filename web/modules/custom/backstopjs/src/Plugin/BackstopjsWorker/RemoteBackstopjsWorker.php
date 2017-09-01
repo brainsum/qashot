@@ -1,7 +1,8 @@
 <?php
 
-namespace Drupal\backstopjs\Component;
+namespace Drupal\backstopjs\Plugin\BackstopjsWorker;
 
+use Drupal\backstopjs\Backstopjs\BackstopjsWorkerBase;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
@@ -10,9 +11,15 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  * Implements running BackstopJS from a remote source.
  * Sends HTTP requests.
  *
- * @package Drupal\backstopjs\Component
+ * @package Drupal\backstopjs\Plugin\BackstopjsWorker
+ *
+ * @BackstopjsWorker(
+ *   id = "remote",
+ *   title = "Remote execution",
+ *   description = @Translation("Worker for remote node apps")
+ * )
  */
-class RemoteBackstopJS extends BackstopJSBase {
+class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
 
   const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
   const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';

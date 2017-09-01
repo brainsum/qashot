@@ -1,15 +1,15 @@
 <?php
 
-namespace Drupal\backstopjs\Component;
+namespace Drupal\backstopjs\Backstopjs;
 
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
  * Interface BackstopJSInterface.
  *
- * @package Drupal\backstopjs\Component
+ * @package Drupal\backstopjs\Backstopjs
  */
-interface BackstopJSInterface {
+interface BackstopjsWorkerInterface {
 
   /**
    * Returns the status of backstopjs.

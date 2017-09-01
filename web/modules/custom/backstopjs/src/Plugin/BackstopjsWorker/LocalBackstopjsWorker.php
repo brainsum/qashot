@@ -1,7 +1,8 @@
 <?php
 
-namespace Drupal\backstopjs\Component;
+namespace Drupal\backstopjs\Plugin\BackstopjsWorker;
 
+use Drupal\backstopjs\Backstopjs\BackstopjsWorkerBase;
 use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
 use Drupal\backstopjs\Exception\FileOpenException;
 use Drupal\backstopjs\Exception\FileWriteException;
@@ -17,9 +18,15 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  * @todo: Move 'Local' related functions here from web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
  * @todo: Refactor exec-s and etc to use the new functions
  *
- * @package Drupal\backstopjs\Component
+ * @package Drupal\backstopjs\Plugin\BackstopjsWorker
+ *
+ * @BackstopjsWorker(
+ *   id = "local",
+ *   title = @Translation("Local binaries"),
+ *   description = @Translation("Worker for local binaries")
+ * )
  */
-class LocalBackstopJS extends BackstopJSBase {
+class LocalBackstopjsWorker extends BackstopjsWorkerBase {
 
   use StringTranslationTrait;
 
