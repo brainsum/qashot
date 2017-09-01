@@ -151,11 +151,10 @@ class QAShotQueueRunner {
   public function run($name, $timeLimit = 0): int {
     // @todo: research this https://stackoverflow.com/questions/70855/how-can-one-use-multi-threading-in-php-applications
     $worker = $this->workerManager->createInstance($name);
-    $end = time() + $timeLimit;
     $queue = $this->getQueue($name);
     $count = 0;
 
-    while (time() < $end && ($item = $queue->claimItem($timeLimit))) {
+    while ($item = $queue->claimItem($timeLimit)) {
       /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
       $entity = $this->testStorage->load($item->tid);
       // If the entity has been deleted while queued remove it, log an error.
