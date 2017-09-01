@@ -6,10 +6,8 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Drush\Log\LogLevel;
 use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
-use Drush\Queue\QueueException;
 
 /**
  * Class QAShotQueueRunner.
@@ -35,10 +33,17 @@ class QAShotQueueRunner {
   protected $queueFactory;
 
   /**
+   * The test storage.
+   *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $testStorage;
 
+  /**
+   * The logger.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
   protected $logger;
 
   /**
@@ -55,6 +60,12 @@ class QAShotQueueRunner {
    *   The queue worker manager.
    * @param \Drupal\qa_shot\Queue\QAShotQueueFactory $queueFactory
    *   The queue factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
+   *   The logger service.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(QAShotQueueWorkerManager $manager, QAShotQueueFactory $queueFactory, EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactoryInterface $loggerFactory) {
     $this->workerManager = $manager;
@@ -67,14 +78,14 @@ class QAShotQueueRunner {
    * Lists all available queues.
    */
   public function listQueues(): array {
-    $result = array();
+    $result = [];
     foreach (array_keys($this->getQueues()) as $name) {
       $q = $this->getQueue($name);
-      $result[$name] = array(
+      $result[$name] = [
         'queue' => $name,
         'items' => $q->numberOfItems(),
         'class' => get_class($q),
-      );
+      ];
     }
     return $result;
   }

@@ -416,7 +416,7 @@ class ConfigurationConverter {
 
       /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $newTest */
       $newTest = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->create($entityData);
-      dpm($newTest);
+      // dpm($newTest);
       $newTest->save();
     }
   }

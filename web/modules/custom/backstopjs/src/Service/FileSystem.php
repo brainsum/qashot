@@ -203,6 +203,7 @@ class FileSystem {
    * @throws \Drupal\backstopjs\Exception\FileCopyException
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
    * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \InvalidArgumentException
    */
   public function initializeEnvironment(QAShotTestInterface $entity) {
     if (NULL === $entity || $entity->getEntityTypeId() !== 'qa_shot_test') {

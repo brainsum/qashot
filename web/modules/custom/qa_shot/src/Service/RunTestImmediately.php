@@ -36,10 +36,17 @@ class RunTestImmediately {
   protected $queueFactory;
 
   /**
+   * The test storage.
+   *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $testStorage;
 
+  /**
+   * The logger.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
   protected $logger;
 
   /**
@@ -56,6 +63,12 @@ class RunTestImmediately {
    *   The queue worker manager.
    * @param \Drupal\qa_shot\Queue\QAShotQueueFactory $queueFactory
    *   The queue factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
+   *   The logger service.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(QAShotQueueWorkerManager $manager, QAShotQueueFactory $queueFactory, EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactoryInterface $loggerFactory) {
     $this->workerManager = $manager;
@@ -80,7 +93,7 @@ class RunTestImmediately {
    * Taken from Drush\Queue\Queue8.
    *
    * @param string $id
-   *   Task wich you want to run now.
+   *   Task which you want to run now.
    *
    * @return int
    *   The number of items successfully processed from the queue.
@@ -89,6 +102,7 @@ class RunTestImmediately {
    * @throws \Drupal\Core\Entity\EntityStorageException
    * @throws \Drupal\Core\Database\InvalidQueryException
    * @throws \Exception
+   * @throws \Drupal\qa_shot\Exception\QAShotBaseException
    */
   public function run($id): int {
     $name = 'cron_run_qa_shot_test';

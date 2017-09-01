@@ -7,7 +7,6 @@
  * Page callback for QAShot Test entities.
  */
 
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\StreamWrapper\PrivateStream;

@@ -8,7 +8,6 @@
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\qa_shot\QAShotSchemaDefinitions;
-use Drupal\qa_shot\Queue\QAShotQueue;
 use Drupal\system\Entity\Action;
 
 /**

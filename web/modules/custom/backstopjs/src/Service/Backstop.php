@@ -3,8 +3,6 @@
 namespace Drupal\backstopjs\Service;
 
 use Drupal\backstopjs\Component\BackstopJsFactory;
-use Drupal\backstopjs\Component\LocalBackstopJS;
-use Drupal\backstopjs\Component\RemoteBackstopJS;
 use Drupal\backstopjs\Exception\EmptyResultsException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -88,6 +86,9 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\InvalidRunnerStageException
    * @throws \Drupal\backstopjs\Exception\EmptyResultsException
    * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
    */
   public function runTestBySettings(QAShotTestInterface $entity, $stage) {
     $mode = $entity->bundle();
@@ -200,7 +201,8 @@ class Backstop extends TestBackendBase {
     $screenshotConfigData = json_decode(str_replace(['report(', ');'], '', $screenshotConfig), TRUE);
 
     // @todo: Load paragraphs, match screenshot names for security.
-    // $paragraphsStorage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    // $paragraphsStorage =
+    // \Drupal::entityTypeManager()->getStorage('paragraph');
     $scenarioIds = array_map(function ($item) {
       return $item['target_id'];
     }, $entity->getFieldScenario()->getValue(TRUE));
@@ -266,13 +268,16 @@ class Backstop extends TestBackendBase {
    * @param string $stage
    *   The stage; before or after.
    *
+   * @return array
+   *   Test results.
+   *
    * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
    * @throws \Drupal\backstopjs\Exception\InvalidCommandException
    * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
-   *
-   * @return array
-   *   Test results.
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
    */
   protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage): array {
     return ('before' === $stage) ? $this->runReferenceCommand($entity) : $this->runTestCommand($entity);
@@ -333,15 +338,18 @@ class Backstop extends TestBackendBase {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    *
-   * @throws BackstopAlreadyRunningException
+   * @return array
+   *   Array with data from the command run.
+   *
+   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
    *   When Backstop is already running.
    * @throws InvalidCommandException
    *   When the supplied command is not a valid BackstopJS command.
    * @throws InvalidEntityException
    * @throws InvalidConfigurationException
-   *
-   * @return array
-   *   Array with data from the command run.
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
    */
   private function runReferenceCommand(QAShotTestInterface $entity): array {
     return $this->runCommand('reference', $entity);
@@ -353,15 +361,18 @@ class Backstop extends TestBackendBase {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    *
-   * @throws BackstopAlreadyRunningException
+   * @return array
+   *   Array with data from the command run.
+   *
+   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
    *   When Backstop is already running.
    * @throws InvalidCommandException
    *   When the supplied command is not a valid BackstopJS command.
    * @throws InvalidEntityException
    * @throws InvalidConfigurationException
-   *
-   * @return array
-   *   Array with data from the command run.
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
    */
   private function runTestCommand(QAShotTestInterface $entity): array {
     return $this->runCommand('test', $entity);
@@ -378,7 +389,7 @@ class Backstop extends TestBackendBase {
    * @return array
    *   Array with data from the command run.
    *
-   * @throws BackstopAlreadyRunningException
+   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
    *   When Backstop is already running.
    * @throws InvalidCommandException
    *   When the supplied command is not a valid BackstopJS command.

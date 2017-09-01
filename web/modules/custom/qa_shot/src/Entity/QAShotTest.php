@@ -12,7 +12,6 @@ use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Plugin\DataType\ComputedLastRunMetadata;
 use Drupal\qa_shot\Queue\QAShotQueue;
-use Drupal\qa_shot\Service\QAShotQueueData;
 use Drupal\user\UserInterface;
 
 /**
@@ -427,45 +426,44 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function getQueueStatus(): array {
-    /** @var \Drupal\qa_shot\Service\QAShotQueueData $q_data */
-    $q_data = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueData */
+    $queueData = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
 
-    if (empty($q_data)) {
+    if (empty($queueData)) {
       return [QAShotQueue::QUEUE_STATUS_IDLE];
     }
 
-    return [$q_data->status];
+    return [$queueData->status];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getHumanReadableQueueStatus(): string {
-    /** @var \Drupal\qa_shot\Service\QAShotQueueData $q_data */
-    $q_data = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueData */
+    $queueData = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
 
-    if (empty($q_data)) {
-      return t("Idle");
+    if (empty($queueData)) {
+      return t('Idle');
     }
-    else {
-      switch ($q_data->status) {
-        case QAShotQueue::QUEUE_STATUS_WAITING:
-          if (!empty($q_data->stage)) {
-            $run_state_type = $q_data->stage == "before" ? "for reference pictures" : "for test pictures";
-            return t("Queued to run (@type)", ["@type" => $run_state_type]);
-          }
 
-          return t("Queued to run");
+    switch ($queueData->status) {
+      case QAShotQueue::QUEUE_STATUS_WAITING:
+        if (!empty($queueData->stage)) {
+          $runStateType = $queueData->stage === 'before' ? 'for reference pictures' : 'for test pictures';
+          return t('Queued to run (@type)', ['@type' => $runStateType]);
+        }
 
-        case QAShotQueue::QUEUE_STATUS_RUNNING:
-          return t("Running, please be patient...");
+        return t('Queued to run');
 
-        case QAShotQueue::QUEUE_STATUS_ERROR:
-          return t("There was an error!");
+      case QAShotQueue::QUEUE_STATUS_RUNNING:
+        return t('Running, please be patient...');
 
-        default:
-          throw new QAShotBaseException(t('Unknown queue state!'));
-      }
+      case QAShotQueue::QUEUE_STATUS_ERROR:
+        return t('There was an error!');
+
+      default:
+        throw new QAShotBaseException(t('Unknown queue state!'));
     }
   }
 
@@ -502,20 +500,20 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setLabel(t('Name'))
       ->setRequired(TRUE)
       ->setDescription(t('The name of the QAShot Test entity.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => 0,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => 0,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -540,19 +538,19 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setLabel(t('Selectors to hide'))
       ->setDescription(t('Selectors that should be visually hidden. Can be an element ID (#my-id), Class (.my-class) or XPath.'))
       ->setCardinality(-1)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => 10,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => 10,
-      ))
-      ->setSettings(array(
+      ])
+      ->setSettings([
         'max_length' => 255,
         'text_processing' => 0,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -560,19 +558,19 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setLabel(t('Selectors to remove'))
       ->setDescription(t('Selectors that should be removed from the DOM. Can be an element ID (#my-id), Class (.my-class) or XPath.'))
       ->setCardinality(-1)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => 11,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => 11,
-      ))
-      ->setSettings(array(
+      ])
+      ->setSettings([
         'max_length' => 255,
         'text_processing' => 0,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -601,10 +599,10 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $fields['frontend_url'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Frontend URL'))
       ->setDescription(t('Stores the frontend URL.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 2000,
         'text_processing' => 0,
-      ))
+      ])
       ->setCardinality(1);
 
     return $fields;

@@ -6,15 +6,13 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use PDO;
 
-/*
- * @see https://www.sitepoint.com/drupal-8-queue-api-powerful-manual-and-cron-queueing/
- * https://spinningcode.org/2017/01/drupal-8-plugins-are-addictive/
- */
-
 /**
  * Default queue implementation.
  *
  * Modified version of Drupal\Core\Queue\DatabaseQueue.
+ *
+ * @see https://www.sitepoint.com/drupal-8-queue-api-powerful-manual-and-cron-queueing/
+ * @see https://spinningcode.org/2017/01/drupal-8-plugins-are-addictive/
  *
  * @ingroup queue
  */
@@ -61,23 +59,14 @@ class QAShotQueue implements QAShotQueueInterface {
   }
 
   /**
-   * Adds a queue item and store it directly to the queue.
-   *
-   * @param \stdClass $item
-   *   Arbitrary data to be associated with the new task in the queue.
-   *
-   * @return int|bool
-   *   A unique ID if the item was successfully created and was (best effort)
-   *   added to the queue, otherwise FALSE. We don't guarantee the item was
-   *   committed to disk etc, but as far as we know, the item is now in the
-   *   queue.
+   * {@inheritdoc}
    *
    * @throws \Exception
    * @throws \InvalidArgumentException
    */
-  public function createItem($item) {
+  public function createItem(\stdClass $item) {
     try {
-      $query = $this->connection->insert(static::TABLE_NAME)
+      $query = $this->connection->insert(self::TABLE_NAME)
         ->fields([
           'tid' => $item->tid,
           'queue_name' => $this->name,
@@ -100,7 +89,7 @@ class QAShotQueue implements QAShotQueueInterface {
     \Drupal::logger('qa_shot_queue')->info(
       t('Test with ID #@testID status changed to @status.', [
         '@testID' => $item->tid,
-        '@status' => QAShotQueue::QUEUE_STATUS_WAITING,
+        '@status' => self::QUEUE_STATUS_WAITING,
       ])
     );
 
@@ -110,13 +99,10 @@ class QAShotQueue implements QAShotQueueInterface {
   /**
    * {@inheritdoc}
    *
-   * @param \stdClass $item
-   *   The item.
-   *
    * @throws \Exception
    * @throws \InvalidArgumentException
    */
-  public function deleteItem($item) {
+  public function deleteItem(\stdClass $item) {
     try {
       $this->connection->delete(static::TABLE_NAME)
         ->condition('tid', $item->tid)
@@ -131,13 +117,10 @@ class QAShotQueue implements QAShotQueueInterface {
   /**
    * {@inheritdoc}
    *
-   * @param \stdClass $item
-   *   The item.
-   *
    * @throws \Exception
    * @throws \InvalidArgumentException
    */
-  public function releaseItem($item): bool {
+  public function releaseItem(\stdClass $item): bool {
     try {
       $update = $this->connection->update(static::TABLE_NAME)
         ->fields([
@@ -184,9 +167,6 @@ class QAShotQueue implements QAShotQueueInterface {
   /**
    * {@inheritdoc}
    *
-   * @return bool|\stdClass
-   *   FALSE if no item could be claimed, the item as object otherwise.
-   *
    * @throws \Exception
    */
   public function claimItem($leaseTime = 30) {
@@ -194,7 +174,6 @@ class QAShotQueue implements QAShotQueueInterface {
     // First is the first.
     // From first to last, try to get an item that's waiting.
     // Claim the first waiting item.
-
     // Claim an item by updating its expire fields. If claim is not successful
     // another thread may have claimed the item in the meantime. Therefore loop
     // until an item is successfully claimed or we are reasonably sure there

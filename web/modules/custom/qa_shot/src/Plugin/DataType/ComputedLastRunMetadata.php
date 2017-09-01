@@ -37,6 +37,9 @@ class ComputedLastRunMetadata extends TypedData {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
+   * @throws \InvalidArgumentException
    */
   public function getValue() {
     if ($this->processed !== NULL) {
@@ -93,7 +96,7 @@ class ComputedLastRunMetadata extends TypedData {
     }
 
     // @fixme
-    if (count($result) == 2 && $result[0]['stage'] == "after") {
+    if (count($result) === 2 && $result[0]['stage'] === 'after') {
       // We process the $data array in reverse order,
       // so we also reverse the $result.
       $result = array_reverse($result);
@@ -113,12 +116,37 @@ class ComputedLastRunMetadata extends TypedData {
     }
   }
 
-  // No idea why these are required, but whatever.
+  /**
+   * No idea why these are required, but whatever.
+   */
   public function setLangcode() {}
+
+  /**
+   * No idea why these are required, but whatever.
+   */
   public function getLangcode() {}
+
+  /**
+   * No idea why these are required, but whatever.
+   */
   public function preSave() {}
+
+  /**
+   * No idea why these are required, but whatever.
+   *
+   * @var string $update
+   *   Not used.
+   */
   public function postSave($update) {}
+
+  /**
+   * No idea why these are required, but whatever.
+   */
   public function delete() {}
+
+  /**
+   * No idea why these are required, but whatever.
+   */
   public function deleteRevision() {}
 
 }

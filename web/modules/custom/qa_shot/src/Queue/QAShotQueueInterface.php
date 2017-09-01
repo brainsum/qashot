@@ -16,7 +16,7 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
   /**
    * Adds a queue item and store it directly to the queue.
    *
-   * @param $data
+   * @param \stdClass $data
    *   Arbitrary data to be associated with the new task in the queue.
    *
    * @return int|bool
@@ -25,7 +25,7 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
    *   committed to disk etc, but as far as we know, the item is now in the
    *   queue.
    */
-  public function createItem($data);
+  public function createItem(\stdClass $data);
 
   /**
    * Retrieves the number of items in the queue.
@@ -72,23 +72,23 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
   /**
    * Deletes a finished item from the queue.
    *
-   * @param $item
+   * @param \stdClass $item
    *   The item returned by \Drupal\Core\Queue\QueueInterface::claimItem().
    */
-  public function deleteItem($item);
+  public function deleteItem(\stdClass $item);
 
   /**
    * Releases an item that the worker could not process.
    *
    * Another worker can come in and process it before the timeout expires.
    *
-   * @param $item
+   * @param \stdClass $item
    *   The item returned by \Drupal\Core\Queue\QueueInterface::claimItem().
    *
    * @return bool
    *   TRUE if the item has been released, FALSE otherwise.
    */
-  public function releaseItem($item): bool;
+  public function releaseItem(\stdClass $item): bool;
 
   /**
    * Creates a queue.

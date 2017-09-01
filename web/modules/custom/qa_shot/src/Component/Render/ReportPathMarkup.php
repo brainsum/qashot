@@ -10,6 +10,9 @@ use Drupal\Core\Url;
 /**
  * Class ReportPathMarkup.
  *
+ * Designed to create formatted markup for the HTML report path with
+ * proper '..ago' time notation.
+ *
  * @package Drupal\qa_shot\Component\Render
  */
 class ReportPathMarkup implements MarkupInterface, \Countable {
@@ -17,11 +20,15 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
   use StringTranslationTrait;
 
   /**
+   * The path as a string.
+   *
    * @var string
    */
   protected $path;
 
   /**
+   * The time of the report.
+   *
    * @var string
    */
   protected $time;
@@ -30,11 +37,13 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
    * ReportPathMarkup constructor.
    *
    * @param string|null $reportPath
+   *   The path as a string.
    * @param string|null $reportTime
+   *   The time of the report.
    */
   public function __construct($reportPath = NULL, $reportTime = NULL) {
-    $this->path = (NULL === $reportPath) ? '' : $reportPath;
-    $this->time = (NULL === $reportTime) ? '' : $reportTime;
+    $this->path = $reportPath ?? '';
+    $this->time = $reportTime ?? '';
   }
 
   /**
@@ -42,6 +51,8 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
    *
    * @return array
    *   Render array.
+   *
+   * @throws \InvalidArgumentException
    */
   public function getLink(): array {
     if (!file_exists($this->path)) {

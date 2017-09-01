@@ -2,9 +2,6 @@
 
 namespace Drupal\qa_shot\Plugin\QueueWorker;
 
-use Drupal\Core\Annotation\Translation;
-use Drupal\qa_shot\Annotation\QAShotQueueWorker;
-
 /**
  * Class CronTestRunner.
  *

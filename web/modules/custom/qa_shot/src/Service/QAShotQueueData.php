@@ -1,16 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Marton
- * Date: 2017. 07. 14.
- * Time: 12:58
- */
 
 namespace Drupal\qa_shot\Service;
 
-
 use Drupal\Core\Database\Connection;
 
+/**
+ * Class QAShotQueueData.
+ *
+ * @package Drupal\qa_shot\Service
+ */
 class QAShotQueueData {
   /**
    * The database table name.
@@ -34,8 +32,18 @@ class QAShotQueueData {
     $this->connection = $connection;
   }
 
-  // @todo: Fixme
-  function getDataFromQueue($itemId) {
+  /**
+   * Gets an item from the qa_shot_queue.
+   *
+   * @param int $itemId
+   *   The id of the item.
+   *
+   * @return bool|\stdClass
+   *   The item as an object.
+   *
+   * @throws \Drupal\Core\Database\InvalidQueryException
+   */
+  public function getDataFromQueue($itemId) {
     $query = $this->connection->select(static::TABLE_NAME);
     $query->fields(static::TABLE_NAME);
     $query->condition('tid', $itemId);
@@ -43,4 +51,5 @@ class QAShotQueueData {
 
     return $rows->fetchObject();
   }
+
 }

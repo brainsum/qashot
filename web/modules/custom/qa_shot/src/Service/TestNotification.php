@@ -51,19 +51,16 @@ class TestNotification {
   private $siteMail;
 
   /**
-   * The site name.
-   *
-   * @var string
-   */
-//  private $siteName;
-
-  /**
    * TestNotification constructor.
    *
    * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   Language manager.
    * @param \Drupal\Core\Mail\MailManagerInterface $mailManager
+   *   Mail manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Config factory.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
+   *   Logger factory.
    */
   public function __construct(
     LanguageManagerInterface $languageManager,
@@ -76,7 +73,6 @@ class TestNotification {
     $this->logger = $loggerChannelFactory->get('qa_shot');
 
     $this->siteMail = $configFactory->get('system.site')->get('mail');
-//    $this->siteName = $configFactory->get('system.site')->get('name');
   }
 
   /**
@@ -120,7 +116,7 @@ class TestNotification {
 
     try {
       $link = $entity->getFrontendUrl();
-      if ('drupal' === $origin || empty($link)) {
+      if ('drupal' === $origin || NULL === $link) {
         $link = $entity
           ->toUrl('canonical', $linkOptions)
           ->toString(TRUE)

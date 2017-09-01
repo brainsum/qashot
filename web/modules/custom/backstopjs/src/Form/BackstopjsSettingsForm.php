@@ -25,6 +25,9 @@ class BackstopjsSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -237,14 +240,8 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-
-    // @todo: Validate suite.binary_path for slashes, etc.
-  }
+  // @todo: Add public function validateForm();
+  // @todo: Validate suite.binary_path for slashes, etc.
 
   /**
    * Handles submission of the altered parts.
@@ -277,9 +274,17 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       $config->set($configKey, $form_state->getValue($formStateKey));
     }
 
-    $config->set('suite.location', $form_state->getValue(['suite', 'location']));
-    $config->set('suite.binary_path', $form_state->getValue(['suite', 'binary_path']));
-    $config->set('suite.remote_locations', $form_state->getValue(['suite', 'remote_locations']));
+    $suiteOptions = [
+      'location',
+      'binary_path',
+      'remote_locations',
+    ];
+
+    foreach ($suiteOptions as $option) {
+      $configKey = "suite.$option";
+      $formStateKey = ['suite', $option];
+      $config->set($configKey, $form_state->getValue($formStateKey));
+    }
 
     $config->save();
   }
@@ -442,7 +447,9 @@ class BackstopjsSettingsForm extends ConfigFormBase {
           $context['@raw'] = implode("\n", $tmp);
         }
       }
+      // @codingStandardsIgnoreStart
       drupal_set_message($this->t($message, $context), 'status', TRUE);
+      // @codingStandardsIgnoreEnd
     }
   }
 

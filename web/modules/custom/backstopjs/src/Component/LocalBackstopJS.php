@@ -7,7 +7,6 @@ use Drupal\backstopjs\Exception\FileOpenException;
 use Drupal\backstopjs\Exception\FileWriteException;
 use Drupal\backstopjs\Exception\FolderCreateException;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
-use Symfony\Component\Process\Process;
 
 /**
  * Class LocalBackstopJS.
