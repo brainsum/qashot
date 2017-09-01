@@ -161,14 +161,14 @@ class QAShotQueueRunner {
       if (NULL === $entity) {
         $queue->deleteItem($item);
         $this->logger->error('The entity with id ' . $item->tid . ' has been deleted while it was queued.');
-        drupal_set_message($this->t('Cron: The entity with id @tid has been deleted while it was queued.', [
+        drupal_set_message($this->t('Cron: The entity with ID @tid has been deleted while it was queued.', [
           '@tid' => $item->tid,
         ]), 'error');
         continue;
       }
 
       if ($queue->getItemStatus($item->tid) === QAShotQueue::QUEUE_STATUS_RUNNING) {
-        drupal_set_message($this->t('Cron: The entity with id @tid tried to run while it was already running.', [
+        drupal_set_message($this->t('Cron: The entity with ID @tid tried to run while it was already running.', [
           '@tid' => $item->tid,
         ]), 'error');
         continue;
@@ -176,7 +176,7 @@ class QAShotQueueRunner {
 
       // If there's already a running item, requeue.
       if ($queue->numberOfRunningItems() > 0) {
-        drupal_set_message($this->t('Cron: The entity with id @tid tried to run while it was already running.', [
+        drupal_set_message($this->t('Cron: The entity with ID @tid tried to run while it was already running.', [
           '@tid' => $item->tid,
         ]), 'error');
         // @todo: Update lease time maybe?
@@ -188,7 +188,7 @@ class QAShotQueueRunner {
       $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_RUNNING, $entity, $queue, $item);
 
       try {
-        drupal_set_message($this->t('Processing test @id from @name queue.', ['@name' => $name, '@id' => $item->tid]));
+        drupal_set_message($this->t('Processing test with ID @id from @name queue.', ['@name' => $name, '@id' => $item->tid]));
         $worker->processItem($item, $entity);
         $queue->deleteItem($item);
         $count++;
