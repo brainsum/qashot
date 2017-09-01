@@ -21,10 +21,24 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
 
   /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * ItemNormalizer constructor.
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
    */
   public function __construct() {
     $this->supportedInterfaceOrClass = [FieldItemListInterface::class];
+    // @codingStandardsIgnoreStart
+    // @todo: Find a way to properly inject this service.
+    $this->entityTypeManager = \Drupal::entityTypeManager();
+    // @codingStandardsIgnoreEnd
   }
 
   /**
@@ -37,11 +51,9 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
     if (!isset($context['target_instance'])) {
       throw new InvalidArgumentException("\$context['target_instance'] must be set to denormalize with the FieldNormalizer.");
     }
-
     if (!isset($context['qa_shot_field_name'])) {
       throw new InvalidArgumentException("\$context['qa_shot_field_name'] must be set to denormalize with the FieldNormalizer.");
     }
-
     if ($context['target_instance']->getParent() === NULL) {
       throw new InvalidArgumentException("The field passed in via \$context['target_instance'] must have a parent set.");
     }
@@ -59,9 +71,10 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
       }
       $data = [[$key => $data]];
     }
+    // Create or load tags by name.
     if ($fieldName === 'field_tag') {
-      $termStorage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
-
+      /** @var \Drupal\taxonomy\TermStorageInterface $termStorage */
+      $termStorage = $this->entityTypeManager->getStorage('taxonomy_term');
       $termData = [];
       foreach ($data as $termName) {
         // Load or create term.

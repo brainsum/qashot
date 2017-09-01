@@ -14,6 +14,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Class BackstopjsSettingsForm.
  *
+ * @todo: Add public function validateForm();
+ * @todo: Validate suite.binary_path for slashes, etc.
+ *
  * @package Drupal\backstopjs\Form
  */
 class BackstopjsSettingsForm extends ConfigFormBase {
@@ -21,7 +24,19 @@ class BackstopjsSettingsForm extends ConfigFormBase {
   const LOCAL_SUITE = 'local';
   const REMOTE_SUITE = 'remote';
 
+  /**
+   * The logger service.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
   protected $logger;
+
+  /**
+   * Path to the app root.
+   *
+   * @var string
+   */
+  protected $appRoot;
 
   /**
    * {@inheritdoc}
@@ -32,7 +47,8 @@ class BackstopjsSettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('logger.factory')
+      $container->get('logger.factory'),
+      $container->get('app.root')
     );
   }
 
@@ -43,13 +59,17 @@ class BackstopjsSettingsForm extends ConfigFormBase {
    *   The factory for configuration objects.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   Logger factory service.
+   * @param string $appRoot
+   *   The app root path.
    */
   public function __construct(
     ConfigFactoryInterface $configFactory,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
+    $appRoot
   ) {
     parent::__construct($configFactory);
     $this->logger = $loggerChannelFactory->get('backstopjs');
+    $this->appRoot = $appRoot;
   }
 
   /**
@@ -123,7 +143,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       ];
     }
 
-    // @todo: Make it a multirow textfield, one URL per line, etc.
+    // @todo: Make it a multi-row textfield, one URL per line, etc.
     $form['suite']['remote_locations'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Remote URL to the BackstopJS execution app'),
@@ -239,9 +259,6 @@ class BackstopjsSettingsForm extends ConfigFormBase {
 
     return $form;
   }
-
-  // @todo: Add public function validateForm();
-  // @todo: Validate suite.binary_path for slashes, etc.
 
   /**
    * Handles submission of the altered parts.
@@ -380,7 +397,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       2 => ['pipe', 'w'],
     ];
 
-    if ($process = proc_open($commandLine, $descriptors, $pipes, \Drupal::root())) {
+    if ($process = proc_open($commandLine, $descriptors, $pipes, $this->appRoot)) {
       $output = '';
       while (!feof($pipes[1])) {
         $output .= fgets($pipes[1]);
@@ -401,7 +418,8 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     }
 
     // Process debugging information if required.
-    if ($this->configFactory->get('imagemagick.settings')->get('debug')) {
+    // @todo: This is not implemented.
+    if ($this->configFactory->get('backstopjs.settings')->get('debug')) {
       $this->debugMessage('@suite command: <pre>@raw</pre>', [
         '@suite' => 'BackstopJS',
         '@raw' => print_r($commandLine, TRUE),
@@ -434,7 +452,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
    */
   public function debugMessage($message, array $context) {
     $this->logger->debug($message, $context);
-    if (\Drupal::currentUser()->hasPermission('administer site configuration')) {
+    if ($this->currentUser()->hasPermission('administer site configuration')) {
       // Strips raw text longer than 10 lines to optimize displaying.
       if (isset($context['@raw'])) {
         $raw = explode("\n", $context['@raw']);

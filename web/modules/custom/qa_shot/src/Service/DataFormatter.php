@@ -2,8 +2,10 @@
 
 namespace Drupal\qa_shot\Service;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
@@ -14,6 +16,33 @@ use Drupal\Core\Datetime\DrupalDateTime;
 class DataFormatter {
 
   /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
+   * The date formatter.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   */
+  protected $dateFormatter;
+
+  /**
+   * DataFormatter constructor.
+   *
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
+   *   The date formatter.
+   */
+  public function __construct(TimeInterface $time, DateFormatterInterface $dateFormatter) {
+    $this->time = $time;
+    $this->dateFormatter = $dateFormatter;
+  }
+
+  /**
    * Formats a timestamp as a time interval.
    *
    * @param int $timestamp
@@ -21,6 +50,8 @@ class DataFormatter {
    *
    * @return \Drupal\Component\Render\MarkupInterface
    *   The formatted date/time string using the past or future format setting.
+   *
+   * @throws \InvalidArgumentException
    */
   public function timestampAsAgo($timestamp): MarkupInterface {
     $date = DrupalDateTime::createFromTimestamp($timestamp);
@@ -46,16 +77,14 @@ class DataFormatter {
       'return_as_object' => TRUE,
     ];
 
-    $requestTime = \Drupal::time()->getRequestTime();
-    /** @var \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter */
-    $dateFormatter = \Drupal::service('date.formatter');
+    $requestTime = $this->time->getRequestTime();
 
     if ($requestTime > $timestamp) {
-      $result = $dateFormatter->formatTimeDiffSince($timestamp, $options);
+      $result = $this->dateFormatter->formatTimeDiffSince($timestamp, $options);
       $build = new FormattableMarkup('@interval ago', ['@interval' => $result->getString()]);
     }
     else {
-      $result = $dateFormatter->formatTimeDiffUntil($timestamp, $options);
+      $result = $this->dateFormatter->formatTimeDiffUntil($timestamp, $options);
       $build = new FormattableMarkup('@interval hence', ['@interval' => $result->getString()]);
     }
 

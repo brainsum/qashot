@@ -89,7 +89,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    */
   public function delete() {
     // @todo: Remove from the queue.
-
     // @todo: Generalize.
     /** @var \Drupal\qa_shot\TestBackendInterface $testBackend */
     $testBackend = \Drupal::service('backstopjs.backstop');
@@ -646,7 +645,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
         throw $e;
       }
 
-      drupal_set_message('The test has been queued to run. Check back later for the results.', 'info');
+      drupal_set_message(t('The test has been queued to run. Check back later for the results.'), 'info');
       return 'added_to_queue';
     }
 

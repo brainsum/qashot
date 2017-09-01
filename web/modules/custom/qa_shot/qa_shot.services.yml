@@ -6,6 +6,7 @@ services:
 
   qa_shot.data_formatter:
     class: Drupal\qa_shot\Service\DataFormatter
+    arguments: ['@datetime.time', '@date.formatter']
 
   qa_shot.test_queue_factory:
     class: Drupal\qa_shot\Queue\QAShotQueueFactory

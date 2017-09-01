@@ -6,6 +6,7 @@ use Drupal\backstopjs\Component\BackstopJsFactory;
 use Drupal\backstopjs\Exception\EmptyResultsException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\backstopjs\Exception\InvalidCommandException;
@@ -25,6 +26,8 @@ use Drupal\qa_shot\TestBackendBase;
  * @package Drupal\qa_shot\Service
  */
 class Backstop extends TestBackendBase {
+
+  use StringTranslationTrait;
 
   /**
    * The QAShot specific filesystem service.
@@ -125,7 +128,7 @@ class Backstop extends TestBackendBase {
     $passRate = 0;
     // Should only be a real value for the 'test' command.
     if (NULL !== $results['passedTestCount'] && NULL !== $results['failedTestCount']) {
-      drupal_set_message(t('Test done. @passed test(s) passed, @failed test(s) failed.', [
+      drupal_set_message($this->t('Test done. @passed test(s) passed, @failed test(s) failed.', [
         '@passed' => $results['passedTestCount'],
         '@failed' => $results['failedTestCount'],
       ]));
@@ -240,10 +243,11 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
    * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \InvalidArgumentException
    */
   private function prepareTest(QAShotTestInterface $entity) {
     if (NULL === $entity) {
-      drupal_set_message(t('Trying to run test on NULL.'), 'error');
+      drupal_set_message($this->t('Trying to run test on NULL.'), 'error');
       throw new InvalidEntityException('Entity is empty.');
     }
 
@@ -251,11 +255,13 @@ class Backstop extends TestBackendBase {
       $this->backstopFileSystem->initializeEnvironment($entity);
     }
     catch (QAShotBaseException $exception) {
-      drupal_set_message('Exception at environment init. ' . $exception->getMessage(), 'error');
+      drupal_set_message($this->t('Exception at environment init. @msg', [
+        '@msg' => $exception->getMessage(),
+      ]), 'error');
     }
 
     if (empty($entity->getConfigurationPath())) {
-      drupal_set_message('Configuration path not saved in entity.', 'error');
+      drupal_set_message($this->t('Configuration path not saved in entity.'), 'error');
       throw new InvalidConfigurationException('Configuration path not saved in entity.');
     }
   }

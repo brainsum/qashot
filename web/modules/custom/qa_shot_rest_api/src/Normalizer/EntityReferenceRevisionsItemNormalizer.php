@@ -73,6 +73,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
     if ($entity = $fieldItem->get('entity')->getValue()) {
       // Simplify the entity array representation to only the
       // id, revision_id and field_ prefixed items.
+      // @codingStandardsIgnoreStart
       $simplifiedEntity = array_filter($entity->toArray(), function ($key) {
         $isId = in_array($key, ['id', 'revision_id'], TRUE);
         $isField = (strpos($key, 'field_') === 0);
@@ -97,8 +98,14 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
           }
         }
 
-        return count($itemValue) > 1 ? $itemValue : (count($itemValue) === 1 ? $itemValue[0] : NULL);
+        $itemCount = count($itemValue);
+        if ($itemCount < 1) {
+          return NULL;
+        }
+
+        return $itemCount === 1 ? $itemValue[0] : $itemValue;
       }, $simplifiedEntity);
+      // @codingStandardsIgnoreEnd
     }
     // Fallback.
     else {

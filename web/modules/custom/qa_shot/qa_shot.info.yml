@@ -4,6 +4,6 @@ description: Module for test management.
 core: 8.x
 package: QAShot
 dependencies:
-  - paragraphs
-  - serialization
-  - jquery_colorpicker
+  - drupal:paragraphs
+  - drupal:serialization
+  - drupal:jquery_colorpicker

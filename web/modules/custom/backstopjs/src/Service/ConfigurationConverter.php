@@ -89,7 +89,6 @@ class ConfigurationConverter {
    */
   public function entityToArray(QAShotTestInterface $entity, $withDebug = FALSE): array {
     // @todo: get some field values global settings
-
     $entityId = $entity->id();
     $private = $this->privateDataPath . '/' . $entityId;
     $public = $this->publicDataPath . '/' . $entityId;
@@ -276,6 +275,7 @@ class ConfigurationConverter {
     return $scenarioData;
   }
 
+  // @codingStandardsIgnoreStart
   /**
    * Instantiates a new QAShotEntity from the array. Optionally saves it.
    *
@@ -420,5 +420,5 @@ class ConfigurationConverter {
       $newTest->save();
     }
   }
-
+  // @codingStandardsIgnoreEnd
 }

@@ -216,7 +216,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
     // Only check 'edit' permissions for fields that were actually
     // submitted by the user. Field access makes no difference between 'create'
     // and 'update', so the 'edit' operation is used here.
-    foreach ($entity->_restSubmittedFields as $key => $fieldName) {
+    foreach ($entity->_restSubmittedFields as $fieldName) {
       if (!$entity->get($fieldName)->access('edit')) {
         throw new AccessDeniedHttpException("Access denied on creating field '$fieldName'");
       }

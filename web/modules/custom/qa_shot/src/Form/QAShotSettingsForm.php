@@ -32,7 +32,7 @@ class QAShotSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    drupal_set_message(t('Not yet implemented.'), 'warning');
+    drupal_set_message($this->t('Not yet implemented.'), 'warning');
     return $form;
   }
 

@@ -19,8 +19,9 @@ class QAShotTestForm extends ContentEntityForm {
     /* @var $entity \Drupal\qa_shot\Entity\QAShotTest */
     $form = parent::buildForm($form, $form_state);
 
-    $entity = $this->entity;
-
+    // If we need to use the entity:
+    // $entity = $this->entity;
+    // But it's not needed yet.
     return $form;
   }
 

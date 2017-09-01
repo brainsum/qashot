@@ -4,5 +4,5 @@ description: RESTful API for the QAShot Module.
 core: 8.x
 package: QAShot
 dependencies:
-  - qa_shot
-  - rest
+  - drupal:qa_shot
+  - drupal:rest

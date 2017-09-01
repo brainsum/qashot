@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Queue\QAShotQueue;
@@ -20,6 +21,8 @@ use Drupal\qa_shot\Queue\QAShotQueueWorkerManager;
  * @package Drupal\qa_shot\Service
  */
 class RunTestImmediately {
+
+  use StringTranslationTrait;
 
   /**
    * The manager.
@@ -124,7 +127,6 @@ class RunTestImmediately {
     }
 
     // @todo: Maybe update 'expire' with the machine learning determined 'estimated run time'.
-
     // Set status to run.
     $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_RUNNING, $entity, $queue, $item);
 
@@ -191,7 +193,7 @@ class RunTestImmediately {
       }
 
       $this->logger->info(
-        t('Test with ID #@testID status changed to @status.', [
+        $this->t('Test with ID #@testID status changed to @status.', [
           '@testID' => $entity->id(),
           '@status' => $status,
         ])

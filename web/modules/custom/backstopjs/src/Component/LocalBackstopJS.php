@@ -6,6 +6,7 @@ use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
 use Drupal\backstopjs\Exception\FileOpenException;
 use Drupal\backstopjs\Exception\FileWriteException;
 use Drupal\backstopjs\Exception\FolderCreateException;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
@@ -13,9 +14,14 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  *
  * Implements running BackstopJS from a local binary.
  *
+ * @todo: Move 'Local' related functions here from web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
+ * @todo: Refactor exec-s and etc to use the new functions
+ *
  * @package Drupal\backstopjs\Component
  */
 class LocalBackstopJS extends BackstopJSBase {
+
+  use StringTranslationTrait;
 
   const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
   const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';
@@ -41,7 +47,7 @@ class LocalBackstopJS extends BackstopJSBase {
   public function checkRunStatus() {
     $checkerCommand = escapeshellcmd(self::COMMAND_CHECK_STATUS);
     // @todo: Refactor and use \Symfony\Component\Process\Process.
-    $res = exec($checkerCommand, $execOutput, $status);
+    $res = exec($checkerCommand);
 
     // > 1 is used since the pgrep command gets included as well.
     if (is_numeric($res) && (int) $res > 1) {
@@ -77,7 +83,7 @@ class LocalBackstopJS extends BackstopJSBase {
     // @todo: Refactor and use \Symfony\Component\Process\Process.
     // @see: http://symfony.com/doc/2.8/components/process.html
     // @see: QAS-10
-    exec($backstopCommand, $execOutput, $status);
+    exec($backstopCommand, $execOutput);
 
     $results = [
       'result' => TRUE,
@@ -127,7 +133,7 @@ class LocalBackstopJS extends BackstopJSBase {
 
     if (!$results['bitmapGenerationSuccess']) {
       $results['result'] = FALSE;
-      drupal_set_message('Bitmap generation failed.');
+      drupal_set_message($this->t('Bitmap generation failed.'));
       return $results;
     }
 
@@ -139,8 +145,5 @@ class LocalBackstopJS extends BackstopJSBase {
 
     return $results;
   }
-
-  // @todo: Move Local related functions here from web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
-  // @todo: Refactor exec-s and etc to use the new functions.
 
 }

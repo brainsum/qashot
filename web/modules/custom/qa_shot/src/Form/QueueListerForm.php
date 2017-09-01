@@ -58,6 +58,9 @@ class QueueListerForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -114,7 +117,7 @@ class QueueListerForm extends FormBase {
     $form['#tree'] = TRUE;
     $form['queue'] = [
       '#type' => 'details',
-      '#title' => t('Queue'),
+      '#title' => $this->t('Queue'),
       '#open' => TRUE,
     ];
 
@@ -144,7 +147,7 @@ class QueueListerForm extends FormBase {
     $form['backstopjs_status'] = [
       '#type' => 'markup',
       '#markup' => 'Results for using pgrep to search for BackstopJS: ' . $this->backstop->getStatus(),
-      '#title' => t('BackstopJS status'),
+      '#title' => $this->t('BackstopJS status'),
     ];
 
     return $form;
@@ -212,8 +215,6 @@ class QueueListerForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    // TODO: Implement submitForm() method.
-  }
+  public function submitForm(array &$form, FormStateInterface $form_state) {}
 
 }

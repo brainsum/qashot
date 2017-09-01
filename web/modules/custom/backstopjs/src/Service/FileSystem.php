@@ -168,7 +168,6 @@ class FileSystem {
     }
 
     // @todo: scandir target, if file is there and they are the same, skip the file
-
     $result = TRUE;
 
     foreach ($fileList as $file) {

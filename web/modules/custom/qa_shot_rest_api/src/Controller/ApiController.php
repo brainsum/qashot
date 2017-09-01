@@ -10,6 +10,8 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Exception\QAShotBaseException;
+use Drupal\qa_shot\Service\QAShotQueueData;
+use Drupal\qa_shot\Service\RunTestImmediately;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,6 +41,20 @@ class ApiController extends ControllerBase {
   protected $serializer;
 
   /**
+   * Queue Data service.
+   *
+   * @var \Drupal\qa_shot\service\QAShotQueueData
+   */
+  protected $queueData;
+
+  /**
+   * Test runner service.
+   *
+   * @var \Drupal\qa_shot\Service\RunTestImmediately
+   */
+  protected $testRunner;
+
+  /**
    * Create.
    *
    * {@inheritdoc}
@@ -50,7 +66,9 @@ class ApiController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('serializer')
+      $container->get('serializer'),
+      $container->get('qa_shot.queue_data'),
+      $container->get('qa_shot.immediately_test')
     );
   }
 
@@ -61,15 +79,23 @@ class ApiController extends ControllerBase {
    *   Entity type manager.
    * @param \Symfony\Component\Serializer\Normalizer\NormalizerInterface $serializer
    *   Serializer service.
+   * @param \Drupal\qa_shot\Service\QAShotQueueData $queueData
+   *   Queue data service.
+   * @param \Drupal\qa_shot\Service\RunTestImmediately $testRunner
+   *   Test runner service.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    NormalizerInterface $serializer
+    NormalizerInterface $serializer,
+    QAShotQueueData $queueData,
+    RunTestImmediately $testRunner
   ) {
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->serializer = $serializer;
+    $this->queueData = $queueData;
+    $this->testRunner = $testRunner;
   }
 
   /**
@@ -148,33 +174,35 @@ class ApiController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request.
    *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The response.
+   *
    * @throws BadRequestHttpException
    * @throws \InvalidArgumentException
    * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
    * @throws \LogicException
-   *
-   * @return \Symfony\Component\HttpFoundation\JsonResponse
-   *   The response.
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Core\Database\InvalidQueryException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Exception
    */
   public function forceRun(Request $request): JsonResponse {
     $settings = $this->parseRunnerSettings($request);
     $tid = $settings['tid'];
 
     try {
-      /** @var \Drupal\qa_shot\Service\RunTestImmediately $test_runner */
-      $test_runner = \Drupal::service('qa_shot.immediately_test');
-      $test_runner->run($tid);
+      $this->testRunner->run($tid);
       $entity = $this->testStorage->load($tid);
       $entityArray = $this->serializer->normalize($entity);
 
-      if ($entityArray['metadata_last_run'][0]['stage'] == "") {
-        $status = $entityArray['metadata_last_run'][0]['failed_count'] == 0 ? "success" : "failed";
+      if ($entityArray['metadata_last_run'][0]['stage'] === '') {
+        $status = $entityArray['metadata_last_run'][0]['failed_count'] === 0 ? 'success' : 'failed';
       }
       elseif ($entityArray['metadata_last_run'][0]['datetime'] > $entityArray['metadata_last_run'][1]['datetime']) {
-        $status = "success";
+        $status = 'success';
       }
       elseif ($entityArray['metadata_last_run'][0]['datetime'] < $entityArray['metadata_last_run'][1]['datetime']) {
-        $status = $entityArray['metadata_last_run'][1]['failed_count'] == 0 ? "success" : "failed";
+        $status = $entityArray['metadata_last_run'][1]['failed_count'] === 0 ? 'success' : 'failed';
       }
     }
     catch (QAShotBaseException $e) {
@@ -242,7 +270,7 @@ class ApiController extends ControllerBase {
   private function loadEntityFromId($entityId): QAShotTest {
     if (!is_numeric($entityId)) {
       throw new BadRequestHttpException(
-        t('The supplied parameter ( @param ) is not valid.', [
+        $this->t('The supplied parameter ( @param ) is not valid.', [
           '@param' => $entityId,
         ])
       );
@@ -253,7 +281,7 @@ class ApiController extends ControllerBase {
 
     if (NULL === $entity) {
       throw new NotFoundHttpException(
-        t('The QAShot Test with ID @id was not found', [
+        $this->t('The QAShot Test with ID @id was not found', [
           '@id' => $entityId,
         ])
       );
@@ -343,13 +371,10 @@ class ApiController extends ControllerBase {
       /** @var array $ids */
       $tids = $runnerSettings['tids'];
 
-      /** @var \Drupal\qa_shot\service\QAShotQueueData $queueService */
-      $queueService = \Drupal::service('qa_shot.queue_data');
-
       $queueData = [];
       $notInQueue = [];
       foreach ($tids as $tid) {
-        $data = $queueService->getDataFromQueue($tid);
+        $data = $this->queueData->getDataFromQueue($tid);
         if ($data) {
           $queueData[] = $data;
         }

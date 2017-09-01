@@ -147,9 +147,9 @@ function qa_shot_update_8303() {
     return;
   }
 
-  if (!$scenarioStorageBackup = $entityTypeManager->getStorage('field_storage_config')->loadByProperties([
+  if (empty($entityTypeManager->getStorage('field_storage_config')->loadByProperties([
     'type' => 'qa_shot_scenario',
-  ])['qa_shot_test.field_scenario_backup']) {
+  ])['qa_shot_test.field_scenario_backup'])) {
     // Clone FieldStorageConfig.
     $new_field_storage = $scenarioStorage->toArray();
     $new_field_storage['field_name'] .= '_backup';
@@ -159,9 +159,9 @@ function qa_shot_update_8303() {
     $new_field_storage->save();
   }
 
-  if (!$scenarioFieldBackup = $entityTypeManager->getStorage('field_config')->loadByProperties([
+  if (empty($entityTypeManager->getStorage('field_config')->loadByProperties([
     'field_type' => 'qa_shot_scenario',
-  ])['qa_shot_test.a_b.field_scenario_backup']) {
+  ])['qa_shot_test.a_b.field_scenario_backup'])) {
     // Clone FieldConfig.
     $new_field = $scenarioField->toArray();
     $new_field['field_name'] .= '_backup';
@@ -357,7 +357,8 @@ function qa_shot_update_8309() {
 function qa_shot_update_8310() {
   $database = \Drupal::database();
   // Save current values.
-  $current_values = $database->query('SELECT id, initiated FROM qa_shot_test WHERE initiated IS NOT NULL')->fetchAllAssoc('id');
+  /** @var array $currentValues */
+  $currentValues = $database->query('SELECT id, initiated FROM qa_shot_test WHERE initiated IS NOT NULL')->fetchAllAssoc('id');
 
   // Set NULL for every record in initiated to be able to change field type.
   $database->query('UPDATE qa_shot_test SET initiated = NULL')->execute();
@@ -372,9 +373,9 @@ function qa_shot_update_8310() {
     ->setDescription(t('The time that the entity was last initiated.')));
 
   // Set back deleted values if possible.
-  $transaction = $database->startTransaction();
+  $database->startTransaction();
   try {
-    foreach ($current_values as $value) {
+    foreach ($currentValues as $value) {
       $database->update('qa_shot_test')
         ->fields(['initiated' => $value->initiated])
         ->condition('id', $value->id, '=')

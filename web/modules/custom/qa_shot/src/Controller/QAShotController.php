@@ -9,6 +9,8 @@ use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
+use Drupal\qa_shot\Service\DataFormatter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -24,6 +26,35 @@ class QAShotController extends ControllerBase {
   private $entity;
 
   /**
+   * Data formatter.
+   *
+   * @var \Drupal\qa_shot\Service\DataFormatter
+   */
+  protected $dataFormatter;
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('qa_shot.data_formatter')
+    );
+  }
+
+  /**
+   * QAShotController constructor.
+   *
+   * @param \Drupal\qa_shot\Service\DataFormatter $dataFormatter
+   *   The data formatter.
+   */
+  public function __construct(DataFormatter $dataFormatter) {
+    $this->dataFormatter = $dataFormatter;
+  }
+
+  /**
    * Load entity to controller functions.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
@@ -31,6 +62,8 @@ class QAShotController extends ControllerBase {
    *
    * @return bool
    *   If there's error it will return true otherwise false.
+   *
+   * @throws \InvalidArgumentException
    */
   private function loadEntity(RouteMatchInterface $routeMatch): bool {
     $entityId = $routeMatch->getParameters()->get('qa_shot_test');
@@ -53,6 +86,8 @@ class QAShotController extends ControllerBase {
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse|array
    *   Redirect to the 'status' page.
+   *
+   * @throws \InvalidArgumentException
    */
   public function entityAddToQueue(RouteMatchInterface $routeMatch, Request $request) {
     if ($this->loadEntity($routeMatch)) {
@@ -92,6 +127,9 @@ class QAShotController extends ControllerBase {
    *
    * @return array
    *   The configured template.
+   *
+   * @throws \InvalidArgumentException
+   * @throws \Drupal\qa_shot\Exception\QAShotBaseException
    */
   public function entityRunPage(RouteMatchInterface $routeMatch): array {
     if ($this->loadEntity($routeMatch)) {
@@ -101,24 +139,22 @@ class QAShotController extends ControllerBase {
     $reportUrl = file_create_url($this->entity->getHtmlReportPath());
     $lastRun = $this->entity->getLastRunMetadataValue();
     $reportTime = empty($lastRun) ? NULL : end($lastRun)['datetime'];
-    $result_exist = FALSE;
+    $resultExist = FALSE;
 
     foreach ($this->entity->getLifetimeMetadataValue() as $item) {
-      if ($item['stage'] == NULL || $item['stage'] == 'after') {
-        $result_exist = TRUE;
+      if (NULL === $item['stage'] || $item['stage'] === 'after') {
+        $resultExist = TRUE;
         break;
       }
     }
 
     // If the report time is not NULL, format it to an '.. ago' string.
     if (NULL !== $reportTime) {
-      /** @var \Drupal\qa_shot\Service\DataFormatter $dataFormatter */
-      $dataFormatter = \Drupal::service('qa_shot.data_formatter');
       $reportDateTime = new DrupalDateTime($reportTime);
-      $reportTime = $dataFormatter->dateAsAgo($reportDateTime);
+      $reportTime = $this->dataFormatter->dateAsAgo($reportDateTime);
     }
 
-    list($last_run_time, $last_reference_run_time, $last_test_run_time) = array_values($this->entity->getLastRunTimes());
+    list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = array_values($this->entity->getLastRunTimes());
 
     $build = [
       '#type' => 'markup',
@@ -127,23 +163,25 @@ class QAShotController extends ControllerBase {
       '#html_report_url' => $reportUrl,
       '#entity' => $this->entity,
       '#report_time' => $reportTime,
-      '#result_exist' => $result_exist,
-      '#last_run_time' => $last_run_time,
-      '#last_reference_run_time' => $last_reference_run_time,
-      '#last_test_run_time' => $last_test_run_time,
+      '#result_exist' => $resultExist,
+      '#last_run_time' => $lastRunTime,
+      '#last_reference_run_time' => $lastReferenceRunTime,
+      '#last_test_run_time' => $lastTestRunTime,
     ];
 
     return $build;
   }
 
   /**
-   * Disaplays a private debug file.
+   * Displays a private debug file.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
    *   Route match interface.
    *
    * @return array
    *   Return the markup render array.
+   *
+   * @throws \InvalidArgumentException
    */
   public function displayDebugFile(RouteMatchInterface $routeMatch): array {
     $entityId = $routeMatch->getParameters()->get('qa_shot_test');
