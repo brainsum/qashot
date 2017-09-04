@@ -8,6 +8,10 @@ Features:
 * Test queue; Tests are put into a queue and are executed as soon as possible.
 * UI to manage BackstopJS test cases.
 
+## Disclaimer
+
+QAShot is heavily in development. Breaking changes with no automatic upgrade paths might be introduced to it without notice. Use or update it at your own discretion.
+
 ## Docker
 The project comes with a docker-compose.yml based on the Docker4Drupal environment (v1.3.0).
 A custom docker image is used for the PHP container, as we needed to include BackstopJS and its dependencies.
