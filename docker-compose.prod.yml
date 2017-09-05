@@ -11,21 +11,22 @@ services:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i
 
   nginx:
-    ports:
-      - "80:80"
     restart: always
   
   pma:
+    image: tianon/true
     restart: always
 
   mailhog:
     restart: always
 
-  backstop_node:
-    restart: always
+#  backstop_node:
+#    restart: always
 
   portainer:
     restart: always
 
   traefik:
+    ports:
+      - '80:80'
     restart: always
