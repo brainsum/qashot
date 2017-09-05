@@ -1,32 +1,62 @@
-version: "2"
-
 services:
-
   mariadb:
+    image: wodby/mariadb:10.1-2.3.3
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
     restart: always
 
   php:
-    restart: always
+#    image: wodby/drupal-php:7.0-2.4.3
+    image: havelantmate/drupal_php:Backstop2.6.13-SlimerJS
     environment:
-      PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i
+      PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
+      DB_HOST: mariadb
+      DB_USER: drupal
+      DB_PASSWORD: drupal
+      DB_NAME: drupal
+      DB_DRIVER: mysql
+      DOCKER_ENVIRONMENT: docker4drupal
+      PHP_SITE_NAME: qashot
+      PHP_HOST_NAME: localhost:8000
+      PHP_DOCROOT: web # Relative path inside the /var/www/html/ directory.
+      PHP_WORKING_DIR: web
+    volumes:
+      - ./:/var/www/html
+    restart: always
 
   nginx:
+    image: wodby/drupal-nginx:1.0.0
+    depends_on:
+      - php
+    environment:
+      NGINX_SERVER_NAME: localhost
+      NGINX_UPSTREAM_NAME: php
+      NGINX_DOCROOT: web # Relative path inside the /var/www/html/ directory.
+      DRUPAL_VERSION: 8 # Allowed: 7, 8.
+    volumes_from:
+      - php
+    labels:
+      - 'traefik.backend=nginx'
+      - 'traefik.port=80'
+      - 'traefik.frontend.rule=Host:qashot.docker.localhost'
     restart: always
-  
-  pma:
-    image: tianon/true
-#    restart: always
 
   mailhog:
-    restart: always
-
-#  backstop_node:
-#    restart: always
-
-  portainer:
+    image: mailhog/mailhog
+    labels:
+      - 'traefik.backend=mailhog'
+      - 'traefik.port=8025'
+      - 'traefik.frontend.rule=Host:mailhog.drupal.docker.localhost'
     restart: always
 
   traefik:
+    image: traefik
+    command: -c /dev/null --web --docker --logLevel=INFO
     ports:
       - '80:80'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: always
