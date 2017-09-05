@@ -154,7 +154,11 @@ class QAShotQueueRunner {
     $queue = $this->getQueue($name);
     $count = 0;
 
-    while ($item = $queue->claimItem($timeLimit)) {
+    // @todo: Make configurable.
+    // Global (settings form) or per queue (annotation)?
+    $countLimit = 10;
+
+    while ($count < $countLimit && $item = $queue->claimItem($timeLimit)) {
       /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
       $entity = $this->testStorage->load($item->tid);
       // If the entity has been deleted while queued remove it, log an error.
