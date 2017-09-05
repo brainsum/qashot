@@ -1,3 +1,5 @@
+version: "2"
+
 services:
   mariadb:
     image: wodby/mariadb:10.1-2.3.3
@@ -9,7 +11,6 @@ services:
     restart: always
 
   php:
-#    image: wodby/drupal-php:7.0-2.4.3
     image: havelantmate/drupal_php:Backstop2.6.13-SlimerJS
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
