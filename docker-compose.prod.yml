@@ -15,7 +15,7 @@ services:
   
   pma:
     image: tianon/true
-    restart: always
+#    restart: always
 
   mailhog:
     restart: always
