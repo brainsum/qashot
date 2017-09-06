@@ -156,7 +156,7 @@ class QAShotQueueRunner {
 
     // @todo: Make configurable.
     // Global (settings form) or per queue (annotation)?
-    $countLimit = 10;
+    $countLimit = 5;
 
     while ($count < $countLimit && $item = $queue->claimItem($timeLimit)) {
       /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
