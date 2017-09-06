@@ -22,15 +22,28 @@ class QAShotTestAccessControlHandler extends EntityAccessControlHandler {
     switch ($operation) {
       case 'view':
         if (!$entity->isPublished()) {
-          return AccessResult::allowedIfHasPermission($account, 'view unpublished qashot test entities');
+          if ($account->id() == $entity->getOwnerId()) {
+            return AccessResult::allowedIfHasPermission($account, 'view own unpublished qashot test entities');
+          }
+          return AccessResult::allowedIfHasPermission($account, 'view any unpublished qashot test entities');
         }
-        return AccessResult::allowedIfHasPermission($account, 'view published qashot test entities');
+
+        if ($account->id() == $entity->getOwnerId()) {
+          return AccessResult::allowedIfHasPermission($account, 'view own published qashot test entities');
+        }
+        return AccessResult::allowedIfHasPermission($account, 'view any published qashot test entities');
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit qashot test entities');
+        if ($account->id() == $entity->getOwnerId()) {
+          return AccessResult::allowedIfHasPermission($account, 'edit own qashot test entities');
+        }
+        return AccessResult::allowedIfHasPermission($account, 'edit any qashot test entities');
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete qashot test entities');
+        if ($account->id() == $entity->getOwnerId()) {
+          return AccessResult::allowedIfHasPermission($account, 'delete own qashot test entities');
+        }
+        return AccessResult::allowedIfHasPermission($account, 'delete any qashot test entities');
     }
 
     // Unknown operation, no opinion.

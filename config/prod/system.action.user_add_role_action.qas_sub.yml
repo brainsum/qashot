@@ -1,0 +1,14 @@
+uuid: 965a166e-d258-419c-a2e0-97ccf48d98c3
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.qas_sub
+  module:
+    - user
+id: user_add_role_action.qas_sub
+label: 'Add the Subscriber role to the selected users'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: qas_sub

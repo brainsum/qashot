@@ -16,20 +16,43 @@ administer qashot queue:
   description: 'Allow to access the administration form to configure the queue.'
   restrict access: true
 
-delete qashot test entities:
-  title: 'Delete QAShot Test entities'
+bypass qashot access:
+  title: 'Bypass QAShot Test entities access'
+  description: 'Allow to access any entities with any operation.'
+  restrict access: true
 
-edit qashot test entities:
-  title: 'Edit QAShot Test entities'
+delete own qashot test entities:
+  title: 'Delete own QAShot Test entities'
+
+delete any qashot test entities:
+  title: 'Delete any QAShot Test entities'
+
+edit own qashot test entities:
+  title: 'Edit own QAShot Test entities'
+
+edit any qashot test entities:
+  title: 'Edit any QAShot Test entities'
+
+run own qashot test entities:
+  title: 'Run own QAShot Test entities'
+
+run any qashot test entities:
+  title: 'Run any QAShot Test entities'
 
 access qashot test overview:
   title: 'Access the QAShot Test overview page'
 
-view published qashot test entities:
-  title: 'View published QAShot Test entities'
+view own published qashot test entities:
+  title: 'View own published QAShot Test entities'
 
-view unpublished qashot test entities:
-  title: 'View unpublished QAShot Test entities'
+view any published qashot test entities:
+  title: 'View any published QAShot Test entities'
+
+view own unpublished qashot test entities:
+  title: 'View own unpublished QAShot Test entities'
+
+view any unpublished qashot test entities:
+  title: 'View any unpublished QAShot Test entities'
 
 view qa_shot debug data:
   title: 'View QAShot debug data'

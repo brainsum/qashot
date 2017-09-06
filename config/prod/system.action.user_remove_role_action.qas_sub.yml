@@ -1,0 +1,14 @@
+uuid: ffe7f1ce-1042-4d9c-a738-feab3af06836
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.qas_sub
+  module:
+    - user
+id: user_remove_role_action.qas_sub
+label: 'Remove the Subscriber role from the selected users'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: qas_sub

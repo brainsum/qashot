@@ -550,7 +550,7 @@ class ApiController extends ControllerBase {
       return AccessResult::allowed();
     }
 
-    return AccessResult::allowedIf(in_array('rest_api_user', $account->getRoles(TRUE), FALSE));
+    return AccessResult::allowedIf(in_array('rest_api_user', $account->getRoles(TRUE), FALSE) || in_array('qas_sub', $account->getRoles(TRUE), FALSE));
   }
 
 }

@@ -1,0 +1,29 @@
+uuid: 848c223c-401d-405b-baf4-621406655d88
+langcode: en
+status: true
+dependencies: {  }
+id: qas_sub
+label: Subscriber
+weight: -6
+is_admin: null
+permissions:
+  - 'access devel information'
+  - 'access kint'
+  - 'access qashot test overview'
+  - 'access qashot test overview via rest'
+  - 'add qashot test entities'
+  - 'add qashot test entities via rest'
+  - 'delete own qashot test entities'
+  - 'delete qashot test entities via rest'
+  - 'edit own qashot test entities'
+  - 'edit qashot test entities via rest'
+  - 'restful delete entity:qa_shot_test'
+  - 'restful get entity:qa_shot_test'
+  - 'restful patch entity:qa_shot_test'
+  - 'restful post entity:qa_shot_test'
+  - 'run own qashot test entities'
+  - 'view own published qashot test entities'
+  - 'view own unpublished content'
+  - 'view own unpublished qashot test entities'
+  - 'view published qashot test entities via rest'
+  - 'view unpublished qashot test entities via rest'

@@ -4,7 +4,7 @@ entity.qa_shot_test.run:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::entityRunPage'
     _title: 'Status'
   requirements:
-    _permission: 'edit qashot test entities'
+    _custom_access: '\Drupal\qa_shot\QAShotTestRunAccessControl::checkRunAccess'
 
 entity.qa_shot_test.debug:
   path: 'qa_shot_test/{qa_shot_test}/{file_name}/debug'
@@ -20,7 +20,7 @@ entity.qa_shot_test.add_to_queue:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::entityAddToQueue'
     _title: 'Status'
   requirements:
-    _permission: 'edit qashot test entities'
+    _custom_access: '\Drupal\qa_shot\QAShotTestRunAccessControl::checkRunAccess'
 
 entity.qa_shot_test.add_to_queue_reference:
   path: 'qa_shot_test/{qa_shot_test}/add_queue/reference'
@@ -29,7 +29,7 @@ entity.qa_shot_test.add_to_queue_reference:
     _title: 'Status'
     run_type: 'before'
   requirements:
-    _permission: 'edit qashot test entities'
+    _custom_access: '\Drupal\qa_shot\QAShotTestRunAccessControl::checkRunAccess'
 
 entity.qa_shot_test.add_to_queue_test:
   path: 'qa_shot_test/{qa_shot_test}/add_queue/test'
@@ -38,7 +38,7 @@ entity.qa_shot_test.add_to_queue_test:
     _title: 'Status'
     run_type: 'after'
   requirements:
-    _permission: 'edit qashot test entities'
+    _custom_access: '\Drupal\qa_shot\QAShotTestRunAccessControl::checkRunAccess'
 
 qa_shot.settings:
   path: '/admin/config/qa_shot'
