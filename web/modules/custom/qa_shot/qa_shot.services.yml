@@ -34,3 +34,15 @@ services:
   qa_shot.immediately_test:
     class: Drupal\qa_shot\Service\RunTestImmediately
     arguments: ['@plugin.manager.qa_shot_queue_worker', '@qa_shot.test_queue_factory', '@entity_type.manager', '@logger.factory']
+
+  qa_shot.grant_storage:
+    class: Drupal\qa_shot\QAShotGrantDatabaseStorage
+    arguments: ['@database', '@module_handler', '@language_manager']
+    tags:
+      - { name: backend_overridable }
+
+  cache_context.user.qa_shot_test_grants:
+    class: Drupal\qa_shot\Cache\QAShotAccessGrantsCacheContext
+    arguments: ['@current_user']
+    tags:
+      - { name: cache.context }

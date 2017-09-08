@@ -63,3 +63,10 @@ qa_shot.queue_list:
     _title: 'QAShot Queue'
   requirements:
     _permission: 'administer qashot queue'
+
+qa_shot.configure_rebuild_confirm:
+  path: '/admin/reports/status/rebuild-qashot'
+  defaults:
+    _form: 'Drupal\qa_shot\Form\RebuildPermissionsForm'
+  requirements:
+    _permission: 'access administration pages'

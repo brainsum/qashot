@@ -8,6 +8,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Plugin\DataType\ComputedLastRunMetadata;
@@ -95,6 +96,14 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $testBackend->clearFiles($this);
 
     parent::delete();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($operation = 'view', AccountInterface $account = NULL, $return_as_object = FALSE) {
+    // This override exists to set the operation to the default value "view".
+    return parent::access($operation, $account, $return_as_object);
   }
 
   /**

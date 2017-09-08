@@ -15,6 +15,8 @@ class QAShotTestViewsData extends EntityViewsData {
   public function getViewsData(): array {
     $data = parent::getViewsData();
 
+    $data['qa_shot_test']['table']['base']['access query tag'] = 'qa_shot_test_access';
+
     // Additional information for Views integration, such as table joins, can be
     // put here.
     $data['views']['table']['group'] = t('Custom Global');
@@ -44,6 +46,26 @@ class QAShotTestViewsData extends EntityViewsData {
       'help' => $this->t('Add a form element that lets you run operations on multiple tests.'),
       'field' => [
         'id' => 'qa_shot_test_bulk_form',
+      ],
+    ];
+
+    // Define the base group of this table. Fields that don't have a group
+    // defined will go into this field by default.
+    $data['qa_shot_test_access']['table']['group']  = $this->t('Content access');
+
+    // For other base tables, explain how we join.
+    $data['qa_shot_test_access']['table']['join'] = [
+      'qa_shot_test' => [
+        'left_field' => 'id',
+        'field' => 'id',
+      ],
+    ];
+    $data['qa_shot_test_access']['id'] = [
+      'title' => $this->t('Access'),
+      'help' => $this->t('Filter by access.'),
+      'filter' => [
+        'id' => 'qa_shot_test_access',
+        'help' => $this->t('Filter for content by view access. <strong>Not necessary if you are using QAShot test as your base table.</strong>'),
       ],
     ];
 

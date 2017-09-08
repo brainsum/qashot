@@ -7,8 +7,6 @@ label: Subscriber
 weight: -6
 is_admin: null
 permissions:
-  - 'access devel information'
-  - 'access kint'
   - 'access qashot test overview'
   - 'access qashot test overview via rest'
   - 'add qashot test entities'

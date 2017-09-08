@@ -21,6 +21,79 @@ class QAShotSchemaDefinitions {
    */
   public function everySchema(): array {
     $schemas = [];
+
+    $schemas['qa_shot_test_access'] = [
+      'description' => 'Identifies which realm/grant pairs a user must possess in order to view, update, or delete specific QAShot tests.',
+      'fields' => [
+        'id' => [
+          'description' => 'The {qa_shot_test}.id this record affects.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'langcode' => [
+          'description' => 'The {language}.langcode of this QAShot test.',
+          'type' => 'varchar_ascii',
+          'length' => 12,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'fallback' => [
+          'description' => 'Boolean indicating whether this record should be used as a fallback if a language condition is not provided.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 1,
+          'size' => 'tiny',
+        ],
+        'gid' => [
+          'description' => "The grant ID a user must possess in the specified realm to gain this row's privileges on the QAShot test.",
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'realm' => [
+          'description' => 'The realm in which the user must possess the grant ID. Each QAShot test access QAShot test can define one or more realms.',
+          'type' => 'varchar_ascii',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'grant_view' => [
+          'description' => 'Boolean indicating whether a user with the realm/grant pair can view this QAShot test.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+          'size' => 'tiny',
+        ],
+        'grant_update' => [
+          'description' => 'Boolean indicating whether a user with the realm/grant pair can edit this QAShot test.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+          'size' => 'tiny',
+        ],
+        'grant_delete' => [
+          'description' => 'Boolean indicating whether a user with the realm/grant pair can delete this QAShot test.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+          'size' => 'tiny',
+        ],
+      ],
+      'primary key' => ['id', 'gid', 'realm', 'langcode'],
+      'foreign keys' => [
+        'affected_qa_shot_test' => [
+          'table' => 'qa_shot_test',
+          'columns' => ['id' => 'id'],
+        ],
+      ],
+    ];
     $schemas = array_merge($schemas, $this->queueSchema());
     return $schemas;
   }

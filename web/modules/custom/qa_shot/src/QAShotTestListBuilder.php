@@ -22,6 +22,9 @@ class QAShotTestListBuilder extends EntityListBuilder {
   public function buildHeader() {
     $header['id'] = $this->t('QAShot Test ID');
     $header['name'] = $this->t('Name');
+    $header['tags'] = $this->t('Tags');
+    $header['test-type'] = $this->t('Test Type');
+    $header['status'] = $this->t('Status');
     return $header + parent::buildHeader();
   }
 
@@ -30,16 +33,23 @@ class QAShotTestListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\qa_shot\Entity\QAShotTest */
-    $row['id'] = $entity->id();
-    $row['name'] = $this->l(
-      $entity->label(),
-      new Url(
-        'entity.qa_shot_test.edit_form', [
-          'qa_shot_test' => $entity->id(),
-        ]
-      )
-    );
-    return $row + parent::buildRow($entity);
+    if ($entity->access('view')) {
+      $row['id'] = $entity->id();
+      $row['name'] = $this->l(
+        $entity->label(),
+        new Url(
+          'entity.qa_shot_test.edit_form', [
+            'qa_shot_test' => $entity->id(),
+          ]
+        )
+      );
+      $row['tags'] = implode(', ', $entity->getCacheTags());
+      $row['test-type'] = $entity->getType();
+      $row['status'] = $entity->getHumanReadableQueueStatus();
+      return $row + parent::buildRow($entity);
+    }
+
+    return NULL;
   }
 
 }

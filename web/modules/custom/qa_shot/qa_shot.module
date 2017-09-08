@@ -5,8 +5,16 @@
  * Contains qa_shot.module.
  */
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Database\Query\AlterableInterface;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
+use Drupal\qa_shot\Entity\QAShotTest;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Implements hook_help().
@@ -200,4 +208,476 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
       ]
     );
   }
+}
+
+
+/**
+ * Implements hook_ENTITY_TYPE_access().
+ */
+function qa_shot_qa_shot_test_access(\Drupal\Core\Entity\EntityInterface $entity, $operation, AccountInterface $account) {
+  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
+  /*switch ($operation) {
+    case 'view':
+      if (!$entity->isPublished()) {
+        if ($account->id() == $entity->getOwnerId()) {
+          return AccessResult::allowedIfHasPermission($account, 'view own unpublished qashot test entities');
+        }
+        return AccessResult::allowedIfHasPermission($account, 'view any unpublished qashot test entities');
+      }
+
+      if ($account->id() == $entity->getOwnerId()) {
+        return AccessResult::allowedIfHasPermission($account, 'view own published qashot test entities');
+      }
+      return AccessResult::allowedIfHasPermission($account, 'view any published qashot test entities');
+
+    case 'update':
+      if ($account->id() == $entity->getOwnerId()) {
+        return AccessResult::allowedIfHasPermission($account, 'edit own qashot test entities');
+      }
+      return AccessResult::allowedIfHasPermission($account, 'edit any qashot test entities');
+
+    case 'delete':
+      if ($account->id() == $entity->getOwnerId()) {
+        return AccessResult::allowedIfHasPermission($account, 'delete own qashot test entities');
+      }
+      return AccessResult::allowedIfHasPermission($account, 'delete any qashot test entities');
+  }*/
+
+  // Unknown operation, no opinion.
+  return AccessResult::neutral();
+}
+
+/**
+ * Fetches an array of permission IDs granted to the given user ID.
+ *
+ * The implementation here provides only the universal "all" grant. A
+ * qa_shot_test access module should implement hook_qa_shot_test_grants() to
+ * provide a grant list for the user.
+ *
+ * After the default grants have been loaded, we allow modules to alter the
+ * grants array by reference. This hook allows for complex business logic to be
+ * applied when integrating multiple qa_shot_test access modules.
+ *
+ * @param string $op
+ *   The operation that the user is trying to perform.
+ * @param AccountInterface $account
+ *   The account object for the user performing the operation.
+ *
+ * @return array
+ *   An associative array in which the keys are realms, and the values are
+ *   arrays of grants for those realms.
+ */
+function qa_shot_access_grants($op, AccountInterface $account) {
+  // Fetch qa_shot_test access grants from other modules.
+  $grants = \Drupal::moduleHandler()->invokeAll('qa_shot_test_grants', [$account, $op]);
+  // Allow modules to alter the assigned grants.
+  \Drupal::moduleHandler()->alter('qa_shot_test_grants', $grants, $account, $op);
+
+  return array_merge(['all' => [0]], $grants);
+}
+
+/**
+ * Determines whether the user has a global viewing grant for all qa_shot_tests.
+ *
+ * Checks to see whether any module grants global 'view' access to a user
+ * account; global 'view' access is encoded in the {qa_shot_test_access} table
+ * as a grant with id=0. If no qa_shot_test access modules are enabled,
+ * qa_shot_test.module defines such a global 'view' access grant.
+ *
+ * This function is called when a qa_shot_test listing query is tagged with
+ * 'qa_shot_test_access'; when this function returns TRUE, no qa_shot_test
+ * access joins are added to the query.
+ *
+ * @param $account
+ *   (optional) The user object for the user whose access is being checked. If
+ *   omitted, the current user is used. Defaults to NULL.
+ *
+ * @return
+ *   TRUE if 'view' access to all qa_shot_tests is granted, FALSE otherwise.
+ *
+ * @see hook_qa_shot_test_grants()
+ * @see qa_shot_query_qa_shot_test_access_alter()
+ */
+function qa_shot_access_view_all_qa_shot_tests($account = NULL) {
+
+  if (!$account) {
+    $account = \Drupal::currentUser();
+  }
+
+  // Statically cache results in an array keyed by $account->id().
+  $access = &drupal_static(__FUNCTION__);
+  if (isset($access[$account->id()])) {
+    return $access[$account->id()];
+  }
+
+  // If no modules implement the qa_shot_test access system, access is always
+  // TRUE.
+  if (!\Drupal::moduleHandler()->getImplementations('qa_shot_test_grants')) {
+    $access[$account->id()] = TRUE;
+  }
+  else {
+    $access[$account->id()] = \Drupal::entityManager()->getAccessControlHandler('qa_shot_test')->checkAllGrants($account);
+  }
+
+  return $access[$account->id()];
+}
+
+
+/**
+ * Implements hook_query_TAG_alter().
+ *
+ * This is the hook_query_alter() for queries tagged with 'qa_shot_test_access'.
+ * It adds qa_shot_test access checks for the user account given by the
+ * 'account' meta-data (or current user if not provided), for an operation given
+ * by the 'op' meta-data (or 'view' if not provided; other possible values are
+ * 'update' and 'delete').
+ *
+ * Queries tagged with 'qa_shot_test_access' that are not against the
+ * {qa_shot_test} table must add the base table as metadata. For example:
+ * @code
+ *   $query
+ *     ->addTag('qa_shot_test_access')
+ *     ->addMetaData('base_table', 'taxonomy_index');
+ * @endcode
+ */
+function qa_shot_query_qa_shot_test_access_alter(AlterableInterface $query) {
+  // Read meta-data from query, if provided.
+  if (!$account = $query->getMetaData('account')) {
+    $account = \Drupal::currentUser();
+  }
+  if (!$op = $query->getMetaData('op')) {
+    $op = 'view';
+  }
+
+  // If $account can bypass qa_shot_test access, or there are no qa_shot_test
+  // access modules, or the operation is 'view' and the $account has a global
+  // view grant (such as a view grant for qa_shot_test ID 0), we don't need to
+  // alter the query.
+  if ($account->hasPermission('bypass qashot access')) {
+    return;
+  }
+  if (!count(\Drupal::moduleHandler()->getImplementations('qa_shot_test_grants'))) {
+    return;
+  }
+  if ($op == 'view' && qa_shot_access_view_all_qa_shot_tests($account)) {
+    return;
+  }
+
+  $tables = $query->getTables();
+  $base_table = $query->getMetaData('base_table');
+  // If the base table is not given, default to one of the qa_shot_test base
+  // tables.
+  if (!$base_table) {
+    /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
+    $table_mapping = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->getTableMapping();
+    $qa_shot_test_base_tables = $table_mapping->getTableNames();
+
+    foreach ($tables as $table_info) {
+      if (!($table_info instanceof SelectInterface)) {
+        $table = $table_info['table'];
+        // Ensure that 'qa_shot_test' and 'qa_shot_test_field_data' are always
+        // preferred over 'qa_shot_test_revision' and
+        // 'qa_shot_test_field_revision'.
+        if ($table == 'qa_shot_test' || $table == 'qa_shot_test_field_data') {
+          $base_table = $table;
+          break;
+        }
+        // If one of the qa_shot_test base tables are in the query, add it to
+        // the list of possible base tables to join against.
+        if (in_array($table, $qa_shot_test_base_tables)) {
+          $base_table = $table;
+        }
+      }
+    }
+
+    // Bail out if the base table is missing.
+    if (!$base_table) {
+      throw new Exception(t('Query tagged for qa_shot_test access but there is no qa_shot_test table, specify the base_table using meta data.'));
+    }
+  }
+
+  // Update the query for the given storage method.
+  \Drupal::service('qa_shot.grant_storage')->alterQuery($query, $tables, $op, $account, $base_table);
+
+  // Bubble the 'user.qa_shot_test_grants:$op' cache context to the current
+  // render context.
+  $request = \Drupal::requestStack()->getCurrentRequest();
+  $renderer = \Drupal::service('renderer');
+  if ($request->isMethodSafe() && $renderer->hasRenderContext()) {
+    $build = ['#cache' => ['contexts' => ['user.qa_shot_test_grants:' . $op]]];
+    $renderer->render($build);
+  }
+}
+
+/*function qa_shot_query_alter(AlterableInterface $query) {
+  qa_shot_query_qa_shot_test_access_alter($query);
+}*/
+
+/**
+ * Toggles or reads the value of a flag for rebuilding the qa_shot_test access grants.
+ *
+ * When the flag is set, a message is displayed to users with 'access
+ * administration pages' permission, pointing to the 'rebuild' confirm form.
+ * This can be used as an alternative to direct qa_shot_test_access_rebuild
+ * calls, allowing administrators to decide when they want to perform the actual
+ * (possibly time consuming) rebuild.
+ *
+ * When unsure if the current user is an administrator,
+ * qa_shot_test_access_rebuild() should be used instead.
+ *
+ * @param $rebuild
+ *   (optional) The boolean value to be written.
+ *
+ * @return bool|null
+ *   The current value of the flag if no value was provided for $rebuild. If a
+ *   value was provided for $rebuild, nothing (NULL) is returned.
+ *
+ * @see qa_shot_test_access_rebuild()
+ */
+function qa_shot_access_needs_rebuild($rebuild = NULL) {
+  if (!isset($rebuild)) {
+    return \Drupal::state()->get('qa_shot_test.qa_shot_test_access_needs_rebuild') ?: FALSE;
+  }
+  elseif ($rebuild) {
+    \Drupal::state()->set('qa_shot_test.qa_shot_test_access_needs_rebuild', TRUE);
+  }
+  else {
+    \Drupal::state()->delete('qa_shot_test.qa_shot_test_access_needs_rebuild');
+  }
+}
+
+/**
+ * Rebuilds the qa_shot_test access database.
+ *
+ * This rebuild is occasionally needed by modules that make system-wide changes
+ * to access levels. When the rebuild is required by an admin-triggered action
+ * (e.g module settings form), calling qa_shot_test_access_needs_rebuild(TRUE)
+ * instead of qa_shot_test_access_rebuild() lets the user perform his changes
+ * and actually rebuild only once he is done.
+ *
+ * Note : As of Drupal 6, qa_shot_test access modules are not required to (and
+ * actually should not) call qa_shot_test_access_rebuild() in
+ * hook_install/uninstall anymore.
+ *
+ * @param $batch_mode
+ *   (optional) Set to TRUE to process in 'batch' mode, spawning processing over
+ *   several HTTP requests (thus avoiding the risk of PHP timeout if the site
+ *   has a large number of qa_shot_tests). hook_update_N() and any form submit
+ *   handler are safe contexts to use the 'batch mode'. Less decidable cases
+ *   (such as calls from hook_user(), hook_taxonomy(), etc.) might consider
+ *   using the non-batch mode. Defaults to FALSE.
+ *
+ * @see qa_shot_test_access_needs_rebuild()
+ */
+function qa_shot_access_rebuild($batch_mode = FALSE) {
+  $qa_shot_test_storage = \Drupal::entityManager()->getStorage('qa_shot_test');
+  /** @var \Drupal\qa_shot\QAShotTestAccessControlHandlerInterface $access_control_handler */
+  $access_control_handler = \Drupal::entityManager()->getAccessControlHandler('qa_shot_test');
+  $access_control_handler->deleteGrants();
+  // Only recalculate if the site is using a qa_shot_test_access module.
+  if (count(\Drupal::moduleHandler()->getImplementations('qa_shot_test_grants'))) {
+    if ($batch_mode) {
+      $batch = [
+        'title' => t('Rebuilding content access permissions'),
+        'operations' => [
+          ['_qa_shot_access_rebuild_batch_operation', []],
+        ],
+        'finished' => '_qa_shot_test_access_rebuild_batch_finished',
+      ];
+      batch_set($batch);
+    }
+    else {
+      // Try to allocate enough time to rebuild qa_shot_test grants.
+      drupal_set_time_limit(240);
+
+      // Rebuild newest qa_shot_tests first so that recent content becomes
+      // available quickly.
+      $entity_query = \Drupal::entityQuery('qa_shot_test');
+      $entity_query->sort('id', 'DESC');
+      // Disable access checking since all qa_shot_tests must be processed even
+      // if the user does not have access. And unless the current user has the
+      // bypass qa_shot_test access permission, no qa_shot_tests are accessible
+      // since the grants have just been deleted.
+      $entity_query->accessCheck(FALSE);
+      $ids = $entity_query->execute();
+      foreach ($ids as $id) {
+        $qa_shot_test_storage->resetCache([$id]);
+        $qa_shot_test = QAShotTest::load($id);
+        // To preserve database integrity, only write grants if the qa_shot_test
+        // loads successfully.
+        if (!empty($qa_shot_test)) {
+          $grants = $access_control_handler->acquireGrants($qa_shot_test);
+          \Drupal::service('qa_shot.grant_storage')->write($qa_shot_test, $grants);
+        }
+      }
+    }
+  }
+  else {
+    // Not using any qa_shot_test_access modules. Add the default grant.
+    $access_control_handler->writeDefaultGrant();
+  }
+
+  if (!isset($batch)) {
+    drupal_set_message(t('Content permissions have been rebuilt.'));
+    qa_shot_access_needs_rebuild(FALSE);
+  }
+}
+
+/**
+ * Implements callback_batch_operation().
+ *
+ * Performs batch operation for qa_shot_test_access_rebuild().
+ *
+ * This is a multistep operation: we go through all qa_shot_tests by packs of
+ * 20. The batch processing engine interrupts processing and sends progress
+ * feedback after 1 second execution time.
+ *
+ * @param array $context
+ *   An array of contextual key/value information for rebuild batch process.
+ */
+function _qa_shot_access_rebuild_batch_operation(&$context) {
+  $qa_shot_test_storage = \Drupal::entityManager()->getStorage('qa_shot_test');
+  if (empty($context['sandbox'])) {
+    // Initiate multistep processing.
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['current_qa_shot_test'] = 0;
+    $context['sandbox']['max'] = \Drupal::entityQuery('qa_shot_test')->accessCheck(FALSE)->count()->execute();
+  }
+
+  // Process the next 20 qa_shot_tests.
+  $limit = 20;
+  $ids = \Drupal::entityQuery('qa_shot_test')
+    ->condition('id', $context['sandbox']['current_qa_shot_test'], '>')
+    ->sort('id', 'ASC')
+    // Disable access checking since all qa_shot_tests must be processed even if
+    // the user does not have access. And unless the current user has the bypass
+    // qa_shot_test access permission, no qa_shot_tests are accessible since the
+    // grants have just been deleted.
+    ->accessCheck(FALSE)
+    ->range(0, $limit)
+    ->execute();
+  $qa_shot_test_storage->resetCache($ids);
+  $qa_shot_tests = QAShotTest::loadMultiple($ids);
+  foreach ($qa_shot_tests as $id => $qa_shot_test) {
+    // To preserve database integrity, only write grants if the qa_shot_test
+    // loads successfully.
+    if (!empty($qa_shot_test)) {
+      /** @var \Drupal\qa_shot\QAShotTestAccessControlHandlerInterface $access_control_handler */
+      $access_control_handler = \Drupal::entityManager()->getAccessControlHandler('qa_shot_test');
+      $grants = $access_control_handler->acquireGrants($qa_shot_test);
+      \Drupal::service('qa_shot.grant_storage')->write($qa_shot_test, $grants);
+    }
+    $context['sandbox']['progress']++;
+    $context['sandbox']['current_qa_shot_test'] = $id;
+  }
+
+  // Multistep processing : report progress.
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+}
+
+/**
+ * Implements callback_batch_finished().
+ *
+ * Performs post-processing for qa_shot_test_access_rebuild().
+ *
+ * @param bool $success
+ *   A boolean indicating whether the re-build process has completed.
+ * @param array $results
+ *   An array of results information.
+ * @param array $operations
+ *   An array of function calls (not used in this function).
+ */
+function _qa_shot_access_rebuild_batch_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('The content access permissions have been rebuilt.'));
+    qa_shot_access_needs_rebuild(FALSE);
+  }
+  else {
+    drupal_set_message(t('The content access permissions have not been properly rebuilt.'), 'error');
+  }
+}
+
+/**
+ * @} End of "defgroup qa_shot_test_access".
+ */
+
+/**
+ * Implements hook_modules_installed().
+ */
+function qa_shot_test_modules_installed($modules) {
+  // Check if any of the newly enabled modules require the qa_shot_test_access
+  // table to be rebuilt.
+  if (!qa_shot_access_needs_rebuild() && array_intersect($modules, \Drupal::moduleHandler()->getImplementations('qa_shot_test_grants'))) {
+    qa_shot_access_needs_rebuild(TRUE);
+  }
+}
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function qa_shot_test_modules_uninstalled($modules) {
+  // Check whether any of the disabled modules implemented
+  // hook_qa_shot_test_grants(), in which case the qa_shot_test access table
+  // needs to be rebuilt.
+  foreach ($modules as $module) {
+    // At this point, the module is already disabled, but its code is still
+    // loaded in memory. Module functions must no longer be called. We only
+    // check whether a hook implementation function exists and do not invoke it.
+    // Node access also needs to be rebuilt if language module is disabled to
+    // remove any language-specific grants.
+    if (!qa_shot_access_needs_rebuild() && (\Drupal::moduleHandler()->implementsHook($module, 'qa_shot_test_grants') || $module == 'language')) {
+      qa_shot_access_needs_rebuild(TRUE);
+    }
+  }
+
+  // If there remains no more qa_shot_test_access module, rebuilding will be
+  // straightforward, we can do it right now.
+  if (qa_shot_access_needs_rebuild() && count(\Drupal::moduleHandler()->getImplementations('qa_shot_test_grants')) == 0) {
+    qa_shot_access_rebuild();
+  }
+}
+
+/**
+ * Implements hook_qa_shot_test_access_records().
+ */
+function qa_shot_qa_shot_test_access_records(QAShotTestInterface $qa_shot_test) {
+  $grants = [];
+
+  $ids = \Drupal::entityQuery('user')
+    ->condition('status', 1)
+    ->execute();
+  $users = User::loadMultiple($ids);
+
+  foreach ($users as $user) {
+    /* @var $user \Drupal\user\Entity\User */
+    $grants[] = array(
+      'id' => $qa_shot_test->id(),
+      'realm' => 'qa_shot_access',
+      'gid' => $user->id(),
+      'grant_view' => $qa_shot_test->access('view', $user),
+      'grant_update' => $qa_shot_test->access('update', $user),
+      'grant_delete' => $qa_shot_test->access('delete', $user),
+    );
+  }
+
+  return $grants;
+}
+
+/**
+ * Implements hook_qa_shot_test_grants().
+ *
+ * Make this as simple as possible, because this will run always when there's
+ * need an access check.
+ */
+function qa_shot_qa_shot_test_grants(AccountInterface $account, $op) {
+  $grants = array();
+
+  if ($account->id() != 0) {
+    // Otherwise return uid, might match entry in table.
+    $grants['qa_shot_access'][] = $account->id();
+  }
+
+  return $grants;
 }

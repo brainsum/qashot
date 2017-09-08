@@ -1,0 +1,17 @@
+# Schema for the views plugins of the QAShot module.
+
+views.filter.qa_shot_test_access:
+  type: views_filter
+  label: 'QAShot test access'
+
+views.filter.qa_shot_test_status:
+  type: views_filter
+  label: 'QAShot test status'
+
+views.filter_value.qa_shot_test_access:
+  type: string
+  label: 'Access'
+
+views.filter_value.qa_shot_test_status:
+  type: boolean
+  label: 'Status'
