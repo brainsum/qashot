@@ -210,43 +210,6 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
   }
 }
 
-
-/**
- * Implements hook_ENTITY_TYPE_access().
- */
-function qa_shot_qa_shot_test_access(\Drupal\Core\Entity\EntityInterface $entity, $operation, AccountInterface $account) {
-  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
-  /*switch ($operation) {
-    case 'view':
-      if (!$entity->isPublished()) {
-        if ($account->id() == $entity->getOwnerId()) {
-          return AccessResult::allowedIfHasPermission($account, 'view own unpublished qashot test entities');
-        }
-        return AccessResult::allowedIfHasPermission($account, 'view any unpublished qashot test entities');
-      }
-
-      if ($account->id() == $entity->getOwnerId()) {
-        return AccessResult::allowedIfHasPermission($account, 'view own published qashot test entities');
-      }
-      return AccessResult::allowedIfHasPermission($account, 'view any published qashot test entities');
-
-    case 'update':
-      if ($account->id() == $entity->getOwnerId()) {
-        return AccessResult::allowedIfHasPermission($account, 'edit own qashot test entities');
-      }
-      return AccessResult::allowedIfHasPermission($account, 'edit any qashot test entities');
-
-    case 'delete':
-      if ($account->id() == $entity->getOwnerId()) {
-        return AccessResult::allowedIfHasPermission($account, 'delete own qashot test entities');
-      }
-      return AccessResult::allowedIfHasPermission($account, 'delete any qashot test entities');
-  }*/
-
-  // Unknown operation, no opinion.
-  return AccessResult::neutral();
-}
-
 /**
  * Fetches an array of permission IDs granted to the given user ID.
  *
@@ -408,10 +371,6 @@ function qa_shot_query_qa_shot_test_access_alter(AlterableInterface $query) {
     $renderer->render($build);
   }
 }
-
-/*function qa_shot_query_alter(AlterableInterface $query) {
-  qa_shot_query_qa_shot_test_access_alter($query);
-}*/
 
 /**
  * Toggles or reads the value of a flag for rebuilding the qa_shot_test access grants.
