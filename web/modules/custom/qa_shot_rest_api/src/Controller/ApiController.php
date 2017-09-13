@@ -311,6 +311,7 @@ class ApiController extends ControllerBase {
     $limit = $limit < 0 ? 0 : $limit;
     $type = $request->query->get('type', '');
     $condition = [];
+    $account = \Drupal::currentUser();
 
     $queryStartIndex = ($page - 1) * $limit;
 
@@ -318,6 +319,10 @@ class ApiController extends ControllerBase {
     if (!empty($type)) {
       $query->condition('type', $type, '=');
       $condition['type'] = ['value' => $type, 'operator' => '='];
+    }
+    if (in_array('qas_sub', $account->getRoles(TRUE), FALSE)) {
+      $query->condition('user_id', $account->id(), '=');
+      $condition['user_id'] = ['value' => $account->id(), 'operator' => '='];
     }
     $testsIds = $query->execute();
     $tests = $this->testStorage->loadMultiple($testsIds);
