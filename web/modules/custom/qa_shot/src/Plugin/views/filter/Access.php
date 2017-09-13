@@ -14,8 +14,19 @@ use Drupal\views\Plugin\views\filter\FilterPluginBase;
  */
 class Access extends FilterPluginBase {
 
-  public function adminSummary() { }
-  protected function operatorForm(&$form, FormStateInterface $form_state) { }
+  /**
+   * {@inheritdoc}
+   */
+  public function adminSummary() {}
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function operatorForm(&$form, FormStateInterface $form_state) {}
+
+  /**
+   * {@inheritdoc}
+   */
   public function canExpose() {
     return FALSE;
   }

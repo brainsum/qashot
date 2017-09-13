@@ -57,7 +57,6 @@ class QAShotTestAccessControlHandler extends EntityAccessControlHandler implemen
     return AccessResult::allowedIfHasPermission($account, 'add qashot test entities');
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -183,7 +182,13 @@ class QAShotTestAccessControlHandler extends EntityAccessControlHandler implemen
     // If no grants are set and the qa_shot_test is published, then use the
     // default grant.
     if (empty($grants) && $qa_shot_test->isPublished()) {
-      $grants[] = ['realm' => 'all', 'gid' => 0, 'grant_view' => 1, 'grant_update' => 0, 'grant_delete' => 0];
+      $grants[] = [
+        'realm' => 'all',
+        'gid' => 0,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ];
     }
     return $grants;
   }

@@ -5,13 +5,11 @@
  * Contains qa_shot.module.
  */
 
-use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Database\Query\AlterableInterface;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\node\NodeInterface;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\user\Entity\User;
@@ -223,7 +221,7 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
  *
  * @param string $op
  *   The operation that the user is trying to perform.
- * @param AccountInterface $account
+ * @param \Drupal\Core\Session\AccountInterface $account
  *   The account object for the user performing the operation.
  *
  * @return array
@@ -251,17 +249,17 @@ function qa_shot_access_grants($op, AccountInterface $account) {
  * 'qa_shot_test_access'; when this function returns TRUE, no qa_shot_test
  * access joins are added to the query.
  *
- * @param $account
+ * @param \Drupal\Core\Session\AccountInterface $account
  *   (optional) The user object for the user whose access is being checked. If
  *   omitted, the current user is used. Defaults to NULL.
  *
- * @return
+ * @return array
  *   TRUE if 'view' access to all qa_shot_tests is granted, FALSE otherwise.
  *
  * @see hook_qa_shot_test_grants()
  * @see qa_shot_query_qa_shot_test_access_alter()
  */
-function qa_shot_access_view_all_qa_shot_tests($account = NULL) {
+function qa_shot_access_view_all_qa_shot_tests(AccountInterface $account = NULL) {
 
   if (!$account) {
     $account = \Drupal::currentUser();
@@ -284,7 +282,6 @@ function qa_shot_access_view_all_qa_shot_tests($account = NULL) {
 
   return $access[$account->id()];
 }
-
 
 /**
  * Implements hook_query_TAG_alter().
@@ -373,7 +370,7 @@ function qa_shot_query_qa_shot_test_access_alter(AlterableInterface $query) {
 }
 
 /**
- * Toggles or reads the value of a flag for rebuilding the qa_shot_test access grants.
+ * Toggles or reads the value of a flag for rebuilding the QAShot access grants.
  *
  * When the flag is set, a message is displayed to users with 'access
  * administration pages' permission, pointing to the 'rebuild' confirm form.
@@ -384,7 +381,7 @@ function qa_shot_query_qa_shot_test_access_alter(AlterableInterface $query) {
  * When unsure if the current user is an administrator,
  * qa_shot_test_access_rebuild() should be used instead.
  *
- * @param $rebuild
+ * @param bool|null $rebuild
  *   (optional) The boolean value to be written.
  *
  * @return bool|null
@@ -418,7 +415,7 @@ function qa_shot_access_needs_rebuild($rebuild = NULL) {
  * actually should not) call qa_shot_test_access_rebuild() in
  * hook_install/uninstall anymore.
  *
- * @param $batch_mode
+ * @param bool $batch_mode
  *   (optional) Set to TRUE to process in 'batch' mode, spawning processing over
  *   several HTTP requests (thus avoiding the risk of PHP timeout if the site
  *   has a large number of qa_shot_tests). hook_update_N() and any form submit
@@ -494,7 +491,7 @@ function qa_shot_access_rebuild($batch_mode = FALSE) {
  * @param array $context
  *   An array of contextual key/value information for rebuild batch process.
  */
-function _qa_shot_access_rebuild_batch_operation(&$context) {
+function _qa_shot_access_rebuild_batch_operation(array &$context) {
   $qa_shot_test_storage = \Drupal::entityManager()->getStorage('qa_shot_test');
   if (empty($context['sandbox'])) {
     // Initiate multistep processing.
@@ -548,7 +545,7 @@ function _qa_shot_access_rebuild_batch_operation(&$context) {
  * @param array $operations
  *   An array of function calls (not used in this function).
  */
-function _qa_shot_access_rebuild_batch_finished($success, $results, $operations) {
+function _qa_shot_access_rebuild_batch_finished($success, array $results, array $operations) {
   if ($success) {
     drupal_set_message(t('The content access permissions have been rebuilt.'));
     qa_shot_access_needs_rebuild(FALSE);
@@ -611,14 +608,14 @@ function qa_shot_qa_shot_test_access_records(QAShotTestInterface $qa_shot_test) 
 
   foreach ($users as $user) {
     /* @var $user \Drupal\user\Entity\User */
-    $grants[] = array(
+    $grants[] = [
       'id' => $qa_shot_test->id(),
       'realm' => 'qa_shot_access',
       'gid' => $user->id(),
       'grant_view' => $qa_shot_test->access('view', $user),
       'grant_update' => $qa_shot_test->access('update', $user),
       'grant_delete' => $qa_shot_test->access('delete', $user),
-    );
+    ];
   }
 
   return $grants;
@@ -631,7 +628,7 @@ function qa_shot_qa_shot_test_access_records(QAShotTestInterface $qa_shot_test) 
  * need an access check.
  */
 function qa_shot_qa_shot_test_grants(AccountInterface $account, $op) {
-  $grants = array();
+  $grants = [];
 
   if ($account->id() != 0) {
     // Otherwise return uid, might match entry in table.

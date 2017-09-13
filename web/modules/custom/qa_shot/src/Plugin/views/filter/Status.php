@@ -14,12 +14,26 @@ use Drupal\views\Plugin\views\filter\FilterPluginBase;
  */
 class Status extends FilterPluginBase {
 
-  public function adminSummary() { }
+  /**
+   * {@inheritdoc}
+   */
+  public function adminSummary() {}
 
-  protected function operatorForm(&$form, FormStateInterface $form_state) { }
+  /**
+   * {@inheritdoc}
+   */
+  protected function operatorForm(&$form, FormStateInterface $form_state) {}
 
-  public function canExpose() { return FALSE; }
+  /**
+   * {@inheritdoc}
+   */
+  public function canExpose() {
+    return FALSE;
+  }
 
+  /**
+   * {@inheritdoc}
+   */
   public function query() {
     $table = $this->ensureMyTable();
     $this->query->addWhereExpression($this->options['group'], "$table.status = 1 OR ($table.uid = ***CURRENT_USER*** AND ***CURRENT_USER*** <> 0 AND ***VIEW_OWN_UNPUBLISHED_QASHOT_TESTS*** = 1) OR ***BYPASS_QASHOT_TEST_ACCESS*** = 1");

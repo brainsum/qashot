@@ -39,4 +39,5 @@ class QAShotTestRunAccessControl {
     // Run any.
     return AccessResult::allowedIfHasPermission($account, 'run any qashot test entities');
   }
+
 }

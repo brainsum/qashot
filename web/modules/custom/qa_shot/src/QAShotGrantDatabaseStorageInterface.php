@@ -32,11 +32,11 @@ interface QAShotGrantDatabaseStorageInterface {
    * @param array $tables
    *   A list of tables that need to be part of the alter.
    * @param string $op
-   *    The operation to be performed on the qa_shot_test. Possible values are:
+   *   The operation to be performed on the qa_shot_test. Possible values are:
    *    - "view"
    *    - "update"
    *    - "delete"
-   *    - "create"
+   *    - "create".
    * @param \Drupal\Core\Session\AccountInterface $account
    *   A user object representing the user for whom the operation is to be
    *   performed.
@@ -57,7 +57,8 @@ interface QAShotGrantDatabaseStorageInterface {
    * widespread permission changes.
    *
    * Note: Don't call this method directly from a contributed module. Call
-   * \Drupal\qa_shot\QAShotAccessControlHandlerInterface::acquireGrants() instead.
+   * \Drupal\qa_shot\QAShotAccessControlHandlerInterface::acquireGrants()
+   * instead.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $qa_shot_test
    *   The qa_shot_test whose grants are being written.

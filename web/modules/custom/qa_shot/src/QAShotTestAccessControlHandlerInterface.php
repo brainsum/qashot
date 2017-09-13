@@ -36,11 +36,12 @@ interface QAShotTestAccessControlHandlerInterface {
    * updates due to widespread permission changes.
    *
    * Note: Don't call this function directly from a contributed module. Call
-   * \Drupal\qa_shot\QAShotAccessControlHandlerInterface::acquireGrants() instead.
+   * \Drupal\qa_shot\QAShotAccessControlHandlerInterface::acquireGrants()
+   * instead.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $qa_shot_test
    *   The qa_shot_test whose grants are being written.
-   * @param $delete
+   * @param bool $delete
    *   (optional) If false, does not delete records. This is only for
    *   optimization purposes, and assumes the caller has already performed a
    *   mass delete of some form. Defaults to TRUE.

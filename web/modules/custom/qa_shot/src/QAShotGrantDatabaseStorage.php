@@ -196,7 +196,9 @@ class QAShotGrantDatabaseStorage implements QAShotGrantDatabaseStorageInterface 
     }
     // Only perform work when qa_shot_test_access modules are active.
     if (!empty($grants) && count($this->moduleHandler->getImplementations('qa_shot_test_grants'))) {
-      $query = $this->database->insert('qa_shot_test_access')->fields(['id', 'langcode', 'fallback', 'realm', 'gid', 'grant_view', 'grant_update', 'grant_delete']);
+      $query = $this->database->insert('qa_shot_test_access')->fields([
+        'id', 'langcode', 'fallback', 'realm', 'gid', 'grant_view', 'grant_update', 'grant_delete',
+      ]);
       // If we have defined a granted langcode, use it. But if not, add a grant
       // for every language this qa_shot_test is translated to.
       foreach ($grants as $grant) {

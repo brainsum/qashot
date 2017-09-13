@@ -51,7 +51,7 @@ class QAShotTestViewsData extends EntityViewsData {
 
     // Define the base group of this table. Fields that don't have a group
     // defined will go into this field by default.
-    $data['qa_shot_test_access']['table']['group']  = $this->t('Content access');
+    $data['qa_shot_test_access']['table']['group'] = $this->t('Content access');
 
     // For other base tables, explain how we join.
     $data['qa_shot_test_access']['table']['join'] = [
