@@ -144,13 +144,17 @@ function template_preprocess_qa_shot_test(array &$variables) {
 
       $debug = [
         '#type' => 'table',
-        '#caption' => t('Debug data'),
         '#header' => [
           'file' => t('Debug file'),
         ],
         '#rows' => $rows,
       ];
-      $variables['debug'] = $renderer->render($debug);
+      $debugGroup = [
+        '#type' => 'details',
+        '#title' => t('Debug data'),
+        'metadata' => $debug,
+      ];
+      $variables['debug'] = $renderer->render($debugGroup);
     }
 
     // Metadata.
@@ -177,10 +181,21 @@ function template_preprocess_qa_shot_test(array &$variables) {
             $tmp[$key] = $data[$key] ?? '-';
             break;
 
-          case 'contains_result':
-            $tmp[$key] = (1 === (int) $data[$key]) ? t('Yes') : t('No');
+          case 'duration':
+            $element = [
+              '#type' => 'html_tag',
+              '#tag' => 'span',
+              '#value' => (new \DateTime())->setTime(0, 0, round($data[$key]))->format('H:i:s'),
+              '#attributes' => [
+                'title' => t('@seconds seconds', [
+                  '@seconds' => $data[$key],
+                ]),
+              ],
+            ];
+            $tmp[$key] = $renderer->render($element);
             break;
 
+          case 'contains_result':
           case 'success':
             $tmp[$key] = (1 === (int) $data[$key]) ? t('Yes') : t('No');
             break;
@@ -197,12 +212,17 @@ function template_preprocess_qa_shot_test(array &$variables) {
       }
       $rows[] = $tmp;
     }
+
     $metadata = [
       '#type' => 'table',
-      '#caption' => t('Metadata'),
       '#header' => array_values($header),
       '#rows' => $rows,
     ];
-    $variables['metadata'] = $renderer->render($metadata);
+    $metadataGroup = [
+      '#type' => 'details',
+      '#title' => t('Metadata'),
+      'metadata' => $metadata,
+    ];
+    $variables['metadata'] = $renderer->render($metadataGroup);
   }
 }
