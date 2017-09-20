@@ -49,7 +49,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
   $variables['status_in_queue'] = [
     '#type' => 'item',
     '#title' => t('State in queue'),
-    '#markup' => "<div class=\"field--item\">" . $qaShotTest->getHumanReadableQueueStatus() . "</div>",
+    '#markup' => '<div class="field--item">' . $qaShotTest->getHumanReadableQueueStatus() . '</div>',
   ];
 
   if ($reportPath = $qaShotTest->getHtmlReportPath()) {
@@ -58,31 +58,31 @@ function template_preprocess_qa_shot_test(array &$variables) {
     $variables['report_path'] = (new ReportPathMarkup($reportPath, $reportTime))->getLink();
   }
 
-  list($last_run_time, $last_reference_run_time, $last_test_run_time) = array_values($qaShotTest->getLastRunTimes());
-  if ($last_run_time) {
+  list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = array_values($qaShotTest->getLastRunTimes());
+  if ($lastRunTime) {
     $variables['last_run_time'] = [
       '#type'   => 'item',
       '#title'  => t('Last run was at'),
-      '#markup' => "<div class=\"field--item\">" . $last_run_time . "</div>",
+      '#markup' => '<div class="field--item">' . $lastRunTime . '</div>',
     ];
   }
-  if ($last_reference_run_time) {
+  if ($lastReferenceRunTime) {
     $variables['last_reference_run_time'] = [
       '#type'   => 'item',
       '#title'  => t('Reference was created at'),
-      '#markup' => "<div class=\"field--item\">" . $last_reference_run_time . "</div>",
+      '#markup' => '<div class="field--item">' . $lastReferenceRunTime . '</div>',
     ];
   }
-  if ($last_test_run_time) {
+  if ($lastTestRunTime) {
     $variables['last_test_run_time'] = [
       '#type' => 'item',
       '#title' => t('Last test was run at'),
-      '#markup' => "<div class=\"field--item\">" . $last_test_run_time . "</div>",
+      '#markup' => '<div class="field--item">' . $lastTestRunTime . '</div>',
     ];
   }
 
-  $entity_type = $variables['elements']['#qa_shot_test']->getType();
-  if ($entity_type == "a_b") {
+  $entity_type = $qaShotTest->getType();
+  if ($entity_type === 'a_b') {
     $variables['run_path'] = [
       '#title'      => 'Add test to queue',
       '#type'       => 'link',
@@ -92,7 +92,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
       '#attributes' => $runAttributes,
     ];
   }
-  elseif ($entity_type == "before_after") {
+  elseif ($entity_type === 'before_after') {
     $variables['run_path_reference'] = [
       '#title'      => 'Queue taking "Before" shots',
       '#type'       => 'link',
@@ -102,7 +102,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
       '#attributes' => $runAttributes,
     ];
 
-    $test_results = $variables['elements']['#qa_shot_test']->getLifetimeMetadataValue();
+    $test_results = $qaShotTest->getLifetimeMetadataValue();
     if (count($test_results) > 0) {
       $variables['run_path_test'] = [
         '#title'      => 'Queue taking "After" shots',
@@ -117,26 +117,25 @@ function template_preprocess_qa_shot_test(array &$variables) {
 
   $user = \Drupal::currentUser();
   if ($user->hasPermission('view qa_shot debug data') || $user->id() === 1) {
+    /** @var \Drupal\Core\Render\RendererInterface $renderer */
+    $renderer = \Drupal::service('renderer');
+    // Debug data.
     $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $qaShotTest->id() . '/debug';
 
     if (is_dir($debugPath)) {
-      $iterator = new \RecursiveDirectoryIterator($debugPath, \RecursiveDirectoryIterator::SKIP_DOTS);
-      $files = new \RecursiveIteratorIterator($iterator,
-        \RecursiveIteratorIterator::CHILD_FIRST);
-
+      $files = scandir($debugPath, SCANDIR_SORT_ASCENDING);
       $rows = [];
-      /** @var \SplFileInfo $file */
-      foreach ($files as $file) {
-        if (!$file->isDir()) {
-          $filename = trim(explode('.', $file->getFilename())[0]);
-          $filename = (new \DateTime())->setTimestamp((int) $filename)->format('Y-m-d H:i:s');
 
+      foreach ($files as $file) {
+        if (!in_array($file, ['.', '..'], TRUE)) {
+          $filename = trim(explode('.', $file)[0]);
+          $filename = (new \DateTime())->setTimestamp((int) $filename)->format('Y-m-d H:i:s');
           $rows[] = [
             'file' => Link::fromTextAndUrl(
               $filename,
               Url::fromRoute('entity.qa_shot_test.debug', [
                 'qa_shot_test' => $qaShotTest->id(),
-                'file_name' => urlencode($file->getFilename()),
+                'file_name' => urlencode($file),
               ])
             ),
           ];
@@ -151,10 +150,59 @@ function template_preprocess_qa_shot_test(array &$variables) {
         ],
         '#rows' => $rows,
       ];
-
-      /** @var \Drupal\Core\Render\RendererInterface $renderer */
-      $renderer = \Drupal::service('renderer');
       $variables['debug'] = $renderer->render($debug);
     }
+
+    // Metadata.
+    $header = [
+      'id' => t('ID'),
+      'stage' => t('Stage'),
+      'viewport_count' => t('Viewport count'),
+      'scenario_count' => t('Scenario count'),
+      'datetime' => t('Date/Time of run'),
+      'duration' => t('Duration of run'),
+      'passed_count' => t('Passed count'),
+      'failed_count' => t('Failed count'),
+      'pass_rate' => t('Pass rate'),
+      'contains_result' => t('Is result?'),
+      'success' => t('Success?'),
+    ];
+
+    $rows = [];
+    foreach ($qaShotTest->getLifetimeMetadataValue() as $data) {
+      $tmp = [];
+      foreach (array_keys($header) as $key) {
+        switch ($key) :
+          case 'stage':
+            $tmp[$key] = $data[$key] ?? '-';
+            break;
+
+          case 'contains_result':
+            $tmp[$key] = (1 === (int) $data[$key]) ? t('Yes') : t('No');
+            break;
+
+          case 'success':
+            $tmp[$key] = (1 === (int) $data[$key]) ? t('Yes') : t('No');
+            break;
+
+          case 'pass_rate':
+            $tmp[$key] = t('@percent%', [
+              '@percent' => $data[$key] * 100,
+            ]);
+            break;
+
+          default:
+            $tmp[$key] = $data[$key];
+        endswitch;
+      }
+      $rows[] = $tmp;
+    }
+    $metadata = [
+      '#type' => 'table',
+      '#caption' => t('Metadata'),
+      '#header' => array_values($header),
+      '#rows' => $rows,
+    ];
+    $variables['metadata'] = $renderer->render($metadata);
   }
 }
