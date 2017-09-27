@@ -24,6 +24,7 @@ Contents:
 * PhantomJS version 2.1.15
 * Mozilla Firefox 52.3.0 (esr)
 * Composer 1.5.2
+    * hirak/prestissimo 0.3.7
 
 ## Cron
 The tests are not run automatically, they are first put into a queue which is managed with cron.
