@@ -77,18 +77,18 @@ services:
       - 'traefik.port=80'
       - 'traefik.frontend.rule=Host:qashot.docker.localhost'
 
-  pma:
-    image: phpmyadmin/phpmyadmin
-    environment:
-      PMA_HOST: mariadb
-      PMA_USER: drupal
-      PMA_PASSWORD: drupal
-      PHP_UPLOAD_MAX_FILESIZE: 1G
-      PHP_MAX_INPUT_VARS: 1G
-    labels:
-      - 'traefik.backend=pma'
-      - 'traefik.port=80'
-      - 'traefik.frontend.rule=Host:pma.drupal.docker.localhost'
+#  pma:
+#    image: phpmyadmin/phpmyadmin
+#    environment:
+#      PMA_HOST: mariadb
+#      PMA_USER: drupal
+#      PMA_PASSWORD: drupal
+#      PHP_UPLOAD_MAX_FILESIZE: 1G
+#      PHP_MAX_INPUT_VARS: 1G
+#    labels:
+#      - 'traefik.backend=pma'
+#      - 'traefik.port=80'
+#      - 'traefik.frontend.rule=Host:pma.drupal.docker.localhost'
 
   mailhog:
     image: mailhog/mailhog
@@ -113,15 +113,15 @@ services:
 #      - ./backstop_node:/app
 #    command: sh -c 'yarn && yarn start'
 
-  portainer:
-    image: portainer/portainer
-    command: --no-auth
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - 'traefik.backend=portainer'
-      - 'traefik.port=9000'
-      - 'traefik.frontend.rule=Host:portainer.drupal.docker.localhost'
+#  portainer:
+#    image: portainer/portainer
+#    command: --no-auth
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    labels:
+#      - 'traefik.backend=portainer'
+#      - 'traefik.port=9000'
+#      - 'traefik.frontend.rule=Host:portainer.drupal.docker.localhost'
 
   traefik:
     image: traefik
