@@ -264,7 +264,7 @@ class QAShotGrantDatabaseStorage implements QAShotGrantDatabaseStorageInterface 
   /**
    * {@inheritdoc}
    */
-  public function deleteNodeRecords(array $ids) {
+  public function deleteQAShotRecords(array $ids) {
     $this->database->delete('qa_shot_test_access')
       ->condition('id', $ids, 'IN')
       ->execute();

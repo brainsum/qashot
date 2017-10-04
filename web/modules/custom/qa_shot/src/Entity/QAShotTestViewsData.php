@@ -54,12 +54,12 @@ class QAShotTestViewsData extends EntityViewsData {
     $data['qa_shot_test_access']['table']['group'] = $this->t('Content access');
 
     // For other base tables, explain how we join.
-    $data['qa_shot_test_access']['table']['join'] = [
+    /*$data['qa_shot_test_access']['table']['join'] = [
       'qa_shot_test' => [
         'left_field' => 'id',
         'field' => 'id',
       ],
-    ];
+    ];*/
     $data['qa_shot_test_access']['id'] = [
       'title' => $this->t('Access'),
       'help' => $this->t('Filter by access.'),

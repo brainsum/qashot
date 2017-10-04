@@ -70,11 +70,34 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public static function preCreate(EntityStorageInterface $entityStorage, array &$values) {
-    parent::preCreate($entityStorage, $values);
-    $values += [
-      'user_id' => \Drupal::currentUser()->id(),
-    ];
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    foreach (array_keys($this->getTranslationLanguages()) as $langcode) {
+      $translation = $this->getTranslation($langcode);
+
+      // If no owner has been set explicitly, make the anonymous user the owner.
+      if (!$translation->getOwner()) {
+        $translation->setOwnerId(0);
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    parent::postSave($storage, $update);
+
+    // Update the node access table for this node, but only if it is the
+    // default revision. There's no need to delete existing records if the node
+    // is new.
+    if ($this->isDefaultRevision()) {
+      /** @var \Drupal\qa_shot\QAShotTestAccessControlHandlerInterface $access_control_handler */
+      $access_control_handler = \Drupal::entityManager()->getAccessControlHandler('qa_shot_test');
+      $grants = $access_control_handler->acquireGrants($this);
+      \Drupal::service('qa_shot.grant_storage')->write($this, $grants, NULL, $update);
+    }
   }
 
   /**
@@ -83,6 +106,25 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   public static function preDelete(EntityStorageInterface $storage, array $entities) {
     // @todo: don't allow if it's running.
     // TODO: Implement preDelete() method.
+    parent::preDelete($storage, $entities);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function postDelete(EntityStorageInterface $storage, array $nodes) {
+    parent::postDelete($storage, $nodes);
+    \Drupal::service('qa_shot.grant_storage')->deleteQAShotRecords(array_keys($nodes));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function preCreate(EntityStorageInterface $entityStorage, array &$values) {
+    parent::preCreate($entityStorage, $values);
+    $values += [
+      'user_id' => \Drupal::currentUser()->id(),
+    ];
   }
 
   /**

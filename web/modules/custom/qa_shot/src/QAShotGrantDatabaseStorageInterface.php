@@ -125,6 +125,6 @@ interface QAShotGrantDatabaseStorageInterface {
    *   A list of qa_shot_test IDs. The grant records belonging to these
    *   qa_shot_tests will be deleted.
    */
-  public function deleteNodeRecords(array $ids);
+  public function deleteQAShotRecords(array $ids);
 
 }

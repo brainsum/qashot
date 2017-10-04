@@ -6,17 +6,35 @@ administer qashot test entities via rest:
   description: 'Allow to access the administration form to configure QAShot Test entities via rest.'
   restrict access: true
 
-delete qashot test entities via rest:
-  title: 'Delete QAShot Test entities via rest'
+delete own qashot test entities via rest:
+  title: 'Delete own QAShot Test entities via rest'
 
-edit qashot test entities via rest:
-  title: 'Edit QAShot Test entities via rest'
+delete any qashot test entities via rest:
+  title: 'Delete any QAShot Test entities via rest'
+
+edit own qashot test entities via rest:
+  title: 'Edit own QAShot Test entities via rest'
+
+edit any qashot test entities via rest:
+  title: 'Edit any QAShot Test entities via rest'
+
+run own qashot test entities via rest:
+  title: 'Run own QAShot Test entities via rest'
+
+run any qashot test entities via rest:
+  title: 'Run any QAShot Test entities via rest'
 
 access qashot test overview via rest:
   title: 'Access the QAShot Test overview page via rest'
 
-view published qashot test entities via rest:
-  title: 'View published QAShot Test entities via rest'
+view own published qashot test entities via rest:
+  title: 'View own published QAShot Test entities via rest'
 
-view unpublished qashot test entities via rest:
-  title: 'View unpublished QAShot Test entities via rest'
+view any published qashot test entities via rest:
+  title: 'View any published QAShot Test entities via rest'
+
+view own unpublished qashot test entities via rest:
+  title: 'View own unpublished QAShot Test entities via rest'
+
+view any unpublished qashot test entities via rest:
+  title: 'View any unpublished QAShot Test entities via rest'
