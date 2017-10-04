@@ -163,7 +163,7 @@ URL: `\<site\>/api/rest/v1/force\_run?\_format=json`
 ```
 URL: `\<site\>/api/rest/v1/login?\_format=json`
 
-- Use this to test your authorization data
+- Use this to test your authorization data, at success it will return some basic account info
 - The following headers are needed for the request to be accepted:
     - Content-Type: application/json
     - Authorization: <the username+password encoded>

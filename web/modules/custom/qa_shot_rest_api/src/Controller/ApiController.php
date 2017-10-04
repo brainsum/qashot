@@ -161,8 +161,12 @@ class ApiController extends ControllerBase {
    *   The response.
    */
   public function loginTest(Request $request): JsonResponse {
+    $user = \Drupal::currentUser();
     $responseData = [
       'status' => 'success',
+      'uid' => $user->id(),
+      'roles' => $user->getRoles(),
+      'name' => $user->getAccountName(),
     ];
 
     return new JsonResponse($responseData);
