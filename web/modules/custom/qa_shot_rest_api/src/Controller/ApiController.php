@@ -121,7 +121,8 @@ class ApiController extends ControllerBase {
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
     $cur_user = \Drupal::currentUser();
-    if (in_array('qas_sub', $cur_user->getRoles()) && $entity->getOwnerId() != $cur_user->id()) {
+    if (!($entity->getOwnerId() == $cur_user->id() && $cur_user->hasPermission('run own qashot test entities') ||
+      $cur_user->hasPermission('run any qashot test entities'))) {
       throw new BadRequestHttpException('You don\'t have access one or more entities from the list. Please remove it/them and try again.');
     }
 
@@ -390,8 +391,7 @@ class ApiController extends ControllerBase {
       $notInQueue = [];
       $cur_user = \Drupal::currentUser();
       foreach ($tids as $tid) {
-        $testAsArray = $this->serializer->normalize($entities[$tid]);
-        if (in_array('qas_sub', $cur_user->getRoles()) && $testAsArray['user_id'] != $cur_user->id()) {
+        if (!$entities[$tid]->access('view', $cur_user)) {
           throw new BadRequestHttpException('You don\'t have access one or more entities from the list. Please remove it/them and try again.');
         }
 
@@ -462,11 +462,11 @@ class ApiController extends ControllerBase {
       $cur_user = \Drupal::currentUser();
       foreach ($requestedEntities as $requestedEntity) {
         if ($entities[$requestedEntity['tid']]) {
-          $testAsArray = $this->serializer->normalize($entities[$requestedEntity['tid']]);
-
-          if (in_array('qas_sub', $cur_user->getRoles()) && $testAsArray['user_id'] != $cur_user->id()) {
+          if (!$entities[$requestedEntity['tid']]->access('view', $cur_user)) {
             throw new BadRequestHttpException('You don\'t have access one or more entities from the list. Please remove it/them and try again.');
           }
+
+          $testAsArray = $this->serializer->normalize($entities[$requestedEntity['tid']]);
           if ($testAsArray['changed'] > $requestedEntity['changed']) {
             $responseEntities[] = $testAsArray;
           }
