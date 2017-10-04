@@ -120,6 +120,11 @@ class ApiController extends ControllerBase {
     /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
     $entity = $this->loadEntityFromId($request->attributes->get('qa_shot_test'));
 
+    $cur_user = \Drupal::currentUser();
+    if (in_array('qas_sub', $cur_user->getRoles()) && $entity->getOwnerId() != $cur_user->id()) {
+      throw new BadRequestHttpException('You don\'t have access one or more entities from the list. Please remove it/them and try again.');
+    }
+
     $storedFrontendUrl = $entity->getFrontendUrl();
     if (NULL === $storedFrontendUrl || $storedFrontendUrl !== $frontendUrl) {
       $entity->setFrontendUrl($frontendUrl);
@@ -377,13 +382,21 @@ class ApiController extends ControllerBase {
         throw new BadRequestHttpException('The \'tids\' parameter is empty or not an array.');
       }
 
-      /** @var array $ids */
+      /** @var array $tids */
       $tids = $runnerSettings['tids'];
 
+      $entities = $this->testStorage->loadMultiple($tids);
       $queueData = [];
       $notInQueue = [];
+      $cur_user = \Drupal::currentUser();
       foreach ($tids as $tid) {
+        $testAsArray = $this->serializer->normalize($entities[$tid]);
+        if (in_array('qas_sub', $cur_user->getRoles()) && $testAsArray['user_id'] != $cur_user->id()) {
+          throw new BadRequestHttpException('You don\'t have access one or more entities from the list. Please remove it/them and try again.');
+        }
+
         $data = $this->queueData->getDataFromQueue($tid);
+
         if ($data) {
           $queueData[] = $data;
         }
@@ -446,10 +459,14 @@ class ApiController extends ControllerBase {
 
       $responseEntities = [];
       $noChanges = [];
+      $cur_user = \Drupal::currentUser();
       foreach ($requestedEntities as $requestedEntity) {
         if ($entities[$requestedEntity['tid']]) {
           $testAsArray = $this->serializer->normalize($entities[$requestedEntity['tid']]);
 
+          if (in_array('qas_sub', $cur_user->getRoles()) && $testAsArray['user_id'] != $cur_user->id()) {
+            throw new BadRequestHttpException('You don\'t have access one or more entities from the list. Please remove it/them and try again.');
+          }
           if ($testAsArray['changed'] > $requestedEntity['changed']) {
             $responseEntities[] = $testAsArray;
           }
