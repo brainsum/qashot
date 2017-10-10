@@ -16,4 +16,4 @@ $databases['default']['default'] = [
   'driver' => 'mysql',
 ];
 
-$base_url = 'http://qashot.docker.localhost:8000';
+$base_url = 'qashot.docker.localhost:8000';
