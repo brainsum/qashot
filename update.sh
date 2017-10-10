@@ -6,4 +6,4 @@ git pull --recurse-submodules=yes \
     && cd web \
     && drush updb -y \
     && drush cim -y \
-    && drush entity-updates -y
+    && drush entity:updates -y
