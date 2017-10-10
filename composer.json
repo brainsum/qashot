@@ -71,7 +71,7 @@
         "jaypan/jquery_colorpicker": "^1.0",
         "php-ai/php-ml": "^0.4.1",
         "roave/security-advisories": "dev-master",
-        "webflo/drupal-finder": "^0.3.0",
+        "webflo/drupal-finder": "^1.0",
         "webmozart/path-util": "^2.3"
     },
     "require-dev": {
