@@ -7,7 +7,6 @@ use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
 use Drupal\backstopjs\Exception\FileOpenException;
 use Drupal\backstopjs\Exception\FileWriteException;
 use Drupal\backstopjs\Exception\FolderCreateException;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
