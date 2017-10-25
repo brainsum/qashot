@@ -16,3 +16,7 @@
 * You can now set the path to the backstopjs binary
     * See /admin/config/qa_shot/backstopjs_settings
     * Leave it empty if it's in the system path
+
+## 2017.10.25
+* Update core to 8.4
+* # IMPORTANT! Before updating, disable the cors_ui module or the site will break!
