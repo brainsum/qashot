@@ -1,0 +1,23 @@
+# Add to settings.php:
+# if (file_exists(__DIR__ . '/services.cors.yml')) {
+#    $settings['container_yamls'][] = __DIR__ . '/services.cors.yml';
+# }
+parameters:
+   # Configure Cross-Site HTTP requests (CORS).
+   # Read https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+   # for more information about the topic in general.
+   # Note: By default the configuration is disabled.
+  cors.config:
+    enabled: true
+    # Specify allowed headers, like 'x-allowed-header'.
+    allowedHeaders: ['X-CSRF-Token', 'Content-Type', 'Authorization']
+    # Specify allowed request methods, specify ['*'] to allow all possible ones.
+    allowedMethods: ['POST', 'GET', 'OPTIONS', 'DELETE', 'PATCH']
+    # Configure requests allowed from specific origins.
+    allowedOrigins: ['*']
+    # Sets the Access-Control-Expose-Headers header.
+    exposedHeaders: ['*']
+    # Sets the Access-Control-Max-Age header.
+    maxAge: 3600
+    # Sets the Access-Control-Allow-Credentials header.
+    supportsCredentials: true
