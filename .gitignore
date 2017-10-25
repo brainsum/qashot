@@ -30,3 +30,5 @@ drush/drushrc.local.php
 
 web/sites/*.dd/*
 web/sites/*.dd
+
+/tmp

@@ -15,7 +15,10 @@ services:
   php:
 #    image: wodby/drupal-php:7.0-2.4.3
 #    image: havelantmate/drupal_php:Backstop2.6.13-SlimerJS
-    image: havelantmate/drupal_php:Backstop3.0.26-SlimerJS
+#    image: havelantmate/drupal_php:Backstop3.0.26-SlimerJS
+    security_opt:
+      - seccomp:unconfined
+    image: havelantmate/drupal_php:3.0.29
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: mariadb

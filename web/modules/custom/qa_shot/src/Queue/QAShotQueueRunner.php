@@ -9,6 +9,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
+use Drupal\qa_shot\Exception\QAShotBaseException;
 
 /**
  * Class QAShotQueueRunner.
@@ -200,9 +201,17 @@ class QAShotQueueRunner {
         // Set entity status to idle.
         $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_IDLE, $entity);
       }
+      catch (QAShotBaseException $e) {
+        // In case of QAS Exceptions, log and release.
+        $this->logger->notice($e->getMessage());
+        $item->status = QAShotQueue::QUEUE_STATUS_ERROR;
+        $queue->deleteItem($item);
+        $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_ERROR, $entity);
+        continue;
+      }
       catch (RequeueException $e) {
         // @todo: Set item to error
-        $this->logger->warning($e->getMessage());
+        $this->logger->notice($e->getMessage());
         // The worker requested the task to be immediately re-queued.
         $item->status = QAShotQueue::QUEUE_STATUS_WAITING;
         $queue->releaseItem($item);
@@ -210,7 +219,7 @@ class QAShotQueueRunner {
       }
       catch (SuspendQueueException $e) {
         // @todo: Set item to error
-        $this->logger->error($e->getMessage());
+        $this->logger->warning($e->getMessage());
         // If the worker indicates there is a problem with the whole queue,
         // release the item and skip to the next queue.
         $item->status = QAShotQueue::QUEUE_STATUS_ERROR;

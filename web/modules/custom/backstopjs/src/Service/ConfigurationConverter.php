@@ -92,15 +92,33 @@ class ConfigurationConverter {
     $entityId = $entity->id();
     $private = $this->privateDataPath . '/' . $entityId;
     $public = $this->publicDataPath . '/' . $entityId;
-    $testEngine = $entity->getTestEngine();
+    // @todo: Cleanup.
+    $testEngine = $entity->getTestEngine() ?? $this->config->get('backstopjs.test_engine');
+    $engineScripts = $private . '/' . (('chrome' === $testEngine) ? 'chromy_scripts' : 'casper_scripts');
+    $casperFlags = [
+      '--ignore-ssl-errors=true',
+      '--ssl-protocol=any',
+    ];
+    $chromyFlags = [
+      '--headless',
+      '--disable-gpu',
+      '--ignore-certificate-errors',
+      '--force-device-scale-factor=1',
+      '--disable-infobars=true',
+    ];
 
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
       'id' => $entityId,
       'viewports' => $this->viewportToArray($entity->getFieldViewport()),
-      'scenarios' => $this->scenarioToArray($entity->getFieldScenario(), $entity->getSelectorsToHide(), $entity->getSelectorsToRemove()),
+      'scenarios' => $this->scenarioToArray(
+        $entity->getFieldScenario(),
+        $entity->getSelectorsToHide(),
+        $entity->getSelectorsToRemove(),
+        $testEngine
+      ),
       'paths' => [
-        'casper_scripts' => $private . '/casper_scripts',
+        'engine_scripts' => $engineScripts,
         'bitmaps_reference' => $public . '/reference',
         'bitmaps_test' => $public . '/test',
         'html_report' => $public . '/html_report',
@@ -108,7 +126,7 @@ class ConfigurationConverter {
       ],
       // 'onBeforeScript' => 'onBefore.js', //.
       // 'onReadyScript' => 'onReady.js', //.
-      'engine' => $testEngine ?? $this->config->get('backstopjs.test_engine'),
+      'engine' => $testEngine,
       'report' => [
         // Skipping 'browser' will still generate it, but it won't try to open
         // the generated report. For reasons.
@@ -116,18 +134,19 @@ class ConfigurationConverter {
         // CI is added, as omitting it won't result in it being generated.
         'CI',
       ],
-      'casperFlags' => [
-        '--ignore-ssl-errors=true',
-        '--ssl-protocol=any',
-      ],
+      'engineFlags' => ('chrome' === $testEngine) ? $chromyFlags : $casperFlags,
       'resembleOutputOptions' => $this->generateResembleOptions($entity->get('field_diff_color')),
       'asyncCompareLimit' => (int) $this->config->get('backstopjs.async_compare_limit'),
+      // @todo: Enable on settings UI.
+      'asyncCaptureLimit' => 1,
       'debug' => FALSE,
+      // Only allowed for chrome.
+      'debugWindow' => FALSE,
     ];
 
     if (TRUE === $withDebug || TRUE === (bool) $this->config->get('backstopjs.debug_mode')) {
       $mapConfigToArray['debug'] = TRUE;
-      $mapConfigToArray['casperFlags'][] = '--verbose';
+      $mapConfigToArray['engineFlags'][] = '--verbose';
     }
 
     return $mapConfigToArray;
@@ -196,7 +215,9 @@ class ConfigurationConverter {
    * @return array
    *   Array representation of the viewport field.
    */
-  public function viewportToArray(EntityReferenceRevisionsFieldItemList $viewportField): array {
+  public function viewportToArray(
+    EntityReferenceRevisionsFieldItemList $viewportField
+  ): array {
     // Flatten the field values from target_id + revision_target_id
     // to target_id only.
     $ids = array_map(function ($item) {
@@ -228,13 +249,20 @@ class ConfigurationConverter {
    * @param string[] $selectorsToRemove
    *   An array of selectors that should be removed from te DOM.
    *   The values are merged with the default ones.
+   * @param string $engine
+   *   The engine.
    *
    * @throws \InvalidArgumentException
    *
    * @return array
    *   Array representation of the scenario field.
    */
-  public function scenarioToArray(EntityReferenceRevisionsFieldItemList $scenarioField, array $selectorsToHide, array $selectorsToRemove): array {
+  public function scenarioToArray(
+    EntityReferenceRevisionsFieldItemList $scenarioField,
+    array $selectorsToHide,
+    array $selectorsToRemove,
+    $engine
+  ): array {
     $scenarioData = [];
 
     // Flatten the field values from target_id + revision_target_id
@@ -268,6 +296,13 @@ class ConfigurationConverter {
         'onBeforeScript' => 'onBefore.js',
         'onReadyScript' => 'onReady.js',
       ];
+
+      if ('chrome' === $engine) {
+        // 'document' is bugged with chromy.
+        $currentScenario['selectors'] = [
+          'viewport',
+        ];
+      }
 
       $scenarioData[] = $currentScenario;
     }

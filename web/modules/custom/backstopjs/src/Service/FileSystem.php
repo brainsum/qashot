@@ -219,7 +219,6 @@ class FileSystem {
     $jsonEncodeSettings = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
     $configAsJSON = json_encode($configAsArray, $jsonEncodeSettings);
 
-    $privateCasperFolder = $configAsArray['paths']['casper_scripts'];
     $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
 
     $this->createFolder($privateEntityData);
@@ -227,8 +226,10 @@ class FileSystem {
     $this->createFolder($configAsArray['paths']['ci_report']);
     $this->createFolder($privateEntityData . '/tmp');
     $this->createConfigFile($configPath, $configAsJSON);
-    $this->createFolder($privateCasperFolder);
-    $this->copyTemplates($templateFolder . '/casper_scripts', $configAsArray['paths']['casper_scripts']);
+
+    $template = ($configAsArray['engine'] === 'chrome') ? 'chromy_scripts' : 'casper_scripts';
+    $this->createFolder($configAsArray['paths']['engine_scripts']);
+    $this->copyTemplates($templateFolder . '/' . $template, $configAsArray['paths']['engine_scripts']);
 
     // If the paths changed we save them.
     if (

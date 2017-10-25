@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "express": "~4.15.4",
-        "backstopjs": "~2.6.13",
+        "backstopjs": "~3.0.26",
         "slimerjs": "~0.10.3",
         "xvfb": "~0.2.3"
     }

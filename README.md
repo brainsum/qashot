@@ -15,16 +15,11 @@ QAShot is heavily in development. Breaking changes with no automatic upgrade pat
 ## Docker
 The project comes with a docker-compose.yml based on the Docker4Drupal environment (v1.3.0).
 A custom docker image is used for the PHP container, as we needed to include BackstopJS and its dependencies.
-Name: havelantmate/drupal_php:Backstop3.0.26-SlimerJS
-Contents:
-* Node 6.11.3
-* BackstopJS 3.0.26
-* Innophi SlimerJS 0.10.3
-* CasperJS version 1.1.4
-* PhantomJS version 2.1.15
-* Mozilla Firefox 52.3.0 (esr)
-* Composer 1.5.2
-    * hirak/prestissimo 0.3.7
+Name: havelantmate/drupal_php
+See:
+
+- [Dockerfile on Github](https://github.com/mhavelant/docker/tree/master/QAS/UBUNTU_PHP)
+- [Image on Docker hub](https://hub.docker.com/r/havelantmate/drupal_php/)
 
 ## Cron
 The tests are not run automatically, they are first put into a queue which is managed with cron.

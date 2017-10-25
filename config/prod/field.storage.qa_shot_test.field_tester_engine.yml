@@ -17,6 +17,9 @@ settings:
     -
       value: slimerjs
       label: SlimerJS
+    -
+      value: chrome
+      label: 'Google Chrome'
   allowed_values_function: ''
 module: options
 locked: false

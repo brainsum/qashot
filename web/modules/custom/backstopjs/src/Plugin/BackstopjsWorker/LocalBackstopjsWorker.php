@@ -28,8 +28,6 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  */
 class LocalBackstopjsWorker extends BackstopjsWorkerBase {
 
-  use StringTranslationTrait;
-
   const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
   const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';
 
@@ -102,11 +100,18 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
 
     foreach ($execOutput as $line) {
       // Search for bitmap generation string.
-      if (strpos($line, 'Bitmap file generation completed.') !== FALSE) {
+      if (
+        strpos($line, 'Bitmap file generation completed.') !== FALSE
+        // @todo: Check https://github.com/garris/BackstopJS/issues/567
+        || strpos($line, 'Command `reference` sucessfully executed') !== FALSE
+        || strpos($line, 'Command `reference` successfully executed') !== FALSE
+      ) {
         $results['bitmapGenerationSuccess'] = TRUE;
         continue;
       }
 
+      // @todo: Command `{$command}` sucessfully executed in [{$float}s]
+      // @todo: Command `{$command}` ended with an error after [{$float}s]
       // Search for the reports.
       if (strpos($line, 'report |') !== FALSE) {
         // Search for the number of passed tests.
