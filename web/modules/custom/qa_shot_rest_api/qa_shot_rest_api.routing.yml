@@ -2,7 +2,7 @@ qa_shot_rest_api.queue_test:
   path: 'api/rest/v1/qa_shot_test/{qa_shot_test}/queue'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::queueTest'
-  methods: [POST, GET]
+  methods: [POST]
   options:
    _auth: ['basic_auth', 'cookie']
    query:
