@@ -16,8 +16,8 @@
 
 The QAShot REST API exposes entities of the custom type 'QAShot Test'. The following modules were used when creating it:
 
-- Drupal 8.4.0 Core REST module
-- Drupal 8.4.0 Core CORS
+- Drupal 8.4 Core REST module
+- Drupal 8.4 Core CORS
     - See: [services.cors.yml](../../../sites/default/services.cors.yml)
 - [RestUI](https://www.drupal.org/project/restui) (Dev only)
 
