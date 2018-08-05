@@ -1,20 +1,3 @@
-Skip to content
- 
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- @pedro-p Sign out
-4
-0 0 brainsum/commerce_gls
- Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
-commerce_gls/ci-scripts/test_coder.sh
-baf1bd9  on Feb 17
-@pedro-p pedro-p coding standard check added via travis
-    
-Executable File  42 lines (33 sloc)  975 Bytes
 #!/bin/sh
 
 # ---------------------------------------------------------------------------- #
@@ -42,7 +25,7 @@ HAS_ERRORS=0
 code_review () {
   echo "${LWHITE}$1${RESTORE}"
 
-  if ! phpcs --ignore="*.md" --standard="$REVIEW_STANDARD" -p --colors --extensions=php,module,inc,install,test,profile,md "$1"; then
+  if ! phpcs --ignore="${TRAVIS_BUILD_DIR}/web/modules/custom/qa_shot/src/Service/MachineLearning.php, *.md" --standard="$REVIEW_STANDARD" -p --colors --extensions=php,module,inc,install,test,profile,md "$1"; then
     HAS_ERRORS=1
   fi
 }
@@ -51,7 +34,7 @@ code_review () {
 echo
 echo "${LBLUE}> Sniffing Modules following '${REVIEW_STANDARD}' standard. ${RESTORE}"
 
-for dir in $TRAVIS_BUILD_DIR/*/ ; do
+for dir in $TRAVIS_BUILD_DIR/web/modules/custom/*/ ; do
   code_review "$dir"
 done
 
