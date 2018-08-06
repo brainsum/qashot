@@ -92,7 +92,7 @@ URL: ```<site>/api/rest/v1/qa_shot_test?_format=json```
             "height": "768"
         }
     ],
-    "field_tester_engine": "phantomjs",
+    "field_browser": "phantomjs",
     "field_tag": [
         "tag1",
         "tag2",
@@ -254,7 +254,7 @@ If no applicable stage is present, send "" (empty string).
 ],
 ```
 Explanation: For a test with the bundle (type) ```a_b```, send stage as empty. For a test with the ```before_after``` bundle, you can send 'before' or 'after' (note: One per request) as the ```test_stage``` parameter.
-- `field_tester_engine` can be: ```phantomjs``` or ```slimerjs```
+- `field_browser` can be: ```chrome```, ```phantomjs``` or ```firefox```
 - `type` can be: ```a_b``` or ```before_after```
 - Notes:
     - With the current implementation the request can take a while to finish..

@@ -469,8 +469,8 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTestEngine(): string {
-    return $this->get('field_tester_engine')->value;
+  public function getBrowser(): string {
+    return $this->get('field_browser')->value;
   }
 
   /**
@@ -625,7 +625,16 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $queueItem->origin = $origin;
     $queueItem->data = NULL;
 
-    // Try to add the test to the queue.
+    // @todo: Cleanup.
+    // Remote worker integration.
+    /** @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory $workerFactory */
+    $workerFactory = \Drupal::service('backstopjs.worker_factory');
+    /** @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerInterface $remoteWorker */
+    $remoteWorker = $workerFactory->get('remote');
+    $remoteWorker->run('chrome', 'reference', $this);
+    // End of remote worker integration.
+    //
+    // Try to add the test to the drupal queue.
     if (FALSE !== $testQueue->createItem($queueItem)) {
       try {
         // If we successfully added it to the queue, we set

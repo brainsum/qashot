@@ -338,12 +338,12 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function setSelectorsToRemove(array $selectors): QAShotTestInterface;
 
   /**
-   * Returns the selected engine, e.g. phantomjs.
+   * Returns the selected browser, e.g. chrome.
    *
    * @return string
    *   The value.
    */
-  public function getTestEngine(): string;
+  public function getBrowser(): string;
 
   /**
    * Add the test to the queue.
