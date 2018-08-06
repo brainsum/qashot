@@ -1,6 +1,9 @@
 <?php
 
+// @codingStandardsIgnoreStart
+// @todo: Due to a core PHP7 compatibility issue, this namespace has to be ignored.
 namespace Drupal\qa_shot_rest_api\Plugin\rest\resource;
+// @codingStandardsIgnoreEnd
 
 use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
