@@ -2,11 +2,11 @@ language: php
 
 php:
 - 7.0
+- 7.2
 
 env:
   matrix:
-  - CODE_REVIEW=1 REVIEW_STANDARD="Drupal"
-  - CODE_REVIEW=1 REVIEW_STANDARD="DrupalPractice"
+  - CODE_REVIEW=1 PHPCS_CHECK_DIRECTORY="${TRAVIS_BUILD_DIR}/web/modules/custom"
 
 before_install:
 - export PATH="$HOME/.composer/vendor/bin:$PATH"

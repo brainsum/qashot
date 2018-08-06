@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<ruleset name="QAShot Standard" namespace="Drupal\QAShot\CustomStandard">
+
+    <!--
+       The name attribute of the ruleset tag is displayed
+       when running PHP_CodeSniffer with the -v command line
+       argument.
+
+       If you have custom sniffs, and they use a namespace prefix
+       that is different to the name of the directory containing
+       your ruleset.xml file, you can set the namespace prefix using
+       the namespace attribute of the ruleset tag.
+
+       For example, if your namespace format for sniffs is
+       MyProject\CS\Standard\Sniffs\Category, set the namespace to
+       MyProject\CS\Standard (everything up to \Sniffs\)
+    -->
+
+    <!--
+       The content of the description tag is not displayed anywhere
+       except in this file, so it can contain information for
+       developers who may change this file in the future.
+    -->
+    <description>A custom coding standard for the QAShot project.</description>
+
+    <!-- Check for cross-version support. -->
+    <config name="testVersion" value="7.0-"/>
+
+    <arg name="extensions" value="php,module,inc,install,test,profile,theme" />
+    <arg name="ignore" value="*.md,MachineLearning.php" />
+    <arg value="p" />
+
+    <rule ref="Drupal"/>
+    <rule ref="DrupalPractice"/>
+    <rule ref="PHPCompatibility"/>
+</ruleset>
