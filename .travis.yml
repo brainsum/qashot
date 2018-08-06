@@ -9,7 +9,8 @@ env:
   - CODE_REVIEW=1 PHPCS_CHECK_DIRECTORY="${TRAVIS_BUILD_DIR}/web/modules/custom"
 
 before_install:
-- export PATH="${HOME}/.composer/vendor/bin:${PATH}"
+- export VENDOR_DIR="${HOME}/.composer/vendor"
+- export PATH="${VENDOR_DIR}/bin:${PATH}"
 
 install:
 - "${TRAVIS_BUILD_DIR}/ci-scripts/install_coder.sh"
