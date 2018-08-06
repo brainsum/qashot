@@ -67,12 +67,12 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
    * @throws \Drupal\backstopjs\Exception\FileOpenException
    */
-  public function run(string $engine, string $command, QAShotTestInterface $entity): array {
+  public function run(string $browser, string $command, QAShotTestInterface $entity): array {
     // @todo: Add an admin form where the user can input the path of binaries.
     // @todo: What if local install, not docker/server?
     // With slimerjs we have to use xvfb-run.
     $xvfb = '';
-    if ($engine === 'slimerjs') {
+    if ($browser === 'firefox') {
       $xvfb = 'xvfb-run -a ';
     }
 
@@ -89,12 +89,30 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
     // @see: QAS-10
     exec($backstopCommand, $execOutput);
 
+    switch ($browser) {
+      case 'firefox':
+        $engine = 'slimerjs';
+        break;
+
+      case 'chrome':
+        $engine = 'puppeteer';
+        break;
+
+      case 'phantomjs':
+        $engine = 'phantomjs';
+        break;
+
+      default:
+        throw new \RuntimeException('Invalid browser (' . $browser . ').');
+    }
+
     $results = [
       'result' => TRUE,
       'passedTestCount' => NULL,
       'failedTestCount' => NULL,
       'bitmapGenerationSuccess' => FALSE,
       'backstopEngine' => $engine,
+      'browser' => $browser,
     ];
 
     foreach ($execOutput as $line) {

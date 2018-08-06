@@ -104,6 +104,6 @@ abstract class BackstopjsWorkerBase extends PluginBase implements BackstopjsWork
   /**
    * {@inheritdoc}
    */
-  abstract public function run(string $engine, string $command, QAShotTestInterface $entity): array;
+  abstract public function run(string $browser, string $command, QAShotTestInterface $entity): array;
 
 }

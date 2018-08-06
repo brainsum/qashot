@@ -30,8 +30,8 @@ interface BackstopjsWorkerInterface {
   /**
    * Run backstop with local binaries.
    *
-   * @param string $engine
-   *   The requested engine; phantomjs or slimerjs.
+   * @param string $browser
+   *   The requested browser; phantomjs, firefox or chrome.
    * @param string $command
    *   The command; reference or test.
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
@@ -40,6 +40,6 @@ interface BackstopjsWorkerInterface {
    * @return array
    *   The result array.
    */
-  public function run(string $engine, string $command, QAShotTestInterface $entity): array;
+  public function run(string $browser, string $command, QAShotTestInterface $entity): array;
 
 }

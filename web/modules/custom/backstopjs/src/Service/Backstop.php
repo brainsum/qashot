@@ -412,12 +412,12 @@ class Backstop extends TestBackendBase {
 
     $this->backstop->checkRunStatus();
 
-    $testerEngine = 'phantomjs';
-    if ($engine = $entity->getTestEngine()) {
-      $testerEngine = $engine;
+    $browser = 'chrome';
+    if ($browserFromTest = $entity->getBrowser()) {
+      $browser = $browserFromTest;
     }
 
-    return $this->backstop->run($testerEngine, $command, $entity);
+    return $this->backstop->run($browser, $command, $entity);
   }
 
   /**

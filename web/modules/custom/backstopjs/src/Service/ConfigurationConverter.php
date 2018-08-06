@@ -75,6 +75,61 @@ class ConfigurationConverter {
   }
 
   /**
+   * Get the engine options from the entity.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The test entity.
+   *
+   * @return array
+   *   An associative array with name, scripts and flags.
+   */
+  protected function getTestEngine(QAShotTestInterface $entity): array {
+    $private = $this->privateDataPath . '/' . $entity->id();
+    $browser = $entity->getBrowser() ?? $this->config->get('backstopjs.browser');
+
+    switch ($browser) {
+      case 'firefox':
+        $testEngine = 'slimerjs';
+        $engineScripts = $private . '/casper_scripts';
+        $engineFlags = [
+          '--ignore-ssl-errors=true',
+          '--ssl-protocol=any',
+        ];
+        break;
+
+      case 'phantomjs':
+        $testEngine = 'phantomjs';
+        $engineScripts = $private . '/casper_scripts';
+        $engineFlags = [
+          '--ignore-ssl-errors=true',
+          '--ssl-protocol=any',
+        ];
+        break;
+
+      case 'chrome':
+        $testEngine = 'puppeteer';
+        $engineScripts = $private . '/puppeteer_scripts';
+        $engineFlags = [
+          '--headless',
+          '--disable-gpu',
+          '--ignore-certificate-errors',
+          '--force-device-scale-factor=1',
+          '--disable-infobars=true',
+        ];
+        break;
+
+      default:
+        throw new \RuntimeException('The selected browser "' . $browser . '" is invalid.');
+    }
+
+    return [
+      'name' => $testEngine,
+      'scripts' => $engineScripts,
+      'flags' => $engineFlags,
+    ];
+  }
+
+  /**
    * Map the current entity to the array representation of a BackstopJS config.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
@@ -90,22 +145,9 @@ class ConfigurationConverter {
   public function entityToArray(QAShotTestInterface $entity, $withDebug = FALSE): array {
     // @todo: get some field values global settings
     $entityId = $entity->id();
-    $private = $this->privateDataPath . '/' . $entityId;
     $public = $this->publicDataPath . '/' . $entityId;
     // @todo: Cleanup.
-    $testEngine = $entity->getTestEngine() ?? $this->config->get('backstopjs.test_engine');
-    $engineScripts = $private . '/' . (('chrome' === $testEngine) ? 'chromy_scripts' : 'casper_scripts');
-    $casperFlags = [
-      '--ignore-ssl-errors=true',
-      '--ssl-protocol=any',
-    ];
-    $chromyFlags = [
-      '--headless',
-      '--disable-gpu',
-      '--ignore-certificate-errors',
-      '--force-device-scale-factor=1',
-      '--disable-infobars=true',
-    ];
+    $engine = $this->getTestEngine($entity);
 
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
@@ -115,10 +157,10 @@ class ConfigurationConverter {
         $entity->getFieldScenario(),
         $entity->getSelectorsToHide(),
         $entity->getSelectorsToRemove(),
-        $testEngine
+        $engine['name']
       ),
       'paths' => [
-        'engine_scripts' => $engineScripts,
+        'engine_scripts' => $engine['scripts'],
         'bitmaps_reference' => $public . '/reference',
         'bitmaps_test' => $public . '/test',
         'html_report' => $public . '/html_report',
@@ -126,7 +168,7 @@ class ConfigurationConverter {
       ],
       // 'onBeforeScript' => 'onBefore.js', //.
       // 'onReadyScript' => 'onReady.js', //.
-      'engine' => $testEngine,
+      'engine' => $engine['name'],
       'report' => [
         // Skipping 'browser' will still generate it, but it won't try to open
         // the generated report. For reasons.
@@ -134,7 +176,7 @@ class ConfigurationConverter {
         // CI is added, as omitting it won't result in it being generated.
         'CI',
       ],
-      'engineFlags' => ('chrome' === $testEngine) ? $chromyFlags : $casperFlags,
+      'engineFlags' => $engine['flags'],
       'resembleOutputOptions' => $this->generateResembleOptions($entity->get('field_diff_color')),
       'asyncCompareLimit' => (int) $this->config->get('backstopjs.async_compare_limit'),
       // @todo: Enable on settings UI.
