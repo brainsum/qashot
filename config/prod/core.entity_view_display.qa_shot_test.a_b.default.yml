@@ -22,14 +22,14 @@ bundle: a_b
 mode: default
 content:
   field_browser:
-    weight: 6
+    weight: 5
     label: above
     settings: {  }
     third_party_settings: {  }
     type: list_default
     region: content
   field_diff_color:
-    weight: 7
+    weight: 6
     label: above
     settings: {  }
     third_party_settings: {  }
@@ -45,19 +45,12 @@ content:
       link: ''
     third_party_settings: {  }
   field_tag:
-    weight: 8
+    weight: 7
     label: above
     settings:
       link: true
     third_party_settings: {  }
     type: entity_reference_label
-    region: content
-  field_tester_engine:
-    weight: 5
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    type: list_default
     region: content
   field_viewport:
     type: entity_reference_revisions_entity_view
@@ -102,4 +95,5 @@ content:
 hidden:
   field_configuration_path: true
   field_html_report_path: true
+  field_tester_engine: true
   viewport: true

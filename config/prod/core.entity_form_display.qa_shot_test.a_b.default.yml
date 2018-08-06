@@ -21,13 +21,13 @@ bundle: a_b
 mode: default
 content:
   field_browser:
-    weight: 6
+    weight: 5
     settings: {  }
     third_party_settings: {  }
     type: options_select
     region: content
   field_diff_color:
-    weight: 7
+    weight: 6
     settings:
       color: null
     third_party_settings: {  }
@@ -46,19 +46,13 @@ content:
       default_paragraph_type: scenario
     third_party_settings: {  }
   field_tag:
-    weight: 8
+    weight: 7
     settings:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
     third_party_settings: {  }
     type: entity_reference_autocomplete_tags
-    region: content
-  field_tester_engine:
-    weight: 5
-    settings: {  }
-    third_party_settings: {  }
-    type: options_select
     region: content
   field_viewport:
     type: entity_reference_paragraphs
@@ -108,4 +102,5 @@ content:
 hidden:
   field_configuration_path: true
   field_html_report_path: true
+  field_tester_engine: true
   viewport: true
