@@ -3,7 +3,12 @@
 namespace Drupal\backstopjs\Plugin\BackstopjsWorker;
 
 use Drupal\backstopjs\Backstopjs\BackstopjsWorkerBase;
+use Drupal\backstopjs\Service\FileSystem;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use GuzzleHttp\Client;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class RemoteBackstopJS.
@@ -21,8 +26,71 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  */
 class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
 
-  const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
-  const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';
+  const ENDPOINT_TEST_ADD = '/api/v1/test/add';
+
+  /**
+   * The remote host URL.
+   *
+   * @var string
+   */
+  protected $remoteHost;
+
+  /**
+   * The HTTP Client.
+   *
+   * @var \GuzzleHttp\Client
+   */
+  protected $httpClient;
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('backstopjs.file_system'),
+      $container->get('logger.factory'),
+      $container->get('config.factory'),
+      $container->get('http_client')
+    );
+  }
+
+  /**
+   * LocalBackstopJS constructor.
+   *
+   * @param array $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param array $plugin_definition
+   *   The plugin definition.
+   * @param \Drupal\backstopjs\Service\FileSystem $backstopFileSystem
+   *   The BackstopJS file system service.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
+   *   The logger channel factory.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The site config factory.
+   * @param \GuzzleHttp\Client $httpClient
+   *   The HTTP client.
+   */
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    array $plugin_definition,
+    FileSystem $backstopFileSystem,
+    LoggerChannelFactoryInterface $loggerChannelFactory,
+    ConfigFactoryInterface $configFactory,
+    Client $httpClient
+  ) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $backstopFileSystem, $loggerChannelFactory, $configFactory);
+    $this->remoteHost = $this->config['suite']['remote_host'];
+    $this->httpClient = $httpClient;
+  }
 
   /**
    * {@inheritdoc}
@@ -43,11 +111,44 @@ class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
    * {@inheritdoc}
    */
   public function run(string $engine, string $command, QAShotTestInterface $entity): array {
-    // @todo: Implement.
-    // @todo: Get worker list.
-    // @todo: Query worker statuses, get an available one.
-    // @todo: Send POST to one of the workers.
-    return [];
+    if (NULL === $this->remoteHost) {
+      return [
+        'code' => 204,
+        'message' => $this->t('Remote host undefined, skipping.'),
+        'reason' => '',
+      ];
+    }
+
+    $backstopConfig = \json_decode(\file_get_contents($entity->getConfigurationPath()), TRUE);
+    // Until the worker is fully completed, use chrome/puppeteer only.
+    $backstopConfig['engine'] = 'puppeteer';
+
+    $requestOptions = [
+      // @todo: auth
+      'json' => $backstopConfig,
+      'connect_timeout' => 10,
+    ];
+
+    try {
+      $response = $this->httpClient->post($this->remoteHost . self::ENDPOINT_TEST_ADD, $requestOptions);
+    }
+    catch (\Exception $exception) {
+      $this->logger->warning('Could not push test (ID: ' . $entity->id() . ')  to the remote worker. See: ' . $exception->getMessage());
+      return [
+        'code' => $exception->getCode(),
+        'message' => $exception->getMessage(),
+        'reason' => '',
+      ];
+    }
+
+    $remoteMessage = \json_decode($response->getBody()->getContents(), TRUE);
+    $this->logger->info('Test (ID: ' . $entity->id() . ') pushed to the remote worker. Message: ' . $remoteMessage['message']);
+
+    return [
+      'message' => $response->getBody()->getContents(),
+      'reason' => $response->getReasonPhrase(),
+      'code' => $response->getStatusCode(),
+    ];
   }
 
 }
