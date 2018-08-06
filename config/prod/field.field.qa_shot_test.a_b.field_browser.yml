@@ -1,0 +1,23 @@
+uuid: bdea6afc-8b1e-4bce-91ce-391b86e0621e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_browser
+    - qa_shot.qa_shot_test_type.a_b
+  module:
+    - options
+id: qa_shot_test.a_b.field_browser
+field_name: field_browser
+entity_type: qa_shot_test
+bundle: a_b
+label: Browser
+description: 'The browser in which the test should run.'
+required: true
+translatable: false
+default_value:
+  -
+    value: chrome
+default_value_callback: ''
+settings: {  }
+field_type: list_string

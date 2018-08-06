@@ -1,0 +1,23 @@
+uuid: ed45a47f-e929-4732-9575-6b37a2285870
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_browser
+    - qa_shot.qa_shot_test_type.before_after
+  module:
+    - options
+id: qa_shot_test.before_after.field_browser
+field_name: field_browser
+entity_type: qa_shot_test
+bundle: before_after
+label: Browser
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    value: chrome
+default_value_callback: ''
+settings: {  }
+field_type: list_string

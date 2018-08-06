@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.qa_shot_test.a_b.field_browser
     - field.field.qa_shot_test.a_b.field_configuration_path
     - field.field.qa_shot_test.a_b.field_diff_color
     - field.field.qa_shot_test.a_b.field_html_report_path
@@ -19,8 +20,14 @@ targetEntityType: qa_shot_test
 bundle: a_b
 mode: default
 content:
-  field_diff_color:
+  field_browser:
     weight: 6
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  field_diff_color:
+    weight: 7
     settings:
       color: null
     third_party_settings: {  }
@@ -39,7 +46,7 @@ content:
       default_paragraph_type: scenario
     third_party_settings: {  }
   field_tag:
-    weight: 7
+    weight: 8
     settings:
       match_operator: CONTAINS
       size: 60

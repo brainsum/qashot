@@ -1,0 +1,30 @@
+uuid: 4785b7a5-5d38-45aa-b79b-65998d816349
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - qa_shot
+id: qa_shot_test.field_browser
+field_name: field_browser
+entity_type: qa_shot_test
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: phantomjs
+      label: PhantomJS
+    -
+      value: firefox
+      label: Firefox
+    -
+      value: chrome
+      label: 'Google Chrome'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

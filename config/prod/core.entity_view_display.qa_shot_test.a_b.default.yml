@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.qa_shot_test.a_b.field_browser
     - field.field.qa_shot_test.a_b.field_configuration_path
     - field.field.qa_shot_test.a_b.field_diff_color
     - field.field.qa_shot_test.a_b.field_html_report_path
@@ -20,6 +21,13 @@ targetEntityType: qa_shot_test
 bundle: a_b
 mode: default
 content:
+  field_browser:
+    weight: 6
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
   field_diff_color:
     weight: 7
     label: above
@@ -29,7 +37,7 @@ content:
     region: content
   field_scenario:
     type: entity_reference_revisions_entity_view
-    weight: 3
+    weight: 2
     region: content
     label: above
     settings:
@@ -45,7 +53,7 @@ content:
     type: entity_reference_label
     region: content
   field_tester_engine:
-    weight: 6
+    weight: 5
     label: above
     settings: {  }
     third_party_settings: {  }
@@ -53,7 +61,7 @@ content:
     region: content
   field_viewport:
     type: entity_reference_revisions_entity_view
-    weight: 2
+    weight: 1
     label: above
     settings:
       view_mode: default
@@ -71,7 +79,7 @@ content:
   selectors_to_hide:
     label: above
     type: string
-    weight: 4
+    weight: 3
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -79,7 +87,7 @@ content:
   selectors_to_remove:
     label: above
     type: string
-    weight: 5
+    weight: 4
     region: content
     settings:
       link_to_entity: false
