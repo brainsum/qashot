@@ -5341,7 +5341,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://ftp.drupal.org/files/projects/adminimal_admin_toolbar-8.x-1.5.zip",
-                "reference": null,
+                "reference": "8.x-1.5",
                 "shasum": "2b4b4f04d5b0a5ff1d94b55a2096d1221a1010a4"
             },
             "require": {
@@ -5380,7 +5380,7 @@
             "version": "8.2.12",
             "source": {
                 "type": "git",
-                "url": "https://github.com/klausi/coder.git",
+                "url": "https://git.drupal.org/project/coder.git",
                 "reference": "984c54a7b1e8f27ff1c32348df69712afd86b17f"
             },
             "dist": {
@@ -5742,7 +5742,7 @@
             "support": {
                 "source": "http://cgit.drupalcode.org/cors_ui"
             },
-            "time": "2016-09-02 08:45:47"
+            "time": "2016-09-02T08:45:47+00:00"
         },
         {
             "name": "drupal/devel",
@@ -5932,7 +5932,7 @@
                 "issues": "https://www.drupal.org/project/issues/examples",
                 "documentation": "https://api.drupal.org/api/examples"
             },
-            "time": "2017-11-04 20:38:33"
+            "time": "2017-11-04T20:38:33+00:00"
         },
         {
             "name": "drupal/maillog",
@@ -5982,7 +5982,7 @@
             "support": {
                 "source": "http://cgit.drupalcode.org/maillog"
             },
-            "time": "2016-08-05 21:18:07"
+            "time": "2016-08-05T21:18:07+00:00"
         },
         {
             "name": "drupal/restui",
@@ -5995,7 +5995,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://ftp.drupal.org/files/projects/restui-8.x-1.15.zip",
-                "reference": null,
+                "reference": "8.x-1.15",
                 "shasum": "c3a9acd9355c1ee1690cbc8a1458f960f8c25c36"
             },
             "require": {
@@ -6090,7 +6090,7 @@
             "support": {
                 "source": "http://cgit.drupalcode.org/security_review"
             },
-            "time": "2016-10-20 15:43:48"
+            "time": "2016-10-20T15:43:48+00:00"
         },
         {
             "name": "drupal/toolbar_anti_flicker",
