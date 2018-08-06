@@ -91,9 +91,12 @@
         "drupal/restui": "^1.0",
         "drupal/security_review": "1.x-dev",
         "drupal/toolbar_anti_flicker": "^2.5",
+        "jakub-onderka/php-console-highlighter": "^0.3.2",
+        "jakub-onderka/php-parallel-lint": "^1.0",
         "jcalderonzumba/gastonjs": "~1.0.2",
         "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
         "mikey179/vfsStream": "^1.6",
+        "phpcompatibility/php-compatibility": "^8.2",
         "phpunit/phpunit": ">=4.8.28 <5",
         "squizlabs/php_codesniffer": "2.*",
         "symfony/css-selector": "~2.8"
