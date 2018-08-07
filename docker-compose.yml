@@ -14,10 +14,10 @@ services:
 #      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
 
   php:
-    security_opt:
-      - seccomp:unconfined
 #    image: wodby/drupal-php:7.2-dev-4.5.2
     image: havelantmate/drupal_php:3.0.29
+    security_opt:
+      - seccomp:unconfined
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: mariadb
