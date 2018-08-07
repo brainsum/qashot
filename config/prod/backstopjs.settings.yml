@@ -1,6 +1,6 @@
 backstopjs:
   async_compare_limit: '30'
-  test_engine: phantomjs
+  browser: chrome
   debug_mode: '0'
   mismatch_threshold: '0.00'
   resemble_output_options:
