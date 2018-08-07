@@ -111,7 +111,7 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
       'passedTestCount' => NULL,
       'failedTestCount' => NULL,
       'bitmapGenerationSuccess' => FALSE,
-      'backstopEngine' => $engine,
+      'engine' => $engine,
       'browser' => $browser,
     ];
 

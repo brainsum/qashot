@@ -181,15 +181,15 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       '#max' => 100,
     ];
 
-    $form['backstopjs']['test_engine'] = [
+    $form['backstopjs']['browser'] = [
       '#type' => 'select',
-      '#title' => $this->t('Test engine'),
+      '#title' => $this->t('Default browser'),
       '#options' => [
+        'chrome' => $this->t('Google Chrome'),
         'phantomjs' => $this->t('PhantomJS'),
-        'slimerjs' => $this->t('SlimerJS'),
+        'firefox' => $this->t('Firefox'),
       ],
-      '#default_value' => $config->get('backstopjs.test_engine') ?? 'phantomjs',
-      '#description' => $this->t('PhantomJS uses webkit (e.g. Chrome), SlimerJS uses gecko (e.g. Firefox).'),
+      '#default_value' => $config->get('backstopjs.browser') ?? 'chrome',
     ];
 
     $form['backstopjs']['mismatch_threshold'] = [
@@ -288,7 +288,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     /** @var \Drupal\Core\Config\Config $config */
     $config = $this->configFactory()->getEditable('backstopjs.settings');
     $config->set('backstopjs.async_compare_limit', $form_state->getValue(['backstopjs', 'async_compare_limit']));
-    $config->set('backstopjs.test_engine', $form_state->getValue(['backstopjs', 'test_engine']));
+    $config->set('backstopjs.browser', $form_state->getValue(['backstopjs', 'browser']));
     $config->set('backstopjs.debug_mode', $form_state->getValue(['backstopjs', 'debug_mode']));
     $config->set('backstopjs.mismatch_threshold', $form_state->getValue(['backstopjs', 'mismatch_threshold']));
 

@@ -212,12 +212,12 @@ class FileSystem {
     // @todo: refactor
     // @todo: . "/" . revision id; to both paths.
     $privateEntityData = $this->privateFiles . '/' . $entity->id();
-    $templateFolder = $this->privateFiles . '/template';
+    $templateBaseFolder = $this->privateFiles . '/template';
     $configPath = $privateEntityData . '/backstop.json';
 
     $configAsArray = $this->configConverter->entityToArray($entity);
     $jsonEncodeSettings = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-    $configAsJSON = json_encode($configAsArray, $jsonEncodeSettings);
+    $configAsJSON = \json_encode($configAsArray, $jsonEncodeSettings);
 
     $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
 
@@ -227,9 +227,10 @@ class FileSystem {
     $this->createFolder($privateEntityData . '/tmp');
     $this->createConfigFile($configPath, $configAsJSON);
 
-    $template = ($configAsArray['engine'] === 'chrome') ? 'chromy_scripts' : 'casper_scripts';
+    $engineScriptPath = \explode('/', $configAsArray['paths']['engine_scripts']);
+    $templateFolder = \end($engineScriptPath);
     $this->createFolder($configAsArray['paths']['engine_scripts']);
-    $this->copyTemplates($templateFolder . '/' . $template, $configAsArray['paths']['engine_scripts']);
+    $this->copyTemplates($templateBaseFolder . '/' . $templateFolder, $configAsArray['paths']['engine_scripts']);
 
     // If the paths changed we save them.
     if (

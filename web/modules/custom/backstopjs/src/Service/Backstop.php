@@ -149,8 +149,11 @@ class Backstop extends TestBackendBase {
     // more specifically in the qa_shot module.
     // Gather and persist metadata.
     $metadata = [
+      'mode' => $mode,
       'stage' => empty($stage) ? NULL : $stage,
-      'backstop_engine' => $results['backstopEngine'],
+      'tool' => 'backstopjs',
+      'browser' => $results['browser'],
+      'engine' => $results['engine'],
       'viewport_count' => $entity->getViewportCount(),
       'scenario_count' => $entity->getScenarioCount(),
       // @todo: Save as timestamp.
@@ -170,8 +173,8 @@ class Backstop extends TestBackendBase {
       'result' => $result,
     ], TRUE));
 
-    // @todo: Save this as well.
-    unset($metadata['backstop_engine']);
+    // @todo: Save these as well.
+    unset($metadata['mode'], $metadata['tool'], $metadata['browser'], $metadata['engine']);
 
     $entity->addMetadata($metadata);
     $entity->setResult($result);
@@ -430,7 +433,7 @@ class Backstop extends TestBackendBase {
    *   TRUE for valid, FALSE for invalid.
    */
   private function isCommandValid($command): bool {
-    return in_array($command, ['reference', 'test'], FALSE);
+    return \in_array($command, ['reference', 'test'], FALSE);
   }
 
   /**
