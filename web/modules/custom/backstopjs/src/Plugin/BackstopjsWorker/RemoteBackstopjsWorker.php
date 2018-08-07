@@ -111,6 +111,7 @@ class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
    * {@inheritdoc}
    */
   public function run(string $browser, string $command, QAShotTestInterface $entity): array {
+    // @todo: Remake the architecture, as this is not long-term viable.
     if (NULL === $this->remoteHost) {
       return [
         'code' => 204,

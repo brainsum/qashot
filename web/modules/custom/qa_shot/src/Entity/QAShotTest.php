@@ -627,6 +627,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
     // @todo: Cleanup.
     // Remote worker integration.
+    // @note: This has to be cleaned up properly.
     /** @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory $workerFactory */
     $workerFactory = \Drupal::service('backstopjs.worker_factory');
     /** @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerInterface $remoteWorker */
