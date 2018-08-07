@@ -5,7 +5,9 @@
  * Install file for the qa_shot module.
  */
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\qa_shot\QAShotSchemaDefinitions;
 use Drupal\system\Entity\Action;
@@ -23,7 +25,7 @@ function qa_shot_requirements() {
     'description' => t('QAShot requires PHP 7'),
   ];
 
-  if (version_compare(PHP_VERSION, '7', '<')) {
+  if (PHP_VERSION_ID < 70000) {
     $requirements['qa_shot_required_php_version']['severity'] = REQUIREMENT_ERROR;
   }
 
@@ -384,5 +386,63 @@ function qa_shot_update_8310() {
   }
   catch (Exception $e) {
     watchdog_exception('qashot', $e);
+  }
+}
+
+/**
+ * Import the "Browser" field.
+ */
+function qa_shot_update_8401() {
+  $configsToCreate = [
+    'field.storage.qa_shot_test.field_browser',
+    'field.field.qa_shot_test.a_b.field_browser',
+    'field.field.qa_shot_test.before_after.field_browser',
+  ];
+
+  $configDir = config_get_config_directory(CONFIG_SYNC_DIRECTORY);
+  $configStorage = new FileStorage($configDir);
+  /** @var \Drupal\Core\Config\ConfigManagerInterface $configManager */
+  $configManager = \Drupal::service('config.manager');
+  /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager */
+  $entityTypeManager = \Drupal::entityTypeManager();
+
+  foreach ($configsToCreate as $config) {
+    $record = $configStorage->read($config);
+    $entityType = $configManager->getEntityTypeIdByName($config);
+    /** @var \Drupal\Core\Config\Entity\ConfigEntityStorageInterface $entityTypeStorage */
+    $entityTypeStorage = $entityTypeManager->getStorage($entityType);
+    $configEntity = $entityTypeStorage->createFromStorageRecord($record);
+    $configEntity->save();
+  }
+}
+
+/**
+ * Populate the new "Browser" field from the old "Tester engine" field.
+ */
+function qa_shot_update_8402() {
+  $testStorage = \Drupal::entityTypeManager()->getStorage('qa_shot_test');
+  /** @var \Drupal\qa_shot\Entity\QAShotTestInterface[] $tests */
+  $tests = $testStorage->loadMultiple();
+
+  $engineToBrowser = [
+    'chrome' => 'chrome',
+    'phantomjs' => 'phantomjs',
+    'slimerjs' => 'firefox',
+  ];
+
+  foreach ($tests as $test) {
+    if (!$test->get('field_browser')->isEmpty()) {
+      continue;
+    }
+
+    $engine = $test->get('field_tester_engine')->value;
+    $browser = 'chrome';
+
+    if (isset($engineToBrowser[$engine])) {
+      $browser = $engineToBrowser[$engine];
+    }
+
+    $test->set('field_browser', $browser);
+    $test->save();
   }
 }
