@@ -88,7 +88,7 @@ class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
     Client $httpClient
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $backstopFileSystem, $loggerChannelFactory, $configFactory);
-    $this->remoteHost = $this->config['suite']['remote_host'];
+    $this->remoteHost = $this->config->get('suite.remote_host');
     $this->httpClient = $httpClient;
   }
 
