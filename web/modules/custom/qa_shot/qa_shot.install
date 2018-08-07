@@ -7,7 +7,6 @@
 
 use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\qa_shot\QAShotSchemaDefinitions;
 use Drupal\system\Entity\Action;
