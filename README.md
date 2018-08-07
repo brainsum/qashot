@@ -12,6 +12,16 @@ Features:
 
 QAShot is heavily in development. Breaking changes with no automatic upgrade paths might be introduced to it without notice. Use or update it at your own discretion.
 
+## Roadmap
+QAShot will undergo big changes in the future.
+
+### Remote BackstopJS execution
+We are developing a [QAShot Worker](https://github.com/brainsum/qashot_worker) project. This will serve as a remote execution stack independent from, but used with this Drupal based project.
+This will allow us to make the Drupal instance more lightweight and increase test execution speed.
+
+### Full rewrite
+We would like to also keep local run capabilities, but supporting both in a sustainable way is not possible. This means, a full back-end rewrite will start hopefully soon.
+
 ## Docker
 The project comes with a docker-compose.yml based on the Docker4Drupal environment (v1.3.0).
 A custom docker image is used for the PHP container, as we needed to include BackstopJS and its dependencies.
@@ -40,10 +50,11 @@ To import the existing configuration, you need to set the site uuid to the expor
 You also need to remove shortcuts from the fresh install, as the standard profile creates some by default:
 `drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'`    
 
-To run the tests, you need [BackstopJS 2.0](https://github.com/garris/BackstopJS "BackstopJS Repository") installed globally.
+To run the tests, you need [BackstopJS](https://github.com/garris/BackstopJS "BackstopJS Repository") installed globally.
 
 Detailed install guide is in the [INSTALL.md](/INSTALL.md)
 
 ## API
 
-At install this project sets automatically a RestApi. For more information how to use it see [API.md](/API.md) file.
+Endpoints are exposed by the ```qa_shot_rest_api``` module.
+For more information how to use it see [API.md](/API.md) file.
