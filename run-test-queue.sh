@@ -1,6 +1,7 @@
 #!/bin/sh
 # cd into the script location. The docker-compose.yml should also be in here, otherwise it's gonna lead to an error.
 #cd "${0%/*}" && /usr/local/bin/docker-compose exec --user 33 php sh -c "cd web && drush queue:run cron_run_qa_shot_test --time-limit 15"
+cd "${0%/*}" && /usr/local/bin/docker-compose exec --user 33 php sh -c "cd web && drush php:script modules/custom/qa_shot/tools/RunRemoteQueues >> /var/www/html/private_files/queue-run-debug.remote.txt"
 cd "${0%/*}" && /usr/local/bin/docker-compose exec --user 33 php sh -c "cd web && drush php:script modules/custom/qa_shot/tools/RunQAShotQueues >> /var/www/html/private_files/queue-run-debug.txt"
 
 # How to:
