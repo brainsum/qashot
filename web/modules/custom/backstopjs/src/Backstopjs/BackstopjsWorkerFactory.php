@@ -3,6 +3,7 @@
 namespace Drupal\backstopjs\Backstopjs;
 
 use Drupal\backstopjs\Service\FileSystem;
+use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
@@ -85,8 +86,18 @@ class BackstopjsWorkerFactory {
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function get($name): BackstopjsWorkerInterface {
+    // @todo @error @fixme @asap: Clean this up!
     if (!isset($this->backstopWorkers[$name])) {
-      $this->backstopWorkers[$name] = $this->workerManager->createInstance($name);
+      try {
+        $this->backstopWorkers[$name] = $this->workerManager->createInstance($name);
+      }
+      catch (PluginException $exception) {
+        $this->loggerChannelFactory->get('backstopjs')->warning('Could not create the "@name" worker. Falling back to "local".', [
+          '@name' => $name,
+        ]);
+
+        $this->backstopWorkers[$name] = $this->workerManager->createInstance('local');
+      }
     }
     return $this->backstopWorkers[$name];
   }
