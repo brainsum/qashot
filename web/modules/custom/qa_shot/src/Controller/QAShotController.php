@@ -10,6 +10,7 @@ use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Service\DataFormatter;
+use Drupal\qa_shot\Service\QueueManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -33,6 +34,13 @@ class QAShotController extends ControllerBase {
   protected $dataFormatter;
 
   /**
+   * The queue manager.
+   *
+   * @var \Drupal\qa_shot\Service\QueueManager
+   */
+  protected $queueManager;
+
+  /**
    * {@inheritdoc}
    *
    * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
@@ -40,7 +48,8 @@ class QAShotController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('qa_shot.data_formatter')
+      $container->get('qa_shot.data_formatter'),
+      $container->get('qa_shot.queue_manager')
     );
   }
 
@@ -49,9 +58,15 @@ class QAShotController extends ControllerBase {
    *
    * @param \Drupal\qa_shot\Service\DataFormatter $dataFormatter
    *   The data formatter.
+   * @param \Drupal\qa_shot\Service\QueueManager $queueManager
+   *   The queue manager.
    */
-  public function __construct(DataFormatter $dataFormatter) {
+  public function __construct(
+    DataFormatter $dataFormatter,
+    QueueManager $queueManager
+  ) {
     $this->dataFormatter = $dataFormatter;
+    $this->queueManager = $queueManager;
   }
 
   /**
@@ -87,7 +102,8 @@ class QAShotController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\RedirectResponse|array
    *   Redirect to the 'status' page.
    *
-   * @throws \InvalidArgumentException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function entityAddToQueue(RouteMatchInterface $routeMatch, Request $request) {
     if ($this->loadEntity($routeMatch)) {
@@ -97,23 +113,23 @@ class QAShotController extends ControllerBase {
     if ('a_b' === $this->entity->bundle()) {
       // If we come from a valid route, run the tests.
       try {
-        $this->entity->queue(NULL);
+        $this->queueManager->addTest($this->entity);
       }
       catch (QAShotBaseException $e) {
-        drupal_set_message($e->getMessage(), 'error');
+        $this->messenger->addMessage($e->getMessage(), 'error');
       }
     }
     elseif ('before_after' === $this->entity->bundle()) {
       // If we come from a valid route, run the tests.
       try {
-        $this->entity->queue($request->attributes->get('run_type'));
+        $this->queueManager->addTest($request->attributes->get('run_type'));
       }
       catch (QAShotBaseException $e) {
-        drupal_set_message($e->getMessage(), 'error');
+        $this->messenger->addMessage($e->getMessage(), 'error');
       }
     }
     else {
-      drupal_set_message($this->t('Running this type of test is not yet supported.'), 'error');
+      $this->messenger->addMessage($this->t('Running this type of test is not yet supported.'), 'error');
     }
 
     return $this->redirect('entity.qa_shot_test.run', ['qa_shot_test' => $this->entity->id()]);
@@ -136,9 +152,9 @@ class QAShotController extends ControllerBase {
       return ['#markup' => 'Invalid entity.'];
     }
 
-    $reportUrl = file_create_url($this->entity->getHtmlReportPath());
+    $reportUrl = \file_create_url($this->entity->getHtmlReportPath());
     $lastRun = $this->entity->getLastRunMetadataValue();
-    $reportTime = empty($lastRun) ? NULL : end($lastRun)['datetime'];
+    $reportTime = empty($lastRun) ? NULL : \end($lastRun)['datetime'];
     $resultExist = FALSE;
 
     foreach ($this->entity->getLifetimeMetadataValue() as $item) {
@@ -154,7 +170,7 @@ class QAShotController extends ControllerBase {
       $reportTime = $this->dataFormatter->dateAsAgo($reportDateTime);
     }
 
-    list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = array_values($this->entity->getLastRunTimes());
+    list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = \array_values($this->entity->getLastRunTimes());
 
     $build = [
       '#type' => 'markup',
@@ -188,7 +204,7 @@ class QAShotController extends ControllerBase {
     $fileName = $routeMatch->getParameters()->get('file_name');
 
     $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $entityId . '/debug/' . $fileName;
-    $contents = file_get_contents($debugPath);
+    $contents = \file_get_contents($debugPath);
 
     return [
       '#markup' => '<pre>' . $contents . '</pre>',

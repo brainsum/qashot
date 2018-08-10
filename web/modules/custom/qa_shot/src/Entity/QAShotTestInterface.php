@@ -345,14 +345,4 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    */
   public function getBrowser(): string;
 
-  /**
-   * Add the test to the queue.
-   *
-   * @param string|null $stage
-   *   The stage of the run.
-   * @param string $origin
-   *   The origin of the run request. Can be 'drupal' or 'rest_api'.
-   */
-  public function queue($stage, $origin = 'drupal');
-
 }

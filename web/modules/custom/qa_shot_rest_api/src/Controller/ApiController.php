@@ -11,6 +11,7 @@ use Drupal\Core\Url;
 use Drupal\qa_shot\Entity\QAShotTest;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Service\QAShotQueueData;
+use Drupal\qa_shot\Service\QueueManager;
 use Drupal\qa_shot\Service\RunTestImmediately;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -55,6 +56,13 @@ class ApiController extends ControllerBase {
   protected $testRunner;
 
   /**
+   * QAShot Queue Manager.
+   *
+   * @var \Drupal\qa_shot\Service\QueueManager
+   */
+  protected $queueManager;
+
+  /**
    * Create.
    *
    * {@inheritdoc}
@@ -62,13 +70,15 @@ class ApiController extends ControllerBase {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
    * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('serializer'),
       $container->get('qa_shot.queue_data'),
-      $container->get('qa_shot.immediately_test')
+      $container->get('qa_shot.immediately_test'),
+      $container->get('qa_shot.queue_manager')
     );
   }
 
@@ -83,19 +93,24 @@ class ApiController extends ControllerBase {
    *   Queue data service.
    * @param \Drupal\qa_shot\Service\RunTestImmediately $testRunner
    *   Test runner service.
+   * @param \Drupal\qa_shot\Service\QueueManager $queueManager
+   *   Queue manager.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     NormalizerInterface $serializer,
     QAShotQueueData $queueData,
-    RunTestImmediately $testRunner
+    RunTestImmediately $testRunner,
+    QueueManager $queueManager
   ) {
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->serializer = $serializer;
     $this->queueData = $queueData;
     $this->testRunner = $testRunner;
+    $this->queueManager = $queueManager;
   }
 
   /**
@@ -104,13 +119,11 @@ class ApiController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request.
    *
-   * @throws BadRequestHttpException
-   * @throws \InvalidArgumentException
-   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-   * @throws \LogicException
-   *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function queueTest(Request $request): JsonResponse {
     $settings = $this->parseRunnerSettings($request);
@@ -127,7 +140,7 @@ class ApiController extends ControllerBase {
     }
 
     try {
-      $message = $entity->queue($stage, 'rest_api');
+      $message = $this->queueManager->addTest($entity, $stage, 'rest_api');
       $responseCode = 'added_to_queue' === $message ? 201 : 202;
     }
     catch (QAShotBaseException $e) {

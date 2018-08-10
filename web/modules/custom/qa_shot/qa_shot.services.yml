@@ -34,3 +34,14 @@ services:
   qa_shot.immediately_test:
     class: Drupal\qa_shot\Service\RunTestImmediately
     arguments: ['@plugin.manager.qa_shot_queue_worker', '@qa_shot.test_queue_factory', '@entity_type.manager', '@logger.factory']
+
+  qa_shot.queue_manager:
+    class: Drupal\qa_shot\Service\QueueManager
+    arguments:
+      - '@qa_shot.test_queue_factory'
+      - '@backstopjs.worker_factory'
+      - '@logger.factory'
+      - '@messenger'
+      - '@current_user'
+      - '@datetime.time'
+      - '@config.factory'
