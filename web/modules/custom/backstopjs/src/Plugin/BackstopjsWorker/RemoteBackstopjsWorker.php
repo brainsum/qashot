@@ -121,12 +121,17 @@ class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
     }
 
     $backstopConfig = \json_decode(\file_get_contents($entity->getConfigurationPath()), TRUE);
-    // Until the worker is fully completed, use chrome/puppeteer only.
-    $backstopConfig['engine'] = 'puppeteer';
+    // Send chrome only until we finish work on other workers.
+    $requestData = [
+      'browser' => 'chrome',
+      'mode' => 'a_b',
+      'stage' => '',
+      'test_config' => $backstopConfig,
+    ];
 
     $requestOptions = [
       // @todo: auth
-      'json' => $backstopConfig,
+      'json' => $requestData,
       'connect_timeout' => 10,
     ];
 
