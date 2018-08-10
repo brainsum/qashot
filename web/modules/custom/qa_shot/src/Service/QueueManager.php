@@ -133,7 +133,6 @@ class QueueManager {
    *   Status string.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function addTest(QAShotTestInterface $test, string $stage = NULL, string $origin = 'drupal'): string {
     // Add the test entity and the requested stage to the item.
@@ -204,14 +203,8 @@ class QueueManager {
    *   Status string.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   protected function addRemoteTest(QAShotTestInterface $test, \stdClass $item): string {
-    // @todo: Move to remote queue.
-    /** @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerInterface $remoteWorker */
-    $remoteWorker = $this->backstopWorkerFactory->get('remote');
-    $remoteWorker->run('chrome', 'reference', $test);
-
     // Try to add the test to the drupal queue.
     if (FALSE !== $this->remoteQueue->createItem($item)) {
       try {
