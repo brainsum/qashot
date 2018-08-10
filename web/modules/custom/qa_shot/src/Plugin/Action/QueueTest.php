@@ -5,6 +5,7 @@ namespace Drupal\qa_shot\Plugin\Action;
 use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\Core\Access\AccessResultForbidden;
 use Drupal\Core\Action\ActionBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\qa_shot\Service\QueueManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -18,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   type = "qa_shot_test"
  * )
  */
-class QueueTest extends ActionBase {
+class QueueTest extends ActionBase implements ContainerFactoryPluginInterface {
 
   protected $queueManager;
 
