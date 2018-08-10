@@ -458,6 +458,9 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       case QAShotQueue::QUEUE_STATUS_RUNNING:
         return t('Running, please be patient...');
 
+      case QAShotQueue::QUEUE_STATUS_REMOTE:
+        return t('Test is running remotely, please be patient...');
+
       case QAShotQueue::QUEUE_STATUS_ERROR:
         return t('There was an error!');
 
