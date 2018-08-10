@@ -27,6 +27,7 @@ class QAShotQueue implements QAShotQueueInterface {
 
   const QUEUE_STATUS_IDLE = 'idle';
   const QUEUE_STATUS_WAITING = 'waiting';
+  const QUEUE_STATUS_REMOTE = 'remote';
   const QUEUE_STATUS_RUNNING = 'running';
   const QUEUE_STATUS_ERROR = 'error';
 
@@ -311,11 +312,14 @@ class QAShotQueue implements QAShotQueueInterface {
   /**
    * {@inheritdoc}
    */
-  public function getItems($name = NULL): array {
+  public function getItems($name = NULL, $status = NULL): array {
     $query = $this->connection->select(static::TABLE_NAME);
     $query->fields(static::TABLE_NAME);
     if (NULL !== $name) {
       $query->condition('queue_name', $name);
+    }
+    if (NULL !== $status) {
+      $query->condition('status', $status);
     }
     $rows = $query->execute();
     return $rows->fetchAll(PDO::FETCH_CLASS);

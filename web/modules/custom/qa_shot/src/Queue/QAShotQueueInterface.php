@@ -152,15 +152,19 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
   /**
    * Returns items for a single or every queue.
    *
+   * You can also specify the status of the items.
+   *
    * @param string $name
    *   Queue name.
+   * @param string $status
+   *   Item status.
    *
    * @return array
    *   The items.
    *
    * @throws \Drupal\Core\Database\InvalidQueryException
    */
-  public function getItems($name = NULL): array;
+  public function getItems($name = NULL, $status = NULL): array;
 
   /**
    * Update the status for an item.
