@@ -70,6 +70,7 @@
         "drush/drush": "^9.0",
         "jaypan/jquery_colorpicker": "^1.0",
         "php-ai/php-ml": "^0.4.1",
+        "php-amqplib/php-amqplib": "^2.7",
         "roave/security-advisories": "dev-master",
         "webflo/drupal-finder": "^1.0",
         "webmozart/path-util": "^2.3"
