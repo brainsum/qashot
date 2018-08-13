@@ -101,7 +101,6 @@ class CliRemoteQueueRunner {
       '@datetime' => $date->format('Y-m-d H:i:s'),
     ]));
 
-
     $items = $this->queue->getItems(self::QUEUE_NAME, QAShotQueue::QUEUE_STATUS_WAITING);
     $itemCount = \count($items);
     $this->messenger->addMessage($this->t('The "@queue" has @count items waiting.', [
@@ -249,7 +248,9 @@ class CliRemoteQueueRunner {
   }
 
   /**
-   * @todo: TEST.
+   * Consume every message from the remote queue.
+   *
+   * @todo Test.
    */
   public function consumeAll() {
     $rabbitConsumer = new AmqpLib();

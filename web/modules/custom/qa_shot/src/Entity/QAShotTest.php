@@ -2,7 +2,6 @@
 
 namespace Drupal\qa_shot\Entity;
 
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
@@ -425,8 +424,9 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function getQueueStatus(): array {
-    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueData */
-    $queueData = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueDataService */
+    $queueDataService = \Drupal::service('qa_shot.queue_data');
+    $queueData = $queueDataService->getDataFromQueue($this->id());
 
     if (empty($queueData)) {
       return [QAShotQueue::QUEUE_STATUS_IDLE];
@@ -439,8 +439,9 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function getHumanReadableQueueStatus(): string {
-    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueData */
-    $queueData = \Drupal::service('qa_shot.queue_data')->getDataFromQueue($this->id());
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueDataService */
+    $queueDataService = \Drupal::service('qa_shot.queue_data');
+    $queueData = $queueDataService->getDataFromQueue($this->id());
 
     if (empty($queueData)) {
       return t('Idle');
