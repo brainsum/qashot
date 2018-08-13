@@ -5,6 +5,7 @@ namespace Drupal\qa_shot\Cli;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Queue\QAShotQueue;
+use GuzzleHttp\Exception\ClientException;
 
 /**
  * Class CliRemoteQueueRunner.
@@ -153,12 +154,11 @@ class CliRemoteQueueRunner {
    */
   protected function publish(QAShotTestInterface $test): bool {
     $result = $this->sendToRemote($test);
-    $this->messenger->addMessage('Test @tid: @message.', [
+    $this->messenger->addMessage($this->t('Test @tid: @code | @message', [
       '@tid' => $test->id(),
+      '@code' => $result['code'],
       '@message' => $result['message'],
-    ]);
-
-    $this->messenger->addMessage('Status code: ' . $result['code']);
+    ]));
 
     $isErrorResult = ((int) $result['code'] === 204 || (int) $result['code'] >= 400);
 
@@ -187,9 +187,13 @@ class CliRemoteQueueRunner {
     }
 
     $backstopConfig = \json_decode(\file_get_contents($test->getConfigurationPath()), TRUE);
+    if (NULL === $backstopConfig) {
+      $backstopConfig = [];
+    }
     // Send chrome only until we finish work on other workers.
     $requestData = [
-      'browser' => 'chrome',
+      'browser' => $test->getBrowser(),
+      // @todo: Send the actual mode and stage.
       'mode' => 'a_b',
       'stage' => '',
       'test_config' => $backstopConfig,
@@ -204,12 +208,32 @@ class CliRemoteQueueRunner {
     try {
       $response = $this->httpClient->post($this->remoteHost . self::ENDPOINT_TEST_ADD, $requestOptions);
     }
+    catch (ClientException $exception) {
+      $this->logger->warning('Client error! Could not push test (ID: ' . $test->id() . ')  to the remote worker. See: ' . $exception->getMessage());
+      $response = $exception->getResponse();
+      if (NULL === $response) {
+        return [
+          'code' => $exception->getCode(),
+          'message' => $exception->getMessage(),
+          'reason' => '',
+          'errors' => [],
+        ];
+      }
+      $remoteMessage = \json_decode($response->getBody()->getContents(), TRUE);
+      return [
+        'code' => $response->getStatusCode(),
+        'message' => $remoteMessage['message'],
+        'reason' => $response->getReasonPhrase(),
+        'errors' => $remoteMessage['errors'] ?? [],
+      ];
+    }
     catch (\Exception $exception) {
-      $this->logger->warning('Could not push test (ID: ' . $test->id() . ')  to the remote worker. See: ' . $exception->getMessage());
+      $this->logger->warning('Unknown error! Could not push test (ID: ' . $test->id() . ')  to the remote worker. See: ' . $exception->getMessage());
       return [
         'code' => $exception->getCode(),
         'message' => $exception->getMessage(),
         'reason' => '',
+        'errors' => [],
       ];
     }
 
@@ -217,14 +241,19 @@ class CliRemoteQueueRunner {
     $this->logger->info('Test (ID: ' . $test->id() . ') pushed to the remote worker. Message: ' . $remoteMessage['message']);
 
     return [
-      'message' => $response->getBody()->getContents(),
-      'reason' => $response->getReasonPhrase(),
       'code' => $response->getStatusCode(),
+      'message' => $remoteMessage['message'],
+      'reason' => $response->getReasonPhrase(),
+      'errors' => $remoteMessage['errors'] ?? [],
     ];
   }
 
+  /**
+   * @todo: TEST.
+   */
   public function consumeAll() {
-
+    $rabbitConsumer = new AmqpLib();
+    $rabbitConsumer->consumeAll();
   }
 
 }
