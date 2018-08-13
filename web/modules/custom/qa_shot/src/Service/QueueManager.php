@@ -143,6 +143,30 @@ class QueueManager {
     $queueItem->origin = $origin;
     $queueItem->data = NULL;
 
+    /* @todo
+     * Refactor the whole project.
+     * - Use QAShotBackend instead of BackstopJS workers.
+     * - Queue remake:
+     *    - Make each worker use their own queue (?)
+     *      - Worker: type (remote, local)
+     *      - Global settings (remote, local) vs per-test vs some load balance?
+     *    - Use 2 queues (remote, local) and allow workers to subscribe (?)
+     *    - Set up a QueueWorker, add a "type" and allow workers to create them.
+     *
+     * Desired:
+     * - Press "add to queue"
+     * - Put the test into a queue according to the global config
+     * - Execute a queue with one (or more) workers controlled by cron
+     *
+     * Notes:
+     * - We probably should allow for multiple queues and workers
+     * - Queue naming: qa_shot_{type}_{backend}_queue
+     * - Or use a unified queue and execute according to type + backend (?)
+     * - Maybe allow registering workers and use load balancing to put them into
+     *   the appropriate queue/type
+     * - We should allow multiple remote endpoints.
+     */
+    // @todo: Re-generate the QAShot config.
     if ('remote' === $this->config->get('suite.location')) {
       return $this->addRemoteTest($test, $queueItem);
     }
