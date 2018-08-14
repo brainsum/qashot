@@ -48,11 +48,11 @@ class CliRemoteQueueRunner {
   protected $testStorage;
 
   /**
-   * BackstopJS settings.
+   * The config factory.
    *
-   * @var \Drupal\Core\Config\ImmutableConfig
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected $config;
+  protected $configFactory;
 
   /**
    * The remote host URL.
@@ -86,8 +86,8 @@ class CliRemoteQueueRunner {
 
     $this->httpClient = \Drupal::httpClient();
 
-    $this->config = \Drupal::configFactory()->get('backstopjs.settings');
-    $this->remoteHost = $this->config->get('suite.remote_host');
+    $this->configFactory = \Drupal::configFactory();
+    $this->remoteHost = $this->configFactory->get('backstopjs.settings')->get('suite.remote_host');
 
     $this->logger = \Drupal::logger('qa_shot');
   }
@@ -248,13 +248,28 @@ class CliRemoteQueueRunner {
   }
 
   /**
-   * Consume every message from the remote queue.
-   *
-   * @todo Test.
+   * Consume messages from the remote queue.
    */
   public function consumeAll() {
-    $rabbitConsumer = new AmqpLib();
-    $rabbitConsumer->consumeAll();
+    $mqSettings = $this->configFactory->get('rabbitmq.settings');
+
+    try {
+      $mqLib = new BunnyLib(
+        $mqSettings->get('connection'),
+        $mqSettings->get('channels')
+      );
+    }
+    catch (\Exception $exception) {
+      $this->messenger->addMessage($exception->getMessage());
+      return;
+    }
+
+    $messages = $mqLib->consumeMultiple();
+    $messageCount = \count($messages);
+    $this->messenger->addMessage("Consumtion ended, received messages: $messageCount\n");
+    // @todo:
+    // Update test status in queue.
+    // Update test entity status.
   }
 
 }
