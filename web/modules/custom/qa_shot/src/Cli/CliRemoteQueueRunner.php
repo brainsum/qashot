@@ -189,12 +189,16 @@ class CliRemoteQueueRunner {
     if (NULL === $backstopConfig) {
       $backstopConfig = [];
     }
+
     // Send chrome only until we finish work on other workers.
     $requestData = [
       'browser' => $test->getBrowser(),
       // @todo: Send the actual mode and stage.
       'mode' => 'a_b',
       'stage' => '',
+      'uuid' => $test->uuid(),
+      'origin' => 'drupal',
+      'environment' => $this->configFactory->get('qashot.settings')->get('current_environment'),
       'test_config' => $backstopConfig,
     ];
 
