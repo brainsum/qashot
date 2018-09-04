@@ -199,3 +199,41 @@ Well, this happens when you don't have a properly setted temp directory. Go to /
 "Filename directory name or volume label syntax is incorrect" error at drush run (Windows, ADD)
 
 Long story in short, your global drush and local drush conflicts. Delete drush\* files from <gitroot>/vendor/bin . Than you will be able to run drush.
+
+## Required settings.php overrides
+
+* For sending data to the remove worker:
+
+```
+$config['qashot.settings']['current_environment'] = 'development';
+if (isset($_ENV['PROJECT_ENVIRONMENT']) && \is_string($_ENV['PROJECT_ENVIRONMENT'])) {
+  $config['qashot.settings']['current_environment'] = $_ENV['PROJECT_ENVIRONMENT'];
+}
+```
+```
+$config['backstopjs.settings']['suite']['remote_host'] = '<the host>';
+```
+
+* For getting data from the remote queue:
+```
+$config['rabbitmq.settings'] = [
+  'connection' => [
+    'host' => '<the host>',
+    'port' => <port>,
+    'user' => 'user',
+    'pass' => 'pass',
+    'vhost' => '/',
+    'timeout' => 30,
+    'heartbeat' => 60,
+  ],
+  'channels' => [
+    'channel_name' => [
+      'exchange' => 'exchange name',
+      'queue' => 'queue name',
+      'routing_key' => 'routing_key',
+      'prefetch' => 'prefetch count',
+    ],
+    ...
+  ],
+];
+```
