@@ -151,7 +151,7 @@ class ConfigurationConverter {
 
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
-      'id' => $entityId,
+      'id' => $entity->uuid(),
       'viewports' => $this->viewportToArray($entity->getFieldViewport()),
       'scenarios' => $this->scenarioToArray(
         $entity->getFieldScenario(),
