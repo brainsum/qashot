@@ -152,6 +152,7 @@ class ConfigurationConverter {
     $mapConfigToArray = [
       // @todo: maybe id + revision id.
       'id' => $entity->uuid(),
+      'fileNameTemplate' => '{scenarioLabel}_{selectorIndex}_{selectorLabel}_{viewportIndex}_{viewportLabel}',
       'viewports' => $this->viewportToArray($entity->getFieldViewport()),
       'scenarios' => $this->scenarioToArray(
         $entity->getFieldScenario(),
