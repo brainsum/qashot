@@ -7,3 +7,4 @@ dependencies:
   - drupal:paragraphs
   - drupal:serialization
   - drupal:jquery_colorpicker
+  - backstopjs:backstopjs

@@ -4,4 +4,4 @@ description: Module for BackstopJS abstraction.
 core: 8.x
 package: QAShot
 dependencies:
-  - drupal:qa_shot
+  - qa_shot:qa_shot
