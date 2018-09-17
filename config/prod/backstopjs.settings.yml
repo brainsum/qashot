@@ -10,6 +10,6 @@ backstopjs:
     use_cross_origin: 1
     fallback_color: FF00FF
 suite:
-  location: local
+  location: remote
   binary_path: ''
   remote_locations: 'backstop_node:3000'
