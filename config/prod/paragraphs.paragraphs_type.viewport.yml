@@ -4,4 +4,6 @@ status: true
 dependencies: {  }
 id: viewport
 label: Viewport
+icon_uuid: null
+description: null
 behavior_plugins: {  }
