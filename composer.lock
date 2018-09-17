@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7739b5c56052ea8d905185b77410c894",
+    "content-hash": "46b6910b4c5d7dd7b621f6e87761604b",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -6538,7 +6538,8 @@
                 "source": "http://cgit.drupalcode.org/examples",
                 "issues": "https://www.drupal.org/project/issues/examples",
                 "documentation": "https://api.drupal.org/api/examples"
-            }
+            },
+            "time": "2018-09-10T23:01:03+00:00"
         },
         {
             "name": "drupal/maillog",
@@ -8333,7 +8334,9 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.0"
+        "php": "^7.0",
+        "ext-json": "*",
+        "ext-pdo": "*"
     },
     "platform-dev": []
 }
