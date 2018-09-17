@@ -95,13 +95,13 @@ Check your installation, if your chosen one is able to run from anywhere, you ar
 3. Get drupal and module files  
 `composer install`
 4. Set correct access and rights (you don't need this on Windows):
-    1. `sudo chgrp 33 . -R`
-    2. `sudo chown 33 private\_files web/sites/default/files -R`  
-Note: 33 is the UID and GID of the www-data user inside the docker container. If your host has this user with the same IDs, then you can replace the numbers with  www-data.
+    1. `sudo chgrp 1000 . -R`
+    2. `sudo chown 1000 private\_files web/sites/default/files -R`
+Note: 1000 is the UID and GID of the wodby user inside the docker container. By default, this should also be your own user UID/GID on the host.
 5. Start the docker container  
 `docker-compose up -d`
 6. Enter to docker container  
-`docker-compose exec --user 33 php bash`
+`docker-compose exec php bash`
 7. Install site:  
 `cd web`  
 `drush si --site-name=QAShot --site-mail=qashot@test.com --account-name=admin --account-pass=123 --db-url=mysql://drupal:drupal@mariadb/drupal standard`  
