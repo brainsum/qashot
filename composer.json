@@ -56,6 +56,8 @@
     ],
     "require": {
         "php": "^7.0",
+        "ext-json": "*",
+        "ext-pdo": "*",
         "bunny/bunny": "^0.4.0",
         "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6",
