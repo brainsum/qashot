@@ -1,0 +1,19 @@
+uuid: 818d2470-8369-4081-894c-41a4840eb47a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_remote_html_report_path
+    - qa_shot.qa_shot_test_type.a_b
+id: qa_shot_test.a_b.field_remote_html_report_path
+field_name: field_remote_html_report_path
+entity_type: qa_shot_test
+bundle: a_b
+label: 'Remote HTML Report Path'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

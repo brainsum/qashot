@@ -7,6 +7,7 @@ dependencies:
     - field.field.qa_shot_test.a_b.field_configuration_path
     - field.field.qa_shot_test.a_b.field_diff_color
     - field.field.qa_shot_test.a_b.field_html_report_path
+    - field.field.qa_shot_test.a_b.field_remote_html_report_path
     - field.field.qa_shot_test.a_b.field_scenario
     - field.field.qa_shot_test.a_b.field_tag
     - field.field.qa_shot_test.a_b.field_tester_engine
@@ -102,5 +103,6 @@ content:
 hidden:
   field_configuration_path: true
   field_html_report_path: true
+  field_remote_html_report_path: true
   field_tester_engine: true
   viewport: true
