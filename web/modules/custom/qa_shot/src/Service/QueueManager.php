@@ -3,6 +3,8 @@
 namespace Drupal\qa_shot\Service;
 
 use Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory;
+use Drupal\backstopjs\Exception\InvalidConfigurationException;
+use Drupal\backstopjs\Exception\InvalidEntityException;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityStorageException;
@@ -133,8 +135,15 @@ class QueueManager {
    *   Status string.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
+   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    */
   public function addTest(QAShotTestInterface $test, string $stage = NULL, string $origin = 'drupal'): string {
+    /** @var \Drupal\backstopjs\Service\Backstop $backstopService */
+    // @todo: Fixme.
+    $backstopService = \Drupal::service('backstopjs.backstop');
+    $backstopService->prepareTest($test);
+
     // Add the test entity and the requested stage to the item.
     // @todo: Change?
     $queueItem = new \stdClass();

@@ -250,7 +250,7 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\Core\Entity\EntityStorageException
    * @throws \InvalidArgumentException
    */
-  private function prepareTest(QAShotTestInterface $entity) {
+  public function prepareTest(QAShotTestInterface $entity) {
     if (NULL === $entity) {
       drupal_set_message($this->t('Trying to run test on NULL.'), 'error');
       throw new InvalidEntityException('Entity is empty.');
