@@ -97,7 +97,7 @@ Check your installation, if your chosen one is able to run from anywhere, you ar
 4. Set correct access and rights (you don't need this on Windows):
     1. `sudo chown 1000:1000 . -R`
         1. Note: 1000 is the UID and GID of the wodby user inside the docker container. By default, this should also be your own user UID/GID on the host.
-    2. `sudo chown 82:82 private\_files web/sites/default/files -R`
+    2. `sudo chown 1000:82 private\_files web/sites/default/files -R`
         1. Note: 82 is the UID and GID of the www-data user inside the docker container.
 5. Start the docker container
 `docker-compose up -d`
