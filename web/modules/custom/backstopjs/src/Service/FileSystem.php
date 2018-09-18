@@ -233,6 +233,7 @@ class FileSystem {
     $this->copyTemplates($templateBaseFolder . '/' . $templateFolder, $configAsArray['paths']['engine_scripts']);
 
     // If the paths changed we save them.
+    // @todo: Re-visit this and make it not clash with remote.
     if (
       $entity->getConfigurationPath() !== $configPath ||
       $entity->getHtmlReportPath() !== $reportPath
