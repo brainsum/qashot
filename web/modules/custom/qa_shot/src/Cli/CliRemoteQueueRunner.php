@@ -2,6 +2,8 @@
 
 namespace Drupal\qa_shot\Cli;
 
+use Drupal\backstopjs\Exception\InvalidRunnerOptionsException;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Queue\QAShotQueue;
@@ -273,7 +275,7 @@ class CliRemoteQueueRunner {
 
     $payload = [
       'origin' => $this->configFactory->get('qashot.settings')->get('instance_id'),
-      'uuids' => $uuids,
+      'testUuids' => $uuids,
     ];
 
     $requestOptions = [
@@ -322,7 +324,7 @@ class CliRemoteQueueRunner {
 
     return [
       'code' => $response->getStatusCode(),
-      'results' => $results,
+      'results' => $results['results'],
       'reason' => $response->getReasonPhrase(),
       'errors' => $remoteMessage['errors'] ?? [],
     ];
@@ -375,13 +377,35 @@ class CliRemoteQueueRunner {
     }
 
     // @todo: Display/Log errors.
-    $this->logger->debug(\var_export($results, TRUE));
+    \file_put_contents('private://remote_test_data/' . \time() . '.json', \json_encode($results));
 
-    foreach ($uuids as $uuid) {
-      // @todo: save data for $results[$uuid];
-      // -- Fetch images from remote and save them properly.
-      // -- Update metadata properly.
-      // -- Save additional metadata as raw data or a file.
+    $remainingTestUuids = $uuids;
+    foreach ($results as $resultData) {
+      $uuid = $resultData['data']['metadata']['id'];
+      $testUuidIndex = \array_search($uuid, $remainingTestUuids, TRUE);
+      if (FALSE !== $testUuidIndex) {
+        unset($remainingTestUuids[$testUuidIndex]);
+      }
+
+      /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+      $tests = $this->testStorage->loadByProperties(['uuid' => $uuid]);
+      $test = \reset($tests);
+      // @note This should not happen, btw.
+      if (NULL === $test) {
+        $this->messenger->addMessage("UUID $uuid has no test.");
+        continue;
+      }
+
+      $this->messenger->addMessage("UUID $uuid has results.");
+
+      $status = $this->saveResults($test, $resultData['data']);
+      $this->logger->debug("Result save status: $status");
+
+      // @todo: Update queue item status.
+      // @todo: use the RemoteHtmlReportPath in displays.
+      // @todo: Save additional metadata as raw data or a file.
+      //
+      // @todo: Error handling.
       // @todo: if the uuid is not set and it did not error,
       // leave it in the queue QUEUE_STATUS_REMOTE.
       // Maybe update lease time as well.
@@ -389,9 +413,182 @@ class CliRemoteQueueRunner {
     }
 
     $resultCount = \count($results);
+    $remainingCount = \count($remainingTestUuids);
     $this->messenger->addMessage('Fetch ended.');
     $this->messenger->addMessage("-- Requested $uuidCount results.");
     $this->messenger->addMessage("-- Received $resultCount results.");
+    $this->messenger->addMessage("-- Remaining $remainingCount results.");
+  }
+
+  /**
+   * Save results.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
+   *   The test.
+   * @param array $results
+   *   The results.
+   *
+   * @return int
+   *   SAVED_NEW or SAVED_UPDATED.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\backstopjs\Exception\InvalidRunnerOptionsException
+   */
+  protected function saveResults(QAShotTestInterface $test, array $results): int {
+    if ('a_b' === $results['metadata']['mode']) {
+      $containsResults = TRUE;
+    }
+    elseif ('before_after' === $results['metadata']['mode']) {
+      $containsResults = $results['metadata']['stage'] === 'after';
+    }
+    else {
+      throw new InvalidRunnerOptionsException('The test mode is invalid or the app was not prepared for it.');
+    }
+
+    $metadata = [
+      'mode' => $results['metadata']['mode'],
+      'stage' => $results['metadata']['stage'],
+      'queue_name' => 'qa_shot_remote_queue',
+      'runner_name' => 'remote',
+      'test_suite' => 'remote',
+      'tool' => 'backstopjs',
+      'browser' => $results['metadata']['browser'],
+      'engine' => $results['metadata']['engine'],
+      'viewport_count' => (int) $results['metadata']['viewportCount'],
+      'scenario_count' => (int) $results['metadata']['scenarioCount'],
+      // @todo: Save as timestamp.
+      'datetime' => (new DrupalDateTime($results['sentAt']))->format('Y-m-d H:i:s'),
+      'duration' => (float) $results['metadata']['duration']['full']['duration'],
+      'passed_count' => $results['metadata']['passedCount'],
+      'failed_count' => $results['metadata']['failedCount'],
+      'pass_rate' => (float) $results['metadata']['passRate'],
+      'contains_result' => $containsResults,
+      'success' => (bool) $results['metadata']['success'],
+    ];
+
+    $result = $this->parseScreenshots($results['results'], $test);
+
+    $this->logger->debug(\var_export([
+      'metadata' => $metadata,
+      'result' => $result,
+    ], TRUE));
+
+    // @todo: Also save these.
+    unset(
+      $metadata['mode'],
+      $metadata['tool'],
+      $metadata['browser'],
+      $metadata['engine'],
+      $metadata['test_suite'],
+      $metadata['queue_name'],
+      $metadata['runner_name']
+    );
+    $test->setRemoteHtmlReportPath($results['resultsUrl']);
+    $test->setResult($result);
+    $test->addMetadata($metadata);
+    return $test->save();
+  }
+
+  /**
+   * Get the result screenshots.
+   *
+   * @param array $results
+   *   The results from remote.
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
+   *   The test entity.
+   *
+   * @return array
+   *   The screenshots.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function parseScreenshots(array $results, QAShotTestInterface $test): array {
+    $scenarioIds = $this->scenarioNameToIdMap($test);
+    $viewportIds = $this->viewportNameToIdMap($test);
+
+    $screenshots = [];
+    foreach ($results as $result) {
+      $scenarioId = $scenarioIds[$result['scenarioLabel']] ?? NULL;
+      if (NULL === $scenarioId) {
+        throw new \RuntimeException('The "' . $result['scenarioLabel'] . '" scenario does not exist for test ' . $test->id() . '.');
+      }
+      $viewportId = $viewportIds[$result['viewportLabel']] ?? NULL;
+      if (NULL === $viewportId) {
+        throw new \RuntimeException('The "' . $result['viewportLabel'] . '" viewport does not exist for test ' . $test->id() . '.');
+      }
+
+      $screenshots[] = [
+        'scenario_id' => (int) $scenarioId,
+        'viewport_id' => (int) $viewportId,
+        'reference' => $result['referenceUrl'] ?? '',
+        'test' => $result['referenceUrl'] ?? '',
+        'diff' => $result['referenceUrl'] ?? '',
+        'success' => (bool) $result['success'],
+      ];
+    }
+
+    return $screenshots;
+  }
+
+  /**
+   * Create a name/id map for scenarios.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
+   *   The test.
+   *
+   * @return array
+   *   A "scenario name" => "scenario id" map.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  protected function scenarioNameToIdMap(QAShotTestInterface $test): array {
+    $scenarioIds = array_map(function ($item) {
+      return $item['target_id'];
+    }, $test->getFieldScenario()->getValue(TRUE));
+
+    $paragraphStorage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    $scenarios = $paragraphStorage->loadMultiple($scenarioIds);
+
+    $map = [];
+    /** @var \Drupal\paragraphs\ParagraphInterface $scenario */
+    foreach ($scenarios as $scenario) {
+      $map[$scenario->get('field_label')->value] = $scenario->id();
+    }
+
+    return $map;
+  }
+
+  /**
+   * Create a name/id map for viewports.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
+   *   The test.
+   *
+   * @return array
+   *   A "viewport name" => "viewport id" map.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  protected function viewportNameToIdMap(QAShotTestInterface $test): array {
+    $viewportIds = array_map(function ($item) {
+      return $item['target_id'];
+    }, $test->getFieldViewport()->getValue(TRUE));
+
+    $paragraphStorage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    $viewports = $paragraphStorage->loadMultiple($viewportIds);
+
+    $map = [];
+    /** @var \Drupal\paragraphs\ParagraphInterface $viewport */
+    foreach ($viewports as $viewport) {
+      $map[$viewport->get('field_name')->value] = $viewport->id();
+    }
+
+    return $map;
   }
 
 }
