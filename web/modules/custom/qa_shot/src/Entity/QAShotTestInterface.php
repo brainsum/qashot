@@ -211,6 +211,25 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
   public function setHtmlReportPath($htmlReportPath): QAShotTestInterface;
 
   /**
+   * Return the path to the backstop-generated report.
+   *
+   * @return string|null
+   *   The path to the Backstop-generated report.
+   */
+  public function getRemoteHtmlReportPath();
+
+  /**
+   * Set the remote report path.
+   *
+   * @param string $htmlReportPath
+   *   The path to the report.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The called QAShot Test entity.
+   */
+  public function setRemoteHtmlReportPath($htmlReportPath): QAShotTestInterface;
+
+  /**
    * Adds metadata to the entity.
    *
    * Each entity features two metadata fields:
