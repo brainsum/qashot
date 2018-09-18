@@ -1,0 +1,21 @@
+uuid: 779e1e6d-cf4e-4c11-ae23-663ab8fac21d
+langcode: en
+status: true
+dependencies:
+  module:
+    - qa_shot
+id: qa_shot_test.field_remote_html_report_path
+field_name: field_remote_html_report_path
+entity_type: qa_shot_test
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

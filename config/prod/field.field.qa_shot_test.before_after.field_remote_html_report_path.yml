@@ -1,0 +1,19 @@
+uuid: 056cd5b5-0a4d-408f-a397-0801ad20069d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.qa_shot_test.field_remote_html_report_path
+    - qa_shot.qa_shot_test_type.before_after
+id: qa_shot_test.before_after.field_remote_html_report_path
+field_name: field_remote_html_report_path
+entity_type: qa_shot_test
+bundle: before_after
+label: 'Remote HTML Report Path'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

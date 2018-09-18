@@ -282,6 +282,20 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
+  public function getRemoteHtmlReportPath() {
+    return $this->get('field_remote_html_report_path')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setRemoteHtmlReportPath($htmlReportPath): QAShotTestInterface {
+    return $this->set('field_remote_html_report_path', $htmlReportPath);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function addMetadata(array $metadata): QAShotTestInterface {
     $this->get('metadata_lifetime')->appendItem($metadata);
     return $this;
