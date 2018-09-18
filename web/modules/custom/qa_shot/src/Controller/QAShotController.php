@@ -116,7 +116,7 @@ class QAShotController extends ControllerBase {
         $this->queueManager->addTest($this->entity);
       }
       catch (QAShotBaseException $e) {
-        $this->messenger->addMessage($e->getMessage(), 'error');
+        $this->messenger()->addMessage($e->getMessage(), 'error');
       }
     }
     elseif ('before_after' === $this->entity->bundle()) {
@@ -125,11 +125,11 @@ class QAShotController extends ControllerBase {
         $this->queueManager->addTest($request->attributes->get('run_type'));
       }
       catch (QAShotBaseException $e) {
-        $this->messenger->addMessage($e->getMessage(), 'error');
+        $this->messenger()->addMessage($e->getMessage(), 'error');
       }
     }
     else {
-      $this->messenger->addMessage($this->t('Running this type of test is not yet supported.'), 'error');
+      $this->messenger()->addMessage($this->t('Running this type of test is not yet supported.'), 'error');
     }
 
     return $this->redirect('entity.qa_shot_test.run', ['qa_shot_test' => $this->entity->id()]);
