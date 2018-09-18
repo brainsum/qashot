@@ -47,17 +47,17 @@ Continue with: [Linux/Mac guide with docker](#install-qashot-on-linuxmac-with-do
 
 ### Install drupal
 
-1. Clone the repo to your favorite place:  
+1. Clone the repo to your favorite place:
 `git clone https://github.com/brainsum/qashot qashot`
 2. Enter the directory: `cd qashot`
-3. Get drupal and module files  
+3. Get drupal and module files
 `composer install`
 4. Import this site to your favorite apache+php config (i.e. XAMPP, Acquia Dev Desktop)  
-**NOTE: at least PHP 7.0 required!**  
-Webroot: `<git-root>/web`  
+**NOTE: at least PHP 7.0 required!**
+Webroot: `<git-root>/web`
 Create also a virtual host for it if your program didn't do that. (like: `qashot.localhost` or `qashot.lh` or `qashot.dd`)  
 After you finished: `cd web`
-5. Install site:  
+5. Install site:
 `drush si --site-name=QAShot --site-mail=qashot@test.com --account-name=admin --account-pass=123 --db-url=mysql://username:password@localhost/qashot standard`  
 **NOTE**: don't forget to change the DB's user, password etc. in this command if needed! 
 6. Modify settings.php (add these lines):
@@ -76,7 +76,7 @@ Install at least one of the following (globally):
 
 1. BackstopJS ([https://github.com/garris/BackstopJS](https://github.com/garris/BackstopJS)) (`npm install -g backstopjs`)
 2. SlimerJS ([https://slimerjs.org/download.html](https://slimerjs.org/download.html))  
-This will need firefox, too: `sudo apt-get install firefox=45.\*`  
+This will need firefox, too: `sudo apt-get install firefox=45.\*`
 As well as xvfb: `sudo apt-get install xvfb`
 
 Check your installation, if your chosen one is able to run from anywhere, you are done, if not, you need to add your bin location to PATH variables, which probably need a system restart.
@@ -89,21 +89,22 @@ Check your installation, if your chosen one is able to run from anywhere, you ar
 
 ### Install drupal
 
-1. Clone repo to your favorite place:  
+1. Clone repo to your favorite place:
 `git clone https://github.com/brainsum/qashot qashot`
 2. Enter the directory: `cd qashot`
-3. Get drupal and module files  
+3. Get drupal and module files
 `composer install`
 4. Set correct access and rights (you don't need this on Windows):
-    1. `sudo chgrp 1000 . -R`
-    2. `sudo chown 1000 private\_files web/sites/default/files -R`
-Note: 1000 is the UID and GID of the wodby user inside the docker container. By default, this should also be your own user UID/GID on the host.
-5. Start the docker container  
+    1. `sudo chown 1000:1000 . -R`
+        1. Note: 1000 is the UID and GID of the wodby user inside the docker container. By default, this should also be your own user UID/GID on the host.
+    2. `sudo chown 82:82 private\_files web/sites/default/files -R`
+        1. Note: 82 is the UID and GID of the www-data user inside the docker container.
+5. Start the docker container
 `docker-compose up -d`
-6. Enter to docker container  
+6. Enter to docker container
 `docker-compose exec php bash`
-7. Install site:  
-`cd web`  
+7. Install site:
+`cd web`
 `drush si --site-name=QAShot --site-mail=qashot@test.com --account-name=admin --account-pass=123 --db-url=mysql://drupal:drupal@mariadb/drupal standard`  
 **NOTE**: don't forget to change the DB's user, password etc. in this command if needed! 
 8. Modify settings.php (add these lines):
@@ -115,13 +116,13 @@ Note: 1000 is the UID and GID of the wodby user inside the docker container. By 
     2. `drush config-set  "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y`
     3. `drush cim -y`
     4. `drush cr`
-10. Exit from docker console:  
+10. Exit from docker console:
 `Ctrl + d` or type `exit`
 11. Visit your site at: [http://localhost:](http://localhost:8000/) [8000](http://localhost:8000/) , log in with user: admin , password: 123
 12. Create a test, add it to the queue
 13. Run the queue (exit the container and cd ../ from your qashot folder): `bash qashot/run-test-queue.sh`  
-OR from inside the container:  
-`cd web`  
+OR from inside the container:
+`cd web`
 `drush php-script modules/custom/qa\_shot/tools/RunQAShotQueues`
 
 ### Install screenshot maker
@@ -130,7 +131,7 @@ Install at least one of the following (globally) on your system:
 
 1. BackstopJS ([https://github.com/garris/BackstopJS](https://github.com/garris/BackstopJS)) (`npm install -g backstopjs`)
 2. SlimerJS ([https://slimerjs.org/download.html](https://slimerjs.org/download.html))  
-This will need firefox, too: `sudo apt-get install firefox=45.\*`  
+This will need firefox, too: `sudo apt-get install firefox=45.\*`
 As well as xvfb: `sudo apt-get install xvfb`
 
 Check your installation, if your chosen one is able to run from anywhere, you are done, if not, you need to add your bin location to PATH variables, which probably need a system restart.
@@ -150,17 +151,17 @@ When you **install npm** , install **WINDOWS version**! Because XAMPP and ADD wi
 
 ### Install drupal
 
-1. Clone repo to your favorite place:  
+1. Clone repo to your favorite place:
 `git clone https://github.com/brainsum/qashot qashot`
 2. Enter the directory: `cd qashot`
-3. Get drupal and module files  
+3. Get drupal and module files
 `composer install`
 4. Import this site to your favorite apache+php config (i.e. XAMPP, Acquia Dev Desktop)  
-**NOTE: at least PHP 7.0 required!**  
-Webroot: `<git-root>/web`  
+**NOTE: at least PHP 7.0 required!**
+Webroot: `<git-root>/web`
 Create also a virtual host for it if your program didn't do that. (like: `qashot.localhost` or `qashot.lh` or `qashot.dd`)  
 After you finished: `cd web`
-5. Install site:  
+5. Install site:
 `drush si --site-name=QAShot --site-mail=qashot@test.com --account-name=admin --account-pass=123 --db-url=mysql://username:password@localhost/qashot standard`  
 **NOTE**: don't forget to change the DB's user, password etc. in this command if needed! 
 6. Modify settings.php (add these lines):
@@ -183,7 +184,7 @@ After you installed **Windows verison** from **npm** , Install at least one of t
 
 1. BackstopJS ([https://github.com/garris/BackstopJS](https://github.com/garris/BackstopJS)) (`npm install -g backstopjs`)
 2. SlimerJS ([https://slimerjs.org/download.html](https://slimerjs.org/download.html))  
-This will need firefox, too: `sudo apt-get install firefox=45.\*`  
+This will need firefox, too: `sudo apt-get install firefox=45.\*`
 As well as xvfb: `sudo apt-get install xvfb`
 
 Check your installation, if your chosen one is able to run from anywhere, you are done, if not, you need to add your bin location to PATH variables, which probably need a system restart.
