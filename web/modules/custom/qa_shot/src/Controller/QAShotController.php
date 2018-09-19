@@ -152,7 +152,7 @@ class QAShotController extends ControllerBase {
       return ['#markup' => 'Invalid entity.'];
     }
 
-    $reportUrl = \file_create_url($this->entity->getHtmlReportPath());
+    $localReportUrl = \file_create_url($this->entity->getHtmlReportPath());
     $lastRun = $this->entity->getLastRunMetadataValue();
     $reportTime = empty($lastRun) ? NULL : \end($lastRun)['datetime'];
     $resultExist = FALSE;
@@ -176,7 +176,8 @@ class QAShotController extends ControllerBase {
       '#type' => 'markup',
       '#theme' => 'qa_shot__qa_shot_test__run',
       '#queue_status' => $this->entity->getHumanReadableQueueStatus(),
-      '#html_report_url' => $reportUrl,
+      '#html_report_url' => $localReportUrl,
+      '#remote_html_report_url' => $this->entity->getRemoteHtmlReportPath(),
       '#entity' => $this->entity,
       '#report_time' => $reportTime,
       '#result_exist' => $resultExist,
