@@ -8,14 +8,14 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 
 /**
- * Class ReportPathMarkup.
+ * Class RemoteReportPathMarkup.
  *
  * Designed to create formatted markup for the HTML report path with
  * proper '..ago' time notation.
  *
  * @package Drupal\qa_shot\Component\Render
  */
-class ReportPathMarkup implements MarkupInterface, \Countable {
+class RemoteReportPathMarkup implements MarkupInterface, \Countable {
 
   use StringTranslationTrait;
 
@@ -63,7 +63,7 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
    * @throws \InvalidArgumentException
    */
   public function getLink(): array {
-    if (!\file_exists($this->path)) {
+    if ($this->path === NULL) {
       return [];
     }
 
@@ -82,8 +82,8 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
 
     $markup = [
       '#type' => 'link',
-      '#title' => $this->t('HTML Report'),
-      '#url' => Url::fromUserInput('/' . $this->path, $urlOptions),
+      '#title' => $this->t('Remote HTML Report'),
+      '#url' => Url::fromUri($this->path, $urlOptions),
       '#attributes' => $attributes,
     ];
 
@@ -93,7 +93,7 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
     else {
       $reportDateTime = new DrupalDateTime($this->time);
       $reportTime = $this->dataFormatter->dateAsAgo($reportDateTime);
-      $markup['#title'] = $this->t('HTML Report from @timestamp', [
+      $markup['#title'] = $this->t('Remote HTML Report from @timestamp', [
         '@timestamp' => $reportTime,
       ]);
       $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s');

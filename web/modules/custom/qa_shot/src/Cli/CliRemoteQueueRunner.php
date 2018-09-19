@@ -3,7 +3,10 @@
 namespace Drupal\qa_shot\Cli;
 
 use Drupal\backstopjs\Exception\InvalidRunnerOptionsException;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Queue\QAShotQueue;
@@ -263,7 +266,7 @@ class CliRemoteQueueRunner {
    * @return array
    *   Results.
    */
-  protected function consume(array $uuids) {
+  protected function consume(array $uuids): array {
     if (NULL === $this->remoteHost) {
       return [
         'code' => 204,
@@ -376,11 +379,8 @@ class CliRemoteQueueRunner {
       $results = \array_merge($rawResults['results']);
     }
 
-    // @todo: Display/Log errors.
-    \file_put_contents('private://remote_test_data/' . \time() . '.json', \json_encode($results));
-
     $remainingTestUuids = $uuids;
-    foreach ($results as $resultData) {
+    foreach ($results as $resultUuid => $resultData) {
       $uuid = $resultData['data']['metadata']['id'];
       $testUuidIndex = \array_search($uuid, $remainingTestUuids, TRUE);
       if (FALSE !== $testUuidIndex) {
@@ -396,20 +396,28 @@ class CliRemoteQueueRunner {
         continue;
       }
 
+      \file_put_contents('private://qa_test_data/' . $test->id() . '/results/' . \time() . ".$resultUuid.json", \json_encode($resultData));
+
+      /** @var \stdClass $queueItem */
+      $queueItem = $items[$test->id()];
+
       $this->messenger->addMessage("UUID $uuid has results.");
 
-      $status = $this->saveResults($test, $resultData['data']);
-      $this->logger->debug("Result save status: $status");
+      try {
+        $this->saveResults($test, $resultData['data']);
+        $this->queue->deleteItem($queueItem);
+        $queueItem = NULL;
+      }
+      catch (\Exception $e) {
+        $this->logger->error($e->getMessage());
+        $queueItem->status = QAShotQueue::QUEUE_STATUS_ERROR;
+      }
 
-      // @todo: Update queue item status.
+      if (NULL !== $queueItem) {
+        $this->queue->updateItemStatus($queueItem);
+      }
+
       // @todo: use the RemoteHtmlReportPath in displays.
-      // @todo: Save additional metadata as raw data or a file.
-      //
-      // @todo: Error handling.
-      // @todo: if the uuid is not set and it did not error,
-      // leave it in the queue QUEUE_STATUS_REMOTE.
-      // Maybe update lease time as well.
-      // @todo: if it errored out, QUEUE_STATUS_ERROR.
     }
 
     $resultCount = \count($results);
