@@ -58,7 +58,6 @@
         "php": "^7.0",
         "ext-json": "*",
         "ext-pdo": "*",
-        "bunny/bunny": "^0.4.0",
         "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6",
         "drupal-composer/drupal-scaffold": "^2.2",
@@ -72,7 +71,6 @@
         "drupal/paragraphs": "^1.1",
         "drush/drush": "^9.0",
         "jaypan/jquery_colorpicker": "^1.0",
-        "php-ai/php-ml": "^0.4.1",
         "roave/security-advisories": "dev-master",
         "webflo/drupal-finder": "^1.0",
         "webmozart/path-util": "^2.3"
