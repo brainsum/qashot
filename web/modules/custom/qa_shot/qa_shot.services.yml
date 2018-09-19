@@ -24,9 +24,6 @@ services:
     class: Drupal\qa_shot\Service\TestNotification
     arguments: ['@language_manager', '@plugin.manager.mail', '@config.factory', '@logger.factory']
 
-  qa_shot.machine_learning:
-    class: Drupal\qa_shot\Service\MachineLearning
-
   qa_shot.queue_data:
     class: Drupal\qa_shot\Service\QAShotQueueData
     arguments: ['@database']
