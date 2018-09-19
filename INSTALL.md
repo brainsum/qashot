@@ -193,17 +193,15 @@ Check your installation, if your chosen one is able to run from anywhere, you ar
 
 ## Possible problems
 
-After installation, my site is broken into small pieces! (Windows)
+1. After installation, my site is broken into small pieces! (Windows)
+    1. This happens when you don't have a properly set temp directory. Go to /admin/config/media/file-system and watch what is there. Probably it will "/tmp". In windows it will be on your html directory's drive's root if you use ADD. Soo, if your web html is here and named phptest: E:\phptest than /tmp dir will be at: E:\tmp . Give 777 for it and cache rebuild, then you will be able to rock. This happens only once, if you didn't used this previously.
 
-Well, this happens when you don't have a properly setted temp directory. Go to /admin/config/media/file-system and watch what is there. Probably it will "/tmp". In windows it will be on your html directory's drive's root if you use ADD. Soo, if your web html is here and named phptest: E:\phptest than /tmp dir will be at: E:\tmp . Give 777 for it and cache rebuild, then you will be able to rock. This happens only once, if you didn't used this previously.
-
-"Filename directory name or volume label syntax is incorrect" error at drush run (Windows, ADD)
-
-Long story in short, your global drush and local drush conflicts. Delete drush\* files from <gitroot>/vendor/bin . Than you will be able to run drush.
+1. "Filename directory name or volume label syntax is incorrect" error at drush run (Windows, ADD)
+    1. Long story in short, your global drush and local drush conflicts. Delete drush\* files from <gitroot>/vendor/bin . Than you will be able to run drush.
 
 ## Required settings.php overrides
 
-* For sending data to the remove worker:
+* For sending tests to the remote worker and fetching results:
 
 ```
 $config['qashot.settings']['current_environment'] = 'development';
@@ -214,27 +212,6 @@ if (isset($_ENV['PROJECT_ENVIRONMENT']) && \is_string($_ENV['PROJECT_ENVIRONMENT
 ```
 $config['backstopjs.settings']['suite']['remote_host'] = '<the host>';
 ```
-
-* For getting data from the remote queue:
 ```
-$config['rabbitmq.settings'] = [
-  'connection' => [
-    'host' => '<the host>',
-    'port' => <port>,
-    'user' => 'user',
-    'pass' => 'pass',
-    'vhost' => '/',
-    'timeout' => 30,
-    'heartbeat' => 60,
-  ],
-  'channels' => [
-    'channel_name' => [
-      'exchange' => 'exchange name',
-      'queue' => 'queue name',
-      'routing_key' => 'routing_key',
-      'prefetch' => 'prefetch count',
-    ],
-    ...
-  ],
-];
+$config['backstopjs.settings']['suite']['instance_id'] = 'my-awesome-site';
 ```
