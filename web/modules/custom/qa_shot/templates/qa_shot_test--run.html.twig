@@ -16,13 +16,15 @@
     {% endif %}
     <br />
     <p>
-    {% if entity.field_html_report_path is empty or not result_exist %}
+    {% if entity.field_html_report_path is empty or not result_exist or not html_report_url %}
         No local test report found.
     {% else %}
         {# @todo: this is for testing only, proper way needed for serving this page for opening #}
         <a href="{{ html_report_url }}" target="_blank">Local HTML Report {% if report_time %}from {{ report_time }}{% endif %}</a>
     {% endif %}
-    {% if entity.field_remote_html_report_path is empty or not result_exist %}
+    </p>
+    <p>
+    {% if entity.field_remote_html_report_path is empty or not result_exist or not remote_html_report_url %}
         No remote test report found.
     {% else %}
         {# @todo: this is for testing only, proper way needed for serving this page for opening #}
