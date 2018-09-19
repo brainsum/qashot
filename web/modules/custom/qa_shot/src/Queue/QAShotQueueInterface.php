@@ -160,7 +160,7 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
    *   Item status.
    *
    * @return array
-   *   The items.
+   *   Associative array of item Objects keyed by tid.
    *
    * @throws \Drupal\Core\Database\InvalidQueryException
    */
