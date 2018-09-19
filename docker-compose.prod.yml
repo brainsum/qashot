@@ -5,13 +5,7 @@ services:
     restart: always
 
   php:
-    image: havelantmate/drupal_php:Backstop3.0.26-SlimerJS
     environment:
-      DOCKER_ENVIRONMENT: docker4drupal
-      PHP_SITE_NAME: qashot
-      PHP_HOST_NAME: localhost:8000
-      PHP_DOCROOT: web
-      PHP_WORKING_DIR: web
       PROJECT_ENVIRONMENT: 'production'
     restart: always
 
