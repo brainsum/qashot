@@ -322,7 +322,7 @@ class QAShotQueue implements QAShotQueueInterface {
       $query->condition('status', $status);
     }
     $rows = $query->execute();
-    return $rows->fetchAll(PDO::FETCH_CLASS);
+    return $rows->fetchAllAssoc('tid');
   }
 
   /**
