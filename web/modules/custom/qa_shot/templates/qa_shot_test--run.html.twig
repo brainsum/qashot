@@ -17,10 +17,16 @@
     <br />
     <p>
     {% if entity.field_html_report_path is empty or not result_exist %}
-        No test report found.
+        No local test report found.
     {% else %}
         {# @todo: this is for testing only, proper way needed for serving this page for opening #}
-        <a href="{{ html_report_url }}" target="_blank">HTML Report {% if report_time %}from {{ report_time }}{% endif %}</a>
+        <a href="{{ html_report_url }}" target="_blank">Local HTML Report {% if report_time %}from {{ report_time }}{% endif %}</a>
+    {% endif %}
+    {% if entity.field_remote_html_report_path is empty or not result_exist %}
+        No remote test report found.
+    {% else %}
+        {# @todo: this is for testing only, proper way needed for serving this page for opening #}
+        <a href="{{ remote_html_report_url }}" target="_blank">Remote HTML Report {% if report_time %}from {{ report_time }}{% endif %}</a>
     {% endif %}
     </p>
 </div>

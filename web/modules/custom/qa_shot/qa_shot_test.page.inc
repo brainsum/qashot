@@ -11,6 +11,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\Url;
+use Drupal\qa_shot\Component\Render\RemoteReportPathMarkup;
 use Drupal\qa_shot\Component\Render\ReportPathMarkup;
 
 /**
@@ -22,6 +23,8 @@ use Drupal\qa_shot\Component\Render\ReportPathMarkup;
  *   An associative array containing:
  *   - elements: An associative array containing the user information and any
  *   - attributes: HTML attributes for the containing element.
+ *
+ * @throws \Drupal\qa_shot\Exception\QAShotBaseException
  */
 function template_preprocess_qa_shot_test(array &$variables) {
   // Fetch QAShotTest Entity Object.
@@ -48,41 +51,47 @@ function template_preprocess_qa_shot_test(array &$variables) {
 
   $variables['status_in_queue'] = [
     '#type' => 'item',
-    '#title' => t('State in queue'),
+    '#title' => \t('State in queue'),
     '#markup' => '<div class="field--item">' . $qaShotTest->getHumanReadableQueueStatus() . '</div>',
   ];
 
   if ($reportPath = $qaShotTest->getHtmlReportPath()) {
     $lastRun = $qaShotTest->getLastRunMetadataValue();
-    $reportTime = empty($lastRun) ? '' : end($lastRun)['datetime'];
+    $reportTime = empty($lastRun) ? '' : \end($lastRun)['datetime'];
     $variables['report_path'] = (new ReportPathMarkup($reportPath, $reportTime))->getLink();
   }
 
-  list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = array_values($qaShotTest->getLastRunTimes());
+  if ($remoteReportPath = $qaShotTest->getRemoteHtmlReportPath()) {
+    $lastRun = $qaShotTest->getLastRunMetadataValue();
+    $reportTime = empty($lastRun) ? '' : \end($lastRun)['datetime'];
+    $variables['remote_report_path'] = (new RemoteReportPathMarkup($remoteReportPath, $reportTime))->getLink();
+  }
+
+  list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = \array_values($qaShotTest->getLastRunTimes());
   if ($lastRunTime) {
     $variables['last_run_time'] = [
       '#type'   => 'item',
-      '#title'  => t('Last run was at'),
+      '#title'  => \t('Last run was at'),
       '#markup' => '<div class="field--item">' . $lastRunTime . '</div>',
     ];
   }
   if ($lastReferenceRunTime) {
     $variables['last_reference_run_time'] = [
       '#type'   => 'item',
-      '#title'  => t('Reference was created at'),
+      '#title'  => \t('Reference was created at'),
       '#markup' => '<div class="field--item">' . $lastReferenceRunTime . '</div>',
     ];
   }
   if ($lastTestRunTime) {
     $variables['last_test_run_time'] = [
       '#type' => 'item',
-      '#title' => t('Last test was run at'),
+      '#title' => \t('Last test was run at'),
       '#markup' => '<div class="field--item">' . $lastTestRunTime . '</div>',
     ];
   }
 
-  $entity_type = $qaShotTest->getType();
-  if ($entity_type === 'a_b') {
+  $entityType = $qaShotTest->getType();
+  if ($entityType === 'a_b') {
     $variables['run_path'] = [
       '#title'      => 'Add test to queue',
       '#type'       => 'link',
@@ -92,7 +101,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
       '#attributes' => $runAttributes,
     ];
   }
-  elseif ($entity_type === 'before_after') {
+  elseif ($entityType === 'before_after') {
     $variables['run_path_reference'] = [
       '#title'      => 'Queue taking "Before" shots',
       '#type'       => 'link',
@@ -102,8 +111,8 @@ function template_preprocess_qa_shot_test(array &$variables) {
       '#attributes' => $runAttributes,
     ];
 
-    $test_results = $qaShotTest->getLifetimeMetadataValue();
-    if (count($test_results) > 0) {
+    $testResults = $qaShotTest->getLifetimeMetadataValue();
+    if (\count($testResults) > 0) {
       $variables['run_path_test'] = [
         '#title'      => 'Queue taking "After" shots',
         '#type'       => 'link',
@@ -122,20 +131,20 @@ function template_preprocess_qa_shot_test(array &$variables) {
     // Debug data.
     $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $qaShotTest->id() . '/debug';
 
-    if (is_dir($debugPath)) {
-      $files = scandir($debugPath, SCANDIR_SORT_ASCENDING);
+    if (\is_dir($debugPath)) {
+      $files = \scandir($debugPath, SCANDIR_SORT_ASCENDING);
       $rows = [];
 
       foreach ($files as $file) {
-        if (!in_array($file, ['.', '..'], TRUE)) {
-          $filename = trim(explode('.', $file)[0]);
+        if (!\in_array($file, ['.', '..'], TRUE)) {
+          $filename = \trim(\explode('.', $file)[0]);
           $filename = (new \DateTime())->setTimestamp((int) $filename)->format('Y-m-d H:i:s');
           $rows[] = [
             'file' => Link::fromTextAndUrl(
               $filename,
               Url::fromRoute('entity.qa_shot_test.debug', [
                 'qa_shot_test' => $qaShotTest->id(),
-                'file_name' => urlencode($file),
+                'file_name' => \urlencode($file),
               ])
             ),
           ];
@@ -145,13 +154,13 @@ function template_preprocess_qa_shot_test(array &$variables) {
       $debug = [
         '#type' => 'table',
         '#header' => [
-          'file' => t('Debug file'),
+          'file' => \t('Debug file'),
         ],
         '#rows' => $rows,
       ];
       $debugGroup = [
         '#type' => 'details',
-        '#title' => t('Debug data'),
+        '#title' => \t('Debug data'),
         'metadata' => $debug,
       ];
       $variables['debug'] = $renderer->render($debugGroup);
@@ -159,23 +168,23 @@ function template_preprocess_qa_shot_test(array &$variables) {
 
     // Metadata.
     $header = [
-      'id' => t('ID'),
-      'stage' => t('Stage'),
-      'viewport_count' => t('Viewport count'),
-      'scenario_count' => t('Scenario count'),
-      'datetime' => t('Date/Time of run'),
-      'duration' => t('Duration of run'),
-      'passed_count' => t('Passed count'),
-      'failed_count' => t('Failed count'),
-      'pass_rate' => t('Pass rate'),
-      'contains_result' => t('Is result?'),
-      'success' => t('Success?'),
+      'id' => \t('ID'),
+      'stage' => \t('Stage'),
+      'viewport_count' => \t('Viewport count'),
+      'scenario_count' => \t('Scenario count'),
+      'datetime' => \t('Date/Time of run'),
+      'duration' => \t('Duration of run'),
+      'passed_count' => \t('Passed count'),
+      'failed_count' => \t('Failed count'),
+      'pass_rate' => \t('Pass rate'),
+      'contains_result' => \t('Is result?'),
+      'success' => \t('Success?'),
     ];
 
     $rows = [];
     foreach ($qaShotTest->getLifetimeMetadataValue() as $data) {
       $tmp = [];
-      foreach (array_keys($header) as $key) {
+      foreach (\array_keys($header) as $key) {
         switch ($key) :
           case 'stage':
             $tmp[$key] = $data[$key] ?? '-';
@@ -185,7 +194,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
             $element = [
               '#type' => 'html_tag',
               '#tag' => 'span',
-              '#value' => (new \DateTime())->setTime(0, 0, round($data[$key]))->format('H:i:s'),
+              '#value' => (new \DateTime())->setTime(0, 0, \round($data[$key]))->format('H:i:s'),
               '#attributes' => [
                 'title' => t('@seconds seconds', [
                   '@seconds' => $data[$key],
@@ -197,11 +206,11 @@ function template_preprocess_qa_shot_test(array &$variables) {
 
           case 'contains_result':
           case 'success':
-            $tmp[$key] = (1 === (int) $data[$key]) ? t('Yes') : t('No');
+            $tmp[$key] = (1 === (int) $data[$key]) ? \t('Yes') : \t('No');
             break;
 
           case 'pass_rate':
-            $tmp[$key] = t('@percent%', [
+            $tmp[$key] = \t('@percent%', [
               '@percent' => $data[$key] * 100,
             ]);
             break;
@@ -215,12 +224,12 @@ function template_preprocess_qa_shot_test(array &$variables) {
 
     $metadata = [
       '#type' => 'table',
-      '#header' => array_values($header),
+      '#header' => \array_values($header),
       '#rows' => $rows,
     ];
     $metadataGroup = [
       '#type' => 'details',
-      '#title' => t('Metadata'),
+      '#title' => \t('Metadata'),
       'metadata' => $metadata,
     ];
     $variables['metadata'] = $renderer->render($metadataGroup);
