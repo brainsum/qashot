@@ -4,7 +4,6 @@ namespace Drupal\qa_shot\Queue;
 
 use Drupal\Core\Database\Connection;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use PDO;
 
 /**
  * Default queue implementation.

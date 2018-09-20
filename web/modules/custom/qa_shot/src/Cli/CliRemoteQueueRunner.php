@@ -3,10 +3,7 @@
 namespace Drupal\qa_shot\Cli;
 
 use Drupal\backstopjs\Exception\InvalidRunnerOptionsException;
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Queue\QAShotQueue;
@@ -364,7 +361,6 @@ class CliRemoteQueueRunner {
     $uuids = \array_map(function ($test) {
       return $test->uuid();
     }, $tests);
-
 
     $results = [];
     $uuidCount = \count($uuids);

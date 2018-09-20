@@ -42,3 +42,4 @@ services:
       - '@current_user'
       - '@datetime.time'
       - '@config.factory'
+      - '@backstopjs.backstop'

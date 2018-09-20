@@ -3,8 +3,7 @@
 namespace Drupal\qa_shot\Service;
 
 use Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory;
-use Drupal\backstopjs\Exception\InvalidConfigurationException;
-use Drupal\backstopjs\Exception\InvalidEntityException;
+use Drupal\backstopjs\Service\Backstop;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityStorageException;
@@ -84,6 +83,13 @@ class QueueManager {
   protected $config;
 
   /**
+   * The backstop service.
+   *
+   * @var \Drupal\backstopjs\Service\Backstop
+   */
+  protected $backstop;
+
+  /**
    * QueueManager constructor.
    *
    * @param \Drupal\qa_shot\Queue\QAShotQueueFactory $queueFactory
@@ -100,6 +106,8 @@ class QueueManager {
    *   The time service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
+   * @param \Drupal\backstopjs\Service\Backstop $backstop
+   *   The backstop service.
    */
   public function __construct(
     QAShotQueueFactory $queueFactory,
@@ -108,7 +116,8 @@ class QueueManager {
     MessengerInterface $messenger,
     AccountProxyInterface $currentUser,
     TimeInterface $time,
-    ConfigFactoryInterface $configFactory
+    ConfigFactoryInterface $configFactory,
+    Backstop $backstop
   ) {
     $this->backstopWorkerFactory = $backstopjsWorkerFactory;
     $this->logger = $loggerChannelFactory;
@@ -119,6 +128,8 @@ class QueueManager {
 
     $this->localQueue = $queueFactory->get('cron_run_qa_shot_test');
     $this->remoteQueue = $queueFactory->get('qa_shot_remote_queue');
+
+    $this->backstop = $backstop;
   }
 
   /**
@@ -139,10 +150,8 @@ class QueueManager {
    * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    */
   public function addTest(QAShotTestInterface $test, string $stage = NULL, string $origin = 'drupal'): string {
-    /** @var \Drupal\backstopjs\Service\Backstop $backstopService */
     // @todo: Fixme.
-    $backstopService = \Drupal::service('backstopjs.backstop');
-    $backstopService->prepareTest($test);
+    $this->backstop->prepareTest($test);
 
     // Add the test entity and the requested stage to the item.
     // @todo: Change?
