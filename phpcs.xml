@@ -28,6 +28,7 @@
 
     <arg name="extensions" value="php,module,inc,install,test,profile,theme" />
     <arg name="ignore" value="*.md,MachineLearning.php" />
+    <arg name="parallel" value="5" />
     <arg value="p" />
 
     <rule ref="Drupal"/>
