@@ -1,3 +1,5 @@
+dist: trusty
+
 language: php
 
 php:
@@ -8,7 +10,7 @@ env:
   - CODE_REVIEW=1 PHPCS_CHECK_DIRECTORY="${TRAVIS_BUILD_DIR}/web/modules/custom"
 
 before_install:
-- export VENDOR_DIR="${HOME}/.composer/vendor"
+- export VENDOR_DIR="${COMPOSER_BIN_DIR}/vendor"
 - export PATH="${VENDOR_DIR}/bin:${PATH}"
 
 install:
