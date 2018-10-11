@@ -10,7 +10,7 @@ env:
   - CODE_REVIEW=1 PHPCS_CHECK_DIRECTORY="${TRAVIS_BUILD_DIR}/web/modules/custom"
 
 before_install:
-- export VENDOR_DIR="${COMPOSER_BIN_DIR}/vendor"
+- export VENDOR_DIR="${HOME}/.config/composer/vendor"
 - export PATH="${VENDOR_DIR}/bin:${PATH}"
 
 install:
@@ -19,3 +19,8 @@ install:
 script:
 - parallel-lint ${PHPCS_CHECK_DIRECTORY}
 - "${TRAVIS_BUILD_DIR}/ci-scripts/test_coder.sh"
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change
