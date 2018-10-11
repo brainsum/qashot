@@ -372,7 +372,11 @@ class CliRemoteQueueRunner {
       }
 
       $rawResults = $this->consume($subset);
-      $results = \array_merge($rawResults['results']);
+      $results = $rawResults['results'];
+
+      if (!empty($results)) {
+        break;
+      }
     }
 
     $remainingTestUuids = $uuids;
