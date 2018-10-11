@@ -12,7 +12,7 @@ if [ -z "${CODE_REVIEW+x}" ] || [ "$CODE_REVIEW" -ne 1 ]; then
  exit 0;
 fi
 
-if ! phpcs --standard="${TRAVIS_BUILD_DIR}/phpcs.xml" "${PHPCS_CHECK_DIRECTORY}"; then
+if ! ${VENDOR_DIR}/bin/phpcs --standard="${TRAVIS_BUILD_DIR}/phpcs.xml" "${PHPCS_CHECK_DIRECTORY}"; then
     exit 1;
 fi
 
