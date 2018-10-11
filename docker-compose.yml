@@ -4,7 +4,7 @@ services:
   mariadb:
     image: wodby/mariadb:10.3-3.2.2
     container_name: "${PROJECT_NAME}_mariadb"
-    stop_grace_period: 30s
+    # stop_grace_period: 30s
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: drupal
