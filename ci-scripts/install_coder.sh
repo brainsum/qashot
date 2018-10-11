@@ -12,6 +12,6 @@ if [ -z "${CODE_REVIEW+x}" ] || [ "$CODE_REVIEW" -ne 1 ]; then
  exit 0;
 fi
 
-composer global require hirak/prestissimo
-composer global require drupal/coder phpcompatibility/php-compatibility jakub-onderka/php-parallel-lint jakub-onderka/php-console-highlighter
+composer global require hirak/prestissimo:^0.3
+composer global require drupal/coder:^8.3 squizlabs/php_codesniffer:^3.3 phpcompatibility/php-compatibility:^9.0 jakub-onderka/php-parallel-lint:^1.0 jakub-onderka/php-console-highlighter:^0.4 dealerdirect/phpcodesniffer-composer-installer:^0.4
 phpcs --config-set installed_paths ${VENDOR_DIR}/drupal/coder/coder_sniffer,${VENDOR_DIR}/phpcompatibility/php-compatibility
