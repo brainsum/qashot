@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7479daae18ea508e21e897b3a151afed",
+    "content-hash": "3a8a29c689f51498e81ad382f4c9d8e6",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5732,17 +5732,17 @@
             "time": "2016-03-05T09:04:22+00:00"
         },
         {
-            "name": "components/highlightjs",
-            "version": "9.7.0",
+            "name": "components-drupal/highlightjs",
+            "version": "9.12.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/components/highlightjs.git",
-                "reference": "9.7.0"
+                "url": "https://github.com/components/highlightjs",
+                "reference": "9.12.0"
             },
             "type": "drupal-library"
         },
         {
-            "name": "d3/d3",
+            "name": "d3-drupal/d3",
             "version": "v3.5.17",
             "source": {
                 "type": "git",
