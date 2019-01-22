@@ -36,7 +36,7 @@ services:
     class: Drupal\qa_shot\Service\QueueManager
     arguments:
       - '@qa_shot.test_queue_factory'
-      - '@backstopjs.worker_factory'
+      - '@qa_shot_test_worker.worker_factory'
       - '@logger.factory'
       - '@messenger'
       - '@current_user'

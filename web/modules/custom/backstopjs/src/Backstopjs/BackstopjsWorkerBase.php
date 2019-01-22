@@ -5,9 +5,8 @@ namespace Drupal\backstopjs\Backstopjs;
 use Drupal\backstopjs\Service\FileSystem;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Plugin\PluginBase;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Drupal\qa_shot_test_worker\TestWorker\TestWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -18,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @package Drupal\backstopjs\Backstopjs
  */
-abstract class BackstopjsWorkerBase extends PluginBase implements BackstopjsWorkerInterface, ContainerFactoryPluginInterface {
+abstract class BackstopjsWorkerBase extends TestWorkerBase implements BackstopjsWorkerInterface {
 
   use ContainerAwareTrait;
 
@@ -95,11 +94,6 @@ abstract class BackstopjsWorkerBase extends PluginBase implements BackstopjsWork
    * {@inheritdoc}
    */
   abstract public function checkRunStatus();
-
-  /**
-   * {@inheritdoc}
-   */
-  abstract public function getStatus(): string;
 
   /**
    * {@inheritdoc}

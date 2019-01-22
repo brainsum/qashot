@@ -2,7 +2,6 @@
 
 namespace Drupal\qa_shot\Service;
 
-use Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory;
 use Drupal\backstopjs\Service\Backstop;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -13,6 +12,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Queue\QAShotQueueFactory;
+use Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface;
 
 /**
  * Class QueueManager.
@@ -26,9 +26,9 @@ class QueueManager {
   /**
    * The worker factory for BackstopJS.
    *
-   * @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory
+   * @var \Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface
    */
-  protected $backstopWorkerFactory;
+  protected $workerFactory;
 
   /**
    * The logger channel factory.
@@ -94,7 +94,7 @@ class QueueManager {
    *
    * @param \Drupal\qa_shot\Queue\QAShotQueueFactory $queueFactory
    *   QAShot Queue factory.
-   * @param \Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory $backstopjsWorkerFactory
+   * @param \Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface $workerFactory
    *   QAShot BackstopJS factory.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   Logger Channel factory.
@@ -111,7 +111,7 @@ class QueueManager {
    */
   public function __construct(
     QAShotQueueFactory $queueFactory,
-    BackstopjsWorkerFactory $backstopjsWorkerFactory,
+    TestWorkerFactoryInterface $workerFactory,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     MessengerInterface $messenger,
     AccountProxyInterface $currentUser,
@@ -119,7 +119,7 @@ class QueueManager {
     ConfigFactoryInterface $configFactory,
     Backstop $backstop
   ) {
-    $this->backstopWorkerFactory = $backstopjsWorkerFactory;
+    $this->workerFactory = $workerFactory;
     $this->logger = $loggerChannelFactory;
     $this->messenger = $messenger;
     $this->user = $currentUser;

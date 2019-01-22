@@ -3,21 +3,14 @@
 namespace Drupal\backstopjs\Backstopjs;
 
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Drupal\qa_shot_test_worker\TestWorker\TestWorkerInterface;
 
 /**
  * Interface BackstopJSInterface.
  *
  * @package Drupal\backstopjs\Backstopjs
  */
-interface BackstopjsWorkerInterface {
-
-  /**
-   * Returns the status of backstopjs.
-   *
-   * @return string
-   *   The status as JSON encoded string.
-   */
-  public function getStatus(): string;
+interface BackstopjsWorkerInterface extends TestWorkerInterface {
 
   /**
    * Checks whether Backstop is running or not.

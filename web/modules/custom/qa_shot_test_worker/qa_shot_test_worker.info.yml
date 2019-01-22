@@ -1,0 +1,6 @@
+name: Test Workers for QAShot
+type: module
+description: Module for test worker management.
+core: 8.x
+package: QAShot
+dependencies: {}

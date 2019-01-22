@@ -1,0 +1,8 @@
+qa_shot_test_worker.worker_list:
+  path: '/admin/config/qa_shot/worker-list'
+  defaults:
+    _controller: '\Drupal\qa_shot_test_worker\Controller\TestWorkerListController::list'
+    _title: 'Worker list'
+  requirements:
+    _permission: 'access content'
+  # @todo: Add requirements, permissions.

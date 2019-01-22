@@ -2,7 +2,6 @@
 
 namespace Drupal\backstopjs\Form;
 
-use Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
@@ -10,6 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Url;
+use Drupal\qa_shot_test_worker\TestWorker\TestWorkerManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -22,8 +22,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BackstopjsSettingsForm extends ConfigFormBase {
 
-  const LOCAL_SUITE = 'local';
-  const REMOTE_SUITE = 'remote';
+  const LOCAL_SUITE = 'backstopjs.local';
+  const REMOTE_SUITE = 'backstopjs.remote';
 
   /**
    * The logger service.
@@ -57,7 +57,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       $container->get('config.factory'),
       $container->get('logger.factory'),
       $container->get('app.root'),
-      $container->get('plugin.manager.backstopjs_worker')
+      $container->get('plugin.manager.test_worker')
     );
   }
 
@@ -70,14 +70,14 @@ class BackstopjsSettingsForm extends ConfigFormBase {
    *   Logger factory service.
    * @param string $appRoot
    *   The app root path.
-   * @param \Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager $workerManager
+   * @param \Drupal\qa_shot_test_worker\TestWorker\TestWorkerManagerInterface $workerManager
    *   The Backstopjs Worker plugin manager.
    */
   public function __construct(
     ConfigFactoryInterface $configFactory,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     $appRoot,
-    BackstopjsWorkerManager $workerManager
+    TestWorkerManagerInterface $workerManager
   ) {
     parent::__construct($configFactory);
     $this->logger = $loggerChannelFactory->get('backstopjs');
@@ -121,8 +121,12 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     ];
 
     $options = [];
-    foreach ($this->workerManager->getDefinitions() as $pluginId => $definition) {
-      $options[$pluginId] = $definition['title'];
+    $definitions = \array_filter($this->workerManager->getDefinitions(), function ($definition) {
+      return $definition['provider'] === 'backstopjs';
+    });
+
+    foreach ($definitions as $pluginId => $definition) {
+      $options[$pluginId] = $definition['label'];
     }
 
     $form['suite']['location'] = [

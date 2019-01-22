@@ -33,6 +33,7 @@ module:
   path: 0
   qa_shot: 0
   qa_shot_rest_api: 0
+  qa_shot_test_worker: 0
   queue_ui: 0
   rest: 0
   restui: 0

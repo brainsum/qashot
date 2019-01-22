@@ -2,7 +2,6 @@
 
 namespace Drupal\backstopjs\Service;
 
-use Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory;
 use Drupal\backstopjs\Exception\EmptyResultsException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -17,6 +16,7 @@ use Drupal\backstopjs\Custom\Backstop as CustomBackstop;
 use Drupal\backstopjs\Exception\ReferenceCommandFailedException;
 use Drupal\backstopjs\Exception\TestCommandFailedException;
 use Drupal\qa_shot\TestBackendBase;
+use Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface;
 
 /**
  * Class Backstop.
@@ -57,18 +57,18 @@ class Backstop extends TestBackendBase {
    *   The BackstopJS file system service.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   The logger channel factory.
-   * @param \Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory $backstopJsFactory
+   * @param \Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface $backstopJsFactory
    *   BackstopJS Worker Factory.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The site configuration.
    *
    * @throws \InvalidArgumentException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function __construct(
     FileSystem $backstopFileSystem,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    BackstopjsWorkerFactory $backstopJsFactory,
+    TestWorkerFactoryInterface $backstopJsFactory,
     ConfigFactoryInterface $configFactory
   ) {
     $this->backstopFileSystem = $backstopFileSystem;
@@ -460,7 +460,7 @@ class Backstop extends TestBackendBase {
    * {@inheritdoc}
    */
   public function getStatus(): string {
-    return $this->backstop->getStatus();
+    return $this->backstop->status();
   }
 
 }
