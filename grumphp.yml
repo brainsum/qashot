@@ -2,4 +2,4 @@ imports:
     - { resource: vendor/brainsum/drupal-dev-tools/distfiles/grumphp.yml }
 
 parameters:
-    convention.git_commit_message_matchers: ['/^([A-Z]+-[\d]+ )+\| [A-Za-z\d\s\.]+([^.])+\.{1}$/s']
+    convention.git_commit_message_matchers: ['/^((QAS\-)(\d+ ))+\| [A-Za-z\d\s\.]+([^.])+\.{1}$/s']
