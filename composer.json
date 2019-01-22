@@ -86,6 +86,7 @@
         "drupal/devel_php": "1.x-dev",
         "drupal/examples": "1.x-dev",
         "drupal/maillog": "1.x-dev",
+        "drupal/queue_ui": "^2.0",
         "drupal/restui": "^1.15",
         "drupal/security_review": "1.x-dev",
         "drupal/toolbar_anti_flicker": "^2.7",
