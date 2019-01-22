@@ -1,0 +1,9 @@
+services:
+  plugin.manager.test_worker:
+    class: Drupal\qa_shot_test_worker\TestWorker\TestWorkerManager
+    parent: default_plugin_manager
+
+  qa_shot_test_worker.worker_factory:
+    class: Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactory
+    arguments:
+      - '@plugin.manager.test_worker'

@@ -1,20 +1,21 @@
 services:
   backstopjs.file_system:
     class: Drupal\backstopjs\Service\FileSystem
-    arguments: ['@file_system', '@backstopjs.config_converter', '@entity_type.manager']
+    arguments:
+      - '@file_system'
+      - '@backstopjs.config_converter'
+      - '@entity_type.manager'
 
   backstopjs.backstop:
     class: Drupal\backstopjs\Service\Backstop
-    arguments: ['@backstopjs.file_system', '@logger.factory', '@backstopjs.worker_factory', '@config.factory']
+    arguments:
+      - '@backstopjs.file_system'
+      - '@logger.factory'
+      - '@qa_shot_test_worker.worker_factory'
+      - '@config.factory'
 
   backstopjs.config_converter:
     class: Drupal\backstopjs\Service\ConfigurationConverter
-    arguments: ['@entity_type.manager', '@config.factory']
-
-  backstopjs.worker_factory:
-    class: \Drupal\backstopjs\Backstopjs\BackstopjsWorkerFactory
-    arguments: ['@plugin.manager.backstopjs_worker', '@backstopjs.file_system', '@logger.factory', '@config.factory']
-
-  plugin.manager.backstopjs_worker:
-    class: Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager
-    parent: default_plugin_manager
+    arguments:
+      - '@entity_type.manager'
+      - '@config.factory'

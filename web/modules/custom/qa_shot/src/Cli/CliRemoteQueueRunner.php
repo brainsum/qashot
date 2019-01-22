@@ -37,13 +37,6 @@ class CliRemoteQueueRunner {
   protected $queue;
 
   /**
-   * The remote worker.
-   *
-   * @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerInterface
-   */
-  protected $remoteWorker;
-
-  /**
    * Test storage.
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
@@ -84,7 +77,6 @@ class CliRemoteQueueRunner {
   public function __construct() {
     $this->messenger = \Drupal::messenger();
     $this->queue = new QAShotQueue(self::QUEUE_NAME, \Drupal::database());
-    $this->remoteWorker = \Drupal::service('backstopjs.worker_factory')->get('remote');
     $this->testStorage = \Drupal::entityTypeManager()->getStorage('qa_shot_test');
 
     $this->httpClient = \Drupal::httpClient();
@@ -99,7 +91,7 @@ class CliRemoteQueueRunner {
    * Publish available tests to the external queue.
    */
   public function publishAll() {
-    $date = (new \DateTime())->setTimestamp(time());
+    $date = (new DrupalDateTime())->setTimestamp(\time());
     $this->messenger->addMessage($this->t('Publishing to external queue initiated at @datetime', [
       '@datetime' => $date->format('Y-m-d H:i:s'),
     ]));

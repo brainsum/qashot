@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\backstopjs\Plugin\BackstopjsWorker;
+namespace Drupal\backstopjs\Plugin\TestWorker;
 
 use Drupal\backstopjs\Backstopjs\BackstopjsWorkerBase;
 use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
@@ -19,9 +19,11 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  *
  * @package Drupal\backstopjs\Plugin\BackstopjsWorker
  *
- * @BackstopjsWorker(
- *   id = "local",
- *   title = @Translation("Local binaries"),
+ * @TestWorker(
+ *   id = "backstopjs.local",
+ *   backend = "backstopjs",
+ *   type = "local",
+ *   label = @Translation("Local binaries"),
  *   description = @Translation("Worker for local binaries")
  * )
  */
@@ -33,7 +35,7 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
   /**
    * {@inheritdoc}
    */
-  public function getStatus(): string {
+  public function status() {
     $checkerCommand = escapeshellcmd(self::COMMAND_GET_STATUS);
     // @todo: Refactor and use \Symfony\Component\Process\Process.
     exec($checkerCommand, $execOutput, $status);
