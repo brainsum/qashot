@@ -75,7 +75,7 @@
         "zaporylie/composer-drupal-optimizations": "^1.0"
     },
     "require-dev": {
-        "brainsum/drupal-dev-tools": "^0.4.1",
+        "brainsum/drupal-dev-tools": "^0.4",
         "components-drupal/highlightjs": "^9.0",
         "d3-drupal/d3": "^3.5",
         "drupal/admin_toolbar": "^1.24",

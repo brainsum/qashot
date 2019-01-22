@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7dca617bc6b57c99f311fa76290e28e0",
+    "content-hash": "9791aaeaba830bc9ba827409365f5c46",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -5797,16 +5797,16 @@
         },
         {
             "name": "brainsum/drupal-dev-tools",
-            "version": "0.4.2",
+            "version": "0.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brainsum/drupal-dev-tools.git",
-                "reference": "6afdc942417ca1293985b3a7752288726ef91760"
+                "reference": "fe956fe60fb4dd1b8d06378906abd52d5c4fe463"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brainsum/drupal-dev-tools/zipball/6afdc942417ca1293985b3a7752288726ef91760",
-                "reference": "6afdc942417ca1293985b3a7752288726ef91760",
+                "url": "https://api.github.com/repos/brainsum/drupal-dev-tools/zipball/fe956fe60fb4dd1b8d06378906abd52d5c4fe463",
+                "reference": "fe956fe60fb4dd1b8d06378906abd52d5c4fe463",
                 "shasum": ""
             },
             "require": {
@@ -5856,7 +5856,7 @@
                 }
             ],
             "description": "Dev tools for Drupal development.",
-            "time": "2019-01-22T07:22:26+00:00"
+            "time": "2019-01-22T08:15:49+00:00"
         },
         {
             "name": "components-drupal/highlightjs",
