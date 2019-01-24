@@ -185,7 +185,8 @@ class QueueManager {
      * - We should allow multiple remote endpoints.
      */
     // @todo: Re-generate the QAShot config.
-    if ('remote' === $this->config->get('suite.location')) {
+    // @todo: generalize, use worker type.
+    if ('backstopjs.remote' === $this->config->get('suite.location')) {
       return $this->addRemoteTest($test, $queueItem);
     }
 
