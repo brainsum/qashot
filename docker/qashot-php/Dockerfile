@@ -1,9 +1,11 @@
-FROM havelantmate/drupal-php:0.1.0
+FROM brainsum/drupal-php:0.1.1
 
 LABEL maintainer="mhavelant"
 LABEL description="Custom docker image for QAShot."
 
 USER root
+
+## @todo: Add node path to PHP path.
 
 # Override base image envs.
 ENV \
@@ -40,6 +42,9 @@ RUN \
         pkg-config \
         fontconfig \
 	    xvfb \
+	    # Runtime
+	    # Firefox
+	    libgtk-3-0 \
 	    \
 	    # Explicitly install FF.
         && wget "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_VERSION}/linux-$(uname -m)/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" \
@@ -52,9 +57,9 @@ RUN \
             /var/cache/apt/* \
         && apt-get -y purge \
             *-dev \
-            build-essential \
-            autoconf \
-            libtool \
+#            build-essential \
+#            autoconf \
+#            libtool \
         && apt-get -y clean \
         && apt-get -y autoclean \
         && apt-get -y autoremove
