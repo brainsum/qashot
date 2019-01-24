@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [[ -n "${DEBUG}" ]]; then
+    set -x
+fi
+
+chown "${USER_NAME}:${USER_NAME}" "${APP_ROOT}"
+
+declare -a dirs=(
+    "${FILES_DIR}"
+    "${FILES_DIR}/public"
+    "${FILES_DIR}/private"
+    "${FILES_DIR}/sessions"
+    "${FILES_DIR}/xdebug/profiler"
+    "${FILES_DIR}/xdebug/traces"
+)
+
+if [[ -n $1 && $1 =~ ^"${FILES_DIR}/" ]]; then
+    dirs+=($1)
+fi
+
+for dir in "${dirs[@]}"; do
+    mkdir -p "${dir}"
+    chown "${WEB_USER_NAME}:${WEB_USER_NAME}" "${dir}"
+    chmod 775 "${dir}"
+done
+
+if [[ -f "/etc/crontabs/${WEB_USER_NAME}" && -z "${CRONTAB}" ]]; then
+    chown "root:${WEB_USER_NAME}" "/etc/crontabs/${WEB_USER_NAME}"
+    chmod 660 "/etc/crontabs/${WEB_USER_NAME}"
+fi
+
+if [[ -f "/home/${USER_NAME}/.ssh/id_rsa" ]]; then
+    chown "${USER_NAME}:${USER_NAME}" "/home/${USER_NAME}/.ssh/id_rsa"
+    chmod 600 "/home/${USER_NAME}/.ssh/id_rsa"
+fi
+
+if [[ -f "/home/${USER_NAME}/.ssh/authorized_keys" ]]; then
+    chown "${USER_NAME}:${USER_NAME}" "/home/${USER_NAME}/.ssh/authorized_keys"
+    chmod 600 "/home/${USER_NAME}/.ssh/authorized_keys"
+fi

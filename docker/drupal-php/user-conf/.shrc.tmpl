@@ -1,0 +1,2 @@
+export PS1="\u@{{ getenv "APP_NAME" "app" }}.{{ getenv "ENVIRONMENT_NAME" "dev" }}:\w $ "
+export PATH={{ getenv "PATH" "" }}
