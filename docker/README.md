@@ -49,9 +49,9 @@ The main image, contains BackstopJS.
 ### drupal-php
 - cd <project root>
 - lint
-    - ```docker run --rm -i hadolint/hadolint < docker/drupal-php/Dockerfile```
+    - ```docker run --rm -i hadolint/hadolint:v1.15.0 < docker/drupal-php/Dockerfile```
 - build
-    - ```docker build --rm -t brainsum/drupal-php -t brainsum/drupal-php:0.1.0 docker/drupal-php```
+    - ```docker build --rm -t brainsum/drupal-php -t brainsum/drupal-php:<tag> docker/drupal-php```
 - cleanup
     - ```docker container ps -a and manually remove stuck containers, if any.```
     - ```docker rmi $(docker images -f "dangling=true" -q)```
