@@ -1,0 +1,2 @@
+Defaults env_keep += "APP_ROOT FILES_DIR"
+{{ getenv "USER_NAME" "user" }} ALL=(root) NOPASSWD:SETENV: /usr/local/bin/files_chmod, /usr/local/bin/files_chown, /usr/local/bin/files_sync, /usr/local/bin/gen_ssh_keys, /usr/local/bin/init_container, /usr/local/bin/migrate, /usr/local/sbin/php-fpm, /usr/sbin/sshd, /usr/sbin/crond
