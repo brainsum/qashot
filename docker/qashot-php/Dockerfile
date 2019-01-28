@@ -3,34 +3,15 @@ FROM brainsum/drupal-php:0.1.1
 LABEL maintainer="mhavelant"
 LABEL description="Custom docker image for QAShot."
 
-USER root
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-## @todo: Add node path to PHP path.
+USER root
 
 # Override base image envs.
 ENV \
-    APP_NAME="qashot"
-
-ENV \
-# NPM
+    APP_NAME="qashot" \
     NODE_VERSION=6.16.0 \
     NODE_ENV=production \
-#    PHANTOMJS_VERSION=2.1.1
-    PHANTOMJS_VERSION=2.1.7 \
-    CASPERJS_VERSION=1.1.4 \
-    SLIMERJS_VERSION=0.10.3 \
-#    BACKSTOPJS_VERSION=3.8.8 \
-    BACKSTOPJS_VERSION=3.0.26 \
-    NPM_CONFIG_UNSAFE_PERM=true \
-    # Chrome
-    CHROME_BIN=/usr/bin/chromium-browser \
-    CHROME_PATH=/usr/lib/chromium/ \
-#    CHROME_STABILITY=stable \
-#    CHROME_VERSION=62.* \
-    # Firefox
-    ## For firefox 55+. We could also use slimerjs --headless.
-    ## @todo: When this works, remove xvfb.
-    MOZ_HEADLESS=1 \
     FIREFOX_VERSION=52.9.0esr \
     # XVFB
     DISPLAY=localhost:0.0
@@ -39,33 +20,37 @@ ENV \
 RUN \
     apt-get -y update \
 	&& apt-get -y --no-install-recommends install \
-        pkg-config \
-        fontconfig \
-	    xvfb \
+        pkg-config=0.29-4+b1 \
+        fontconfig=2.11.0-6.7+b1 \
+	    xvfb=2:1.19.2-1+deb9u5 \
+	    # Sudo replacement.
+	    ## @todo: Move to base image.
+	    gosu=1.10-1+b2 \
 	    # Runtime
+	    # QAShot
+	    procps=2:3.3.12-3+deb9u1 \
+	    # CasperJS
+	    python=2.7.13-2 \
 	    # Firefox
-	    libgtk-3-0 \
+	    libgtk-3-0=3.22.11-1 \
 	    \
 	    # Explicitly install FF.
-        && wget "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_VERSION}/linux-$(uname -m)/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" \
-        && tar -xjf firefox-${FIREFOX_VERSION}.tar.bz2 \
+        && curl -o "firefox-${FIREFOX_VERSION}.tar.bz2" "https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX_VERSION}/linux-$(uname -m)/en-US/firefox-${FIREFOX_VERSION}.tar.bz2" \
+        && tar -xjf "firefox-${FIREFOX_VERSION}.tar.bz2" \
         && mv firefox /opt/ \
         && ln -s /opt/firefox/firefox /usr/bin/firefox \
 	    # Cleanup.
         && rm -rf \
             /var/lib/apt/lists/* \
             /var/cache/apt/* \
-        && apt-get -y purge \
+        && apt-get -y purge -- \
             *-dev \
-#            build-essential \
-#            autoconf \
-#            libtool \
         && apt-get -y clean \
         && apt-get -y autoclean \
         && apt-get -y autoremove
 
 # Build node.
-## Based on: https://github.com/nodejs/docker-node/blob/master/6/jessie/Dockerfile
+## Based on: https://github.com/nodejs/docker-node/blob/master/6/stretch/Dockerfile
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && case "${dpkgArch##*-}" in \
     amd64) ARCH='x64';; \
@@ -103,11 +88,27 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && rm "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
   && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
+ENV \
+    # NPM
+    NPM_CONFIG_UNSAFE_PERM=true \
+    # Chrome
+    CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/lib/chromium/ \
+    # Firefox
+    ## For firefox 55+. We could also use slimerjs --headless.
+    ## @todo: When this works, remove xvfb.
+    MOZ_HEADLESS=1 \
+    # Versions.
+    PHANTOMJS_VERSION=2.1.7 \
+    CASPERJS_VERSION=1.1.4 \
+    SLIMERJS_VERSION=0.10.3 \
+#    BACKSTOPJS_VERSION=3.8.8 \
+    BACKSTOPJS_VERSION=3.0.26
 
 # Backstop.
-RUN sudo npm install -g --unsafe-perm=true --allow-root phantomjs@${PHANTOMJS_VERSION}
-RUN sudo npm install -g --unsafe-perm=true --allow-root casperjs@${CASPERJS_VERSION}
-RUN sudo npm install -g --unsafe-perm=true --allow-root slimerjs@${SLIMERJS_VERSION}
-RUN sudo npm install -g --unsafe-perm=true --allow-root backstopjs@${BACKSTOPJS_VERSION}
+RUN gosu root npm install -g --unsafe-perm=true --allow-root phantomjs@${PHANTOMJS_VERSION}
+RUN gosu root npm install -g --unsafe-perm=true --allow-root casperjs@${CASPERJS_VERSION}
+RUN gosu root npm install -g --unsafe-perm=true --allow-root slimerjs@${SLIMERJS_VERSION}
+RUN gosu root npm install -g --unsafe-perm=true --allow-root backstopjs@${BACKSTOPJS_VERSION}
 
 USER php
