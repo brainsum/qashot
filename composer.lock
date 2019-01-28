@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04e8a4780d1df368ec419d5758f073b9",
+    "content-hash": "038743c27d1b92f8078f4fb7c47484e5",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -6928,6 +6928,9 @@
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
                     }
+                },
+                "patches_applied": {
+                    "Warning: count(): Parameter must be an array": "https://www.drupal.org/files/issues/2018-06-25/devel-webprofiler-count-warning-2951821-17.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",

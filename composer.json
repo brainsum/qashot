@@ -142,6 +142,9 @@
         "patches": {
             "drupal/security_review": {
                 "log() argument is null": "https://www.drupal.org/files/issues/security_review-fatal_error_when_running_the_review-2815487-5.patch"
+            },
+            "drupal/devel": {
+                "Warning: count(): Parameter must be an array": "https://www.drupal.org/files/issues/2018-06-25/devel-webprofiler-count-warning-2951821-17.patch"
             }
         }
     },
