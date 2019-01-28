@@ -2,16 +2,16 @@
 
 namespace Drupal\backstopjs\Service;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\StreamWrapper\PrivateStream;
-use Drupal\Core\StreamWrapper\PublicStream;
-use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\backstopjs\Exception\FileCopyException;
 use Drupal\backstopjs\Exception\FileOpenException;
 use Drupal\backstopjs\Exception\FileWriteException;
 use Drupal\backstopjs\Exception\FolderCreateException;
 use Drupal\backstopjs\Exception\InvalidEntityException;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StreamWrapper\PrivateStream;
+use Drupal\Core\StreamWrapper\PublicStream;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
  * Class FileSystem.
@@ -25,7 +25,7 @@ class FileSystem {
    *
    * @var string
    */
-  const DATA_BASE_FOLDER = 'qa_test_data';
+  public const DATA_BASE_FOLDER = 'qa_test_data';
 
   /**
    * The private files folder for QAShot Test Entities without a trailing /.
@@ -73,6 +73,7 @@ class FileSystem {
    *   The entity type manager.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(
     FileSystemInterface $fileSystem,
@@ -115,13 +116,13 @@ class FileSystem {
    *
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
    */
-  public function createFolder($dirToCreate) {
-    if (is_dir($dirToCreate)) {
+  public function createFolder($dirToCreate): void {
+    if (\is_dir($dirToCreate)) {
       return;
     }
 
     // Create directory and parents as well.
-    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !is_dir($dirToCreate)) {
+    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !\is_dir($dirToCreate)) {
       throw new FolderCreateException("Creating the $dirToCreate folder failed.");
     }
   }
@@ -137,19 +138,100 @@ class FileSystem {
    * @throws FileWriteException
    * @throws FileOpenException
    */
-  public function createConfigFile($configurationPath, $jsonString) {
+  public function createConfigFile($configurationPath, $jsonString): void {
     // @todo: check if file exists, if yes, check if it's the same as the new one.
-    if (($configFile = fopen($configurationPath, 'w')) === FALSE) {
+    if (($configFile = \fopen($configurationPath, 'wb')) === FALSE) {
       throw new FileOpenException("Opening the configuration file at $configurationPath failed.");
     }
 
-    if (fwrite($configFile, $jsonString) === FALSE) {
+    if (\fwrite($configFile, $jsonString) === FALSE) {
       throw new FileWriteException("Writing the configuration file at $configurationPath failed.");
     }
 
-    if (fclose($configFile) === FALSE) {
+    if (\fclose($configFile) === FALSE) {
       throw new FileWriteException("Closing the configuration file at $configurationPath failed.");
     }
+
+    $this->setFilePermissions($configurationPath);
+  }
+
+  /**
+   * Set permissions for files.
+   *
+   * @param string $filename
+   *   The filename.
+   *
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   */
+  private function setFilePermissions($filename): void {
+    if ($this->fileSystem->chmod($filename, 0664) === FALSE) {
+      throw new FileWriteException("Operation 'chmod' on file '$filename' failed.");
+    }
+    if (\chown($filename, 'www-data') === FALSE) {
+      throw new FileWriteException("Operation 'chown' on file '$filename' failed.");
+    }
+
+    if (\chgrp($filename, 'www-data') === FALSE) {
+      throw new FileWriteException("Operation 'chgrp' on file '$filename' failed.");
+    }
+  }
+
+  /**
+   * Compare two files.
+   *
+   * @param string $firstFilename
+   *   File name for the first file.
+   * @param string $secondFilename
+   *   File name for the second file.
+   *
+   * @return bool
+   *   TRUE, if they are the same.
+   *
+   * @see https://jonlabelle.com/snippets/view/php/quickly-check-if-two-files-are-identical
+   * @see http://php.net/manual/en/function.md5-file.php#94494
+   */
+  private function filesAreIdentical(string $firstFilename, string $secondFilename): bool {
+    if (
+      \file_exists($firstFilename) === FALSE
+      || \file_exists($secondFilename) === FALSE
+    ) {
+      return FALSE;
+    }
+
+    if (\filetype($firstFilename) !== \filetype($secondFilename)) {
+      return FALSE;
+    }
+
+    if (\filesize($firstFilename) !== \filesize($secondFilename)) {
+      return FALSE;
+    }
+
+    if (!($fpFirst = \fopen($firstFilename, 'rb'))) {
+      return FALSE;
+    }
+
+    if (!($fpSecond = \fopen($secondFilename, 'rb'))) {
+      \fclose($fpFirst);
+      return FALSE;
+    }
+
+    $isSame = TRUE;
+
+    while (!\feof($fpFirst) and !\feof($fpSecond)) {
+      if (\fread($fpFirst, 8192) !== \fread($fpSecond, 8192)) {
+        $isSame = FALSE;
+        break;
+      }
+    }
+
+    if (\feof($fpFirst) !== \feof($fpSecond)) {
+      $isSame = FALSE;
+    }
+
+    \fclose($fpFirst);
+    \fclose($fpSecond);
+
+    return $isSame;
   }
 
   /**
@@ -161,25 +243,39 @@ class FileSystem {
    *   Target folder.
    *
    * @throws \Drupal\backstopjs\Exception\FileCopyException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
    */
-  private function copyTemplates($src, $target) {
-    if (($fileList = scandir($src, NULL)) === FALSE) {
-      throw new FileCopyException('Copying the casper script templates failed.');
+  private function copyTemplates($src, $target): void {
+    if (($fileList = \scandir($src, NULL)) === FALSE) {
+      throw new FileCopyException("Opening script template directory '$src' failed.");
     }
 
-    // @todo: scandir target, if file is there and they are the same, skip the file
     $result = TRUE;
 
     foreach ($fileList as $file) {
-      if (strpos($file, '.js') === FALSE) {
+      if (\strpos($file, '.js') === FALSE) {
         continue;
       }
 
-      $result |= copy($src . '/' . $file, $target . '/' . $file);
+      $srcFile = $src . '/' . $file;
+      $targetFile = $target . '/' . $file;
+
+      if ($this->filesAreIdentical($srcFile, $targetFile) === TRUE) {
+        continue;
+      }
+
+      $couldCopy = \copy($srcFile, $targetFile);
+      if ($couldCopy === FALSE) {
+        throw new FileCopyException("Making a copy of the '$srcFile' template failed (target: '$targetFile').");
+      }
+
+      $this->setFilePermissions($targetFile);
+
+      $result |= $couldCopy;
     }
 
-    if (FALSE === $result) {
-      throw new FileCopyException('Copying the casper script templates failed.');
+    if ($result === FALSE) {
+      throw new FileCopyException("Copying script templates from '$src' failed.");
     }
   }
 
@@ -198,13 +294,12 @@ class FileSystem {
    * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    * @throws \Drupal\backstopjs\Exception\FileOpenException
    * @throws \Drupal\backstopjs\Exception\FileWriteException
-   * @throws \Drupal\backstopjs\Exception\FileCloseException
    * @throws \Drupal\backstopjs\Exception\FileCopyException
    * @throws \Drupal\backstopjs\Exception\FolderCreateException
    * @throws \Drupal\Core\Entity\EntityStorageException
    * @throws \InvalidArgumentException
    */
-  public function initializeEnvironment(QAShotTestInterface $entity) {
+  public function initializeEnvironment(QAShotTestInterface $entity): void {
     if (NULL === $entity || $entity->getEntityTypeId() !== 'qa_shot_test') {
       throw new InvalidEntityException('The entity is empty or its type is not QAShot Test!');
     }
@@ -250,7 +345,7 @@ class FileSystem {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    */
-  public function clearFiles(QAShotTestInterface $entity) {
+  public function clearFiles(QAShotTestInterface $entity): void {
     $pubRemoveRes = $this->removePublicData($entity);
     $privRemoveRes = $this->removePrivateData($entity);
 
@@ -336,7 +431,10 @@ class FileSystem {
     }
 
     // Remove stuck folders.
-    $folders = array_values(array_diff(scandir($this->publicFiles, SCANDIR_SORT_DESCENDING), ['.', '..']));
+    $folders = array_values(array_diff(scandir($this->publicFiles, SCANDIR_SORT_DESCENDING), [
+      '.',
+      '..',
+    ]));
     // Get the folders where the test entity is missing.
     $stuckTestData = array_diff($folders, $testIds);
 
@@ -361,7 +459,10 @@ class FileSystem {
     }
 
     // Get the folders without the . and .. ones in reverse order.
-    $folders = array_values(array_diff(scandir($dataFolder, SCANDIR_SORT_DESCENDING), ['.', '..']));
+    $folders = array_values(array_diff(scandir($dataFolder, SCANDIR_SORT_DESCENDING), [
+      '.',
+      '..',
+    ]));
 
     // If there are more than one items in it, remove the first.
     // This should mean the removal of the latest item.
