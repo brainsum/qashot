@@ -415,6 +415,7 @@ class Backstop extends TestBackendBase {
 
     $this->backstop->checkRunStatus();
 
+    // @todo: Default from config.
     $browser = 'chrome';
     if ($browserFromTest = $entity->getBrowser()) {
       $browser = $browserFromTest;

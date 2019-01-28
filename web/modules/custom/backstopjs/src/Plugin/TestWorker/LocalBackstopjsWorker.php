@@ -78,19 +78,6 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
       $xvfb = 'xvfb-run -a ';
     }
 
-    $path = $this->config->get('suite.binary_path');
-    $executable = $path ? $path . 'backstop' : 'backstop';
-    $arguments = ' ' . $command . ' --configPath=' . $entity->getConfigurationPath();
-
-    $backstopCommand = escapeshellcmd($xvfb . $executable . $arguments);
-    /** @var array $execOutput */
-    /** @var int $status */
-
-    // @todo: Refactor and use \Symfony\Component\Process\Process.
-    // @see: http://symfony.com/doc/2.8/components/process.html
-    // @see: QAS-10
-    exec($backstopCommand, $execOutput);
-
     switch ($browser) {
       case 'firefox':
         $engine = 'slimerjs';
@@ -107,6 +94,19 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
       default:
         throw new \RuntimeException('Invalid browser (' . $browser . ').');
     }
+
+    $path = $this->config->get('suite.binary_path');
+    $executable = $path ? $path . 'backstop' : 'backstop';
+    $arguments = ' ' . $command . ' --configPath=' . $entity->getConfigurationPath();
+
+    $backstopCommand = escapeshellcmd($xvfb . $executable . $arguments);
+    /** @var array $execOutput */
+    /** @var int $status */
+
+    // @todo: Refactor and use \Symfony\Component\Process\Process.
+    // @see: http://symfony.com/doc/2.8/components/process.html
+    // @see: QAS-10
+    exec($backstopCommand, $execOutput);
 
     $results = [
       'result' => TRUE,
