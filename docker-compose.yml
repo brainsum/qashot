@@ -19,6 +19,10 @@ services:
     security_opt:
       - seccomp:unconfined
     environment:
+      PHP_DEV: "yes"
+      PHP_DEBUG: "yes"
+      PHP_FPM_CLEAR_ENV: "no"
+      PHP_FPM_LOG_LEVEL: "debug"
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: mariadb
       DB_USER: drupal
