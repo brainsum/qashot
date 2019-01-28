@@ -1,3 +1,6 @@
+# @todo: Add https://github.com/tianon/gosu, replace sudo.
+## @see: https://github.com/tianon/gosu/blob/master/INSTALL.md
+
 # Base: debian:stretch-slim
 FROM php:7.2.14-fpm-stretch
 
