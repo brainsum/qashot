@@ -1,3 +1,4 @@
-module.exports = async (page, scenario, vp) => {
-    console.log('(puppeteer) onBefore.js has run for: '+ vp.name + '.');
+module.exports = function (page, scenario, vp) {
+    "use strict";
+    console.log('(puppeteer) onBefore.js has run for: ' + vp.name + '.');
 };
