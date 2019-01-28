@@ -23,6 +23,7 @@ RUN \
         pkg-config=0.29-4+b1 \
         fontconfig=2.11.0-6.7+b1 \
 	    xvfb=2:1.19.2-1+deb9u5 \
+	    xauth=1:1.0.9-1+b2 \
 	    # Sudo replacement.
 	    ## @todo: Move to base image.
 	    gosu=1.10-1+b2 \
