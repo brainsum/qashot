@@ -388,7 +388,13 @@ class CliRemoteQueueRunner {
         continue;
       }
 
-      \file_put_contents('private://qa_test_data/' . $test->id() . '/results/' . \time() . ".$resultUuid.json", \json_encode($resultData));
+      $resultsDir = 'private://qa_test_data/' . $test->id() . '/results';
+
+      if (!\mkdir($resultsDir, 0777, TRUE) && !\is_dir($resultsDir)) {
+        throw new \RuntimeException(sprintf('Directory "%s" was not created', $resultsDir));
+      }
+
+      \file_put_contents($resultsDir . \time() . ".$resultUuid.json", \json_encode($resultData));
 
       /** @var \stdClass $queueItem */
       $queueItem = $items[$test->id()];
