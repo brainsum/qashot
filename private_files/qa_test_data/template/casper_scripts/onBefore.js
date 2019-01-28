@@ -1,8 +1,10 @@
 module.exports = function (casper, scenario, vp) {
-  console.log('(casper) onBefore.js has run for: ' + vp.name + '.');
+    "use strict";
+    console.log('(casper) onBefore.js has run for: ' + vp.name + '.');
 };
 
-//This script runs before your app loads. Edit here to log-in, load cookies or set other states required for your test.
+//This script runs before your app loads. Edit here to log-in, load cookies or
+// set other states required for your test.
 
 // // EXAMPLE: LOGIN BEFORE RUNNING TESTS
 // module.exports = function(casper, scenario, vp) {
