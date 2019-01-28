@@ -72,6 +72,13 @@ class CliRemoteQueueRunner {
   protected $logger;
 
   /**
+   * The drupal FS.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
    * CliRemoteQueueRunner constructor.
    */
   public function __construct() {
@@ -85,6 +92,7 @@ class CliRemoteQueueRunner {
     $this->remoteHost = $this->configFactory->get('backstopjs.settings')->get('suite.remote_host');
 
     $this->logger = \Drupal::logger('qa_shot');
+    $this->fileSystem = \Drupal::service('file_system');
   }
 
   /**
@@ -323,6 +331,27 @@ class CliRemoteQueueRunner {
   }
 
   /**
+   * Creates a directory at the given path.
+   *
+   * @param string $dirToCreate
+   *   Path of the directory to be created.
+   *
+   * @throws \RuntimeException
+   *
+   * @todo: Copy of func in Drupal\backstopjs\Service\FileSystem.
+   */
+  public function createFolder($dirToCreate): void {
+    if (\is_dir($dirToCreate)) {
+      return;
+    }
+
+    // Create directory and parents as well.
+    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !\is_dir($dirToCreate)) {
+      throw new \RuntimeException("Creating the $dirToCreate folder failed.");
+    }
+  }
+
+  /**
    * Consume messages from the remote queue.
    */
   public function consumeAll() {
@@ -390,9 +419,7 @@ class CliRemoteQueueRunner {
 
       $resultsDir = 'private://qa_test_data/' . $test->id() . '/results';
 
-      if (!\mkdir($resultsDir, 0777, TRUE) && !\is_dir($resultsDir)) {
-        throw new \RuntimeException(sprintf('Directory "%s" was not created', $resultsDir));
-      }
+      $this->createFolder($resultsDir);
 
       \file_put_contents($resultsDir . \time() . ".$resultUuid.json", \json_encode($resultData));
 
