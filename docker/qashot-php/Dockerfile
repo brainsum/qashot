@@ -106,7 +106,9 @@ ENV \
     BACKSTOPJS_VERSION=3.0.26
 
 # Backstop.
-RUN gosu root npm install -g --unsafe-perm=true --allow-root phantomjs@${PHANTOMJS_VERSION}
+RUN gosu root npm install -g --unsafe-perm=true --allow-root phantomjs@${PHANTOMJS_VERSION} \
+    # Empty out tmp, as phantomjs downloads stuff there, but doesn't clean it up.
+    && rm -rf -- /tmp/*
 RUN gosu root npm install -g --unsafe-perm=true --allow-root casperjs@${CASPERJS_VERSION}
 RUN gosu root npm install -g --unsafe-perm=true --allow-root slimerjs@${SLIMERJS_VERSION}
 RUN gosu root npm install -g --unsafe-perm=true --allow-root backstopjs@${BACKSTOPJS_VERSION}
