@@ -14,5 +14,6 @@ cd "${SCRIPT_PATH}" && /usr/local/bin/docker-compose exec -T php sh -c "cd web &
 #
 #@reboot sudo -u ubuntu /bin/sh -c "cd ~/qashot && ./prod-startup.sh"
 ## Run queues every minute.
-#* * * * * sudo -u alpine-www-data /bin/sh ~/qashot/run-test-queue.sh
+#* * * * * sudo -u alpine-www-data /bin/sh ~/qashot/run-test-queue.sh > /dev/null 2>&1 || true
+#
 #
