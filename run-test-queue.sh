@@ -1,13 +1,18 @@
 #!/bin/sh
-# cd into the script location. The docker-compose.yml should also be in here, otherwise it's gonna lead to an error.
-#cd "${0%/*}" && /usr/local/bin/docker-compose exec php sh -c "cd web && drush queue:run cron_run_qa_shot_test --time-limit 15"
-cd "${0%/*}" && /usr/local/bin/docker-compose exec php sh -c "cd web && drush php:script modules/custom/qa_shot/tools/RunRemoteQueues >> /var/www/html/private_files/queue-run-debug.remote.txt"
-cd "${0%/*}" && /usr/local/bin/docker-compose exec php sh -c "cd web && drush php:script modules/custom/qa_shot/tools/RunQAShotQueues >> /var/www/html/private_files/queue-run-debug.txt"
 
-# How to:
-# Add this to your host's crontab:
-#   * * * * * /bin/sh ~/www/qashot/run-test-queue
-# Note: Replace paths with the ones on your host.
-# You can use something like this:
-# ( crontab -l ; echo "* * * * * /bin/sh ~/www/qashot/run-test-queue.sh" ) | crontab -
-# ( crontab -l ; echo "* * * * * /bin/sh ~/www/run-test-queue.sh" ) | crontab -
+RUNTIME=$(date "+%Y-%m-%d_%H-%M-%S")
+
+SCRIPT=$(readlink -f "$0")
+SCRIPT_PATH=$(dirname "$SCRIPT")
+
+cd "${SCRIPT_PATH}" && /usr/local/bin/docker-compose exec -T php sh -c "cd web && drush php:script modules/custom/qa_shot/tools/RunRemoteQueues 2>&1 | tee /var/www/html/private_files/logs/remote/${RUNTIME}.txt"
+cd "${SCRIPT_PATH}" && /usr/local/bin/docker-compose exec -T php sh -c "cd web && drush php:script modules/custom/qa_shot/tools/RunQAShotQueues 2>&1 | tee /var/www/html/private_files/logs/local/${RUNTIME}.txt"
+
+## Crontab should be something like this:
+#
+#COMPOSE_INTERACTIVE_NO_CLI=1
+#
+#@reboot sudo -u ubuntu /bin/sh -c "cd ~/qashot && ./prod-startup.sh"
+## Run queues every minute.
+#* * * * * sudo -u alpine-www-data /bin/sh ~/qashot/run-test-queue.sh
+#
