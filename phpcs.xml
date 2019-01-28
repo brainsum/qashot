@@ -24,7 +24,7 @@
     <description>A custom coding standard for the QAShot project.</description>
 
     <!-- Check for cross-version support. -->
-    <config name="testVersion" value="7.0-"/>
+    <config name="testVersion" value="7.2-"/>
 
     <arg name="extensions" value="php,module,inc,install,test,profile,theme" />
     <arg name="ignore" value="*.md,MachineLearning.php" />
