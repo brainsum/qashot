@@ -19,16 +19,16 @@
 
 ### Base
 
-- PHP 7.0 or newer
+- PHP 7.2 or newer
 - composer ([https://getcomposer.org/download/](https://getcomposer.org/download/))
 - drush ([http://docs.drush.org/en/8.x/install-alternative/](http://docs.drush.org/en/8.x/install-alternative/))
-- npm ([https://howtonode.org/how-to-install-nodejs](https://howtonode.org/how-to-install-nodejs), [https://nodejs.org/en/download/](https://nodejs.org/en/download/))
+- node 6 + npm ([https://howtonode.org/how-to-install-nodejs](https://howtonode.org/how-to-install-nodejs), [https://nodejs.org/en/download/](https://nodejs.org/en/download/))
 
 Then continue the traditionally installation with: [Linux/Mac guide](#install-qashot-on-linuxmac) and/or [Windows Guide](#install-qashot-on-windows)
 
 ### When using docker
 
-- PHP 7.0 or newer
+- PHP 7.2 or newer
 - composer ([https://getcomposer.org/download/](https://getcomposer.org/download/))
 - docker ([https://docs.docker.com/engine/installation/](https://docs.docker.com/engine/installation/))
     - This guide assumes you installed it so it doesn't need sudo to run
@@ -97,8 +97,8 @@ Check your installation, if your chosen one is able to run from anywhere, you ar
 4. Set correct access and rights (you don't need this on Windows):
     1. `sudo chown 1000:1000 . -R`
         1. Note: 1000 is the UID and GID of the wodby user inside the docker container. By default, this should also be your own user UID/GID on the host.
-    2. `sudo chown 1000:82 private\_files web/sites/default/files -R`
-        1. Note: 82 is the UID and GID of the www-data user inside the docker container.
+    2. `sudo chown 1000:33 private\_files web/sites/default/files -R`
+        1. Note: 33 is the UID and GID of the www-data user inside the docker container.
 5. Start the docker container
 `docker-compose up -d`
 6. Enter to docker container

@@ -10,7 +10,8 @@ Features:
 
 ## Disclaimer
 
-QAShot is heavily in development. Breaking changes with no automatic upgrade paths might be introduced to it without notice. Use or update it at your own discretion.
+QAShot is heavily in development. Breaking changes with no automatic upgrade paths might be introduced to it without notice.
+Use or update it at your own discretion.
 
 ## Roadmap
 QAShot will undergo big changes in the future.
@@ -23,20 +24,20 @@ This will allow us to make the Drupal instance more lightweight and increase tes
 We would like to also keep local run capabilities, but supporting both in a sustainable way is not possible. This means, a full back-end rewrite will start hopefully soon.
 
 ## Docker
-The project comes with a docker-compose.yml based on the Docker4Drupal environment (v1.3.0).
-A custom docker image is used for the PHP container, as we needed to include BackstopJS and its dependencies.
-Name: havelantmate/drupal_php
-See:
-
-- [Dockerfile on Github](https://github.com/mhavelant/docker/tree/master/QAS/UBUNTU_PHP)
-- [Image on Docker hub](https://hub.docker.com/r/havelantmate/drupal_php/)
+For information about the docker stack, see [the README](docker/README.md) for the docker stack.
 
 ## Cron
 The tests are not run automatically, they are first put into a queue which is managed with cron.
 If you want the tests to run, you have to set up a cron job on the system.
 
-If you are using the docker environment described in this repo, just use this:
-( crontab -l ; echo "* * * * * /bin/sh <path-to-project>/run-test-queue.sh" ) | crontab -
+Example:
+```
+COMPOSE_INTERACTIVE_NO_CLI=1
+
+@reboot sudo -u ubuntu /bin/sh -c "cd ~/qashot && ./prod-startup.sh"
+# Run queues every minute.
+* * * * * sudo -u alpine-www-data /bin/sh ~/qashot/run-test-queue.sh > /dev/null 2>&1 || true
+```
 
 See https://www.drupal.org/node/23714 for more cron info.
 
