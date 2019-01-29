@@ -132,7 +132,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
     $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $qaShotTest->id() . '/debug';
 
     if (\is_dir($debugPath)) {
-      $files = \scandir($debugPath, SCANDIR_SORT_ASCENDING);
+      $files = \scandir($debugPath, SCANDIR_SORT_DESCENDING);
       $rows = [];
 
       foreach ($files as $file) {
@@ -225,7 +225,7 @@ function template_preprocess_qa_shot_test(array &$variables) {
     $metadata = [
       '#type' => 'table',
       '#header' => \array_values($header),
-      '#rows' => $rows,
+      '#rows' => \array_reverse($rows),
     ];
     $metadataGroup = [
       '#type' => 'details',
