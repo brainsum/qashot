@@ -122,7 +122,6 @@ class ApiController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The response.
    *
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function queueTest(Request $request): JsonResponse {
@@ -202,6 +201,7 @@ class ApiController extends ControllerBase {
   public function forceRun(Request $request): JsonResponse {
     $settings = $this->parseRunnerSettings($request);
     $tid = $settings['tid'];
+    $status = 'unknown';
 
     try {
       $this->testRunner->run($tid);
@@ -242,7 +242,7 @@ class ApiController extends ControllerBase {
    * @return string|null
    *   The parameters.
    */
-  private function parseRunnerSettings(Request $request) {
+  private function parseRunnerSettings(Request $request):? string {
     $runnerSettings = [];
 
     if (!empty($request->getContent())) {
@@ -281,7 +281,7 @@ class ApiController extends ControllerBase {
    *   The entity.
    */
   private function loadEntityFromId($entityId): QAShotTest {
-    if (!is_numeric($entityId)) {
+    if (!\is_numeric($entityId)) {
       throw new BadRequestHttpException(
         $this->t('The supplied parameter ( @param ) is not valid.', [
           '@param' => $entityId,
@@ -370,14 +370,14 @@ class ApiController extends ControllerBase {
     try {
       $runnerSettings = [];
       if (!empty($request->getContent())) {
-        $runnerSettings = json_decode($request->getContent(), TRUE);
+        $runnerSettings = \json_decode($request->getContent(), TRUE);
       }
 
       if (empty($runnerSettings)) {
         throw new BadRequestHttpException('The request parameter is empty. Please set \'tids\' (array) parameter.');
       }
 
-      if (empty($runnerSettings['tids']) || !is_array($runnerSettings['tids'])) {
+      if (empty($runnerSettings['tids']) || !\is_array($runnerSettings['tids'])) {
         throw new BadRequestHttpException('The \'tids\' parameter is empty or not an array.');
       }
 
@@ -427,7 +427,7 @@ class ApiController extends ControllerBase {
     try {
       $runnerSettings = [];
       if (!empty($request->getContent())) {
-        $runnerSettings = json_decode($request->getContent(), TRUE);
+        $runnerSettings = \json_decode($request->getContent(), TRUE);
       }
 
       if (empty($runnerSettings)) {
