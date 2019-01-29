@@ -239,10 +239,10 @@ class ApiController extends ControllerBase {
    * @throws BadRequestHttpException
    * @throws \LogicException
    *
-   * @return string|null
+   * @return array
    *   The parameters.
    */
-  private function parseRunnerSettings(Request $request):? string {
+  private function parseRunnerSettings(Request $request): array {
     $runnerSettings = [];
 
     if (!empty($request->getContent())) {
