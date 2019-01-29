@@ -16,8 +16,7 @@ echo "\n"
 ${VENDOR_BIN_DIR}/parallel-lint ${DIR_TO_CHECK}
 
 echo "\n\n";
-echo "PHPCS / Drupal+Practice+Compatibility7.0+)";
-${VENDOR_BIN_DIR}/phpcs --config-set installed_paths ${VENDOR_DIR}/drupal/coder/coder_sniffer,${VENDOR_DIR}/phpcompatibility/php-compatibility
+echo "PHPCS / Drupal+Practice+Compatibility7.2+)";
 ${VENDOR_BIN_DIR}/phpcs --standard=phpcs.xml "${DIR_TO_CHECK}" && echo "PHPCS: No error" || echo "PHPCS: Error"
 
 #phpcbf --standard=phpcs.xml "${DIR_TO_CHECK}"
