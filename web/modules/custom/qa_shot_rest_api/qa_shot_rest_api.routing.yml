@@ -1,71 +1,84 @@
 qa_shot_rest_api.queue_test:
-  path: 'api/rest/v1/qa_shot_test/{qa_shot_test}/queue'
+  path: '/api/rest/v1/qa_shot_test/{qa_shot_test}/queue'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::queueTest'
   methods: [POST]
   options:
-   _auth: ['basic_auth', 'cookie']
-   query:
-     _format: json
+    _auth: ['basic_auth', 'cookie']
+    query:
+      _format: json
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+    _format: json
+    _content_type_format: json
 
 qa_shot_rest_api.test_list:
-  path: 'api/rest/v1/test_list'
+  path: '/api/rest/v1/test_list'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::testList'
   methods: [GET]
   options:
-   _auth: ['basic_auth', 'cookie']
-   query:
-     _format: json
+    _auth: ['basic_auth', 'cookie']
+    query:
+      _format: json
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+    _format: json
+    _content_type_format: json
 
 qa_shot_rest_api.login_test:
-  path: 'api/rest/v1/login'
+  path: '/api/rest/v1/login'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::loginTest'
   methods: [POST]
   options:
-   _auth: ['basic_auth', 'cookie']
-   query:
-     _format: json
+    _auth: ['basic_auth', 'cookie']
+    query:
+      _format: json
+    no_cache: true
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+    _format: json
+    _content_type_format: json
 
 qa_shot_rest_api.force_run:
-  path: 'api/rest/v1/force_run'
+  path: '/api/rest/v1/force_run'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::forceRun'
   methods: [POST]
   options:
-   _auth: ['basic_auth', 'cookie']
-   query:
-     _format: json
+    _auth: ['basic_auth', 'cookie']
+    query:
+      _format: json
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+    _format: json
+    _content_type_format: json
 
 qa_shot_rest_api.last_modification:
-  path: 'api/rest/v1/last_modification'
+  path: '/api/rest/v1/last_modification'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::getLastModification'
   methods: [POST]
   options:
-   _auth: ['basic_auth', 'cookie']
-   query:
-     _format: json
+    _auth: ['basic_auth', 'cookie']
+    query:
+      _format: json
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+    _format: json
+    _content_type_format: json
 
 qa_shot_rest_api.queue_status:
-  path: 'api/rest/v1/queue_status'
+  path: '/api/rest/v1/queue_status'
   defaults:
     _controller: '\Drupal\qa_shot_rest_api\Controller\ApiController::getQueueStatus'
   methods: [POST]
   options:
-   _auth: ['basic_auth', 'cookie']
-   query:
-     _format: json
+    _auth: ['basic_auth', 'cookie']
+    query:
+      _format: json
   requirements:
     _custom_access: '\Drupal\qa_shot_rest_api\Controller\ApiController::access'
+    _format: json
+    _content_type_format: json
