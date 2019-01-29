@@ -190,6 +190,7 @@ class ConfigurationConverter {
     if (TRUE === $withDebug || TRUE === (bool) $this->config->get('backstopjs.debug_mode')) {
       $mapConfigToArray['debug'] = TRUE;
       $mapConfigToArray['engineFlags'][] = '--verbose';
+      $mapConfigToArray['engineFlags'][] = '--debug=true';
     }
 
     return $mapConfigToArray;
