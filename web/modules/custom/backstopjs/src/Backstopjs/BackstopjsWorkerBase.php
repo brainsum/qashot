@@ -48,11 +48,11 @@ abstract class BackstopjsWorkerBase extends TestWorkerBase implements Backstopjs
    * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
    * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
     return new static(
       $configuration,
-      $plugin_id,
-      $plugin_definition,
+      $pluginId,
+      $pluginDefinition,
       $container->get('backstopjs.file_system'),
       $container->get('logger.factory'),
       $container->get('config.factory')
@@ -64,9 +64,9 @@ abstract class BackstopjsWorkerBase extends TestWorkerBase implements Backstopjs
    *
    * @param array $configuration
    *   The plugin configuration.
-   * @param string $plugin_id
+   * @param string $pluginId
    *   The plugin ID.
-   * @param array $plugin_definition
+   * @param array $pluginDefinition
    *   The plugin definition.
    * @param \Drupal\backstopjs\Service\FileSystem $backstopFileSystem
    *   The BackstopJS file system service.
@@ -77,13 +77,13 @@ abstract class BackstopjsWorkerBase extends TestWorkerBase implements Backstopjs
    */
   public function __construct(
     array $configuration,
-    $plugin_id,
-    array $plugin_definition,
+    $pluginId,
+    array $pluginDefinition,
     FileSystem $backstopFileSystem,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ConfigFactoryInterface $configFactory
   ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    parent::__construct($configuration, $pluginId, $pluginDefinition);
 
     $this->backstopFileSystem = $backstopFileSystem;
     $this->logger = $loggerChannelFactory->get('backstopjs');
