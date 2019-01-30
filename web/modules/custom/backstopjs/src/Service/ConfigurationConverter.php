@@ -5,6 +5,7 @@ namespace Drupal\backstopjs\Service;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
@@ -17,6 +18,7 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  * Saving the new entity is optional.
  *
  * @package Drupal\backstopjs\Service
+ * @backstopjs v3.8.8
  */
 class ConfigurationConverter {
 
@@ -56,22 +58,38 @@ class ConfigurationConverter {
   private $config;
 
   /**
+   * The file system.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  private $fileSystem;
+
+  /**
    * ConfigurationConverter constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   EntityTypeManager service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Config factory.
+   * @param \Drupal\Core\File\FileSystemInterface $fileSystem
+   *   The file system.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, ConfigFactoryInterface $configFactory) {
+  public function __construct(
+    EntityTypeManagerInterface $entityTypeManager,
+    ConfigFactoryInterface $configFactory,
+    FileSystemInterface $fileSystem
+  ) {
     $this->privateDataPath = PrivateStream::basePath() . '/' . FileSystem::DATA_BASE_FOLDER;
     $this->publicDataPath = PublicStream::basePath() . '/' . FileSystem::DATA_BASE_FOLDER;
 
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->paragraphStorage = $entityTypeManager->getStorage('paragraph');
     $this->config = $configFactory->get('backstopjs.settings');
+
+    $this->fileSystem = $fileSystem;
   }
 
   /**
@@ -81,7 +99,7 @@ class ConfigurationConverter {
    *   The test entity.
    *
    * @return array
-   *   An associative array with name, scripts and flags.
+   *   An associative array with name, scripts and options.
    */
   protected function getTestEngine(QAShotTestInterface $entity): array {
     $private = $this->privateDataPath . '/' . $entity->id();
@@ -89,33 +107,46 @@ class ConfigurationConverter {
 
     switch ($browser) {
       case 'firefox':
+        // @todo: Get real path?
+        $optionsKey = 'casperFlags';
         $testEngine = 'slimerjs';
         $engineScripts = $private . '/casper_scripts';
-        $engineFlags = [
+        $engineOptions = [
           '--ignore-ssl-errors=true',
           '--ssl-protocol=any',
+          '--headless',
         ];
+        $useAbsolutePaths = TRUE;
         break;
 
       case 'phantomjs':
-        $testEngine = 'phantomjs';
+        $optionsKey = 'casperFlags';
+        $testEngine = 'casper';
         $engineScripts = $private . '/casper_scripts';
-        $engineFlags = [
+        $engineOptions = [
           '--ignore-ssl-errors=true',
           '--ssl-protocol=any',
         ];
+        $useAbsolutePaths = FALSE;
         break;
 
       case 'chrome':
+        $optionsKey = 'engineOptions';
         $testEngine = 'puppeteer';
         $engineScripts = $private . '/puppeteer_scripts';
-        $engineFlags = [
-          '--headless',
-          '--disable-gpu',
-          '--ignore-certificate-errors',
-          '--force-device-scale-factor=1',
-          '--disable-infobars=true',
+        $engineOptions = [
+          'ignoreHTTPSErrors' => TRUE,
+          'args' => [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--headless',
+            '--disable-gpu',
+            '--ignore-certificate-errors',
+            '--force-device-scale-factor=1',
+            '--disable-infobars=true',
+          ],
         ];
+        $useAbsolutePaths = FALSE;
         break;
 
       default:
@@ -125,8 +156,37 @@ class ConfigurationConverter {
     return [
       'name' => $testEngine,
       'scripts' => $engineScripts,
-      'flags' => $engineFlags,
+      'optionsKey' => $optionsKey,
+      'options' => $engineOptions,
+      'useAbsolutePaths' => $useAbsolutePaths,
     ];
+  }
+
+  /**
+   * Parse the given path.
+   *
+   * @param string $path
+   *   The path.
+   * @param bool $absolute
+   *   Flag to parse it as absolute.
+   *
+   * @return string
+   *   The parsed path.
+   */
+  protected function parsePath(string $path, $absolute = FALSE): string {
+    $absolute = FALSE;
+    if ($absolute === TRUE) {
+      $realpath = $this->fileSystem->realpath($path);
+
+      if ($realpath === FALSE) {
+        // @todo: Throw exception/message.
+        return $path;
+      }
+
+      return $realpath;
+    }
+
+    return $path;
   }
 
   /**
@@ -161,11 +221,11 @@ class ConfigurationConverter {
         $engine['name']
       ),
       'paths' => [
-        'engine_scripts' => $engine['scripts'],
-        'bitmaps_reference' => $public . '/reference',
-        'bitmaps_test' => $public . '/test',
-        'html_report' => $public . '/html_report',
-        'ci_report' => $public . '/ci_report',
+        'engine_scripts' => $this->parsePath($engine['scripts'], $engine['useAbsolutePaths']),
+        'bitmaps_reference' => $this->parsePath($public . '/reference', $engine['useAbsolutePaths']),
+        'bitmaps_test' => $this->parsePath($public . '/test', $engine['useAbsolutePaths']),
+        'html_report' => $this->parsePath($public . '/html_report', $engine['useAbsolutePaths']),
+        'ci_report' => $this->parsePath($public . '/ci_report', $engine['useAbsolutePaths']),
       ],
       // 'onBeforeScript' => 'onBefore.js', //.
       // 'onReadyScript' => 'onReady.js', //.
@@ -177,7 +237,6 @@ class ConfigurationConverter {
         // CI is added, as omitting it won't result in it being generated.
         'CI',
       ],
-      'engineFlags' => $engine['flags'],
       'resembleOutputOptions' => $this->generateResembleOptions($entity->get('field_diff_color')),
       'asyncCompareLimit' => (int) $this->config->get('backstopjs.async_compare_limit'),
       // @todo: Enable on settings UI.
@@ -187,10 +246,10 @@ class ConfigurationConverter {
       'debugWindow' => FALSE,
     ];
 
+    $mapConfigToArray[$engine['optionsKey']] = $engine['options'];
+
     if (TRUE === $withDebug || TRUE === (bool) $this->config->get('backstopjs.debug_mode')) {
       $mapConfigToArray['debug'] = TRUE;
-      $mapConfigToArray['engineFlags'][] = '--verbose';
-      $mapConfigToArray['engineFlags'][] = '--debug=true';
     }
 
     return $mapConfigToArray;
@@ -212,17 +271,17 @@ class ConfigurationConverter {
     // Allow diff color to be set on an entity level.
     if ($hexValue = $diffColorField->getValue()) {
       $hex = $hexValue[0]['value'];
-      $red = hexdec(substr($hex, 0, 2));
-      $green = hexdec(substr($hex, 2, 2));
-      $blue = hexdec(substr($hex, 4, 2));
+      $red = \hexdec(\substr($hex, 0, 2));
+      $green = \hexdec(\substr($hex, 2, 2));
+      $blue = \hexdec(\substr($hex, 4, 2));
     }
     // If for some reason it's not set, use the global config.
     // If it's also not set, use rgb(255, 0, 255).
     elseif ($hexValue = $this->config->get('backstopjs.resemble_output_options.fallback_color')) {
       $hex = $hexValue;
-      $red = hexdec(substr($hex, 0, 2));
-      $green = hexdec(substr($hex, 2, 2));
-      $blue = hexdec(substr($hex, 4, 2));
+      $red = \hexdec(\substr($hex, 0, 2));
+      $green = \hexdec(\substr($hex, 2, 2));
+      $blue = \hexdec(\substr($hex, 4, 2));
     }
 
     $output = [
@@ -264,7 +323,7 @@ class ConfigurationConverter {
   ): array {
     // Flatten the field values from target_id + revision_target_id
     // to target_id only.
-    $ids = array_map(function ($item) {
+    $ids = \array_map(function ($item) {
       return $item['target_id'];
     }, $viewportField->getValue());
 
@@ -311,7 +370,7 @@ class ConfigurationConverter {
 
     // Flatten the field values from target_id + revision_target_id
     // to target_id only.
-    $ids = array_map(function ($item) {
+    $ids = \array_map(function ($item) {
       return $item['target_id'];
     }, $scenarioField->getValue());
 
@@ -397,7 +456,7 @@ class ConfigurationConverter {
    */
   public function jsonStringToEntity($json, $saveEntity = FALSE): QAShotTestInterface {
     /** @var array $rawData */
-    $rawData = json_decode($json, TRUE);
+    $rawData = \json_decode($json, TRUE);
 
     $entityData = [
       'name' => 'Import for backstop.json with id #' . $rawData['id'],

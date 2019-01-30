@@ -24,6 +24,7 @@ use Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface;
  * BackstopJS abstraction class.
  *
  * @package Drupal\qa_shot\Service
+ * @backstopjs v3.8.8
  */
 class Backstop extends TestBackendBase {
 
