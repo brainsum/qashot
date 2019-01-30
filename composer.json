@@ -83,14 +83,14 @@
         "drupal/adminimal_admin_toolbar": "^1.8",
         "drupal/console": "^1.8",
         "drupal/cors_ui": "1.x-dev",
-        "drupal/devel": "^1.2",
+        "drupal/devel": "^2.0",
         "drupal/devel_php": "1.x-dev",
         "drupal/examples": "1.x-dev",
         "drupal/maillog": "1.x-dev",
         "drupal/queue_ui": "^2.0",
         "drupal/restui": "^1.15",
         "drupal/security_review": "1.x-dev",
-        "drupal/toolbar_anti_flicker": "^2.7",
+        "drupal/toolbar_anti_flicker": "^3.1",
         "webflo/drupal-core-require-dev": "^8.6"
     },
     "conflict": {
@@ -143,9 +143,6 @@
         "patches": {
             "drupal/security_review": {
                 "log() argument is null": "https://www.drupal.org/files/issues/security_review-fatal_error_when_running_the_review-2815487-5.patch"
-            },
-            "drupal/devel": {
-                "Warning: count(): Parameter must be an array": "https://www.drupal.org/files/issues/2018-06-25/devel-webprofiler-count-warning-2951821-17.patch"
             }
         }
     },
