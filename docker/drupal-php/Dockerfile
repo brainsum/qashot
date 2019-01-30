@@ -1,5 +1,3 @@
-# @todo: Add https://github.com/tianon/gosu, replace sudo.
-## @see: https://github.com/tianon/gosu/blob/master/INSTALL.md
 # @todo: Install sendmail to /usr/sbin/sendmail.
 
 # Base: debian:stretch-slim
@@ -7,6 +5,8 @@ FROM php:7.2.14-fpm-stretch
 
 LABEL maintainer="mhavelant"
 LABEL description="Custom docker image for Drupal."
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 COPY ["templates", "/etc/gotpl/"]
 COPY ["docker-php-entrypoint.sh", "/"]
@@ -29,12 +29,12 @@ ENV \
     PHP_DEBUG="${PHP_DEBUG}" \
     SSHD_PERMIT_USER_ENV="yes"
 
-RUN printenv
-
 # www-data uid/gid 33.
 RUN groupadd --gid 1000 "${USER_NAME}" \
   && useradd --uid 1000 --gid "${USER_NAME}" --shell /bin/bash --create-home "${USER_NAME}" \
-  && usermod -aG "${WEB_USER_NAME}" "${USER_NAME}"
+  && usermod -aG "${WEB_USER_NAME}" "${USER_NAME}" \
+  # Fix WEB_USER_NAME user home folder permissions.
+  && chown "${WEB_USER_NAME}:${WEB_USER_NAME}" "/var/www/"
 
 WORKDIR ${APP_ROOT}
 VOLUME ${APP_ROOT}
@@ -63,7 +63,6 @@ ENV \
     PHP_REALPATH_CACHE_TTL="3600" \
     PHP_OUTPUT_BUFFERING="16384"
 
-
 # Enable PHP exts.
 ## See: https://github.com/wodby/php/blob/master/7/Dockerfile
 ## See: https://github.com/wodby/drupal-php/blob/master/7/Dockerfile
@@ -72,9 +71,12 @@ ENV \
 RUN \
     apt-get -y update \
 	&& apt-get -y --no-install-recommends install \
+        # Sudo replacement.
+        gosu=1.10-1+b2 \
+        # @todo: Might no longer be needed.
+        sudo \
 	    software-properties-common \
         ca-certificates \
-	    sudo \
         dirmngr \
         gzip \
         unzip \
@@ -318,14 +320,14 @@ COPY ["user-conf", "/etc/build-templates/user-conf"]
 
 # Drupal deps.
 RUN set -ex \
-    && sudo -u "${USER_NAME}" composer global require hirak/prestissimo --optimize-autoloader \
-    && sudo -u "${USER_NAME}" composer global require drush/drush:^9.0 --optimize-autoloader \
+    && gosu "${USER_NAME}" composer global require hirak/prestissimo --optimize-autoloader \
+    && gosu "${USER_NAME}" composer global require drush/drush:^9.0 --optimize-autoloader \
     # Drush extensions
-    && sudo -u "${USER_NAME}" mkdir -p "/home/${USER_NAME}/.drush" \
+    && gosu "${USER_NAME}" mkdir -p "/home/${USER_NAME}/.drush" \
     && drush_patchfile_url="https://bitbucket.org/davereid/drush-patchfile.git" \
-    && sudo -u "${USER_NAME}" git clone "${drush_patchfile_url}" "/home/${USER_NAME}/.drush/drush-patchfile" \
+    && gosu "${USER_NAME}" git clone "${drush_patchfile_url}" "/home/${USER_NAME}/.drush/drush-patchfile" \
     && drush_rr_url="https://ftp.drupal.org/files/projects/registry_rebuild-7.x-2.5.tar.gz" \
-    && wget -qO- "${drush_rr_url}" | sudo -u "${USER_NAME}" tar zx -C "/home/${USER_NAME}/.drush" \
+    && wget -qO- "${drush_rr_url}" | gosu "${USER_NAME}" tar zx -C "/home/${USER_NAME}/.drush" \
     \
     # Drupal console
     && console_url="https://github.com/hechoendrupal/drupal-console-launcher/releases/download/${DRUPAL_CONSOLE_LAUNCHER_VER}/drupal.phar" \
@@ -342,9 +344,9 @@ RUN set -ex \
     && chmod 775 "${FILES_DIR}/config" \
     \
     # Clean up
-    && sudo -u "${USER_NAME}" composer clear-cache \
-    && sudo -u "${USER_NAME}" "${DRUSH_LAUNCHER_FALLBACK}" cc drush \
-    && gotpl /etc/build-templates/user-conf/.shrc.tmpl | sudo -u "${USER_NAME}" tee "/home/${USER_NAME}/.shrc" \
+    && gosu "${USER_NAME}" composer clear-cache \
+    && gosu "${USER_NAME}" "${DRUSH_LAUNCHER_FALLBACK}" cc drush \
+    && gotpl /etc/build-templates/user-conf/.shrc.tmpl | gosu "${USER_NAME}" tee "/home/${USER_NAME}/.shrc" \
     && cp "/home/${USER_NAME}/.shrc" "/home/${USER_NAME}/.bashrc" \
     && cp "/home/${USER_NAME}/.shrc" "/home/${USER_NAME}/.bash_profile" \
     # Docker builds with sh, so we can't use [[ ]].
