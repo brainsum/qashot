@@ -19,3 +19,4 @@ services:
     arguments:
       - '@entity_type.manager'
       - '@config.factory'
+      - '@file_system'

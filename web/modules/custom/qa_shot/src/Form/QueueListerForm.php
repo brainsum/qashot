@@ -144,9 +144,10 @@ class QueueListerForm extends FormBase {
       '#submit' => ['::submitQueueClearAll'],
     ];
 
+    $prettyPrintStatus = \json_encode(\json_decode($this->backstop->getStatus(), TRUE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $form['backstopjs_status'] = [
       '#type' => 'markup',
-      '#markup' => 'Results for using pgrep to search for BackstopJS: ' . $this->backstop->getStatus(),
+      '#markup' => "Results for using pgrep to search for BackstopJS: <pre>{$prettyPrintStatus}</pre>",
       '#title' => $this->t('BackstopJS status'),
     ];
 
