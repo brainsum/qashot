@@ -137,11 +137,15 @@ function template_preprocess_qa_shot_test(array &$variables) {
 
       foreach ($files as $file) {
         if (!\in_array($file, ['.', '..'], TRUE)) {
-          $filename = \trim(\explode('.', $file)[0]);
-          $filename = (new \DateTime())->setTimestamp((int) $filename)->format('Y-m-d H:i:s');
+          $fileNameFragments = \explode('.', $file);
+          $rawTimestamp = \trim($fileNameFragments[0]);
+          $fileDate = (new \DateTime())->setTimestamp((int) $rawTimestamp)->format('Y-m-d H:i:s');
+          $command = $fileNameFragments[1] ?? 'unknown';
+
+          // @todo: Update displayed name.
           $rows[] = [
             'file' => Link::fromTextAndUrl(
-              $filename,
+              "{$fileDate}, {$command} command",
               Url::fromRoute('entity.qa_shot_test.debug', [
                 'qa_shot_test' => $qaShotTest->id(),
                 'file_name' => \urlencode($file),

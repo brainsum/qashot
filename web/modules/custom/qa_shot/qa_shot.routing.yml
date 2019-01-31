@@ -1,5 +1,5 @@
 entity.qa_shot_test.run:
-  path: 'qa_shot_test/{qa_shot_test}/run'
+  path: '/qa_shot_test/{qa_shot_test}/run'
   defaults:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::entityRunPage'
     _title: 'Status'
@@ -7,7 +7,7 @@ entity.qa_shot_test.run:
     _permission: 'edit qashot test entities'
 
 entity.qa_shot_test.debug:
-  path: 'qa_shot_test/{qa_shot_test}/{file_name}/debug'
+  path: '/qa_shot_test/{qa_shot_test}/debug/{file_name}/display'
   defaults:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::displayDebugFile'
     _title: 'File'
@@ -15,7 +15,7 @@ entity.qa_shot_test.debug:
     _permission: 'view qa_shot debug data'
 
 entity.qa_shot_test.add_to_queue:
-  path: 'qa_shot_test/{qa_shot_test}/add_queue'
+  path: '/qa_shot_test/{qa_shot_test}/add_queue'
   defaults:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::entityAddToQueue'
     _title: 'Status'
@@ -23,7 +23,7 @@ entity.qa_shot_test.add_to_queue:
     _permission: 'edit qashot test entities'
 
 entity.qa_shot_test.add_to_queue_reference:
-  path: 'qa_shot_test/{qa_shot_test}/add_queue/reference'
+  path: '/qa_shot_test/{qa_shot_test}/add_queue/reference'
   defaults:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::entityAddToQueue'
     _title: 'Status'
@@ -32,7 +32,7 @@ entity.qa_shot_test.add_to_queue_reference:
     _permission: 'edit qashot test entities'
 
 entity.qa_shot_test.add_to_queue_test:
-  path: 'qa_shot_test/{qa_shot_test}/add_queue/test'
+  path: '/qa_shot_test/{qa_shot_test}/add_queue/test'
   defaults:
     _controller: '\Drupal\qa_shot\Controller\QAShotController::entityAddToQueue'
     _title: 'Status'
