@@ -21,6 +21,10 @@ web/sites/*/settings.local.php
 web/sites/*/local.settings.php
 web/sites/*/services.yml
 
+# Drush files
+drush/local.drush.yml
+drush/drush.local.yml
+
 # Custom ignores
 !private_files/qa_test_data/template
 docker-runtime/*
