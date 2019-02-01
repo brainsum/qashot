@@ -200,8 +200,8 @@ class CliRemoteQueueRunner {
       'mode' => 'a_b',
       'stage' => '',
       'uuid' => $test->uuid(),
-      'origin' => $this->configFactory->get('qashot.settings')->get('instance_id'),
-      'environment' => $this->configFactory->get('qashot.settings')->get('current_environment'),
+      'origin' => $this->configFactory->get('qa_shot.settings')->get('instance_id'),
+      'environment' => $this->configFactory->get('qa_shot.settings')->get('current_environment'),
       'test_config' => $backstopConfig,
     ];
 
@@ -274,7 +274,7 @@ class CliRemoteQueueRunner {
     }
 
     $payload = [
-      'origin' => $this->configFactory->get('qashot.settings')->get('instance_id'),
+      'origin' => $this->configFactory->get('qa_shot.settings')->get('instance_id'),
       'testUuids' => $uuids,
     ];
 

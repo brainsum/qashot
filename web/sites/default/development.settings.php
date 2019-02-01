@@ -20,3 +20,4 @@ $config['system.logging']['error_level'] = 'all';
 $settings['cache']['bins']['render'] = 'cache.backend.null';
 $settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.null';
 $config['config_split.config_split.development']['status'] = TRUE;
+$config['qa_shot.settings']['current_environment'] = 'development';
