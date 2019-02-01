@@ -41,7 +41,6 @@ module:
   toolbar_anti_flicker: 0
   update: 0
   user: 0
-  webprofiler: 0
   views: 10
   paragraphs: 11
   standard: 1000
