@@ -113,8 +113,7 @@
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ],
         "post-install-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-            "vendor/bin/phpcs --version && vendor/bin/phpcs --config-set installed_paths vendor/drupal/coder/coder_sniffer,vendor/phpcompatibility/php-compatibility || echo \"PHPCS is not installed\" "
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ],
         "post-update-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
