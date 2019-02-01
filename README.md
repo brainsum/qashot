@@ -13,6 +13,20 @@ Features:
 QAShot is heavily in development. Breaking changes with no automatic upgrade paths might be introduced to it without notice.
 Use or update it at your own discretion.
 
+## Info about a refactor (2019.02.01)
+
+A recent refactor (Commit `a2ed30d102d`) results in the following error:
+```The service "backstopjs.backstop" has a dependency on a non-existent service "qa_shot_test_worker.worker_factory".```
+
+This has no easy solution, so a workaround is supplied:
+
+- cd <project root>
+- git pull
+- git apply patches/qa_shot.services-deployment_hotifx.patch
+- git apply patches/backstopjs.services-deployment_hotifx.patch
+- do a release as usual
+- checkout the 2 patched service files and clear caches
+
 ## Roadmap
 QAShot will undergo big changes in the future.
 
