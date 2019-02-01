@@ -15,5 +15,3 @@ $databases['default']['default'] = [
   'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
   'driver' => 'mysql',
 ];
-
-$base_url = 'qashot.docker.localhost:8000';
