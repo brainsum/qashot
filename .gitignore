@@ -18,6 +18,7 @@ private_files
 # Settings files
 web/sites/*/settings.php
 web/sites/*/settings.local.php
+web/sites/*/local.settings.php
 web/sites/*/services.yml
 
 # Custom ignores
