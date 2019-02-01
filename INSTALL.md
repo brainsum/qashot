@@ -1,4 +1,118 @@
 # QAShot install guide
+## Docker
+### Versions
+
+Installation was tested in the following environment:
+
+- Docker version 18.09.1, build 4c52b90
+- docker-compose version 1.23.2, build 1110ad0
+    - Installed via pip (Python 3.6.7, pip 18.0)
+
+The steps were written for Linux.
+
+
+### Steps
+
+Preface notes:
+
+- User/Group ID 33 is the web user `www-data` in the PHP container
+- User/Group ID 1000 is the default user `php` in the PHP container
+
+
+On the host machine:
+
+- Clone the repo
+    - `git clone git@github.com:brainsum/qashot.git`
+- `cd qashot`
+- `cp .env.example .env`
+    - you can change the contents as needed
+- Update the `settings.php` file, add:
+    - Every instance
+        - ```php
+             $config_directories['sync'] = '../config/prod';
+
+             $settings['file_private_path'] = '../private_files';
+             $settings['file_public_path'] = 'sites/default/files';
+
+             if (\file_exists(__DIR__ . '/services.cors.yml')) {
+               $settings['container_yamls'][] = __DIR__ . '/services.cors.yml';
+             }
+
+             if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'docker.settings.php')) {
+               include_once __DIR__ . DIRECTORY_SEPARATOR . 'docker.settings.php';
+             }
+
+             if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'local.settings.php')) {
+               include_once __DIR__ . DIRECTORY_SEPARATOR . 'local.settings.php';
+             }
+             ```
+    - Development
+        - ```php
+             if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'development.settings.php')) {
+               include_once __DIR__ . DIRECTORY_SEPARATOR . 'development.settings.php';
+             }
+             ```
+    - Per instance
+        - In `local.settings.php`:
+            - ```php
+                 $config['qa_shot.settings']['instance_id'] = '<a unique instance id, e.g a uuid or some alphanumeric string that let's you identify it>';
+                 ```
+                - E.g:
+                    - ```php
+                         $config['qa_shot.settings']['instance_id'] = 'mhavelant-docker-localhost-8mGPnkLwlqN7GSmIs8bd';
+                         ```
+            - If you intend on using remote workers:
+                - ```php
+                     $config['backstopjs.settings']['suite']['remote_host'] = 'http://my-qashot-worker.site';
+                     ```
+        - If you want to manage some settings via the env variables of `docker-compose.yml`, you can set these overrides with `\getenv('MY_VARIABLE)` (Note, ensure to pass the proper types, and check for errors)
+- You might also want to set some drush options:
+    - Create/Edit the `drush/local.drush.yml` file as needed
+- `bash startup.sh`
+    - or just execute the commands from the script manually
+    - note, this command also enters the docker container
+
+
+In the php container:
+
+- `composer install`
+    - note, for development we use GrumPHP which installs git hooks with absolute paths.
+      This means, you have to fix them outside of the container, if you use git from there (recommended to avoid needing to deal with ssh keys, etc.).
+    - By default, GrumPHP changes the `pre-commit` and `commit-msg` hooks.
+- `drush si --account-pass=123 --db-url=mysql://drupal:drupal@mariadb/drupal standard -y`
+    - Note: Change `--account-pass` as needed
+- `drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y`
+- `drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'`
+- `drush cim -y`
+- `drush cim -y`
+    - Note, this is not a typo. Due to a bug, `system.action.qa_shot_queue_test` doesn't find the plugin at first and the import fails. Config has to be imported twice until this is fixed.
+- `drush cr`
+
+
+On the host machine:
+
+- Ensure using proper permissions
+    - `sudo chown 1000:1000 . -R`
+- Create the required folders
+    - `mkdir -m 775 -p private_files`
+    - `mkdir -m 775 -p private_files/logs/local`
+    - `mkdir -m 775 -p private_files/logs/remote`
+    - `mkdir -m 775 -p private_files/qa_test_data`
+    - `mkdir -m 775 -p web/sites/default/files/qa_test_data`
+- Fix additional permissions
+    - `sudo chown 33:33 private_files web/sites/default/files -R`
+- Ensure that test queues are executed automatically:
+    - Note, this is optional for local sites
+    - Add the following to cron (`crontab -e`)
+        - `* * * * * sudo -u alpine-www-data /bin/sh ~/qashot/run-test-queue.sh > /dev/null 2>&1 || true`
+
+
+
+
+-----------------
+-----------------
+
+## QAShot install guide (@outdated)
 
 - [Prerequirements](#prerequirements)
     - [Base](#base)
@@ -204,9 +318,9 @@ Check your installation, if your chosen one is able to run from anywhere, you ar
 * For sending tests to the remote worker and fetching results:
 
 ```
-$config['qashot.settings']['current_environment'] = 'development';
+$config['qa_shot.settings']['current_environment'] = 'development';
 if (isset($_ENV['PROJECT_ENVIRONMENT']) && \is_string($_ENV['PROJECT_ENVIRONMENT'])) {
-  $config['qashot.settings']['current_environment'] = $_ENV['PROJECT_ENVIRONMENT'];
+  $config['qa_shot.settings']['current_environment'] = $_ENV['PROJECT_ENVIRONMENT'];
 }
 ```
 ```
