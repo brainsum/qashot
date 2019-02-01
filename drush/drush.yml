@@ -1,0 +1,8 @@
+drush:
+  paths:
+    config:
+      - ./drush/docker.drush.yml
+      - ./drush/local.drush.yml
+
+options:
+  uri: 'http://qashot'
