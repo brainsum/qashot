@@ -1,0 +1,24 @@
+uuid: fbed888a-cee3-4c1e-af61-8c4ec3368101
+langcode: en
+status: false
+dependencies: {  }
+id: development
+label: Development
+description: 'Development configs.'
+folder: ../config/development
+module:
+  devel: 0
+  devel_generate: 0
+  devel_php: 0
+  field_ui: 0
+  help: 0
+  kint: 0
+  queue_ui: 0
+  restui: 0
+  views_ui: 0
+theme: {  }
+blacklist: {  }
+graylist: {  }
+graylist_dependents: true
+graylist_skip_equal: true
+weight: 0

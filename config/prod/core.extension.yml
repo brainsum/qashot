@@ -7,23 +7,20 @@ module:
   breakpoint: 0
   ckeditor: 0
   config: 0
+  config_filter: 0
+  config_split: 0
   contact: 0
   datetime: 0
   dblog: 0
-  devel: 0
-  devel_generate: 0
   dynamic_page_cache: 0
   editor: 0
   entity_reference_revisions: 0
   field: 0
-  field_ui: 0
   file: 0
   filter: 0
-  help: 0
   image: 0
   inline_entity_form: 0
   jquery_colorpicker: 0
-  kint: 0
   link: 0
   maillog: 0
   maxlength: 0
@@ -34,9 +31,7 @@ module:
   qa_shot: 0
   qa_shot_rest_api: 0
   qa_shot_test_worker: 0
-  queue_ui: 0
   rest: 0
-  restui: 0
   serialization: 0
   simpletest: 0
   system: 0
@@ -46,7 +41,6 @@ module:
   toolbar_anti_flicker: 0
   update: 0
   user: 0
-  views_ui: 0
   webprofiler: 0
   views: 10
   paragraphs: 11
