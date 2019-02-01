@@ -19,3 +19,4 @@ $config['system.performance']['js']['preprocess'] = FALSE;
 $config['system.logging']['error_level'] = 'all';
 $settings['cache']['bins']['render'] = 'cache.backend.null';
 $settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.null';
+$config['config_split.config_split.development']['status'] = TRUE;
