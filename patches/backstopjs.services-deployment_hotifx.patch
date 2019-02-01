@@ -1,0 +1,25 @@
+diff --git a/web/modules/custom/backstopjs/backstopjs.services.yml b/web/modules/custom/backstopjs/backstopjs.services.yml
+index f5955094..daa3eded 100644
+--- a/web/modules/custom/backstopjs/backstopjs.services.yml
++++ b/web/modules/custom/backstopjs/backstopjs.services.yml
+@@ -6,13 +6,13 @@ services:
+       - '@backstopjs.config_converter'
+       - '@entity_type.manager'
+ 
+-  backstopjs.backstop:
+-    class: Drupal\backstopjs\Service\Backstop
+-    arguments:
+-      - '@backstopjs.file_system'
+-      - '@logger.factory'
+-      - '@qa_shot_test_worker.worker_factory'
+-      - '@config.factory'
++#  backstopjs.backstop:
++#    class: Drupal\backstopjs\Service\Backstop
++#    arguments:
++#      - '@backstopjs.file_system'
++#      - '@logger.factory'
++#      - '@qa_shot_test_worker.worker_factory'
++#      - '@config.factory'
+ 
+   backstopjs.config_converter:
+     class: Drupal\backstopjs\Service\ConfigurationConverter

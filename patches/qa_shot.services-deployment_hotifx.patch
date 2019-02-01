@@ -1,0 +1,30 @@
+diff --git a/web/modules/custom/qa_shot/qa_shot.services.yml b/web/modules/custom/qa_shot/qa_shot.services.yml
+index 731ff64e..be5279e0 100644
+--- a/web/modules/custom/qa_shot/qa_shot.services.yml
++++ b/web/modules/custom/qa_shot/qa_shot.services.yml
+@@ -32,14 +32,14 @@ services:
+     class: Drupal\qa_shot\Service\RunTestImmediately
+     arguments: ['@plugin.manager.qa_shot_queue_worker', '@qa_shot.test_queue_factory', '@entity_type.manager', '@logger.factory']
+ 
+-  qa_shot.queue_manager:
+-    class: Drupal\qa_shot\Service\QueueManager
+-    arguments:
+-      - '@qa_shot.test_queue_factory'
+-      - '@qa_shot_test_worker.worker_factory'
+-      - '@logger.factory'
+-      - '@messenger'
+-      - '@current_user'
+-      - '@datetime.time'
+-      - '@config.factory'
+-      - '@backstopjs.backstop'
++#  qa_shot.queue_manager:
++#    class: Drupal\qa_shot\Service\QueueManager
++#    arguments:
++#      - '@qa_shot.test_queue_factory'
++#      - '@qa_shot_test_worker.worker_factory'
++#      - '@logger.factory'
++#      - '@messenger'
++#      - '@current_user'
++#      - '@datetime.time'
++#      - '@config.factory'
++#      - '@backstopjs.backstop'
