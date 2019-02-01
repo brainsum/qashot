@@ -1,9 +1,0 @@
-id: qa_shot_queue_test
-label: 'Add the test to the queue'
-status: true
-langcode: en
-type: qa_shot_test
-plugin: qa_shot_queue_test
-dependencies:
-  module:
-    - qa_shot
