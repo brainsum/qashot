@@ -445,3 +445,23 @@ function qa_shot_update_8402() {
     $test->save();
   }
 }
+
+/**
+ * Fix entity.definitions.bundle_field_map key store with old bundles.
+ */
+function qa_shot_update_8601() {
+  /** @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $keyValueFactory */
+  $keyValueFactory = \Drupal::service('keyvalue');
+  $keyValueStore = $keyValueFactory->get('entity.definitions.bundle_field_map');
+  $qaShotTestMap = $keyValueStore->get('qa_shot_test');
+
+  $qaShotTestMap['field_viewport']['type'] = 'entity_reference_revisions';
+  $qaShotTestMap['field_scenario']['type'] = 'entity_reference_revisions';
+
+  foreach ($qaShotTestMap as &$field) {
+    unset($field['bundles']['qa_shot_test']);
+  }
+  unset($field);
+
+  $keyValueStore->set('qa_shot_test', $qaShotTestMap);
+}
