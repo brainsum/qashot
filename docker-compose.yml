@@ -22,6 +22,8 @@ services:
 #      context: docker/qashot-php
     image: brainsum/qashot-php:0.2.0
     container_name: "${PROJECT_NAME}_php"
+#    security_opt:
+#      - seccomp:unconfined
     environment:
       DISPLAY: "localhost:0.0"
       PHP_DEV: "yes"
