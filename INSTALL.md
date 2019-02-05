@@ -26,46 +26,6 @@ On the host machine:
 - `cd qashot`
 - `cp .env.example .env`
     - you can change the contents as needed
-- Update the `settings.php` file, add:
-    - Every instance
-        - ```php
-             $config_directories['sync'] = '../config/prod';
-
-             $settings['file_private_path'] = '../private_files';
-             $settings['file_public_path'] = 'sites/default/files';
-
-             if (\file_exists(__DIR__ . '/services.cors.yml')) {
-               $settings['container_yamls'][] = __DIR__ . '/services.cors.yml';
-             }
-
-             if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'docker.settings.php')) {
-               include_once __DIR__ . DIRECTORY_SEPARATOR . 'docker.settings.php';
-             }
-
-             if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'local.settings.php')) {
-               include_once __DIR__ . DIRECTORY_SEPARATOR . 'local.settings.php';
-             }
-             ```
-    - Development
-        - ```php
-             if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'development.settings.php')) {
-               include_once __DIR__ . DIRECTORY_SEPARATOR . 'development.settings.php';
-             }
-             ```
-    - Per instance
-        - In `local.settings.php`:
-            - ```php
-                 $config['qa_shot.settings']['instance_id'] = '<a unique instance id, e.g a uuid or some alphanumeric string that let's you identify it>';
-                 ```
-                - E.g:
-                    - ```php
-                         $config['qa_shot.settings']['instance_id'] = 'mhavelant-docker-localhost-8mGPnkLwlqN7GSmIs8bd';
-                         ```
-            - If you intend on using remote workers:
-                - ```php
-                     $config['backstopjs.settings']['suite']['remote_host'] = 'http://my-qashot-worker.site';
-                     ```
-        - If you want to manage some settings via the env variables of `docker-compose.yml`, you can set these overrides with `\getenv('MY_VARIABLE)` (Note, ensure to pass the proper types, and check for errors)
 - You might also want to set some drush options:
     - Create/Edit the `drush/local.drush.yml` file as needed
 - `bash startup.sh`
@@ -75,18 +35,75 @@ On the host machine:
 
 In the php container:
 
-- `composer install`
-    - note, for development we use GrumPHP which installs git hooks with absolute paths.
-      This means, you have to fix them outside of the container, if you use git from there (recommended to avoid needing to deal with ssh keys, etc.).
-    - By default, GrumPHP changes the `pre-commit` and `commit-msg` hooks.
+- Install libraries, dependencies:
+    - For dev, use `composer install`
+        - note, for development we use GrumPHP which installs git hooks with absolute paths.
+          This means, you have to fix them outside of the container, if you use git from there (recommended to avoid needing to deal with ssh keys, etc.).
+        - By default, GrumPHP changes the `pre-commit` and `commit-msg` hooks.
+    - For production, use `composer install -o --no-dev`
 - `drush si --account-pass=123 --db-url=mysql://drupal:drupal@mariadb/drupal standard -y`
     - Note: Change `--account-pass` as needed
+- Make `settings.php` writable:
+    - `chmod u+x web/sites/default/`
+    - `chmod u+x web/sites/default/settings.php`
+- Update the `settings.php` file:
+    - Remove default content from the end (sync folder, database, etc.)    
+    - Add the following:
+        - For every instance
+            - ```php
+                $config_directories['sync'] = '../config/prod';
+    
+                $settings['file_private_path'] = '../private_files';
+                $settings['file_public_path'] = 'sites/default/files';
+    
+                if (\file_exists(__DIR__ . '/services.cors.yml')) {
+                  $settings['container_yamls'][] = __DIR__ . '/services.cors.yml';
+                }
+    
+                if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'docker.settings.php')) {
+                  include_once __DIR__ . DIRECTORY_SEPARATOR . 'docker.settings.php';
+                }
+    
+                if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'local.settings.php')) {
+                  include_once __DIR__ . DIRECTORY_SEPARATOR . 'local.settings.php';
+                }
+                ```
+        - For development
+            - ```php
+                if (\file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'development.settings.php')) {
+                  include_once __DIR__ . DIRECTORY_SEPARATOR . 'development.settings.php';
+                }
+                ```                  
+        - On a per-instance basis
+            - In `local.settings.php`:
+                - ```php
+                    $config['qa_shot.settings']['instance_id'] = '<a unique instance id, e.g a uuid or some alphanumeric string that let\'s you identify it>';
+                    ```
+                    - E.g:
+                        - ```php
+                            $config['qa_shot.settings']['instance_id'] = 'mhavelant-docker-localhost-8mGPnkLwlqN7GSmIs8bd';
+                            ```
+                - If you intend on using remote workers:
+                    - ```php
+                        $config['backstopjs.settings']['suite']['remote_host'] = 'http://my-qashot-worker.site';
+                        ```
+                - Additionally,
+                    - For production, add:
+                        - ```php
+                            $config['qa_shot.settings']['current_environment'] = 'production';
+                            ```        
+            - If you want to manage some settings via the env variables of `docker-compose.yml`, you can set these overrides with `\getenv('MY_VARIABLE)` (Note, ensure to pass the proper types, and check for errors)
+- If this is a prod instance:
+    - Make `settings.php` read-only:
+        - `chmod u-x web/sites/default/`
+        - `chmod u-x web/sites/default/settings.php`
 - `drush config-set "system.site" uuid "f700763e-1289-406f-919e-98dc38728a53" -y`
 - `drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'`
 - `drush cim -y`
 - `drush cim -y`
     - Note, this is not a typo. Due to a bug, `system.action.qa_shot_queue_test` doesn't find the plugin at first and the import fails. Config has to be imported twice until this is fixed.
 - `drush cr`
+- `drush entup`
 
 
 On the host machine:
