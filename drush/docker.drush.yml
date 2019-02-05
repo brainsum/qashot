@@ -1,2 +1,8 @@
 options:
   uri: 'http://qashot.docker.localhost:8000'
+
+command:
+  user:
+    login:
+      options:
+        browser: 0
