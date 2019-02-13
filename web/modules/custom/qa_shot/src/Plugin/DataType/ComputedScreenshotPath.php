@@ -50,11 +50,17 @@ class ComputedScreenshotPath extends TypedData {
     // Avoid running check_markup() on empty strings.
     if (!isset($url) || $url === '') {
       $this->processed = '';
-    }
-    else {
-      $this->processed = PublicStream::baseUrl() . '/qa_test_data/' . $url;
+      return $this->processed;
+
     }
 
+    $parsed = \parse_url($url);
+    if (isset($parsed['host'])) {
+      $this->processed = $url;
+      return $this->processed;
+    }
+
+    $this->processed = PublicStream::baseUrl() . '/qa_test_data/' . $url;
     return $this->processed;
   }
 
