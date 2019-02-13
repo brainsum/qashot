@@ -557,8 +557,8 @@ class CliRemoteQueueRunner {
         'scenario_id' => (int) $scenarioId,
         'viewport_id' => (int) $viewportId,
         'reference' => $result['referenceUrl'] ?? '',
-        'test' => $result['referenceUrl'] ?? '',
-        'diff' => $result['referenceUrl'] ?? '',
+        'test' => $result['testUrl'] ?? '',
+        'diff' => $result['diffUrl'] ?? '',
         'success' => (bool) $result['success'],
       ];
     }
