@@ -122,7 +122,7 @@ class QAShotController extends ControllerBase {
     elseif ('before_after' === $this->entity->bundle()) {
       // If we come from a valid route, run the tests.
       try {
-        $this->queueManager->addTest($request->attributes->get('run_type'));
+        $this->queueManager->addTest($this->entity, $request->attributes->get('run_type'));
       }
       catch (QAShotBaseException $e) {
         $this->messenger()->addMessage($e->getMessage(), 'error');
