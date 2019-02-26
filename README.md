@@ -46,6 +46,18 @@ If you want the tests to run, you have to set up a cron job on the system.
 
 Example:
 ```
+# Into e.g /etc/cron.d/qashot-queue
+#
+# We want to restart on reboot.
+@reboot <user that's set up to use docker without sudo> /bin/sh -c "cd <path to qashot project root> && ./prod-startup.sh"
+
+# We want to execute queues automatically.
+* * * * * <user that's set up to use docker without sudo> /bin/sh <path to qashot project root>/run-test-queue.sh 2>&1 | tee --append /var/log/custom/qashot.cron.log > /dev/null 2>&1 || true
+
+```
+
+
+```
 COMPOSE_INTERACTIVE_NO_CLI=1
 
 @reboot sudo -u ubuntu /bin/sh -c "cd ~/qashot && ./prod-startup.sh"
@@ -67,9 +79,9 @@ You also need to remove shortcuts from the fresh install, as the standard profil
 
 To run the tests, you need [BackstopJS](https://github.com/garris/BackstopJS "BackstopJS Repository") installed globally.
 
-Detailed install guide is in the [INSTALL.md](/INSTALL.md)
+Detailed install guide is in the [INSTALL.md](docs/INSTALL.md)
 
 ## API
 
 Endpoints are exposed by the ```qa_shot_rest_api``` module.
-For more information how to use it see [API.md](/API.md) file.
+For more information how to use it see [API.md](docs/API.md) file.
