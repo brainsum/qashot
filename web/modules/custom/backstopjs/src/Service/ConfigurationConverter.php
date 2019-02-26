@@ -135,6 +135,7 @@ class ConfigurationConverter {
         $testEngine = 'puppeteer';
         $engineScripts = $private . '/puppeteer_scripts';
         $engineOptions = [
+          'waitTimeout' => 20000,
           'ignoreHTTPSErrors' => TRUE,
           'args' => [
             '--no-sandbox',
