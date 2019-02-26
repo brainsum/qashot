@@ -87,9 +87,8 @@ display:
             name: name
             field_tag: field_tag
             entity_bundle_label: entity_bundle_label
-            field_state_in_queue: field_state_in_queue
-            operations: operations
             entity_status_label: entity_status_label
+            operations: operations
           info:
             qa_shot_test_bulk_form:
               align: ''
@@ -98,7 +97,7 @@ display:
               responsive: ''
             id:
               sortable: true
-              default_sort_order: asc
+              default_sort_order: desc
               align: ''
               separator: ''
               empty_column: false
@@ -122,7 +121,7 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
-            field_state_in_queue:
+            entity_status_label:
               sortable: true
               default_sort_order: asc
               align: ''
@@ -130,13 +129,6 @@ display:
               empty_column: false
               responsive: ''
             operations:
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            entity_status_label:
-              sortable: true
-              default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
