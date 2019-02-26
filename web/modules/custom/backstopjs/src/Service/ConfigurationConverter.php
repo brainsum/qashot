@@ -400,13 +400,6 @@ class ConfigurationConverter {
         'onReadyScript' => 'onReady.js',
       ];
 
-      if ('chrome' === $engine) {
-        // 'document' is bugged with chromy.
-        $currentScenario['selectors'] = [
-          'viewport',
-        ];
-      }
-
       $scenarioData[] = $currentScenario;
     }
 
