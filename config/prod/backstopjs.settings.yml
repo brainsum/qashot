@@ -2,7 +2,7 @@ backstopjs:
   async_compare_limit: '30'
   browser: chrome
   debug_mode: '0'
-  mismatch_threshold: '0.00'
+  mismatch_threshold: '1.00'
   resemble_output_options:
     error_type: movement
     transparency: '0.3'
