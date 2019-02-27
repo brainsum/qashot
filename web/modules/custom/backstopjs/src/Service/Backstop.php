@@ -17,6 +17,7 @@ use Drupal\backstopjs\Exception\ReferenceCommandFailedException;
 use Drupal\backstopjs\Exception\TestCommandFailedException;
 use Drupal\qa_shot\TestBackendBase;
 use Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * Class Backstop.
@@ -167,6 +168,13 @@ class Backstop extends TestBackendBase {
       'success' => 0 === $results['failedTestCount'] && NULL !== $results['passedTestCount'],
     ];
 
+    if ($containsResults === TRUE) {
+      $this->customizeHtmlReport(
+        $entity->getHtmlReportPath(),
+        $this->customizedHtmlReportPath()
+      );
+    }
+
     $result = $this->parseScreenshots($entity);
 
     $this->logger->debug(var_export([
@@ -180,6 +188,52 @@ class Backstop extends TestBackendBase {
     $entity->addMetadata($metadata);
     $entity->setResult($result);
     $entity->save();
+  }
+
+  /**
+   * Returns the custom report folder.
+   *
+   * @return string
+   *   The path to the custom report folder.
+   *
+   * @todo @asap @fixme
+   */
+  public function customizedHtmlReportPath(): string {
+    return $this->backstopFileSystem
+      ->baseFileSystem()
+      ->realpath(__DIR__ . '/../../../../../../vendor/brainsum/qashot-compare/output');
+  }
+
+  /**
+   * Replace default HTML Report with custom verision.
+   *
+   * @param string $originalReportPath
+   *   The path to the original report.
+   * @param string $customReportPath
+   *   The path to the custom report.
+   *
+   * @todo @asap @fixme
+   */
+  public function customizeHtmlReport(
+    string $originalReportPath,
+    string $customReportPath
+  ): void {
+    if (\is_dir($customReportPath)) {
+      $fileSystem = $this->backstopFileSystem->baseFileSystem();
+
+      $fullOriginalPath = $fileSystem->dirname(__DIR__ . '/../../../../../../web/' . $originalReportPath);
+      $configJsPath = $fileSystem->realpath($fullOriginalPath . '/config.js');
+
+      $configJs = \file_get_contents($configJsPath);
+
+      $this->backstopFileSystem->removeDirectory($fullOriginalPath);
+      (new SymfonyFilesystem())->mirror($customReportPath, $fullOriginalPath, NULL, [
+        'override' => TRUE,
+        'delete' => TRUE,
+      ]);
+
+      \file_put_contents($configJsPath, $configJs);
+    }
   }
 
   /**

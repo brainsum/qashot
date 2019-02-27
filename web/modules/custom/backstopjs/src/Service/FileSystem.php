@@ -89,6 +89,16 @@ class FileSystem {
   }
 
   /**
+   * Returns the Drupal File System.
+   *
+   * @return \Drupal\Core\File\FileSystemInterface
+   *   The file system from Drupal.
+   */
+  public function baseFileSystem(): FileSystemInterface {
+    return $this->fileSystem;
+  }
+
+  /**
    * Return the public file location.
    *
    * @return string
@@ -396,8 +406,8 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  private function removeDirectory($dir): bool {
-    if (!is_dir($dir)) {
+  public function removeDirectory($dir): bool {
+    if (!\is_dir($dir)) {
       return TRUE;
     }
 
