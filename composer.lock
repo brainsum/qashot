@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f425161c4cf149bdf27e9340d91a423e",
+    "content-hash": "dbbdb9be2e34d41c7347247169a36475",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -57,6 +57,34 @@
                 "stack"
             ],
             "time": "2017-12-20T14:37:45+00:00"
+        },
+        {
+            "name": "brainsum/qashot-compare",
+            "version": "1.0.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brainsum/qashot-compare.git",
+                "reference": "16972304022039f59ee71c55e7af76a7a519b8bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brainsum/qashot-compare/zipball/16972304022039f59ee71c55e7af76a7a519b8bc",
+                "reference": "16972304022039f59ee71c55e7af76a7a519b8bc",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "mhavelant",
+                    "email": "mhavelant@brainsum.com"
+                }
+            ],
+            "description": "Modified version of BackstopJS (3.9.2) Compare React app",
+            "time": "2019-02-27T15:58:46+00:00"
         },
         {
             "name": "chi-teck/drupal-code-generator",

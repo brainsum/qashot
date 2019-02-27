@@ -58,6 +58,7 @@
         "php": "^7.2",
         "ext-json": "*",
         "ext-pdo": "*",
+        "brainsum/qashot-compare": "^1.0",
         "composer/installers": "^1.6",
         "cweagans/composer-patches": "^1.6",
         "drupal-composer/drupal-scaffold": "^2.5",
