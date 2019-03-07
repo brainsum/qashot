@@ -138,6 +138,7 @@ class ConfigurationConverter {
           'waitTimeout' => 20000,
           'ignoreHTTPSErrors' => TRUE,
           'args' => [
+            '--lang=en-GB,en-US',
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--headless',
