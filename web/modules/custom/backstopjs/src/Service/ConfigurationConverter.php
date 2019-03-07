@@ -145,6 +145,18 @@ class ConfigurationConverter {
             '--ignore-certificate-errors',
             '--force-device-scale-factor=1',
             '--disable-infobars=true',
+            '--no-zygote',
+            '--process-per-site',
+            '--disable-accelerated-2d-canvas',
+            '--disable-accelerated-jpeg-decoding',
+            '--disable-accelerated-mjpeg-decode',
+            '--disable-accelerated-video-decode',
+            '--disable-gpu-rasterization',
+            '--disable-zero-copy',
+            '--disable-extensions',
+            '--disable-notifications',
+            '--disable-sync',
+            '--mute-audio',
           ],
         ];
         $useAbsolutePaths = FALSE;
@@ -390,7 +402,7 @@ class ConfigurationConverter {
       $currentScenario += [
         'url' => (string) $scenario->get('field_test_url')->getValue()[0]['uri'],
         'readyEvent' => NULL,
-        'delay' => 7500,
+        'delay' => 10000,
         'misMatchThreshold' => (float) $misMatch,
         'selectors' => [
           'document',
