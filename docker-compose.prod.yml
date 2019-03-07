@@ -8,7 +8,7 @@ services:
     environment:
       PHP_DEV: "no"
       PHP_DEBUG: "no"
-      PHP_FPM_CLEAR_ENV: "yes"
+      PHP_FPM_CLEAR_ENV: "no"
       PHP_FPM_LOG_LEVEL: "error"
       PROJECT_ENVIRONMENT: 'production'
     restart: always
