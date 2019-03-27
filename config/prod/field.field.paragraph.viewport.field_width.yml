@@ -16,8 +16,8 @@ translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  min: 480
-  max: 3840
+  min: 200
+  max: 4096
   prefix: ''
-  suffix: ''
+  suffix: px
 field_type: integer

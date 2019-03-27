@@ -17,7 +17,7 @@ default_value: {  }
 default_value_callback: ''
 settings:
   min: 320
-  max: 2400
+  max: 2160
   prefix: ''
-  suffix: ''
+  suffix: px
 field_type: integer
