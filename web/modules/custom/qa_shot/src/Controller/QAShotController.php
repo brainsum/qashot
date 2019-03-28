@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot\Controller;
 
+use function array_values;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -11,6 +12,9 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Service\DataFormatter;
 use Drupal\qa_shot\Service\QueueManager;
+use function end;
+use function file_create_url;
+use function file_get_contents;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -152,9 +156,9 @@ class QAShotController extends ControllerBase {
       return ['#markup' => 'Invalid entity.'];
     }
 
-    $localReportUrl = \file_create_url($this->entity->getHtmlReportPath());
+    $localReportUrl = file_create_url($this->entity->getHtmlReportPath());
     $lastRun = $this->entity->getLastRunMetadataValue();
-    $reportTime = empty($lastRun) ? NULL : \end($lastRun)['datetime'];
+    $reportTime = empty($lastRun) ? NULL : end($lastRun)['datetime'];
     $resultExist = FALSE;
 
     foreach ($this->entity->getLifetimeMetadataValue() as $item) {
@@ -170,7 +174,7 @@ class QAShotController extends ControllerBase {
       $reportTime = $this->dataFormatter->dateAsAgo($reportDateTime);
     }
 
-    list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = \array_values($this->entity->getLastRunTimes());
+    list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = array_values($this->entity->getLastRunTimes());
 
     $build = [
       '#type' => 'markup',
@@ -205,7 +209,7 @@ class QAShotController extends ControllerBase {
     $fileName = $routeMatch->getParameters()->get('file_name');
 
     $debugPath = PrivateStream::basePath() . '/qa_test_data/' . $entityId . '/debug/' . $fileName;
-    $contents = \file_get_contents($debugPath);
+    $contents = file_get_contents($debugPath);
 
     return [
       '#markup' => '<pre>' . $contents . '</pre>',
