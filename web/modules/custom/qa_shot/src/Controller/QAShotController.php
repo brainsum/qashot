@@ -170,7 +170,9 @@ class QAShotController extends ControllerBase {
 
     // If the report time is not NULL, format it to an '.. ago' string.
     if (NULL !== $reportTime) {
-      $reportDateTime = new DrupalDateTime($reportTime);
+      $reportDateTime = new DrupalDateTime($reportTime, $this->currentUser()->getTimeZone(), [
+        'langcode' => $this->currentUser()->getPreferredLangcode(),
+      ]);
       $reportTime = $this->dataFormatter->dateAsAgo($reportDateTime);
     }
 
