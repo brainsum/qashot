@@ -103,15 +103,14 @@ class ReportPathMarkup implements MarkupInterface, Countable {
       $markup['#disabled'] = TRUE;
     }
     else {
-      $reportDateTime = new DrupalDateTime($this->time);
+      $reportDateTime = new DrupalDateTime($this->time, $this->currentUser->getTimeZone(), [
+        'langcode' => $this->currentUser->getPreferredLangcode(),
+      ]);
       $reportTime = $this->dataFormatter->dateAsAgo($reportDateTime);
       $markup['#title'] = $this->t('HTML Report from @timestamp', [
         '@timestamp' => $reportTime,
       ]);
-      $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s', [
-        'timezone' => $this->currentUser->getTimeZone(),
-        'langcode' => $this->currentUser->getPreferredLangcode(),
-      ]);
+      $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s');
     }
 
     return $markup;
