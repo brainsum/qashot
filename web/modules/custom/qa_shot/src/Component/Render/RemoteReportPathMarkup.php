@@ -44,6 +44,13 @@ class RemoteReportPathMarkup implements MarkupInterface, Countable {
   protected $dataFormatter;
 
   /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
    * ReportPathMarkup constructor.
    *
    * @param string|null $reportPath
@@ -55,6 +62,7 @@ class RemoteReportPathMarkup implements MarkupInterface, Countable {
     $this->path = $reportPath ?? '';
     $this->time = $reportTime ?? '';
     $this->dataFormatter = Drupal::service('qa_shot.data_formatter');
+    $this->currentUser = Drupal::currentUser();
   }
 
   /**
@@ -99,7 +107,10 @@ class RemoteReportPathMarkup implements MarkupInterface, Countable {
       $markup['#title'] = $this->t('Remote HTML Report from @timestamp', [
         '@timestamp' => $reportTime,
       ]);
-      $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s');
+      $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s', [
+        'timezone' => $this->currentUser->getTimeZone(),
+        'langcode' => $this->currentUser->getPreferredLangcode(),
+      ]);
     }
 
     return $markup;

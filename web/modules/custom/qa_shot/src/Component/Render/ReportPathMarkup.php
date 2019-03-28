@@ -45,6 +45,13 @@ class ReportPathMarkup implements MarkupInterface, Countable {
   protected $dataFormatter;
 
   /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
    * ReportPathMarkup constructor.
    *
    * @param string|null $reportPath
@@ -56,6 +63,7 @@ class ReportPathMarkup implements MarkupInterface, Countable {
     $this->path = $reportPath ?? '';
     $this->time = $reportTime ?? '';
     $this->dataFormatter = Drupal::service('qa_shot.data_formatter');
+    $this->currentUser = Drupal::currentUser();
   }
 
   /**
@@ -100,7 +108,10 @@ class ReportPathMarkup implements MarkupInterface, Countable {
       $markup['#title'] = $this->t('HTML Report from @timestamp', [
         '@timestamp' => $reportTime,
       ]);
-      $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s');
+      $markup['#attributes']['title'] = $reportDateTime->format('Y-m-d H:i:s', [
+        'timezone' => $this->currentUser->getTimeZone(),
+        'langcode' => $this->currentUser->getPreferredLangcode(),
+      ]);
     }
 
     return $markup;
