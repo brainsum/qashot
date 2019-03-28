@@ -2,10 +2,13 @@
 
 namespace Drupal\qa_shot\Component\Render;
 
+use Countable;
+use Drupal;
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use function strlen;
 
 /**
  * Class RemoteReportPathMarkup.
@@ -15,7 +18,7 @@ use Drupal\Core\Url;
  *
  * @package Drupal\qa_shot\Component\Render
  */
-class RemoteReportPathMarkup implements MarkupInterface, \Countable {
+class RemoteReportPathMarkup implements MarkupInterface, Countable {
 
   use StringTranslationTrait;
 
@@ -51,7 +54,7 @@ class RemoteReportPathMarkup implements MarkupInterface, \Countable {
   public function __construct($reportPath = NULL, $reportTime = NULL) {
     $this->path = $reportPath ?? '';
     $this->time = $reportTime ?? '';
-    $this->dataFormatter = \Drupal::service('qa_shot.data_formatter');
+    $this->dataFormatter = Drupal::service('qa_shot.data_formatter');
   }
 
   /**
@@ -111,7 +114,7 @@ class RemoteReportPathMarkup implements MarkupInterface, \Countable {
    *   The return value is cast to an integer.
    */
   public function count(): int {
-    return \strlen($this->path);
+    return strlen($this->path);
   }
 
   /**
