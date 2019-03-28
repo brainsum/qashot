@@ -2,10 +2,14 @@
 
 namespace Drupal\qa_shot\Component\Render;
 
+use Countable;
+use Drupal;
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use function file_exists;
+use function strlen;
 
 /**
  * Class ReportPathMarkup.
@@ -15,7 +19,7 @@ use Drupal\Core\Url;
  *
  * @package Drupal\qa_shot\Component\Render
  */
-class ReportPathMarkup implements MarkupInterface, \Countable {
+class ReportPathMarkup implements MarkupInterface, Countable {
 
   use StringTranslationTrait;
 
@@ -51,7 +55,7 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
   public function __construct($reportPath = NULL, $reportTime = NULL) {
     $this->path = $reportPath ?? '';
     $this->time = $reportTime ?? '';
-    $this->dataFormatter = \Drupal::service('qa_shot.data_formatter');
+    $this->dataFormatter = Drupal::service('qa_shot.data_formatter');
   }
 
   /**
@@ -63,7 +67,7 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
    * @throws \InvalidArgumentException
    */
   public function getLink(): array {
-    if (!\file_exists($this->path)) {
+    if (!file_exists($this->path)) {
       return [];
     }
 
@@ -111,7 +115,7 @@ class ReportPathMarkup implements MarkupInterface, \Countable {
    *   The return value is cast to an integer.
    */
   public function count(): int {
-    return \strlen($this->path);
+    return strlen($this->path);
   }
 
   /**
