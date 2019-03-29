@@ -52,7 +52,7 @@ class TestWorkerListController extends ControllerBase {
    */
   public function list(): array {
     $workers = $this->workerManager->getDefinitions();
-    $rows = array_map(function ($worker) {
+    $rows = array_map(static function ($worker) {
       return [
         $worker['id'],
         $worker['label'],

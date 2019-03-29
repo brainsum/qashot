@@ -23,9 +23,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BackstopjsSettingsForm extends ConfigFormBase {
 
-  const LOCAL_SUITE = 'backstopjs.local';
+  public const LOCAL_SUITE = 'backstopjs.local';
 
-  const REMOTE_SUITE = 'backstopjs.remote';
+  public const REMOTE_SUITE = 'backstopjs.remote';
 
   /**
    * The logger service.
@@ -114,7 +114,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     ];
 
     $options = [];
-    $definitions = array_filter($this->workerManager->getDefinitions(), function ($definition) {
+    $definitions = array_filter($this->workerManager->getDefinitions(), static function ($definition) {
       return $definition['provider'] === 'backstopjs';
     });
 
@@ -125,7 +125,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     $form['suite']['location'] = [
       '#type' => 'radios',
       '#title' => $this->t('Suite'),
-      '#default_value' => $config->get('suite.location') ?? NULL,
+      '#default_value' => $config->get('suite.location'),
       '#options' => $options,
       '#required' => TRUE,
       '#description' => $this->t('Select the location of BackstopJS.'),
@@ -421,7 +421,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
    * @param string[] $context
    *   Context information.
    */
-  public function debugMessage($message, array $context) {
+  public function debugMessage($message, array $context): void {
     $this->logger->debug($message, $context);
     if ($this->currentUser()->hasPermission('administer site configuration')) {
       // Strips raw text longer than 10 lines to optimize displaying.
@@ -436,8 +436,9 @@ class BackstopjsSettingsForm extends ConfigFormBase {
           $context['@raw'] = implode("\n", $tmp);
         }
       }
+
       // @codingStandardsIgnoreStart
-      drupal_set_message($this->t($message, $context), 'status', TRUE);
+      $this->messenger()->addStatus($this->t($message, $context), TRUE);
       // @codingStandardsIgnoreEnd
     }
   }
@@ -452,7 +453,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
    *
    * @throws \Drupal\Core\Config\ConfigValueException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     /** @var \Drupal\Core\Config\Config $config */
     $config = $this->configFactory()->getEditable('backstopjs.settings');
     $config->set('backstopjs.async_compare_limit', $form_state->getValue([

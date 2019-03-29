@@ -14,7 +14,7 @@ class QAShotQueueData {
   /**
    * The database table name.
    */
-  const TABLE_NAME = 'qa_shot_queue';
+  public const TABLE_NAME = 'qa_shot_queue';
 
   /**
    * The database connection.

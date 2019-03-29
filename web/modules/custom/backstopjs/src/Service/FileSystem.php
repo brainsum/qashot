@@ -12,6 +12,7 @@ use Drupal\backstopjs\Exception\FolderCreateException;
 use Drupal\backstopjs\Exception\InvalidEntityException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
@@ -38,6 +39,8 @@ use function strpos;
  * @package Drupal\backstopjs\Service
  */
 class FileSystem {
+
+  use MessengerTrait;
 
   /**
    * The entity data base path in the public and private filesystem.
@@ -378,11 +381,11 @@ class FileSystem {
     $pubRemoveRes = $this->removePublicData($entity);
     $privRemoveRes = $this->removePrivateData($entity);
 
-    drupal_set_message(
+    $this->messenger()->addMessage(
       $privRemoveRes ? 'Private data folder removed' : 'Private data folder not removed',
       $privRemoveRes ? 'status' : 'error'
     );
-    drupal_set_message(
+    $this->messenger()->addMessage(
       $pubRemoveRes ? 'Public data folder removed' : 'Public data folder not removed',
       $pubRemoveRes ? 'status' : 'error'
     );
@@ -452,7 +455,7 @@ class FileSystem {
   /**
    * Remove unused public files and folders.
    */
-  public function removeUnusedFiles() {
+  public function removeUnusedFiles(): void {
     $testIds = array_keys($this->testStorage->loadMultiple());
 
     foreach ($testIds as $id) {
@@ -480,7 +483,7 @@ class FileSystem {
    * @param string|int $testId
    *   The test entity ID.
    */
-  public function removedUnusedFilesByTestId($testId) {
+  public function removedUnusedFilesByTestId($testId): void {
     $dataFolder = $this->publicFiles . '/' . $testId . '/test';
 
     if (!is_dir($dataFolder)) {
@@ -510,7 +513,7 @@ class FileSystem {
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
    *   The test entity.
    */
-  public function removedUnusedFilesForTest(QAShotTestInterface $test) {
+  public function removedUnusedFilesForTest(QAShotTestInterface $test): void {
     $this->removedUnusedFilesByTestId($test->id());
   }
 

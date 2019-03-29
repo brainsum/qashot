@@ -34,11 +34,11 @@ class CliRemoteQueueRunner {
 
   use StringTranslationTrait;
 
-  const QUEUE_NAME = 'qa_shot_remote_queue';
+  public const QUEUE_NAME = 'qa_shot_remote_queue';
 
-  const ENDPOINT_TEST_ADD = '/api/v1/test/add';
+  public const ENDPOINT_TEST_ADD = '/api/v1/test/add';
 
-  const ENDPOINT_RESULT_FETCH = '/api/v1/result/fetch';
+  public const ENDPOINT_RESULT_FETCH = '/api/v1/result/fetch';
 
   /**
    * The messenger service.
@@ -118,7 +118,7 @@ class CliRemoteQueueRunner {
   /**
    * Publish available tests to the external queue.
    */
-  public function publishAll() {
+  public function publishAll(): void {
     $date = (new DrupalDateTime())->setTimestamp(time());
     $this->messenger->addMessage($this->t('Publishing to external queue initiated at @datetime', [
       '@datetime' => $date->format('Y-m-d H:i:s'),
@@ -135,7 +135,7 @@ class CliRemoteQueueRunner {
       return;
     }
 
-    $testIds = array_map(function ($item) {
+    $testIds = array_map(static function ($item) {
       return $item->tid;
     }, $items);
 
@@ -279,7 +279,7 @@ class CliRemoteQueueRunner {
   /**
    * Consume messages from the remote queue.
    */
-  public function consumeAll() {
+  public function consumeAll(): void {
     $date = (new DateTime())->setTimestamp(time());
     $this->messenger->addMessage($this->t('Reading from external queue initiated at @datetime', [
       '@datetime' => $date->format('Y-m-d H:i:s'),
@@ -296,7 +296,7 @@ class CliRemoteQueueRunner {
       return;
     }
 
-    $testIds = array_map(function ($item) {
+    $testIds = array_map(static function ($item) {
       return $item->tid;
     }, $items);
 
@@ -304,7 +304,7 @@ class CliRemoteQueueRunner {
     $tests = $this->testStorage->loadMultiple($testIds);
 
     /** @var string[] $uuids */
-    $uuids = array_map(function ($test) {
+    $uuids = array_map(static function ($test) {
       return $test->uuid();
     }, $tests);
 
@@ -602,7 +602,7 @@ class CliRemoteQueueRunner {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected function scenarioNameToIdMap(QAShotTestInterface $test): array {
-    $scenarioIds = array_map(function ($item) {
+    $scenarioIds = array_map(static function ($item) {
       return $item['target_id'];
     }, $test->getFieldScenario()->getValue(TRUE));
 
@@ -631,7 +631,7 @@ class CliRemoteQueueRunner {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected function viewportNameToIdMap(QAShotTestInterface $test): array {
-    $viewportIds = array_map(function ($item) {
+    $viewportIds = array_map(static function ($item) {
       return $item['target_id'];
     }, $test->getFieldViewport()->getValue(TRUE));
 

@@ -37,14 +37,6 @@ class TestMetadataFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsSummary(): array {
-    // Implement settings summary.
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $elements = [];
 

@@ -17,17 +17,17 @@ class QAShotTestHtmlRouteProvider extends AdminHtmlRouteProvider {
   /**
    * {@inheritdoc}
    */
-  public function getRoutes(EntityTypeInterface $entity_type) {
-    $collection = parent::getRoutes($entity_type);
+  public function getRoutes(EntityTypeInterface $entityType) {
+    $collection = parent::getRoutes($entityType);
 
-    $entity_type_id = $entity_type->id();
+    $entityType_id = $entityType->id();
 
-    if ($collection_route = $this->getCollectionRoute($entity_type)) {
-      $collection->add("entity.{$entity_type_id}.collection", $collection_route);
+    if ($collection_route = $this->getCollectionRoute($entityType)) {
+      $collection->add("entity.{$entityType_id}.collection", $collection_route);
     }
 
-    if ($settings_form_route = $this->getSettingsFormRoute($entity_type)) {
-      $collection->add("$entity_type_id.settings", $settings_form_route);
+    if ($settings_form_route = $this->getSettingsFormRoute($entityType)) {
+      $collection->add("$entityType_id.settings", $settings_form_route);
     }
 
     return $collection;
@@ -36,20 +36,20 @@ class QAShotTestHtmlRouteProvider extends AdminHtmlRouteProvider {
   /**
    * Gets the collection route.
    *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entityType
    *   The entity type.
    *
    * @return \Symfony\Component\Routing\Route|null
    *   The generated route, if available.
    */
-  protected function getCollectionRoute(EntityTypeInterface $entity_type) {
-    if ($entity_type->hasLinkTemplate('collection') && $entity_type->hasListBuilderClass()) {
-      $entity_type_id = $entity_type->id();
-      $route = new Route($entity_type->getLinkTemplate('collection'));
+  protected function getCollectionRoute(EntityTypeInterface $entityType) {
+    if ($entityType->hasLinkTemplate('collection') && $entityType->hasListBuilderClass()) {
+      $entityType_id = $entityType->id();
+      $route = new Route($entityType->getLinkTemplate('collection'));
       $route
         ->setDefaults([
-          '_entity_list' => $entity_type_id,
-          '_title' => "{$entity_type->getLabel()} list",
+          '_entity_list' => $entityType_id,
+          '_title' => "{$entityType->getLabel()} list",
         ])
         ->setRequirement('_permission', 'access qashot test overview')
         ->setOption('_admin_route', TRUE);
@@ -61,25 +61,27 @@ class QAShotTestHtmlRouteProvider extends AdminHtmlRouteProvider {
   /**
    * Gets the settings form route.
    *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entityType
    *   The entity type.
    *
    * @return \Symfony\Component\Routing\Route|null
    *   The generated route, if available.
    */
-  protected function getSettingsFormRoute(EntityTypeInterface $entity_type) {
-    if (!$entity_type->getBundleEntityType()) {
-      $route = new Route("/admin/structure/{$entity_type->id()}/settings");
+  protected function getSettingsFormRoute(EntityTypeInterface $entityType): ?Route {
+    if (!$entityType->getBundleEntityType()) {
+      $route = new Route("/admin/structure/{$entityType->id()}/settings");
       $route
         ->setDefaults([
           '_form' => 'Drupal\qa_shot\Form\QAShotTestSettingsForm',
-          '_title' => "{$entity_type->getLabel()} settings",
+          '_title' => "{$entityType->getLabel()} settings",
         ])
-        ->setRequirement('_permission', $entity_type->getAdminPermission())
+        ->setRequirement('_permission', $entityType->getAdminPermission())
         ->setOption('_admin_route', TRUE);
 
       return $route;
     }
+
+    return NULL;
   }
 
 }

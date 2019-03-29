@@ -25,17 +25,17 @@ class QAShotQueue implements QAShotQueueInterface {
   /**
    * The database table name.
    */
-  const TABLE_NAME = 'qa_shot_queue';
+  public const TABLE_NAME = 'qa_shot_queue';
 
-  const QUEUE_STATUS_IDLE = 'idle';
+  public const QUEUE_STATUS_IDLE = 'idle';
 
-  const QUEUE_STATUS_WAITING = 'waiting';
+  public const QUEUE_STATUS_WAITING = 'waiting';
 
-  const QUEUE_STATUS_REMOTE = 'remote';
+  public const QUEUE_STATUS_REMOTE = 'remote';
 
-  const QUEUE_STATUS_RUNNING = 'running';
+  public const QUEUE_STATUS_RUNNING = 'running';
 
-  const QUEUE_STATUS_ERROR = 'error';
+  public const QUEUE_STATUS_ERROR = 'error';
 
   /**
    * The name of the queue this instance is working with.

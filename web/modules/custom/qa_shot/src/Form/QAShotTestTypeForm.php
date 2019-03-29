@@ -24,7 +24,7 @@ class QAShotTestTypeForm extends EntityForm {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $qa_shot_test_type->label(),
-      '#description' => $this->t("Label for the QAShot Test type."),
+      '#description' => $this->t('Label for the QAShot Test type.'),
       '#required' => TRUE,
     ];
 
@@ -51,13 +51,13 @@ class QAShotTestTypeForm extends EntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label QAShot Test type.', [
+        $this->messenger()->addStatus($this->t('Created the %label QAShot Test type.', [
           '%label' => $qa_shot_test_type->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label QAShot Test type.', [
+        $this->messenger()->addStatus($this->t('Saved the %label QAShot Test type.', [
           '%label' => $qa_shot_test_type->label(),
         ]));
     }

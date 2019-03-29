@@ -74,7 +74,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
       // Simplify the entity array representation to only the
       // id, revision_id and field_ prefixed items.
       // @codingStandardsIgnoreStart
-      $simplifiedEntity = array_filter($entity->toArray(), function ($key) {
+      $simplifiedEntity = array_filter($entity->toArray(), static function ($key) {
         $isId = in_array($key, ['id', 'revision_id'], TRUE);
         $isField = (strpos($key, 'field_') === 0);
 
@@ -82,7 +82,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
       }, ARRAY_FILTER_USE_KEY);
 
       // Simplify the remaining fields.
-      $values = array_map(function ($value) {
+      $values = array_map(static function ($value) {
         if (!is_array($value)) {
           return $value;
         }
@@ -235,8 +235,7 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
    *   The valid bundle name.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \LogicException
-   * @throws \Symfony\Component\Serializer\Exception\UnexpectedValueException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected function extractBundleData(array &$data, EntityTypeInterface $entityTypeDefinition): array {
     $bundleKey = $entityTypeDefinition->getKey('bundle');

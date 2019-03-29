@@ -5,6 +5,7 @@ namespace Drupal\qa_shot\Queue;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -23,6 +24,7 @@ use stdClass;
 class QAShotQueueRunner {
 
   use StringTranslationTrait;
+  use MessengerTrait;
 
   /**
    * Keep track of queue definitions.
@@ -72,6 +74,7 @@ class QAShotQueueRunner {
    *   The logger service.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(QAShotQueueWorkerManager $manager, QAShotQueueFactory $queueFactory, EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactoryInterface $loggerFactory) {
     $this->workerManager = $manager;
@@ -168,24 +171,24 @@ class QAShotQueueRunner {
       if (NULL === $entity) {
         $queue->deleteItem($item);
         $this->logger->error('The entity with id ' . $item->tid . ' has been deleted while it was queued.');
-        drupal_set_message($this->t('Cron: The entity with ID @tid has been deleted while it was queued.', [
+        $this->messenger()->addError($this->t('Cron: The entity with ID @tid has been deleted while it was queued.', [
           '@tid' => $item->tid,
-        ]), 'error');
+        ]));
         continue;
       }
 
       if ($queue->getItemStatus($item->tid) === QAShotQueue::QUEUE_STATUS_RUNNING) {
-        drupal_set_message($this->t('Cron: The entity with ID @tid tried to run while it was already running.', [
+        $this->messenger()->addError($this->t('Cron: The entity with ID @tid tried to run while it was already running.', [
           '@tid' => $item->tid,
-        ]), 'error');
+        ]));
         continue;
       }
 
       // If there's already a running item, requeue.
       if ($queue->numberOfRunningItems() > 0) {
-        drupal_set_message($this->t('Cron: The entity with ID @tid tried to run while it was already running.', [
+        $this->messenger()->addError($this->t('Cron: The entity with ID @tid tried to run while it was already running.', [
           '@tid' => $item->tid,
-        ]), 'error');
+        ]));
         // @todo: Update lease time maybe?
         continue;
       }
@@ -195,7 +198,7 @@ class QAShotQueueRunner {
       $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_RUNNING, $entity, $queue, $item);
 
       try {
-        drupal_set_message($this->t('Processing test with ID @id from @name queue.', [
+        $this->messenger()->addStatus($this->t('Processing test with ID @id from @name queue.', [
           '@name' => $name,
           '@id' => $item->tid,
         ]));
@@ -261,7 +264,7 @@ class QAShotQueueRunner {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, stdClass $item = NULL) {
+  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, stdClass $item = NULL): void {
     // Set entity status to running.
     try {
       if (NULL !== $item && NULL !== $queue) {

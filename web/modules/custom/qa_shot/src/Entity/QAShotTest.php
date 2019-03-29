@@ -382,7 +382,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConfigurationPath() {
+  public function getConfigurationPath(): ?string {
     return $this->get('field_configuration_path')->value;
   }
 
@@ -396,7 +396,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getHtmlReportPath() {
+  public function getHtmlReportPath(): ?string {
     return $this->get('field_html_report_path')->value;
   }
 
@@ -410,7 +410,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRemoteHtmlReportPath() {
+  public function getRemoteHtmlReportPath(): ?string {
     return $this->get('field_remote_html_report_path')->value;
   }
 
@@ -557,7 +557,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   /**
    * {@inheritdoc}
    */
-  public function getFrontendUrl() {
+  public function getFrontendUrl(): ?string {
     return $this->get('frontend_url')->getValue();
   }
 

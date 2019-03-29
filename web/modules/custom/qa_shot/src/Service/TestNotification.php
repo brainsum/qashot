@@ -19,9 +19,9 @@ class TestNotification {
   /**
    * Mail manager service parameter. If true, emails are sent right away.
    */
-  const SEND_NOW = TRUE;
+  public const SEND_NOW = TRUE;
 
-  const NOTIFICATION_MAIL_KEY = 'qashot_test_notification';
+  public const NOTIFICATION_MAIL_KEY = 'qashot_test_notification';
 
   /**
    * The language manager service.
@@ -86,7 +86,7 @@ class TestNotification {
    * @param string $module
    *   The module where the processing hook_mail() resides.
    */
-  public function sendNotification(QAShotTestInterface $entity, $origin, $module = 'qa_shot') {
+  public function sendNotification(QAShotTestInterface $entity, $origin, $module = 'qa_shot'): void {
     $metadata = $entity->getLastRunMetadataValue();
 
     // @todo: FIXME, code below is quick and dirty.

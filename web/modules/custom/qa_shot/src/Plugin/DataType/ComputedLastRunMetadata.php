@@ -14,7 +14,7 @@ use InvalidArgumentException;
  */
 class ComputedLastRunMetadata extends TypedData {
 
-  const SETTING_NAME = 'data source';
+  public const SETTING_NAME = 'data source';
 
   /**
    * Cached processed data.
@@ -136,19 +136,19 @@ class ComputedLastRunMetadata extends TypedData {
   /**
    * No idea why these are required, but whatever.
    */
-  public function setLangcode() {
+  public function setLangcode(): void {
   }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function getLangcode() {
+  public function getLangcode(): void {
   }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function preSave() {
+  public function preSave(): void {
   }
 
   /**
@@ -157,19 +157,19 @@ class ComputedLastRunMetadata extends TypedData {
    * @var string $update
    *   Not used.
    */
-  public function postSave($update) {
+  public function postSave($update): void {
   }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function delete() {
+  public function delete(): void {
   }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function deleteRevision() {
+  public function deleteRevision(): void {
   }
 
 }

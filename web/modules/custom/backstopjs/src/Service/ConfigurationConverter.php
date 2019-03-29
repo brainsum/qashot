@@ -263,7 +263,7 @@ class ConfigurationConverter {
   ): array {
     // Flatten the field values from target_id + revision_target_id
     // to target_id only.
-    $ids = array_map(function ($item) {
+    $ids = array_map(static function ($item) {
       return $item['target_id'];
     }, $viewportField->getValue());
 
@@ -437,7 +437,7 @@ class ConfigurationConverter {
    * @internal
    * @deprecated
    */
-  public function example() {
+  public function example(): void {
     $basePath = PrivateStream::basePath() . '/qa_test_data';
 
     $ids = [
@@ -460,6 +460,7 @@ class ConfigurationConverter {
    * @return \Drupal\qa_shot\Entity\QAShotTestInterface
    *   The entity object.
    *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    * @deprecated
    */
   public function jsonFileToEntity($jsonFile, $saveEntity = FALSE): QAShotTestInterface {
@@ -535,13 +536,13 @@ class ConfigurationConverter {
    * This is intended to be copy-pasteable into devel/php as a rudimentary
    * import script.
    *
-   * @throws \Drupal\Core\Entity\EntityStorageException
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    * @internal
    * @deprecated
    */
-  public function copyPasteableExample() {
+  public function copyPasteableExample(): void {
     $basePath = PrivateStream::basePath() . '/qa_test_data';
 
     $ids = [

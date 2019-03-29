@@ -88,7 +88,7 @@ class BackstopjsWorkerManager extends TestWorkerManager {
   public function getDefinitions(): array {
     $definitions = parent::getDefinitions() ?? [];
 
-    return array_filter($definitions, function ($definition) {
+    return array_filter($definitions, static function ($definition) {
       return $definition['provider'] === 'backstopjs';
     });
   }

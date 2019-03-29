@@ -178,7 +178,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string|null
    *   The path to the config.
    */
-  public function getConfigurationPath();
+  public function getConfigurationPath(): ?string;
 
   /**
    * Set the configuration path.
@@ -197,7 +197,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string|null
    *   The path to the Backstop-generated report.
    */
-  public function getHtmlReportPath();
+  public function getHtmlReportPath(): ?string;
 
   /**
    * Set the report path.
@@ -216,7 +216,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string|null
    *   The path to the Backstop-generated report.
    */
-  public function getRemoteHtmlReportPath();
+  public function getRemoteHtmlReportPath(): ?string;
 
   /**
    * Set the remote report path.
@@ -300,7 +300,7 @@ interface QAShotTestInterface extends ContentEntityInterface, EntityChangedInter
    * @return string|null
    *   The url or NULL.
    */
-  public function getFrontendUrl();
+  public function getFrontendUrl(): ?string;
 
   /**
    * Get current queue status value.

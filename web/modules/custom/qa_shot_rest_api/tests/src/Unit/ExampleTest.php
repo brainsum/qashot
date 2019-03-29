@@ -38,7 +38,7 @@ class ExampleTest extends PHPUnit_Framework_TestCase {
    *
    * @dataProvider addProvider
    */
-  public function testAdd($a, $b, $c) {
+  public function testAdd($a, $b, $c): void {
     $this->assertEquals($c, $a + $b);
   }
 

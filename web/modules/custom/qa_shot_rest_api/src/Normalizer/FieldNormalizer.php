@@ -45,7 +45,7 @@ class FieldNormalizer extends ListNormalizer implements DenormalizerInterface {
   /**
    * {@inheritdoc}
    *
-   * @throws \Symfony\Component\Serializer\Exception\InvalidArgumentException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {

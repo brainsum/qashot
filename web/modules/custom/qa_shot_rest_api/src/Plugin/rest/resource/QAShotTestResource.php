@@ -253,7 +253,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
    * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
    */
-  public function post(QAShotTestInterface $entity) {
+  public function post(QAShotTestInterface $entity): ?ModifiedResourceResponse {
     if ($entity === NULL) {
       throw new BadRequestHttpException('No entity content received.');
     }
@@ -347,7 +347,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function delete($qaShotTest) {
+  public function delete($qaShotTest): ?ModifiedResourceResponse {
     $entity = $this->loadEntityFromId($qaShotTest);
 
     if (!$entity->access('delete')) {
@@ -385,7 +385,7 @@ class QAShotTestResource extends ResourceBase implements DependentPluginInterfac
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
    */
-  public function patch($entityId, QAShotTestInterface $updatedEntity) {
+  public function patch($entityId, QAShotTestInterface $updatedEntity): ?ModifiedResourceResponse {
     $originalEntity = $this->loadEntityFromId($entityId);
 
     $definition = $this->getPluginDefinition();

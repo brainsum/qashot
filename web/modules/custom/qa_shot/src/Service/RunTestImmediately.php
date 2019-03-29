@@ -74,6 +74,7 @@ class RunTestImmediately {
    *   The logger service.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(QAShotQueueWorkerManager $manager, QAShotQueueFactory $queueFactory, EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactoryInterface $loggerFactory) {
     $this->workerManager = $manager;
@@ -186,7 +187,7 @@ class RunTestImmediately {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, stdClass $item = NULL) {
+  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, stdClass $item = NULL): void {
     // Set entity status to running.
     try {
       if (NULL !== $item && NULL !== $queue) {

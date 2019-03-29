@@ -16,7 +16,7 @@ use function parse_url;
  */
 class ComputedScreenshotPath extends TypedData {
 
-  const SETTING_NAME = 'url source';
+  public const SETTING_NAME = 'url source';
 
   /**
    * Cached processed url.

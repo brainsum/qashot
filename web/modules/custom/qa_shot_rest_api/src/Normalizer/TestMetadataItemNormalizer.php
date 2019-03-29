@@ -25,10 +25,7 @@ class TestMetadataItemNormalizer extends NormalizerBase {
   public function normalize($fieldItem, $format = NULL, array $context = []) {
     /** @var \Drupal\qa_shot\Plugin\Field\FieldType\TestMetadata $fieldItem */
     $value = $fieldItem->getValue();
-    if (isset($value['value'])) {
-      return $value['value'];
-    }
-    return $value[0]['value'] ?? $value;
+    return $value['value'] ?? $value[0]['value'] ?? $value;
   }
 
 }

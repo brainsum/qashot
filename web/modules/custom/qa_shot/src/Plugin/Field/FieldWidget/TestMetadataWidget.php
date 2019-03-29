@@ -113,7 +113,7 @@ class TestMetadataWidget extends WidgetBase {
   /**
    * Validate the fields and convert them into a single value as text.
    */
-  public function validate($element, FormStateInterface $form_state) {
+  public function validate($element, FormStateInterface $form_state): void {
     // @codingStandardsIgnoreStart
     // @todo: Label should be unique for an entity
     // @todo: referenceUrl and testUrl should be a unique par for a single entity (same id example like for label)

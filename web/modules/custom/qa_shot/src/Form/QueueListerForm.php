@@ -211,7 +211,7 @@ class QueueListerForm extends FormBase {
   /**
    * Clear the queues.
    */
-  public function submitQueueClearAll() {
+  public function submitQueueClearAll(): void {
     $this->queue->clearQueue();
   }
 

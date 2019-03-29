@@ -180,7 +180,7 @@ function qa_shot_update_8303() {
     );
     $new_field = $entityTypeManager->getStorage('field_config')
       ->create($new_field);
-    $new_field->enforceIsNew(TRUE);
+    $new_field->enforceIsNew();
     $new_field->save();
   }
 
@@ -222,7 +222,7 @@ function qa_shot_update_8304() {
         'target_type' => 'paragraph',
       ],
     ]);
-  $field_storage->enforceIsNew(TRUE);
+  $field_storage->enforceIsNew();
   $field_storage->save();
 
   $field = $entityTypeManager->getStorage('field_config')->create([
@@ -242,7 +242,7 @@ function qa_shot_update_8304() {
     ],
     'required' => TRUE,
   ]);
-  $field->enforceIsNew(TRUE);
+  $field->enforceIsNew();
   $field->save();
 
   field_purge_batch(100);
@@ -391,7 +391,7 @@ function qa_shot_update_8310() {
     foreach ($currentValues as $value) {
       $database->update('qa_shot_test')
         ->fields(['initiated' => $value->initiated])
-        ->condition('id', $value->id, '=')
+        ->condition('id', $value->id)
         ->execute();
     }
   }

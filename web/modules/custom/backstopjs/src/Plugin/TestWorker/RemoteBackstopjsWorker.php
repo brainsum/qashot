@@ -27,9 +27,9 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  */
 class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
 
-  const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
+  public const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
 
-  const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';
+  public const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';
 
   /**
    * {@inheritdoc}

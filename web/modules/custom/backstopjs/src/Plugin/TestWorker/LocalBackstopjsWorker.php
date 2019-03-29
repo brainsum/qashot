@@ -57,7 +57,7 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
     // @todo: Refactor and use \Symfony\Component\Process\Process.
     exec($checkerCommand, $execOutput, $status);
 
-    $result = array_filter($execOutput, function ($row) use ($checkerCommand) {
+    $result = array_filter($execOutput, static function ($row) use ($checkerCommand) {
       return strpos($row, $checkerCommand) === FALSE;
     });
 
@@ -123,7 +123,7 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
     $process->setTimeout(300);
     $process->enableOutput();
 
-    $process->run(function ($type, $data) use (&$results, $debugFile) {
+    $process->run(static function ($type, $data) use (&$results, $debugFile) {
       // Log output to the debug file.
       fwrite($debugFile, Html::escape($data));
 

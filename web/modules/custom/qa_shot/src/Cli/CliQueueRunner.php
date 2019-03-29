@@ -5,6 +5,7 @@ namespace Drupal\qa_shot\Cli;
 use DateTime;
 use Drupal;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Messenger\MessengerTrait;
 
 /**
  * Class CliQueueRunner.
@@ -14,15 +15,16 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 class CliQueueRunner {
 
   use StringTranslationTrait;
+  use MessengerTrait;
 
   /**
    * Executes a cron run.
    *
    * @throws \Exception
    */
-  public function execute() {
+  public function execute(): void {
     $date = (new DateTime())->setTimestamp(time());
-    drupal_set_message($this->t('Runner script initiated at @datetime', [
+    $this->messenger()->addStatus($this->t('Runner script initiated at @datetime', [
       '@datetime' => $date->format('Y-m-d H:i:s'),
     ]));
 
@@ -36,19 +38,19 @@ class CliQueueRunner {
       $itemCount = $queueInstance->numberOfItems();
 
       if (0 === $itemCount) {
-        drupal_set_message($this->t('No items in the @queue queue, skipping.', [
+        $this->messenger()->addStatus($this->t('No items in the @queue queue, skipping.', [
           '@queue' => $queue['id'],
         ]));
         continue;
       }
 
-      drupal_set_message($this->t('Pre-run: Number of tests currently in the queue: @number', [
+      $this->messenger()->addStatus($this->t('Pre-run: Number of tests currently in the queue: @number', [
         '@number' => $itemCount,
       ]));
 
       $runningItems = $queueInstance->numberOfRunningItems();
       if (0 < $runningItems) {
-        drupal_set_message($this->t('The queue @queue has already @count/@limit item(s) running. Skipping.', [
+        $this->messenger()->addStatus($this->t('The queue @queue has already @count/@limit item(s) running. Skipping.', [
           '@queue' => $queue['id'],
           '@count' => $runningItems,
           '@limit' => 1,
@@ -59,22 +61,22 @@ class CliQueueRunner {
       $limit = $queue['cron']['time'] ?? 15;
       $count += $runner->run($queue['id'], $limit);
 
-      drupal_set_message($this->t('Post-run: Number of tests currently in the queue: @number', [
+      $this->messenger()->addStatus($this->t('Post-run: Number of tests currently in the queue: @number', [
         '@number' => $queueInstance->numberOfItems(),
       ]));
     }
 
     if ($count === 1) {
-      drupal_set_message($this->t('QAShot queues executed, @count item has been processed.', [
+      $this->messenger()->addStatus($this->t('QAShot queues executed, @count item has been processed.', [
         '@count' => $count,
       ]));
     }
     else {
-      drupal_set_message($this->t('QAShot queues executed, @count items have been processed.', [
+      $this->messenger()->addStatus($this->t('QAShot queues executed, @count items have been processed.', [
         '@count' => $count,
       ]));
     }
-    drupal_set_message($this->t('---------'));
+    $this->messenger()->addStatus($this->t('---------'));
   }
 
 }

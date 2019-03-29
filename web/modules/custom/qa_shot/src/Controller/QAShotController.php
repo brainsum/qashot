@@ -84,7 +84,6 @@ class QAShotController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\RedirectResponse|array
    *   Redirect to the 'status' page.
    *
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function entityAddToQueue(RouteMatchInterface $routeMatch, Request $request) {

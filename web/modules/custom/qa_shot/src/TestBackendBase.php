@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot;
 
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 
 /**
@@ -10,6 +11,8 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  * @package Drupal\qa_shot
  */
 abstract class TestBackendBase implements TestBackendInterface {
+
+  use MessengerTrait;
 
   /**
    * {@inheritdoc}
