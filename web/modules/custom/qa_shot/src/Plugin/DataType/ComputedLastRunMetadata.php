@@ -5,6 +5,7 @@ namespace Drupal\qa_shot\Plugin\DataType;
 use Drupal\Core\TypedData\DataDefinitionInterface;
 use Drupal\Core\TypedData\TypedData;
 use Drupal\Core\TypedData\TypedDataInterface;
+use InvalidArgumentException;
 
 /**
  * Class ComputedLastRunMetadata.
@@ -13,14 +14,14 @@ use Drupal\Core\TypedData\TypedDataInterface;
  */
 class ComputedLastRunMetadata extends TypedData {
 
+  const SETTING_NAME = 'data source';
+
   /**
    * Cached processed data.
    *
    * @var array
    */
   protected $processed;
-
-  const SETTING_NAME = 'data source';
 
   /**
    * {@inheritdoc}
@@ -31,7 +32,7 @@ class ComputedLastRunMetadata extends TypedData {
     parent::__construct($definition, $name, $parent);
 
     if ($definition->getSetting($this::SETTING_NAME) === NULL) {
-      throw new \InvalidArgumentException("The definition's '" . $this::SETTING_NAME . "' key has to specify the name of the url property to be processed.");
+      throw new InvalidArgumentException("The definition's '" . $this::SETTING_NAME . "' key has to specify the name of the url property to be processed.");
     }
   }
 
@@ -119,17 +120,20 @@ class ComputedLastRunMetadata extends TypedData {
   /**
    * No idea why these are required, but whatever.
    */
-  public function setLangcode() {}
+  public function setLangcode() {
+  }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function getLangcode() {}
+  public function getLangcode() {
+  }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function preSave() {}
+  public function preSave() {
+  }
 
   /**
    * No idea why these are required, but whatever.
@@ -137,16 +141,19 @@ class ComputedLastRunMetadata extends TypedData {
    * @var string $update
    *   Not used.
    */
-  public function postSave($update) {}
+  public function postSave($update) {
+  }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function delete() {}
+  public function delete() {
+  }
 
   /**
    * No idea why these are required, but whatever.
    */
-  public function deleteRevision() {}
+  public function deleteRevision() {
+  }
 
 }

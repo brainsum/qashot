@@ -2,6 +2,8 @@
 
 namespace Drupal\backstopjs\Service;
 
+use function array_map;
+use Drupal;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -10,6 +12,10 @@ use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use function hexdec;
+use function json_decode;
+use RuntimeException;
+use function substr;
 
 /**
  * Class ConfigurationConverter.
@@ -93,6 +99,72 @@ class ConfigurationConverter {
   }
 
   /**
+   * Map the current entity to the array representation of a BackstopJS config.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The test entity.
+   * @param bool $withDebug
+   *   Whether we should add CasperJS debug options.
+   *
+   * @return array
+   *   The entity as a BackstopJS config array.
+   *
+   * @throws \InvalidArgumentException
+   */
+  public function entityToArray(QAShotTestInterface $entity, $withDebug = FALSE): array {
+    // @todo: get some field values global settings
+    $entityId = $entity->id();
+    $public = $this->publicDataPath . '/' . $entityId;
+    // @todo: Cleanup.
+    $engine = $this->getTestEngine($entity);
+
+    $mapConfigToArray = [
+      // @todo: maybe id + revision id.
+      'id' => $entity->uuid(),
+      'fileNameTemplate' => '{scenarioLabel}_{selectorIndex}_{selectorLabel}_{viewportIndex}_{viewportLabel}',
+      'viewports' => $this->viewportToArray($entity->getFieldViewport()),
+      'scenarios' => $this->scenarioToArray(
+        $entity->getFieldScenario(),
+        $entity->getSelectorsToHide(),
+        $entity->getSelectorsToRemove(),
+        $engine['name']
+      ),
+      'paths' => [
+        'engine_scripts' => $this->parsePath($engine['scripts'], $engine['useAbsolutePaths']),
+        'bitmaps_reference' => $this->parsePath($public . '/reference', $engine['useAbsolutePaths']),
+        'bitmaps_test' => $this->parsePath($public . '/test', $engine['useAbsolutePaths']),
+        'html_report' => $this->parsePath($public . '/html_report', $engine['useAbsolutePaths']),
+        'ci_report' => $this->parsePath($public . '/ci_report', $engine['useAbsolutePaths']),
+      ],
+      // 'onBeforeScript' => 'onBefore.js', //.
+      // 'onReadyScript' => 'onReady.js', //.
+      'engine' => $engine['name'],
+      'report' => [
+        // Skipping 'browser' will still generate it, but it won't try to open
+        // the generated report. For reasons.
+        // 'browser',
+        // CI is added, as omitting it won't result in it being generated.
+        'CI',
+      ],
+      'resembleOutputOptions' => $this->generateResembleOptions($entity->get('field_diff_color')),
+      'asyncCompareLimit' => (int) $this->config->get('backstopjs.async_compare_limit'),
+      // @todo: Enable on settings UI.
+      'asyncCaptureLimit' => 1,
+      'debug' => FALSE,
+      // Only allowed for chrome.
+      'debugWindow' => FALSE,
+    ];
+
+    $mapConfigToArray[$engine['optionsKey']] = $engine['options'];
+
+    if (TRUE === $withDebug || TRUE === (bool) $this->config->get('backstopjs.debug_mode')) {
+      $mapConfigToArray['debug'] = TRUE;
+    }
+
+    return $mapConfigToArray;
+  }
+
+  /**
    * Get the engine options from the entity.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
@@ -164,7 +236,7 @@ class ConfigurationConverter {
         break;
 
       default:
-        throw new \RuntimeException('The selected browser "' . $browser . '" is invalid.');
+        throw new RuntimeException('The selected browser "' . $browser . '" is invalid.');
     }
 
     return [
@@ -174,6 +246,109 @@ class ConfigurationConverter {
       'options' => $engineOptions,
       'useAbsolutePaths' => $useAbsolutePaths,
     ];
+  }
+
+  /**
+   * Convert the viewport field so it can be used in a BackstopJS config array.
+   *
+   * @param \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList $viewportField
+   *   The viewport field.
+   *
+   * @return array
+   *   Array representation of the viewport field.
+   *
+   * @throws \InvalidArgumentException
+   */
+  public function viewportToArray(
+    EntityReferenceRevisionsFieldItemList $viewportField
+  ): array {
+    // Flatten the field values from target_id + revision_target_id
+    // to target_id only.
+    $ids = array_map(function ($item) {
+      return $item['target_id'];
+    }, $viewportField->getValue());
+
+    $viewports = $this->paragraphStorage->loadMultiple($ids);
+
+    $viewportData = [];
+    /** @var \Drupal\paragraphs\Entity\Paragraph $viewport */
+    foreach ($viewports as $viewport) {
+      $viewportData[] = [
+        'name' => (string) $viewport->get('field_name')->getValue()[0]['value'],
+        'width' => (int) $viewport->get('field_width')->getValue()[0]['value'],
+        'height' => (int) $viewport->get('field_height')
+          ->getValue()[0]['value'],
+      ];
+    }
+    return $viewportData;
+  }
+
+  /**
+   * Convert the scenario field so it can be used in a BackstopJS config array.
+   *
+   * @param \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList $scenarioField
+   *   The scenario field.
+   * @param string[] $selectorsToHide
+   *   An array of selectors that should be visually hidden.
+   *   The values are merged with the default ones.
+   * @param string[] $selectorsToRemove
+   *   An array of selectors that should be removed from te DOM.
+   *   The values are merged with the default ones.
+   * @param string $engine
+   *   The engine.
+   *
+   * @return array
+   *   Array representation of the scenario field.
+   *
+   * @throws \InvalidArgumentException
+   */
+  public function scenarioToArray(
+    EntityReferenceRevisionsFieldItemList $scenarioField,
+    array $selectorsToHide,
+    array $selectorsToRemove,
+    $engine
+  ): array {
+    $scenarioData = [];
+
+    // Flatten the field values from target_id + revision_target_id
+    // to target_id only.
+    $ids = array_map(function ($item) {
+      return $item['target_id'];
+    }, $scenarioField->getValue());
+
+    $scenarios = $this->paragraphStorage->loadMultiple($ids);
+
+    /** @var \Drupal\paragraphs\Entity\Paragraph $scenario */
+    foreach ($scenarios as $scenario) {
+      $currentScenario = [];
+      $currentScenario['label'] = (string) $scenario->get('field_label')
+        ->getValue()[0]['value'];
+
+      if ($referenceUrl = $scenario->get('field_reference_url')
+        ->getValue()[0]['uri']) {
+        $currentScenario['referenceUrl'] = (string) $referenceUrl;
+      }
+
+      $misMatch = $this->config->get('backstopjs.mismatch_threshold') ?? 0.0;
+      $currentScenario += [
+        'url' => (string) $scenario->get('field_test_url')
+          ->getValue()[0]['uri'],
+        'readyEvent' => NULL,
+        'delay' => 10000,
+        'misMatchThreshold' => (float) $misMatch,
+        'selectors' => [
+          'document',
+        ],
+        'removeSelectors' => $selectorsToRemove,
+        'hideSelectors' => $selectorsToHide,
+        'onBeforeScript' => 'onBefore.js',
+        'onReadyScript' => 'onReady.js',
+      ];
+
+      $scenarioData[] = $currentScenario;
+    }
+
+    return $scenarioData;
   }
 
   /**
@@ -204,72 +379,6 @@ class ConfigurationConverter {
   }
 
   /**
-   * Map the current entity to the array representation of a BackstopJS config.
-   *
-   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
-   *   The test entity.
-   * @param bool $withDebug
-   *   Whether we should add CasperJS debug options.
-   *
-   * @return array
-   *   The entity as a BackstopJS config array.
-   *
-   * @throws \InvalidArgumentException
-   */
-  public function entityToArray(QAShotTestInterface $entity, $withDebug = FALSE): array {
-    // @todo: get some field values global settings
-    $entityId = $entity->id();
-    $public = $this->publicDataPath . '/' . $entityId;
-    // @todo: Cleanup.
-    $engine = $this->getTestEngine($entity);
-
-    $mapConfigToArray = [
-      // @todo: maybe id + revision id.
-      'id' => $entity->uuid(),
-      'fileNameTemplate' => '{scenarioLabel}_{selectorIndex}_{selectorLabel}_{viewportIndex}_{viewportLabel}',
-      'viewports' => $this->viewportToArray($entity->getFieldViewport()),
-      'scenarios' => $this->scenarioToArray(
-        $entity->getFieldScenario(),
-        $entity->getSelectorsToHide(),
-        $entity->getSelectorsToRemove(),
-        $engine['name']
-      ),
-      'paths' => [
-        'engine_scripts' => $this->parsePath($engine['scripts'], $engine['useAbsolutePaths']),
-        'bitmaps_reference' => $this->parsePath($public . '/reference', $engine['useAbsolutePaths']),
-        'bitmaps_test' => $this->parsePath($public . '/test', $engine['useAbsolutePaths']),
-        'html_report' => $this->parsePath($public . '/html_report', $engine['useAbsolutePaths']),
-        'ci_report' => $this->parsePath($public . '/ci_report', $engine['useAbsolutePaths']),
-      ],
-      // 'onBeforeScript' => 'onBefore.js', //.
-      // 'onReadyScript' => 'onReady.js', //.
-      'engine' => $engine['name'],
-      'report' => [
-        // Skipping 'browser' will still generate it, but it won't try to open
-        // the generated report. For reasons.
-        // 'browser',
-        // CI is added, as omitting it won't result in it being generated.
-        'CI',
-      ],
-      'resembleOutputOptions' => $this->generateResembleOptions($entity->get('field_diff_color')),
-      'asyncCompareLimit' => (int) $this->config->get('backstopjs.async_compare_limit'),
-      // @todo: Enable on settings UI.
-      'asyncCaptureLimit' => 1,
-      'debug' => FALSE,
-      // Only allowed for chrome.
-      'debugWindow' => FALSE,
-    ];
-
-    $mapConfigToArray[$engine['optionsKey']] = $engine['options'];
-
-    if (TRUE === $withDebug || TRUE === (bool) $this->config->get('backstopjs.debug_mode')) {
-      $mapConfigToArray['debug'] = TRUE;
-    }
-
-    return $mapConfigToArray;
-  }
-
-  /**
    * Generates the resemble output array.
    *
    * @param \Drupal\Core\Field\FieldItemListInterface $diffColorField
@@ -285,17 +394,17 @@ class ConfigurationConverter {
     // Allow diff color to be set on an entity level.
     if ($hexValue = $diffColorField->getValue()) {
       $hex = $hexValue[0]['value'];
-      $red = \hexdec(\substr($hex, 0, 2));
-      $green = \hexdec(\substr($hex, 2, 2));
-      $blue = \hexdec(\substr($hex, 4, 2));
+      $red = hexdec(substr($hex, 0, 2));
+      $green = hexdec(substr($hex, 2, 2));
+      $blue = hexdec(substr($hex, 4, 2));
     }
     // If for some reason it's not set, use the global config.
     // If it's also not set, use rgb(255, 0, 255).
     elseif ($hexValue = $this->config->get('backstopjs.resemble_output_options.fallback_color')) {
       $hex = $hexValue;
-      $red = \hexdec(\substr($hex, 0, 2));
-      $green = \hexdec(\substr($hex, 2, 2));
-      $blue = \hexdec(\substr($hex, 4, 2));
+      $red = hexdec(substr($hex, 0, 2));
+      $green = hexdec(substr($hex, 2, 2));
+      $blue = hexdec(substr($hex, 4, 2));
     }
 
     $output = [
@@ -321,166 +430,24 @@ class ConfigurationConverter {
     return $output;
   }
 
-  /**
-   * Convert the viewport field so it can be used in a BackstopJS config array.
-   *
-   * @param \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList $viewportField
-   *   The viewport field.
-   *
-   * @throws \InvalidArgumentException
-   *
-   * @return array
-   *   Array representation of the viewport field.
-   */
-  public function viewportToArray(
-    EntityReferenceRevisionsFieldItemList $viewportField
-  ): array {
-    // Flatten the field values from target_id + revision_target_id
-    // to target_id only.
-    $ids = \array_map(function ($item) {
-      return $item['target_id'];
-    }, $viewportField->getValue());
-
-    $viewports = $this->paragraphStorage->loadMultiple($ids);
-
-    $viewportData = [];
-    /** @var \Drupal\paragraphs\Entity\Paragraph $viewport */
-    foreach ($viewports as $viewport) {
-      $viewportData[] = [
-        'name' => (string) $viewport->get('field_name')->getValue()[0]['value'],
-        'width' => (int) $viewport->get('field_width')->getValue()[0]['value'],
-        'height' => (int) $viewport->get('field_height')->getValue()[0]['value'],
-      ];
-    }
-    return $viewportData;
-  }
-
-  /**
-   * Convert the scenario field so it can be used in a BackstopJS config array.
-   *
-   * @param \Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList $scenarioField
-   *   The scenario field.
-   * @param string[] $selectorsToHide
-   *   An array of selectors that should be visually hidden.
-   *   The values are merged with the default ones.
-   * @param string[] $selectorsToRemove
-   *   An array of selectors that should be removed from te DOM.
-   *   The values are merged with the default ones.
-   * @param string $engine
-   *   The engine.
-   *
-   * @throws \InvalidArgumentException
-   *
-   * @return array
-   *   Array representation of the scenario field.
-   */
-  public function scenarioToArray(
-    EntityReferenceRevisionsFieldItemList $scenarioField,
-    array $selectorsToHide,
-    array $selectorsToRemove,
-    $engine
-  ): array {
-    $scenarioData = [];
-
-    // Flatten the field values from target_id + revision_target_id
-    // to target_id only.
-    $ids = \array_map(function ($item) {
-      return $item['target_id'];
-    }, $scenarioField->getValue());
-
-    $scenarios = $this->paragraphStorage->loadMultiple($ids);
-
-    /** @var \Drupal\paragraphs\Entity\Paragraph $scenario */
-    foreach ($scenarios as $scenario) {
-      $currentScenario = [];
-      $currentScenario['label'] = (string) $scenario->get('field_label')->getValue()[0]['value'];
-
-      if ($referenceUrl = $scenario->get('field_reference_url')->getValue()[0]['uri']) {
-        $currentScenario['referenceUrl'] = (string) $referenceUrl;
-      }
-
-      $misMatch = $this->config->get('backstopjs.mismatch_threshold') ?? 0.0;
-      $currentScenario += [
-        'url' => (string) $scenario->get('field_test_url')->getValue()[0]['uri'],
-        'readyEvent' => NULL,
-        'delay' => 10000,
-        'misMatchThreshold' => (float) $misMatch,
-        'selectors' => [
-          'document',
-        ],
-        'removeSelectors' => $selectorsToRemove,
-        'hideSelectors' => $selectorsToHide,
-        'onBeforeScript' => 'onBefore.js',
-        'onReadyScript' => 'onReady.js',
-      ];
-
-      $scenarioData[] = $currentScenario;
-    }
-
-    return $scenarioData;
-  }
-
   // @codingStandardsIgnoreStart
-  /**
-   * Instantiates a new QAShotEntity from the array. Optionally saves it.
-   *
-   * @param array $config
-   *   The entity as an array.
-   * @param bool $saveEntity
-   *   Whether to persist the entity as well.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *
-   * @return \Drupal\qa_shot\Entity\QAShotTestInterface|\Drupal\Core\Entity\EntityInterface
-   *   The entity object.
-   *
-   * @deprecated
-   */
-  public function arrayToEntity(array $config, $saveEntity = FALSE) {
-    $testEntity = $this->testStorage->create($config);
-
-    if ($saveEntity) {
-      $testEntity->save();
-    }
-
-    return $testEntity;
-  }
 
   /**
-   * Instantiates a new QAShotEntity from the json string. Optionally saves it.
+   * Example function on how to use this class.
    *
-   * @param string $json
-   *   The backstop.json config file as a string.
-   * @param bool $saveEntity
-   *   Whether to persist the entity as well.
-   *
-   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
-   *   The entity object.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *
+   * @internal
    * @deprecated
    */
-  public function jsonStringToEntity($json, $saveEntity = FALSE): QAShotTestInterface {
-    /** @var array $rawData */
-    $rawData = \json_decode($json, TRUE);
+  public function example() {
+    $basePath = PrivateStream::basePath() . '/qa_test_data';
 
-    $entityData = [
-      'name' => 'Import for backstop.json with id #' . $rawData['id'],
-      'type' => 'a_b',
-      'viewport' => $rawData['viewports'],
-      'field_scenario' => [],
+    $ids = [
+      '1',
     ];
 
-    foreach ($rawData['scenarios'] as $scenario) {
-      $entityData['field_scenario'][] = [
-        'label' => $scenario['label'],
-        'referenceUrl' => $scenario['referenceUrl'],
-        'testUrl' => $scenario['url'],
-      ];
+    foreach ($ids as $id) {
+      $this->jsonFileToEntity($basePath . '/' . $id . '/backstop.json');
     }
-
-    return $this->arrayToEntity($entityData, $saveEntity);
   }
 
   /**
@@ -502,21 +469,65 @@ class ConfigurationConverter {
   }
 
   /**
-   * Example function on how to use this class.
+   * Instantiates a new QAShotEntity from the json string. Optionally saves it.
    *
-   * @internal
+   * @param string $json
+   *   The backstop.json config file as a string.
+   * @param bool $saveEntity
+   *   Whether to persist the entity as well.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface
+   *   The entity object.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *
    * @deprecated
    */
-  public function example() {
-    $basePath = PrivateStream::basePath() . '/qa_test_data';
+  public function jsonStringToEntity($json, $saveEntity = FALSE): QAShotTestInterface {
+    /** @var array $rawData */
+    $rawData = json_decode($json, TRUE);
 
-    $ids = [
-      '1',
+    $entityData = [
+      'name' => 'Import for backstop.json with id #' . $rawData['id'],
+      'type' => 'a_b',
+      'viewport' => $rawData['viewports'],
+      'field_scenario' => [],
     ];
 
-    foreach ($ids as $id) {
-      $this->jsonFileToEntity($basePath . '/' . $id . '/backstop.json');
+    foreach ($rawData['scenarios'] as $scenario) {
+      $entityData['field_scenario'][] = [
+        'label' => $scenario['label'],
+        'referenceUrl' => $scenario['referenceUrl'],
+        'testUrl' => $scenario['url'],
+      ];
     }
+
+    return $this->arrayToEntity($entityData, $saveEntity);
+  }
+
+  /**
+   * Instantiates a new QAShotEntity from the array. Optionally saves it.
+   *
+   * @param array $config
+   *   The entity as an array.
+   * @param bool $saveEntity
+   *   Whether to persist the entity as well.
+   *
+   * @return \Drupal\qa_shot\Entity\QAShotTestInterface|\Drupal\Core\Entity\EntityInterface
+   *   The entity object.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *
+   * @deprecated
+   */
+  public function arrayToEntity(array $config, $saveEntity = FALSE) {
+    $testEntity = $this->testStorage->create($config);
+
+    if ($saveEntity) {
+      $testEntity->save();
+    }
+
+    return $testEntity;
   }
 
   /**
@@ -560,7 +571,9 @@ class ConfigurationConverter {
       }
 
       /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $newTest */
-      $newTest = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->create($entityData);
+      $newTest = Drupal::entityTypeManager()
+        ->getStorage('qa_shot_test')
+        ->create($entityData);
       // dpm($newTest);
       $newTest->save();
     }

@@ -2,21 +2,26 @@
 
 namespace Drupal\backstopjs\Service;
 
+use DateTime;
+use Drupal\backstopjs\Custom\Backstop as CustomBackstop;
 use Drupal\backstopjs\Exception\EmptyResultsException;
+use Drupal\backstopjs\Exception\InvalidCommandException;
+use Drupal\backstopjs\Exception\InvalidConfigurationException;
+use Drupal\backstopjs\Exception\InvalidEntityException;
+use Drupal\backstopjs\Exception\InvalidRunnerOptionsException;
+use Drupal\backstopjs\Exception\ReferenceCommandFailedException;
+use Drupal\backstopjs\Exception\TestCommandFailedException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
-use Drupal\backstopjs\Exception\InvalidCommandException;
-use Drupal\backstopjs\Exception\InvalidConfigurationException;
-use Drupal\backstopjs\Exception\InvalidEntityException;
-use Drupal\backstopjs\Exception\InvalidRunnerOptionsException;
-use Drupal\backstopjs\Custom\Backstop as CustomBackstop;
-use Drupal\backstopjs\Exception\ReferenceCommandFailedException;
-use Drupal\backstopjs\Exception\TestCommandFailedException;
 use Drupal\qa_shot\TestBackendBase;
 use Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface;
+use function file_get_contents;
+use function file_put_contents;
+use function in_array;
+use function is_dir;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
@@ -75,7 +80,8 @@ class Backstop extends TestBackendBase {
   ) {
     $this->backstopFileSystem = $backstopFileSystem;
     $this->logger = $loggerChannelFactory->get('backstopjs');
-    $this->backstop = $backstopJsFactory->get($configFactory->get('backstopjs.settings')->get('suite.location'));
+    $this->backstop = $backstopJsFactory->get($configFactory->get('backstopjs.settings')
+      ->get('suite.location'));
   }
 
   /**
@@ -159,7 +165,7 @@ class Backstop extends TestBackendBase {
       'viewport_count' => $entity->getViewportCount(),
       'scenario_count' => $entity->getScenarioCount(),
       // @todo: Save as timestamp.
-      'datetime' => (new \DateTime())->format('Y-m-d H:i:s'),
+      'datetime' => (new DateTime())->format('Y-m-d H:i:s'),
       'duration' => $endTime - $startTime,
       'passed_count' => $results['passedTestCount'],
       'failed_count' => $results['failedTestCount'],
@@ -188,110 +194,6 @@ class Backstop extends TestBackendBase {
     $entity->addMetadata($metadata);
     $entity->setResult($result);
     $entity->save();
-  }
-
-  /**
-   * Returns the custom report folder.
-   *
-   * @return string
-   *   The path to the custom report folder.
-   *
-   * @todo @asap @fixme
-   */
-  public function customizedHtmlReportPath(): string {
-    return $this->backstopFileSystem
-      ->baseFileSystem()
-      ->realpath(__DIR__ . '/../../../../../../vendor/brainsum/qashot-compare/output');
-  }
-
-  /**
-   * Replace default HTML Report with custom verision.
-   *
-   * @param string $originalReportPath
-   *   The path to the original report.
-   * @param string $customReportPath
-   *   The path to the custom report.
-   *
-   * @todo @asap @fixme
-   */
-  public function customizeHtmlReport(
-    string $originalReportPath,
-    string $customReportPath
-  ): void {
-    if (\is_dir($customReportPath)) {
-      $fileSystem = $this->backstopFileSystem->baseFileSystem();
-
-      $fullOriginalPath = $fileSystem->dirname(__DIR__ . '/../../../../../../web/' . $originalReportPath);
-      $configJsPath = $fileSystem->realpath($fullOriginalPath . '/config.js');
-
-      $configJs = \file_get_contents($configJsPath);
-
-      $this->backstopFileSystem->removeDirectory($fullOriginalPath);
-      (new SymfonyFilesystem())->mirror($customReportPath, $fullOriginalPath, NULL, [
-        'override' => TRUE,
-        'delete' => TRUE,
-      ]);
-
-      \file_put_contents($configJsPath, $configJs);
-    }
-  }
-
-  /**
-   * Get the result screenshots.
-   *
-   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
-   *   The entity.
-   *
-   * @todo: Change, so this is stored in the new field_viewport.
-   *
-   * @return array
-   *   The screenshots.
-   */
-  public function parseScreenshots(QAShotTestInterface $entity): array {
-    $screenshots = [];
-
-    $reportBasePath = str_replace('/html_report/index.html', '', $entity->getHtmlReportPath());
-    $screenshotConfigPath = $reportBasePath . '/html_report/config.js';
-    $screenshotConfig = file_get_contents($screenshotConfigPath);
-    if (FALSE === $screenshotConfig) {
-      $this->logger->notice('Config file not found at ' . $screenshotConfigPath . ' for QAShot test with ID ' . $entity->id());
-      return $screenshots;
-    }
-
-    // Report config is a json wrapped in a report() function,
-    // so we replace that with ''. Then, we turn the json into an array.
-    /** @var array[] $screenshotConfigData */
-    $screenshotConfigData = json_decode(str_replace(['report(', ');'], '', $screenshotConfig), TRUE);
-
-    // @todo: Load paragraphs, match screenshot names for security.
-    // $paragraphsStorage =
-    // \Drupal::entityTypeManager()->getStorage('paragraph');
-    $scenarioIds = array_map(function ($item) {
-      return $item['target_id'];
-    }, $entity->getFieldScenario()->getValue(TRUE));
-    $viewportIds = array_map(function ($item) {
-      return $item['target_id'];
-    }, $entity->getFieldViewport()->getValue(TRUE));
-
-    foreach ($screenshotConfigData['tests'] as $screenshot) {
-      $screenshots[] = [
-        'scenario_id' => (int) current($scenarioIds),
-        'viewport_id' => (int) current($viewportIds),
-        'reference' => str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['reference']),
-        'test' => str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['test']),
-        'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['diffImage']) : '',
-        'success' => $screenshot['status'] === 'pass',
-      ];
-
-      // When we reach the last viewport, we have to start over.
-      // We also have to get the next scenario.
-      if (FALSE === next($viewportIds)) {
-        next($scenarioIds);
-        reset($viewportIds);
-      }
-    }
-
-    return $screenshots;
   }
 
   /**
@@ -327,41 +229,19 @@ class Backstop extends TestBackendBase {
   }
 
   /**
-   * Callback for running the 'Before/After' test type.
-   *
-   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
-   *   The test.
-   * @param string $stage
-   *   The stage; before or after.
-   *
-   * @return array
-   *   Test results.
-   *
-   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
-   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
-   * @throws \Drupal\backstopjs\Exception\InvalidCommandException
-   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
-   * @throws \Drupal\backstopjs\Exception\FolderCreateException
-   * @throws \Drupal\backstopjs\Exception\FileWriteException
-   * @throws \Drupal\backstopjs\Exception\FileOpenException
-   */
-  protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage): array {
-    return ('before' === $stage) ? $this->runReferenceCommand($entity) : $this->runTestCommand($entity);
-  }
-
-  /**
    * Run an A/B test.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
    *   The entity.
    *
-   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
+   * @return array
+   *   The test results.
+   *
    * @throws \Drupal\backstopjs\Exception\ReferenceCommandFailedException
    * @throws \Drupal\backstopjs\Exception\TestCommandFailedException
    * @throws \Drupal\backstopjs\Exception\InvalidEntityException
    *
-   * @return array
-   *   The test results.
+   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
    */
   protected function runAbTest(QAShotTestInterface $entity): array {
     $command = 'reference';
@@ -422,29 +302,6 @@ class Backstop extends TestBackendBase {
   }
 
   /**
-   * Run the 'Test' command.
-   *
-   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
-   *   The entity.
-   *
-   * @return array
-   *   Array with data from the command run.
-   *
-   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
-   *   When Backstop is already running.
-   * @throws InvalidCommandException
-   *   When the supplied command is not a valid BackstopJS command.
-   * @throws InvalidEntityException
-   * @throws InvalidConfigurationException
-   * @throws \Drupal\backstopjs\Exception\FolderCreateException
-   * @throws \Drupal\backstopjs\Exception\FileWriteException
-   * @throws \Drupal\backstopjs\Exception\FileOpenException
-   */
-  private function runTestCommand(QAShotTestInterface $entity): array {
-    return $this->runCommand('test', $entity);
-  }
-
-  /**
    * Command runner logic.
    *
    * @param string $command
@@ -489,7 +346,160 @@ class Backstop extends TestBackendBase {
    *   TRUE for valid, FALSE for invalid.
    */
   private function isCommandValid($command): bool {
-    return \in_array($command, ['reference', 'test'], FALSE);
+    return in_array($command, ['reference', 'test'], FALSE);
+  }
+
+  /**
+   * Run the 'Test' command.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   *
+   * @return array
+   *   Array with data from the command run.
+   *
+   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
+   *   When Backstop is already running.
+   * @throws InvalidCommandException
+   *   When the supplied command is not a valid BackstopJS command.
+   * @throws InvalidEntityException
+   * @throws InvalidConfigurationException
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
+   */
+  private function runTestCommand(QAShotTestInterface $entity): array {
+    return $this->runCommand('test', $entity);
+  }
+
+  /**
+   * Callback for running the 'Before/After' test type.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The test.
+   * @param string $stage
+   *   The stage; before or after.
+   *
+   * @return array
+   *   Test results.
+   *
+   * @throws \Drupal\backstopjs\Exception\InvalidEntityException
+   * @throws \Drupal\backstopjs\Exception\InvalidConfigurationException
+   * @throws \Drupal\backstopjs\Exception\InvalidCommandException
+   * @throws \Drupal\backstopjs\Exception\BackstopAlreadyRunningException
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   * @throws \Drupal\backstopjs\Exception\FileOpenException
+   */
+  protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage): array {
+    return ('before' === $stage) ? $this->runReferenceCommand($entity) : $this->runTestCommand($entity);
+  }
+
+  /**
+   * Replace default HTML Report with custom verision.
+   *
+   * @param string $originalReportPath
+   *   The path to the original report.
+   * @param string $customReportPath
+   *   The path to the custom report.
+   *
+   * @todo @asap @fixme
+   */
+  public function customizeHtmlReport(
+    string $originalReportPath,
+    string $customReportPath
+  ): void {
+    if (is_dir($customReportPath)) {
+      $fileSystem = $this->backstopFileSystem->baseFileSystem();
+
+      $fullOriginalPath = $fileSystem->dirname(__DIR__ . '/../../../../../../web/' . $originalReportPath);
+      $configJsPath = $fileSystem->realpath($fullOriginalPath . '/config.js');
+
+      $configJs = file_get_contents($configJsPath);
+
+      $this->backstopFileSystem->removeDirectory($fullOriginalPath);
+      (new SymfonyFilesystem())->mirror($customReportPath, $fullOriginalPath, NULL, [
+        'override' => TRUE,
+        'delete' => TRUE,
+      ]);
+
+      file_put_contents($configJsPath, $configJs);
+    }
+  }
+
+  /**
+   * Returns the custom report folder.
+   *
+   * @return string
+   *   The path to the custom report folder.
+   *
+   * @todo @asap @fixme
+   */
+  public function customizedHtmlReportPath(): string {
+    return $this->backstopFileSystem
+      ->baseFileSystem()
+      ->realpath(__DIR__ . '/../../../../../../vendor/brainsum/qashot-compare/output');
+  }
+
+  /**
+   * Get the result screenshots.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The entity.
+   *
+   * @return array
+   *   The screenshots.
+   *
+   * @todo: Change, so this is stored in the new field_viewport.
+   */
+  public function parseScreenshots(QAShotTestInterface $entity): array {
+    $screenshots = [];
+
+    $reportBasePath = str_replace('/html_report/index.html', '', $entity->getHtmlReportPath());
+    $screenshotConfigPath = $reportBasePath . '/html_report/config.js';
+    $screenshotConfig = file_get_contents($screenshotConfigPath);
+    if (FALSE === $screenshotConfig) {
+      $this->logger->notice('Config file not found at ' . $screenshotConfigPath . ' for QAShot test with ID ' . $entity->id());
+      return $screenshots;
+    }
+
+    // Report config is a json wrapped in a report() function,
+    // so we replace that with ''. Then, we turn the json into an array.
+    /** @var array[] $screenshotConfigData */
+    $screenshotConfigData = json_decode(str_replace([
+      'report(',
+      ');',
+    ], '', $screenshotConfig), TRUE);
+
+    // @todo: Load paragraphs, match screenshot names for security.
+    // $paragraphsStorage =
+    // \Drupal::entityTypeManager()->getStorage('paragraph');
+    $scenarioIds = array_map(function ($item) {
+      return $item['target_id'];
+    }, $entity->getFieldScenario()->getValue(TRUE));
+    $viewportIds = array_map(function ($item) {
+      return $item['target_id'];
+    }, $entity->getFieldViewport()->getValue(TRUE));
+
+    foreach ($screenshotConfigData['tests'] as $screenshot) {
+      $screenshots[] = [
+        'scenario_id' => (int) current($scenarioIds),
+        'viewport_id' => (int) current($viewportIds),
+        'reference' => str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['reference']),
+        'test' => str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['test']),
+        'diff' => isset($screenshot['pair']['diffImage']) ? str_replace('..' . DIRECTORY_SEPARATOR, $entity->id() . '/', $screenshot['pair']['diffImage']) : '',
+        'success' => $screenshot['status'] === 'pass',
+      ];
+
+      // When we reach the last viewport, we have to start over.
+      // We also have to get the next scenario.
+      if (FALSE === next($viewportIds)) {
+        next($scenarioIds);
+        reset($viewportIds);
+      }
+    }
+
+    return $screenshots;
   }
 
   /**

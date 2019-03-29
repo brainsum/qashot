@@ -31,8 +31,10 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *   },
  *   links = {
  *     "add-form" = "/admin/structure/qa_shot_test_type/add",
- *     "edit-form" = "/admin/structure/qa_shot_test_type/{qa_shot_test_type}/edit",
- *     "delete-form" = "/admin/structure/qa_shot_test_type/{qa_shot_test_type}/delete",
+ *     "edit-form" =
+ *   "/admin/structure/qa_shot_test_type/{qa_shot_test_type}/edit",
+ *     "delete-form" =
+ *   "/admin/structure/qa_shot_test_type/{qa_shot_test_type}/delete",
  *     "collection" = "/admin/structure/qa_shot_test_type"
  *   }
  * )

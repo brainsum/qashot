@@ -10,7 +10,8 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
  *
  * Implements running BackstopJS from a local binary.
  *
- * @todo: Move 'Local' related functions here from web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
+ * @todo: Move 'Local' related functions here from
+ *   web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
  * @todo: Refactor exec-s and etc to use the new functions
  * @todo: @fixme: @important: This is currently a dummy implementation.
  *
@@ -27,6 +28,7 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
 class RemoteBackstopjsWorker extends BackstopjsWorkerBase {
 
   const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
+
   const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';
 
   /**

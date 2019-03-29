@@ -28,10 +28,7 @@ class CreatedItemNormalizer extends NormalizerBase {
     if (isset($value['value'])) {
       return $value['value'];
     }
-    if (isset($value[0]['value'])) {
-      return $value[0]['value'];
-    }
-    return $value;
+    return $value[0]['value'] ?? $value;
   }
 
 }

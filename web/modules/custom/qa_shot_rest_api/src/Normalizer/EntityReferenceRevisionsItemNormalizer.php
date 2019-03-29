@@ -8,9 +8,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\entity_reference_revisions\Plugin\Field\FieldType\EntityReferenceRevisionsItem;
 use Drupal\serialization\Normalizer\ComplexDataNormalizer;
+use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 /**
  * Class EntityReferenceRevisionsItemNormalizer.
@@ -161,11 +161,13 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
 
       // Create the entity from bundle data only,
       // then apply field values after.
-      $entity = $this->entityTypeManager->getStorage($entityTypeId)->create($bundleData);
+      $entity = $this->entityTypeManager->getStorage($entityTypeId)
+        ->create($bundleData);
     }
     else {
       // Create the entity from all data.
-      $entity = $this->entityTypeManager->getStorage($entityTypeId)->create($data);
+      $entity = $this->entityTypeManager->getStorage($entityTypeId)
+        ->create($data);
     }
 
     // Pass the names of the fields whose values can be merged.
@@ -184,11 +186,12 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
    * @param array $context
    *   The serialization context data.
    *
-   * @throws \Drupal\Core\Entity\Exception\AmbiguousEntityClassException
-   * @throws \Drupal\Core\Entity\Exception\NoCorrespondingEntityClassException
-   *
    * @return string
    *   The entity type ID.
+   *
+   * @throws \Drupal\Core\Entity\Exception\NoCorrespondingEntityClassException
+   *
+   * @throws \Drupal\Core\Entity\Exception\AmbiguousEntityClassException
    */
   protected function determineEntityTypeId($class, array $context): string {
     // Get the entity type ID while letting context override the $class param.
@@ -242,16 +245,19 @@ class EntityReferenceRevisionsItemNormalizer extends ComplexDataNormalizer imple
 
     // Get the ID key from the base field definition for the bundle key or
     // default to 'value'.
-    $keyId = isset($baseFieldDefinitions[$bundleKey]) ? $baseFieldDefinitions[$bundleKey]->getFieldStorageDefinition()->getMainPropertyName() : 'value';
+    $keyId = isset($baseFieldDefinitions[$bundleKey]) ? $baseFieldDefinitions[$bundleKey]->getFieldStorageDefinition()
+      ->getMainPropertyName() : 'value';
 
     // Normalize the bundle if it is not explicitly set.
-    $bundleValue = isset($data[$bundleKey][0][$keyId]) ? $data[$bundleKey][0][$keyId] : (isset($data[$bundleKey]) ? $data[$bundleKey] : NULL);
+    $bundleValue = $data[$bundleKey][0][$keyId] ?? $data[$bundleKey] ?? NULL;
     // Unset the bundle from the data.
     unset($data[$bundleKey]);
 
     // Get the bundle entity type from the entity type definition.
     $bundleTypeId = $entityTypeDefinition->getBundleEntityType();
-    $bundleTypes = $bundleTypeId ? $this->entityTypeManager->getStorage($bundleTypeId)->getQuery()->execute() : [];
+    $bundleTypes = $bundleTypeId ? $this->entityTypeManager->getStorage($bundleTypeId)
+      ->getQuery()
+      ->execute() : [];
 
     // Make sure a bundle has been provided.
     if (!is_string($bundleValue)) {

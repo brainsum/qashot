@@ -2,11 +2,13 @@
 
 namespace Drupal\backstopjs\Backstopjs;
 
+use function array_filter;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\qa_shot_test_worker\TestWorker\TestWorkerInterface;
 use Drupal\qa_shot_test_worker\TestWorker\TestWorkerManager;
+use Traversable;
 
 /**
  * Class BackstopjsWorkerManager.
@@ -32,7 +34,7 @@ class BackstopjsWorkerManager extends TestWorkerManager {
    *   The module handler.
    */
   public function __construct(
-    \Traversable $namespaces,
+    Traversable $namespaces,
     CacheBackendInterface $cacheBackend,
     ModuleHandlerInterface $moduleHandler
   ) {
@@ -86,7 +88,7 @@ class BackstopjsWorkerManager extends TestWorkerManager {
   public function getDefinitions(): array {
     $definitions = parent::getDefinitions() ?? [];
 
-    return \array_filter($definitions, function ($definition) {
+    return array_filter($definitions, function ($definition) {
       return $definition['provider'] === 'backstopjs';
     });
   }

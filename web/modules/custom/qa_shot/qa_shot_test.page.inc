@@ -70,15 +70,15 @@ function template_preprocess_qa_shot_test(array &$variables) {
   list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = \array_values($qaShotTest->getLastRunTimes());
   if ($lastRunTime) {
     $variables['last_run_time'] = [
-      '#type'   => 'item',
-      '#title'  => \t('Last run was at'),
+      '#type' => 'item',
+      '#title' => \t('Last run was at'),
       '#markup' => '<div class="field--item">' . $lastRunTime . '</div>',
     ];
   }
   if ($lastReferenceRunTime) {
     $variables['last_reference_run_time'] = [
-      '#type'   => 'item',
-      '#title'  => \t('Reference was created at'),
+      '#type' => 'item',
+      '#title' => \t('Reference was created at'),
       '#markup' => '<div class="field--item">' . $lastReferenceRunTime . '</div>',
     ];
   }
@@ -93,9 +93,9 @@ function template_preprocess_qa_shot_test(array &$variables) {
   $entityType = $qaShotTest->getType();
   if ($entityType === 'a_b') {
     $variables['run_path'] = [
-      '#title'      => 'Add test to queue',
-      '#type'       => 'link',
-      '#url'        => Url::fromRoute('entity.qa_shot_test.add_to_queue', [
+      '#title' => 'Add test to queue',
+      '#type' => 'link',
+      '#url' => Url::fromRoute('entity.qa_shot_test.add_to_queue', [
         'qa_shot_test' => $qaShotTest->id(),
       ], $urlOptions),
       '#attributes' => $runAttributes,
@@ -103,9 +103,9 @@ function template_preprocess_qa_shot_test(array &$variables) {
   }
   elseif ($entityType === 'before_after') {
     $variables['run_path_reference'] = [
-      '#title'      => 'Queue taking "Before" shots',
-      '#type'       => 'link',
-      '#url'        => Url::fromRoute('entity.qa_shot_test.add_to_queue_reference', [
+      '#title' => 'Queue taking "Before" shots',
+      '#type' => 'link',
+      '#url' => Url::fromRoute('entity.qa_shot_test.add_to_queue_reference', [
         'qa_shot_test' => $qaShotTest->id(),
       ], $urlOptions),
       '#attributes' => $runAttributes,
@@ -114,9 +114,9 @@ function template_preprocess_qa_shot_test(array &$variables) {
     $testResults = $qaShotTest->getLifetimeMetadataValue();
     if (\count($testResults) > 0) {
       $variables['run_path_test'] = [
-        '#title'      => 'Queue taking "After" shots',
-        '#type'       => 'link',
-        '#url'        => Url::fromRoute('entity.qa_shot_test.add_to_queue_test', [
+        '#title' => 'Queue taking "After" shots',
+        '#type' => 'link',
+        '#url' => Url::fromRoute('entity.qa_shot_test.add_to_queue_test', [
           'qa_shot_test' => $qaShotTest->id(),
         ], $urlOptions),
         '#attributes' => $runAttributes,
@@ -139,7 +139,8 @@ function template_preprocess_qa_shot_test(array &$variables) {
         if (!\in_array($file, ['.', '..'], TRUE)) {
           $fileNameFragments = \explode('.', $file);
           $rawTimestamp = \trim($fileNameFragments[0]);
-          $fileDate = (new \DateTime())->setTimestamp((int) $rawTimestamp)->format('Y-m-d H:i:s');
+          $fileDate = (new \DateTime())->setTimestamp((int) $rawTimestamp)
+            ->format('Y-m-d H:i:s');
           $command = $fileNameFragments[1] ?? 'unknown';
 
           // @todo: Update displayed name.
@@ -198,7 +199,8 @@ function template_preprocess_qa_shot_test(array &$variables) {
             $element = [
               '#type' => 'html_tag',
               '#tag' => 'span',
-              '#value' => (new \DateTime())->setTime(0, 0, \round($data[$key]))->format('H:i:s'),
+              '#value' => (new \DateTime())->setTime(0, 0, \round($data[$key]))
+                ->format('H:i:s'),
               '#attributes' => [
                 'title' => t('@seconds seconds', [
                   '@seconds' => $data[$key],

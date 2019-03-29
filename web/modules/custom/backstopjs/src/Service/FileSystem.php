@@ -2,6 +2,9 @@
 
 namespace Drupal\backstopjs\Service;
 
+use function chgrp;
+use function chown;
+use function copy;
 use Drupal\backstopjs\Exception\FileCopyException;
 use Drupal\backstopjs\Exception\FileOpenException;
 use Drupal\backstopjs\Exception\FileWriteException;
@@ -12,6 +15,22 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use function end;
+use function explode;
+use function fclose;
+use function feof;
+use function file_exists;
+use function filesize;
+use function filetype;
+use function fopen;
+use function fread;
+use function fwrite;
+use function is_dir;
+use function json_encode;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use function scandir;
+use function strpos;
 
 /**
  * Class FileSystem.
@@ -119,177 +138,6 @@ class FileSystem {
   }
 
   /**
-   * Creates a directory at the given path.
-   *
-   * @param string $dirToCreate
-   *   Path of the directory to be created.
-   *
-   * @throws \Drupal\backstopjs\Exception\FolderCreateException
-   */
-  public function createFolder($dirToCreate): void {
-    if (\is_dir($dirToCreate)) {
-      return;
-    }
-
-    // Create directory and parents as well.
-    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !\is_dir($dirToCreate)) {
-      throw new FolderCreateException("Creating the $dirToCreate folder failed.");
-    }
-  }
-
-  /**
-   * Create a new BackstopJS configuration file for the entity.
-   *
-   * @param string $configurationPath
-   *   Path to the BackstopJS configuration file.
-   * @param string $jsonString
-   *   The json data to be written.
-   *
-   * @throws FileWriteException
-   * @throws FileOpenException
-   */
-  public function createConfigFile($configurationPath, $jsonString): void {
-    // @todo: check if file exists, if yes, check if it's the same as the new one.
-    if (($configFile = \fopen($configurationPath, 'wb')) === FALSE) {
-      throw new FileOpenException("Opening the configuration file at $configurationPath failed.");
-    }
-
-    if (\fwrite($configFile, $jsonString) === FALSE) {
-      throw new FileWriteException("Writing the configuration file at $configurationPath failed.");
-    }
-
-    if (\fclose($configFile) === FALSE) {
-      throw new FileWriteException("Closing the configuration file at $configurationPath failed.");
-    }
-
-    $this->setFilePermissions($configurationPath);
-  }
-
-  /**
-   * Set permissions for files.
-   *
-   * @param string $filename
-   *   The filename.
-   *
-   * @throws \Drupal\backstopjs\Exception\FileWriteException
-   */
-  private function setFilePermissions($filename): void {
-    if ($this->fileSystem->chmod($filename, 0664) === FALSE) {
-      throw new FileWriteException("Operation 'chmod' on file '$filename' failed.");
-    }
-    if (\chown($filename, 'www-data') === FALSE) {
-      throw new FileWriteException("Operation 'chown' on file '$filename' failed.");
-    }
-
-    if (\chgrp($filename, 'www-data') === FALSE) {
-      throw new FileWriteException("Operation 'chgrp' on file '$filename' failed.");
-    }
-  }
-
-  /**
-   * Compare two files.
-   *
-   * @param string $firstFilename
-   *   File name for the first file.
-   * @param string $secondFilename
-   *   File name for the second file.
-   *
-   * @return bool
-   *   TRUE, if they are the same.
-   *
-   * @see https://jonlabelle.com/snippets/view/php/quickly-check-if-two-files-are-identical
-   * @see http://php.net/manual/en/function.md5-file.php#94494
-   */
-  private function filesAreIdentical(string $firstFilename, string $secondFilename): bool {
-    if (
-      \file_exists($firstFilename) === FALSE
-      || \file_exists($secondFilename) === FALSE
-    ) {
-      return FALSE;
-    }
-
-    if (\filetype($firstFilename) !== \filetype($secondFilename)) {
-      return FALSE;
-    }
-
-    if (\filesize($firstFilename) !== \filesize($secondFilename)) {
-      return FALSE;
-    }
-
-    if (!($fpFirst = \fopen($firstFilename, 'rb'))) {
-      return FALSE;
-    }
-
-    if (!($fpSecond = \fopen($secondFilename, 'rb'))) {
-      \fclose($fpFirst);
-      return FALSE;
-    }
-
-    $isSame = TRUE;
-
-    while (!\feof($fpFirst) and !\feof($fpSecond)) {
-      if (\fread($fpFirst, 8192) !== \fread($fpSecond, 8192)) {
-        $isSame = FALSE;
-        break;
-      }
-    }
-
-    if (\feof($fpFirst) !== \feof($fpSecond)) {
-      $isSame = FALSE;
-    }
-
-    \fclose($fpFirst);
-    \fclose($fpSecond);
-
-    return $isSame;
-  }
-
-  /**
-   * Copy the required template files into the target folder.
-   *
-   * @param string $src
-   *   Template folder.
-   * @param string $target
-   *   Target folder.
-   *
-   * @throws \Drupal\backstopjs\Exception\FileCopyException
-   * @throws \Drupal\backstopjs\Exception\FileWriteException
-   */
-  private function copyTemplates($src, $target): void {
-    if (($fileList = \scandir($src, NULL)) === FALSE) {
-      throw new FileCopyException("Opening script template directory '$src' failed.");
-    }
-
-    $result = TRUE;
-
-    foreach ($fileList as $file) {
-      if (\strpos($file, '.js') === FALSE) {
-        continue;
-      }
-
-      $srcFile = $src . '/' . $file;
-      $targetFile = $target . '/' . $file;
-
-      if ($this->filesAreIdentical($srcFile, $targetFile) === TRUE) {
-        continue;
-      }
-
-      $couldCopy = \copy($srcFile, $targetFile);
-      if ($couldCopy === FALSE) {
-        throw new FileCopyException("Making a copy of the '$srcFile' template failed (target: '$targetFile').");
-      }
-
-      $this->setFilePermissions($targetFile);
-
-      $result |= $couldCopy;
-    }
-
-    if ($result === FALSE) {
-      throw new FileCopyException("Copying script templates from '$src' failed.");
-    }
-  }
-
-  /**
    * Function that initializes a backstop configuration for the entity.
    *
    * Does the following:
@@ -322,7 +170,7 @@ class FileSystem {
 
     $configAsArray = $this->configConverter->entityToArray($entity);
     $jsonEncodeSettings = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-    $configAsJSON = \json_encode($configAsArray, $jsonEncodeSettings);
+    $configAsJSON = json_encode($configAsArray, $jsonEncodeSettings);
 
     $reportPath = $configAsArray['paths']['html_report'] . '/index.html';
 
@@ -332,8 +180,8 @@ class FileSystem {
     $this->createFolder($privateEntityData . '/tmp');
     $this->createConfigFile($configPath, $configAsJSON);
 
-    $engineScriptPath = \explode('/', $configAsArray['paths']['engine_scripts']);
-    $templateFolder = \end($engineScriptPath);
+    $engineScriptPath = explode('/', $configAsArray['paths']['engine_scripts']);
+    $templateFolder = end($engineScriptPath);
     $this->createFolder($configAsArray['paths']['engine_scripts']);
     $this->copyTemplates($templateBaseFolder . '/' . $templateFolder, $configAsArray['paths']['engine_scripts']);
 
@@ -347,6 +195,177 @@ class FileSystem {
       $entity->setHtmlReportPath($reportPath);
       $entity->save();
     }
+  }
+
+  /**
+   * Creates a directory at the given path.
+   *
+   * @param string $dirToCreate
+   *   Path of the directory to be created.
+   *
+   * @throws \Drupal\backstopjs\Exception\FolderCreateException
+   */
+  public function createFolder($dirToCreate): void {
+    if (is_dir($dirToCreate)) {
+      return;
+    }
+
+    // Create directory and parents as well.
+    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !is_dir($dirToCreate)) {
+      throw new FolderCreateException("Creating the $dirToCreate folder failed.");
+    }
+  }
+
+  /**
+   * Create a new BackstopJS configuration file for the entity.
+   *
+   * @param string $configurationPath
+   *   Path to the BackstopJS configuration file.
+   * @param string $jsonString
+   *   The json data to be written.
+   *
+   * @throws FileWriteException
+   * @throws FileOpenException
+   */
+  public function createConfigFile($configurationPath, $jsonString): void {
+    // @todo: check if file exists, if yes, check if it's the same as the new one.
+    if (($configFile = fopen($configurationPath, 'wb')) === FALSE) {
+      throw new FileOpenException("Opening the configuration file at $configurationPath failed.");
+    }
+
+    if (fwrite($configFile, $jsonString) === FALSE) {
+      throw new FileWriteException("Writing the configuration file at $configurationPath failed.");
+    }
+
+    if (fclose($configFile) === FALSE) {
+      throw new FileWriteException("Closing the configuration file at $configurationPath failed.");
+    }
+
+    $this->setFilePermissions($configurationPath);
+  }
+
+  /**
+   * Set permissions for files.
+   *
+   * @param string $filename
+   *   The filename.
+   *
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   */
+  private function setFilePermissions($filename): void {
+    if ($this->fileSystem->chmod($filename, 0664) === FALSE) {
+      throw new FileWriteException("Operation 'chmod' on file '$filename' failed.");
+    }
+    if (chown($filename, 'www-data') === FALSE) {
+      throw new FileWriteException("Operation 'chown' on file '$filename' failed.");
+    }
+
+    if (chgrp($filename, 'www-data') === FALSE) {
+      throw new FileWriteException("Operation 'chgrp' on file '$filename' failed.");
+    }
+  }
+
+  /**
+   * Copy the required template files into the target folder.
+   *
+   * @param string $src
+   *   Template folder.
+   * @param string $target
+   *   Target folder.
+   *
+   * @throws \Drupal\backstopjs\Exception\FileCopyException
+   * @throws \Drupal\backstopjs\Exception\FileWriteException
+   */
+  private function copyTemplates($src, $target): void {
+    if (($fileList = scandir($src, NULL)) === FALSE) {
+      throw new FileCopyException("Opening script template directory '$src' failed.");
+    }
+
+    $result = TRUE;
+
+    foreach ($fileList as $file) {
+      if (strpos($file, '.js') === FALSE) {
+        continue;
+      }
+
+      $srcFile = $src . '/' . $file;
+      $targetFile = $target . '/' . $file;
+
+      if ($this->filesAreIdentical($srcFile, $targetFile) === TRUE) {
+        continue;
+      }
+
+      $couldCopy = copy($srcFile, $targetFile);
+      if ($couldCopy === FALSE) {
+        throw new FileCopyException("Making a copy of the '$srcFile' template failed (target: '$targetFile').");
+      }
+
+      $this->setFilePermissions($targetFile);
+
+      $result |= $couldCopy;
+    }
+
+    if ($result === FALSE) {
+      throw new FileCopyException("Copying script templates from '$src' failed.");
+    }
+  }
+
+  /**
+   * Compare two files.
+   *
+   * @param string $firstFilename
+   *   File name for the first file.
+   * @param string $secondFilename
+   *   File name for the second file.
+   *
+   * @return bool
+   *   TRUE, if they are the same.
+   *
+   * @see https://jonlabelle.com/snippets/view/php/quickly-check-if-two-files-are-identical
+   * @see http://php.net/manual/en/function.md5-file.php#94494
+   */
+  private function filesAreIdentical(string $firstFilename, string $secondFilename): bool {
+    if (
+      file_exists($firstFilename) === FALSE
+      || file_exists($secondFilename) === FALSE
+    ) {
+      return FALSE;
+    }
+
+    if (filetype($firstFilename) !== filetype($secondFilename)) {
+      return FALSE;
+    }
+
+    if (filesize($firstFilename) !== filesize($secondFilename)) {
+      return FALSE;
+    }
+
+    if (!($fpFirst = fopen($firstFilename, 'rb'))) {
+      return FALSE;
+    }
+
+    if (!($fpSecond = fopen($secondFilename, 'rb'))) {
+      fclose($fpFirst);
+      return FALSE;
+    }
+
+    $isSame = TRUE;
+
+    while (!feof($fpFirst) and !feof($fpSecond)) {
+      if (fread($fpFirst, 8192) !== fread($fpSecond, 8192)) {
+        $isSame = FALSE;
+        break;
+      }
+    }
+
+    if (feof($fpFirst) !== feof($fpSecond)) {
+      $isSame = FALSE;
+    }
+
+    fclose($fpFirst);
+    fclose($fpSecond);
+
+    return $isSame;
   }
 
   /**
@@ -384,20 +403,6 @@ class FileSystem {
   }
 
   /**
-   * Remove the stored private data of the entity from the filesystem.
-   *
-   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
-   *   The QAShot Test entity.
-   *
-   * @return bool
-   *   Whether the removal was a success or not.
-   */
-  private function removePrivateData(QAShotTestInterface $entity): bool {
-    $dir = $this->privateFiles . '/' . $entity->id();
-    return $this->removeDirectory($dir);
-  }
-
-  /**
    * Recursively remove a directory.
    *
    * @param string $dir
@@ -407,13 +412,13 @@ class FileSystem {
    *   Whether the removal was a success or not.
    */
   public function removeDirectory($dir): bool {
-    if (!\is_dir($dir)) {
+    if (!is_dir($dir)) {
       return TRUE;
     }
 
-    $iterator = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-    $files = new \RecursiveIteratorIterator($iterator,
-      \RecursiveIteratorIterator::CHILD_FIRST);
+    $iterator = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator($iterator,
+      RecursiveIteratorIterator::CHILD_FIRST);
 
     $result = TRUE;
 
@@ -428,6 +433,20 @@ class FileSystem {
     $result |= $this->fileSystem->rmdir($dir);
 
     return $result;
+  }
+
+  /**
+   * Remove the stored private data of the entity from the filesystem.
+   *
+   * @param \Drupal\qa_shot\Entity\QAShotTestInterface $entity
+   *   The QAShot Test entity.
+   *
+   * @return bool
+   *   Whether the removal was a success or not.
+   */
+  private function removePrivateData(QAShotTestInterface $entity): bool {
+    $dir = $this->privateFiles . '/' . $entity->id();
+    return $this->removeDirectory($dir);
   }
 
   /**

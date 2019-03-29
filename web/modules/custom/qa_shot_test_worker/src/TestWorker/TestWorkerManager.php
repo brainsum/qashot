@@ -6,6 +6,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\qa_shot_test_worker\Annotation\TestWorker;
+use Traversable;
 
 /**
  * Plugin manager for TestWorkers.
@@ -32,7 +33,7 @@ class TestWorkerManager extends DefaultPluginManager implements TestWorkerManage
    *   The module handler.
    */
   public function __construct(
-    \Traversable $namespaces,
+    Traversable $namespaces,
     CacheBackendInterface $cacheBackend,
     ModuleHandlerInterface $moduleHandler
   ) {

@@ -14,6 +14,8 @@ use Drupal\qa_shot\Queue\QAShotQueue;
 use Drupal\qa_shot\Queue\QAShotQueueFactory;
 use Drupal\qa_shot\Queue\QAShotQueueInterface;
 use Drupal\qa_shot\Queue\QAShotQueueWorkerManager;
+use Exception;
+use stdClass;
 
 /**
  * Class RunTestImmediately.
@@ -23,6 +25,13 @@ use Drupal\qa_shot\Queue\QAShotQueueWorkerManager;
 class RunTestImmediately {
 
   use StringTranslationTrait;
+
+  /**
+   * Keep track of queue definitions.
+   *
+   * @var array
+   */
+  protected static $queues;
 
   /**
    * The manager.
@@ -53,13 +62,6 @@ class RunTestImmediately {
   protected $logger;
 
   /**
-   * Keep track of queue definitions.
-   *
-   * @var array
-   */
-  protected static $queues;
-
-  /**
    * QAShotQueueRunner constructor.
    *
    * @param \Drupal\qa_shot\Queue\QAShotQueueWorkerManager $manager
@@ -78,16 +80,6 @@ class RunTestImmediately {
     $this->queueFactory = $queueFactory;
     $this->testStorage = $entityTypeManager->getStorage('qa_shot_test');
     $this->logger = $loggerFactory->get('qa_shot_queue');
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @return \Drupal\qa_shot\Queue\QAShotQueueInterface
-   *   The queue instance.
-   */
-  public function getQueue($name): QAShotQueueInterface {
-    return $this->queueFactory->get($name);
   }
 
   /**
@@ -156,7 +148,7 @@ class RunTestImmediately {
       $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_ERROR, $entity);
       throw new QAShotBaseException($e->getMessage());
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       $this->logger->error($e->getMessage());
       // In case of any other kind of exception, log it and leave the item
       // in the queue to be processed again later.
@@ -166,6 +158,16 @@ class RunTestImmediately {
     }
 
     return 1;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @return \Drupal\qa_shot\Queue\QAShotQueueInterface
+   *   The queue instance.
+   */
+  public function getQueue($name): QAShotQueueInterface {
+    return $this->queueFactory->get($name);
   }
 
   /**
@@ -184,7 +186,7 @@ class RunTestImmediately {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, \stdClass $item = NULL) {
+  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, stdClass $item = NULL) {
     // Set entity status to running.
     try {
       if (NULL !== $item && NULL !== $queue) {

@@ -16,26 +16,26 @@
  */
 #}
 <div{{ attributes.addClass('qa_shot_test') }}>
-  {% if content %}
-    {{- status_in_queue -}}
-    {{- content -}}
-    {{- last_run_time -}}
-    {{- last_reference_run_time -}}
-    {{- last_test_run_time -}}
+    {% if content %}
+        {{- status_in_queue -}}
+        {{- content -}}
+        {{- last_run_time -}}
+        {{- last_reference_run_time -}}
+        {{- last_test_run_time -}}
 
-    <div>
-      <br/>
-      {{- report_path -}} <br/>
-      {{- remote_report_path -}} <br/>
-      {{- run_path -}} <br/>
-      {{- run_path_reference -}} <br/>
-      {{- run_path_test -}} <br/>
-    </div>
-    {% if debug %}
-        {{ debug }}
+        <div>
+            <br/>
+            {{- report_path -}} <br/>
+            {{- remote_report_path -}} <br/>
+            {{- run_path -}} <br/>
+            {{- run_path_reference -}} <br/>
+            {{- run_path_test -}} <br/>
+        </div>
+        {% if debug %}
+            {{ debug }}
+        {% endif %}
+        {% if metadata %}
+            {{ metadata }}
+        {% endif %}
     {% endif %}
-    {% if metadata %}
-        {{ metadata }}
-    {% endif %}
-  {% endif %}
 </div>

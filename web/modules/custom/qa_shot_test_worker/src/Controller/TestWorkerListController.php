@@ -2,6 +2,7 @@
 
 namespace Drupal\qa_shot_test_worker\Controller;
 
+use function array_map;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\qa_shot_test_worker\TestWorker\TestWorkerManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -21,17 +22,6 @@ class TestWorkerListController extends ControllerBase {
   protected $workerManager;
 
   /**
-   * {@inheritdoc}
-   */
-  public static function create(
-    ContainerInterface $container
-  ) {
-    return new static(
-      $container->get('plugin.manager.test_worker')
-    );
-  }
-
-  /**
    * TestWorkerListController constructor.
    *
    * @param \Drupal\qa_shot_test_worker\TestWorker\TestWorkerManager $workerManager
@@ -44,6 +34,17 @@ class TestWorkerListController extends ControllerBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function create(
+    ContainerInterface $container
+  ) {
+    return new static(
+      $container->get('plugin.manager.test_worker')
+    );
+  }
+
+  /**
    * List every available worker.
    *
    * @return array
@@ -51,7 +52,7 @@ class TestWorkerListController extends ControllerBase {
    */
   public function list(): array {
     $workers = $this->workerManager->getDefinitions();
-    $rows = \array_map(function ($worker) {
+    $rows = array_map(function ($worker) {
       return [
         $worker['id'],
         $worker['label'],

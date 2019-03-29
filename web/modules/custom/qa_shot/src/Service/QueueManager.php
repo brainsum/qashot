@@ -13,6 +13,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Queue\QAShotQueueFactory;
 use Drupal\qa_shot_test_worker\TestWorker\TestWorkerFactoryInterface;
+use stdClass;
 
 /**
  * Class QueueManager.
@@ -155,7 +156,7 @@ class QueueManager {
 
     // Add the test entity and the requested stage to the item.
     // @todo: Change?
-    $queueItem = new \stdClass();
+    $queueItem = new stdClass();
     $queueItem->tid = $test->id();
     $queueItem->stage = $stage;
     $queueItem->origin = $origin;
@@ -194,7 +195,7 @@ class QueueManager {
   }
 
   /**
-   * Add test to the local queue.
+   * Add test to the remote queue.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
    *   The QAShot test.
@@ -206,9 +207,9 @@ class QueueManager {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  protected function addLocalTest(QAShotTestInterface $test, \stdClass $item): string {
+  protected function addRemoteTest(QAShotTestInterface $test, stdClass $item): string {
     // Try to add the test to the drupal queue.
-    if (FALSE !== $this->localQueue->createItem($item)) {
+    if (FALSE !== $this->remoteQueue->createItem($item)) {
       try {
         // If we successfully added it to the queue, we set
         // the current user as the initiator and also save the current time.
@@ -217,11 +218,12 @@ class QueueManager {
         $test->save();
       }
       catch (EntityStorageException $e) {
-        $this->logger->get('qa_shot')->warning('Saving the entity data in the QueueManager failed. @msg', [
-          '@msg' => $e->getMessage(),
-        ]);
+        $this->logger->get('qa_shot')
+          ->warning('Saving the entity data in the QueueManager failed. @msg', [
+            '@msg' => $e->getMessage(),
+          ]);
         // If updating the entity fails, remove it from the queue.
-        $this->localQueue->deleteItem($item);
+        $this->remoteQueue->deleteItem($item);
         // Throw the caught exception again.
         throw $e;
       }
@@ -235,7 +237,7 @@ class QueueManager {
   }
 
   /**
-   * Add test to the remote queue.
+   * Add test to the local queue.
    *
    * @param \Drupal\qa_shot\Entity\QAShotTestInterface $test
    *   The QAShot test.
@@ -247,9 +249,9 @@ class QueueManager {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  protected function addRemoteTest(QAShotTestInterface $test, \stdClass $item): string {
+  protected function addLocalTest(QAShotTestInterface $test, stdClass $item): string {
     // Try to add the test to the drupal queue.
-    if (FALSE !== $this->remoteQueue->createItem($item)) {
+    if (FALSE !== $this->localQueue->createItem($item)) {
       try {
         // If we successfully added it to the queue, we set
         // the current user as the initiator and also save the current time.
@@ -258,11 +260,12 @@ class QueueManager {
         $test->save();
       }
       catch (EntityStorageException $e) {
-        $this->logger->get('qa_shot')->warning('Saving the entity data in the QueueManager failed. @msg', [
-          '@msg' => $e->getMessage(),
-        ]);
+        $this->logger->get('qa_shot')
+          ->warning('Saving the entity data in the QueueManager failed. @msg', [
+            '@msg' => $e->getMessage(),
+          ]);
         // If updating the entity fails, remove it from the queue.
-        $this->remoteQueue->deleteItem($item);
+        $this->localQueue->deleteItem($item);
         // Throw the caught exception again.
         throw $e;
       }

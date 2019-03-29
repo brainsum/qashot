@@ -14,4 +14,5 @@ namespace Drupal\qa_shot\Plugin\QueueWorker;
  * )
  */
 class QAShotCronQueueWorker extends QAShotQueueWorkerBase {
+
 }

@@ -38,6 +38,13 @@ class TestWorkerFactory implements TestWorkerFactoryInterface {
   /**
    * {@inheritdoc}
    */
+  public function get($workerId): TestWorkerInterface {
+    return $this->createInstance($workerId);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function createInstance(
     $pluginId,
     array $configuration = []
@@ -47,13 +54,6 @@ class TestWorkerFactory implements TestWorkerFactoryInterface {
     }
 
     return $this->workers[$pluginId];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function get($workerId): TestWorkerInterface {
-    return $this->createInstance($workerId);
   }
 
 }

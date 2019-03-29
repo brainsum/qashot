@@ -24,23 +24,6 @@ class QueueTest extends ActionBase implements ContainerFactoryPluginInterface {
   protected $queueManager;
 
   /**
-   * {@inheritdoc}
-   */
-  public static function create(
-    ContainerInterface $container,
-    array $configuration,
-    $plugin_id,
-    $plugin_definition
-  ) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('qa_shot.queue_manager')
-    );
-  }
-
-  /**
    * Constructs a Drupal\Component\Plugin\PluginBase object.
    *
    * @param array $configuration
@@ -60,6 +43,23 @@ class QueueTest extends ActionBase implements ContainerFactoryPluginInterface {
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->queueManager = $queueManager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('qa_shot.queue_manager')
+    );
   }
 
   /**

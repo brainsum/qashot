@@ -6,6 +6,8 @@ use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\Core\TypedData\DataDefinitionInterface;
 use Drupal\Core\TypedData\TypedData;
 use Drupal\Core\TypedData\TypedDataInterface;
+use InvalidArgumentException;
+use function parse_url;
 
 /**
  * Class ComputedScreenshotPath.
@@ -14,14 +16,14 @@ use Drupal\Core\TypedData\TypedDataInterface;
  */
 class ComputedScreenshotPath extends TypedData {
 
+  const SETTING_NAME = 'url source';
+
   /**
    * Cached processed url.
    *
    * @var string|null
    */
   protected $processed;
-
-  const SETTING_NAME = 'url source';
 
   /**
    * {@inheritdoc}
@@ -32,7 +34,7 @@ class ComputedScreenshotPath extends TypedData {
     parent::__construct($definition, $name, $parent);
 
     if ($definition->getSetting($this::SETTING_NAME) === NULL) {
-      throw new \InvalidArgumentException("The definition's '" . $this::SETTING_NAME . "' key has to specify the name of the url property to be processed.");
+      throw new InvalidArgumentException("The definition's '" . $this::SETTING_NAME . "' key has to specify the name of the url property to be processed.");
     }
   }
 
@@ -54,7 +56,7 @@ class ComputedScreenshotPath extends TypedData {
 
     }
 
-    $parsed = \parse_url($url);
+    $parsed = parse_url($url);
     if (isset($parsed['host'])) {
       $this->processed = $url;
       return $this->processed;

@@ -44,7 +44,9 @@ function qa_shot_schema() {
  * Remove every QAShot Test entity.
  */
 function qa_shot_update_8201() {
-  $tests = \Drupal::entityTypeManager()->getStorage('qa_shot_test')->loadMultiple();
+  $tests = \Drupal::entityTypeManager()
+    ->getStorage('qa_shot_test')
+    ->loadMultiple();
 
   /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
   foreach ($tests as $test) {
@@ -136,21 +138,24 @@ function qa_shot_update_8303() {
   drupal_flush_all_caches();
   $entityTypeManager = \Drupal::entityTypeManager();
 
-  if (!$scenarioField = $entityTypeManager->getStorage('field_config')->loadByProperties([
-    'field_type' => 'qa_shot_scenario',
-  ])['qa_shot_test.a_b.field_scenario']) {
+  if (!$scenarioField = $entityTypeManager->getStorage('field_config')
+    ->loadByProperties([
+      'field_type' => 'qa_shot_scenario',
+    ])['qa_shot_test.a_b.field_scenario']) {
     return;
   }
 
-  if (!$scenarioStorage = $entityTypeManager->getStorage('field_storage_config')->loadByProperties([
-    'type' => 'qa_shot_scenario',
-  ])['qa_shot_test.field_scenario']) {
+  if (!$scenarioStorage = $entityTypeManager->getStorage('field_storage_config')
+    ->loadByProperties([
+      'type' => 'qa_shot_scenario',
+    ])['qa_shot_test.field_scenario']) {
     return;
   }
 
-  if (empty($entityTypeManager->getStorage('field_storage_config')->loadByProperties([
-    'type' => 'qa_shot_scenario',
-  ])['qa_shot_test.field_scenario_backup'])) {
+  if (empty($entityTypeManager->getStorage('field_storage_config')
+    ->loadByProperties([
+      'type' => 'qa_shot_scenario',
+    ])['qa_shot_test.field_scenario_backup'])) {
     // Clone FieldStorageConfig.
     $new_field_storage = $scenarioStorage->toArray();
     $new_field_storage['field_name'] .= '_backup';
@@ -173,7 +178,8 @@ function qa_shot_update_8303() {
       $new_field['id'],
       $new_field['config']['field.storage.qa_shot_test.field_scenario']
     );
-    $new_field = $entityTypeManager->getStorage('field_config')->create($new_field);
+    $new_field = $entityTypeManager->getStorage('field_config')
+      ->create($new_field);
     $new_field->enforceIsNew(TRUE);
     $new_field->save();
   }
@@ -183,13 +189,15 @@ function qa_shot_update_8303() {
   /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
   foreach ($tests as $test) {
     // Set the new viewport values and save the test.
-    $test->set('field_scenario_backup', $test->get('field_scenario')->getValue());
+    $test->set('field_scenario_backup', $test->get('field_scenario')
+      ->getValue());
     $test->save();
   }
 
   // Remove old scenario field and storage.
   $entityTypeManager->getStorage('field_config')->delete([$scenarioField]);
-  $entityTypeManager->getStorage('field_storage_config')->delete([$scenarioStorage]);
+  $entityTypeManager->getStorage('field_storage_config')
+    ->delete([$scenarioStorage]);
   field_purge_batch(100);
   drupal_flush_all_caches();
 }
@@ -226,7 +234,10 @@ function qa_shot_update_8304() {
       'handler' => 'default:paragraph',
       'handler_settings' => [
         'target_bundles' => ['scenario' => 'scenario'],
-        'target_bundles_drag_drop' => ['scenario' => ['enabled' => TRUE], 'weight' => 1],
+        'target_bundles_drag_drop' => [
+          'scenario' => ['enabled' => TRUE],
+          'weight' => 1,
+        ],
       ],
     ],
     'required' => TRUE,
@@ -359,7 +370,8 @@ function qa_shot_update_8310() {
   $database = \Drupal::database();
   // Save current values.
   /** @var array $currentValues */
-  $currentValues = $database->query('SELECT id, initiated FROM qa_shot_test WHERE initiated IS NOT NULL')->fetchAllAssoc('id');
+  $currentValues = $database->query('SELECT id, initiated FROM qa_shot_test WHERE initiated IS NOT NULL')
+    ->fetchAllAssoc('id');
 
   // Set NULL for every record in initiated to be able to change field type.
   $database->query('UPDATE qa_shot_test SET initiated = NULL')->execute();
@@ -435,11 +447,7 @@ function qa_shot_update_8402() {
     }
 
     $engine = $test->get('field_tester_engine')->value;
-    $browser = 'chrome';
-
-    if (isset($engineToBrowser[$engine])) {
-      $browser = $engineToBrowser[$engine];
-    }
+    $browser = $engineToBrowser[$engine] ?? 'chrome';
 
     $test->set('field_browser', $browser);
     $test->save();

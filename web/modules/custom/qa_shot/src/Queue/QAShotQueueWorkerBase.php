@@ -15,4 +15,5 @@ use Drupal\Component\Plugin\PluginBase;
  * @see plugin_api
  */
 abstract class QAShotQueueWorkerBase extends PluginBase implements QAShotQueueWorkerInterface {
+
 }

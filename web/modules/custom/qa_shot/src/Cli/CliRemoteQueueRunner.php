@@ -2,12 +2,28 @@
 
 namespace Drupal\qa_shot\Cli;
 
+use function array_map;
+use function array_search;
+use function array_slice;
+use function count;
+use DateTime;
+use Drupal;
 use Drupal\backstopjs\Exception\InvalidRunnerOptionsException;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Queue\QAShotQueue;
+use Exception;
+use function file_get_contents;
+use function file_put_contents;
 use GuzzleHttp\Exception\ClientException;
+use function is_dir;
+use function json_decode;
+use function json_encode;
+use function reset;
+use RuntimeException;
+use function time;
+use function var_export;
 
 /**
  * Class CliRemoteQueueRunner.
@@ -19,7 +35,9 @@ class CliRemoteQueueRunner {
   use StringTranslationTrait;
 
   const QUEUE_NAME = 'qa_shot_remote_queue';
+
   const ENDPOINT_TEST_ADD = '/api/v1/test/add';
+
   const ENDPOINT_RESULT_FETCH = '/api/v1/result/fetch';
 
   /**
@@ -82,30 +100,32 @@ class CliRemoteQueueRunner {
    * CliRemoteQueueRunner constructor.
    */
   public function __construct() {
-    $this->messenger = \Drupal::messenger();
-    $this->queue = new QAShotQueue(self::QUEUE_NAME, \Drupal::database());
-    $this->testStorage = \Drupal::entityTypeManager()->getStorage('qa_shot_test');
+    $this->messenger = Drupal::messenger();
+    $this->queue = new QAShotQueue(self::QUEUE_NAME, Drupal::database());
+    $this->testStorage = Drupal::entityTypeManager()
+      ->getStorage('qa_shot_test');
 
-    $this->httpClient = \Drupal::httpClient();
+    $this->httpClient = Drupal::httpClient();
 
-    $this->configFactory = \Drupal::configFactory();
-    $this->remoteHost = $this->configFactory->get('backstopjs.settings')->get('suite.remote_host');
+    $this->configFactory = Drupal::configFactory();
+    $this->remoteHost = $this->configFactory->get('backstopjs.settings')
+      ->get('suite.remote_host');
 
-    $this->logger = \Drupal::logger('qa_shot');
-    $this->fileSystem = \Drupal::service('file_system');
+    $this->logger = Drupal::logger('qa_shot');
+    $this->fileSystem = Drupal::service('file_system');
   }
 
   /**
    * Publish available tests to the external queue.
    */
   public function publishAll() {
-    $date = (new DrupalDateTime())->setTimestamp(\time());
+    $date = (new DrupalDateTime())->setTimestamp(time());
     $this->messenger->addMessage($this->t('Publishing to external queue initiated at @datetime', [
       '@datetime' => $date->format('Y-m-d H:i:s'),
     ]));
 
     $items = $this->queue->getItems(self::QUEUE_NAME, QAShotQueue::QUEUE_STATUS_WAITING);
-    $itemCount = \count($items);
+    $itemCount = count($items);
     $this->messenger->addMessage($this->t('The "@queue" has @count items waiting.', [
       '@queue' => self::QUEUE_NAME,
       '@count' => $itemCount,
@@ -115,7 +135,7 @@ class CliRemoteQueueRunner {
       return;
     }
 
-    $testIds = \array_map(function ($item) {
+    $testIds = array_map(function ($item) {
       return $item->tid;
     }, $items);
 
@@ -188,7 +208,7 @@ class CliRemoteQueueRunner {
       ];
     }
 
-    $backstopConfig = \json_decode(\file_get_contents($test->getConfigurationPath()), TRUE);
+    $backstopConfig = json_decode(file_get_contents($test->getConfigurationPath()), TRUE);
     if (NULL === $backstopConfig) {
       $backstopConfig = [];
     }
@@ -200,8 +220,10 @@ class CliRemoteQueueRunner {
       'mode' => 'a_b',
       'stage' => '',
       'uuid' => $test->uuid(),
-      'origin' => $this->configFactory->get('qa_shot.settings')->get('instance_id'),
-      'environment' => $this->configFactory->get('qa_shot.settings')->get('current_environment'),
+      'origin' => $this->configFactory->get('qa_shot.settings')
+        ->get('instance_id'),
+      'environment' => $this->configFactory->get('qa_shot.settings')
+        ->get('current_environment'),
       'test_config' => $backstopConfig,
     ];
 
@@ -225,7 +247,7 @@ class CliRemoteQueueRunner {
           'errors' => [],
         ];
       }
-      $remoteMessage = \json_decode($response->getBody()->getContents(), TRUE);
+      $remoteMessage = json_decode($response->getBody()->getContents(), TRUE);
       return [
         'code' => $response->getStatusCode(),
         'message' => $remoteMessage['message'],
@@ -233,7 +255,7 @@ class CliRemoteQueueRunner {
         'errors' => $remoteMessage['errors'] ?? [],
       ];
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $this->logger->warning('Unknown error! Could not push test (ID: ' . $test->id() . ')  to the remote worker. See: ' . $exception->getMessage());
       return [
         'code' => $exception->getCode(),
@@ -243,7 +265,7 @@ class CliRemoteQueueRunner {
       ];
     }
 
-    $remoteMessage = \json_decode($response->getBody()->getContents(), TRUE);
+    $remoteMessage = json_decode($response->getBody()->getContents(), TRUE);
     $this->logger->info('Test (ID: ' . $test->id() . ') pushed to the remote worker. Message: ' . $remoteMessage['message']);
 
     return [
@@ -252,6 +274,108 @@ class CliRemoteQueueRunner {
       'reason' => $response->getReasonPhrase(),
       'errors' => $remoteMessage['errors'] ?? [],
     ];
+  }
+
+  /**
+   * Consume messages from the remote queue.
+   */
+  public function consumeAll() {
+    $date = (new DateTime())->setTimestamp(time());
+    $this->messenger->addMessage($this->t('Reading from external queue initiated at @datetime', [
+      '@datetime' => $date->format('Y-m-d H:i:s'),
+    ]));
+
+    $items = $this->queue->getItems(self::QUEUE_NAME, QAShotQueue::QUEUE_STATUS_REMOTE);
+    $itemCount = count($items);
+    $this->messenger->addMessage($this->t('The "@queue" has @count items waiting.', [
+      '@queue' => self::QUEUE_NAME,
+      '@count' => $itemCount,
+    ]));
+    if (0 === $itemCount) {
+      $this->messenger->addMessage($this->t('Skipping.'));
+      return;
+    }
+
+    $testIds = array_map(function ($item) {
+      return $item->tid;
+    }, $items);
+
+    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface[] $tests */
+    $tests = $this->testStorage->loadMultiple($testIds);
+
+    /** @var string[] $uuids */
+    $uuids = array_map(function ($test) {
+      return $test->uuid();
+    }, $tests);
+
+    $results = [];
+    $uuidCount = count($uuids);
+    for ($i = 0; $uuidCount > $i; $i += 20) {
+      $subset = array_slice($uuids, $i, 20);
+
+      if (empty($subset)) {
+        break;
+      }
+
+      $rawResults = $this->consume($subset);
+      $results = $rawResults['results'];
+
+      if (!empty($results)) {
+        break;
+      }
+    }
+
+    $remainingTestUuids = $uuids;
+    foreach ($results as $resultUuid => $resultData) {
+      $uuid = $resultData['data']['metadata']['id'];
+      $testUuidIndex = array_search($uuid, $remainingTestUuids, TRUE);
+      if (FALSE !== $testUuidIndex) {
+        unset($remainingTestUuids[$testUuidIndex]);
+      }
+
+      /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+      $tests = $this->testStorage->loadByProperties(['uuid' => $uuid]);
+      $test = reset($tests);
+      // @note This should not happen, btw.
+      if (NULL === $test) {
+        $this->messenger->addMessage("UUID $uuid has no test.");
+        continue;
+      }
+
+      $resultsDir = 'private://qa_test_data/' . $test->id() . '/results';
+
+      $this->createFolder($resultsDir);
+
+      file_put_contents($resultsDir . time() . ".$resultUuid.json", json_encode($resultData));
+
+      /** @var \stdClass $queueItem */
+      $queueItem = $items[$test->id()];
+
+      $this->messenger->addMessage("UUID $uuid has results.");
+
+      try {
+        $this->saveResults($test, $resultData['data']);
+        $this->queue->deleteItem($queueItem);
+        $queueItem = NULL;
+      }
+      catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        $queueItem->status = QAShotQueue::QUEUE_STATUS_ERROR;
+      }
+
+      if (NULL !== $queueItem) {
+        $this->queue->updateItemStatus($queueItem);
+      }
+
+      // @todo: use the RemoteHtmlReportPath in displays.
+    }
+
+    $resultCount = count($results);
+    $remainingCount = count($remainingTestUuids);
+    $this->messenger->addMessage('Fetch ended.');
+    $this->messenger->addMessage("-- Requested $uuidCount results.");
+    $this->messenger->addMessage("-- Received $resultCount results.");
+    $this->messenger->addMessage("-- Remaining $remainingCount results.");
   }
 
   /**
@@ -274,7 +398,8 @@ class CliRemoteQueueRunner {
     }
 
     $payload = [
-      'origin' => $this->configFactory->get('qa_shot.settings')->get('instance_id'),
+      'origin' => $this->configFactory->get('qa_shot.settings')
+        ->get('instance_id'),
       'testUuids' => $uuids,
     ];
 
@@ -299,7 +424,7 @@ class CliRemoteQueueRunner {
           'errors' => [],
         ];
       }
-      $remoteMessage = \json_decode($response->getBody()->getContents(), TRUE);
+      $remoteMessage = json_decode($response->getBody()->getContents(), TRUE);
       return [
         'code' => $response->getStatusCode(),
         'message' => $remoteMessage['message'],
@@ -308,7 +433,7 @@ class CliRemoteQueueRunner {
         'errors' => $remoteMessage['errors'] ?? [],
       ];
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $this->logger->warning('Unknown error! Could not fetch results from the remote worker. See: ' . $exception->getMessage());
       return [
         'code' => $exception->getCode(),
@@ -319,7 +444,7 @@ class CliRemoteQueueRunner {
       ];
     }
 
-    $results = \json_decode($response->getBody()->getContents(), TRUE);
+    $results = json_decode($response->getBody()->getContents(), TRUE);
     $this->logger->info('Results fetched from remote worker.');
 
     return [
@@ -341,116 +466,14 @@ class CliRemoteQueueRunner {
    * @todo: Copy of func in Drupal\backstopjs\Service\FileSystem.
    */
   public function createFolder($dirToCreate): void {
-    if (\is_dir($dirToCreate)) {
+    if (is_dir($dirToCreate)) {
       return;
     }
 
     // Create directory and parents as well.
-    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !\is_dir($dirToCreate)) {
-      throw new \RuntimeException("Creating the $dirToCreate folder failed.");
+    if (!$this->fileSystem->mkdir($dirToCreate, 0775, TRUE) && !is_dir($dirToCreate)) {
+      throw new RuntimeException("Creating the $dirToCreate folder failed.");
     }
-  }
-
-  /**
-   * Consume messages from the remote queue.
-   */
-  public function consumeAll() {
-    $date = (new \DateTime())->setTimestamp(time());
-    $this->messenger->addMessage($this->t('Reading from external queue initiated at @datetime', [
-      '@datetime' => $date->format('Y-m-d H:i:s'),
-    ]));
-
-    $items = $this->queue->getItems(self::QUEUE_NAME, QAShotQueue::QUEUE_STATUS_REMOTE);
-    $itemCount = \count($items);
-    $this->messenger->addMessage($this->t('The "@queue" has @count items waiting.', [
-      '@queue' => self::QUEUE_NAME,
-      '@count' => $itemCount,
-    ]));
-    if (0 === $itemCount) {
-      $this->messenger->addMessage($this->t('Skipping.'));
-      return;
-    }
-
-    $testIds = \array_map(function ($item) {
-      return $item->tid;
-    }, $items);
-
-    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface[] $tests */
-    $tests = $this->testStorage->loadMultiple($testIds);
-
-    /** @var string[] $uuids */
-    $uuids = \array_map(function ($test) {
-      return $test->uuid();
-    }, $tests);
-
-    $results = [];
-    $uuidCount = \count($uuids);
-    for ($i = 0; $uuidCount > $i; $i += 20) {
-      $subset = \array_slice($uuids, $i, 20);
-
-      if (empty($subset)) {
-        break;
-      }
-
-      $rawResults = $this->consume($subset);
-      $results = $rawResults['results'];
-
-      if (!empty($results)) {
-        break;
-      }
-    }
-
-    $remainingTestUuids = $uuids;
-    foreach ($results as $resultUuid => $resultData) {
-      $uuid = $resultData['data']['metadata']['id'];
-      $testUuidIndex = \array_search($uuid, $remainingTestUuids, TRUE);
-      if (FALSE !== $testUuidIndex) {
-        unset($remainingTestUuids[$testUuidIndex]);
-      }
-
-      /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
-      $tests = $this->testStorage->loadByProperties(['uuid' => $uuid]);
-      $test = \reset($tests);
-      // @note This should not happen, btw.
-      if (NULL === $test) {
-        $this->messenger->addMessage("UUID $uuid has no test.");
-        continue;
-      }
-
-      $resultsDir = 'private://qa_test_data/' . $test->id() . '/results';
-
-      $this->createFolder($resultsDir);
-
-      \file_put_contents($resultsDir . \time() . ".$resultUuid.json", \json_encode($resultData));
-
-      /** @var \stdClass $queueItem */
-      $queueItem = $items[$test->id()];
-
-      $this->messenger->addMessage("UUID $uuid has results.");
-
-      try {
-        $this->saveResults($test, $resultData['data']);
-        $this->queue->deleteItem($queueItem);
-        $queueItem = NULL;
-      }
-      catch (\Exception $e) {
-        $this->logger->error($e->getMessage());
-        $queueItem->status = QAShotQueue::QUEUE_STATUS_ERROR;
-      }
-
-      if (NULL !== $queueItem) {
-        $this->queue->updateItemStatus($queueItem);
-      }
-
-      // @todo: use the RemoteHtmlReportPath in displays.
-    }
-
-    $resultCount = \count($results);
-    $remainingCount = \count($remainingTestUuids);
-    $this->messenger->addMessage('Fetch ended.');
-    $this->messenger->addMessage("-- Requested $uuidCount results.");
-    $this->messenger->addMessage("-- Received $resultCount results.");
-    $this->messenger->addMessage("-- Remaining $remainingCount results.");
   }
 
   /**
@@ -503,7 +526,7 @@ class CliRemoteQueueRunner {
 
     $result = $this->parseScreenshots($results['results'], $test);
 
-    $this->logger->debug(\var_export([
+    $this->logger->debug(var_export([
       'metadata' => $metadata,
       'result' => $result,
     ], TRUE));
@@ -546,11 +569,11 @@ class CliRemoteQueueRunner {
     foreach ($results as $result) {
       $scenarioId = $scenarioIds[$result['scenarioLabel']] ?? NULL;
       if (NULL === $scenarioId) {
-        throw new \RuntimeException('The "' . $result['scenarioLabel'] . '" scenario does not exist for test ' . $test->id() . '.');
+        throw new RuntimeException('The "' . $result['scenarioLabel'] . '" scenario does not exist for test ' . $test->id() . '.');
       }
       $viewportId = $viewportIds[$result['viewportLabel']] ?? NULL;
       if (NULL === $viewportId) {
-        throw new \RuntimeException('The "' . $result['viewportLabel'] . '" viewport does not exist for test ' . $test->id() . '.');
+        throw new RuntimeException('The "' . $result['viewportLabel'] . '" viewport does not exist for test ' . $test->id() . '.');
       }
 
       $screenshots[] = [
@@ -583,7 +606,7 @@ class CliRemoteQueueRunner {
       return $item['target_id'];
     }, $test->getFieldScenario()->getValue(TRUE));
 
-    $paragraphStorage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    $paragraphStorage = Drupal::entityTypeManager()->getStorage('paragraph');
     $scenarios = $paragraphStorage->loadMultiple($scenarioIds);
 
     $map = [];
@@ -612,7 +635,7 @@ class CliRemoteQueueRunner {
       return $item['target_id'];
     }, $test->getFieldViewport()->getValue(TRUE));
 
-    $paragraphStorage = \Drupal::entityTypeManager()->getStorage('paragraph');
+    $paragraphStorage = Drupal::entityTypeManager()->getStorage('paragraph');
     $viewports = $paragraphStorage->loadMultiple($viewportIds);
 
     $map = [];

@@ -22,18 +22,18 @@ class QAShotSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames(): array {
-    return [
-      'qa_shot.settings',
-    ];
+  public function buildForm(array $form, FormStateInterface $form_state): array {
+    drupal_set_message($this->t('Not yet implemented.'), 'warning');
+    return $form;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state): array {
-    drupal_set_message($this->t('Not yet implemented.'), 'warning');
-    return $form;
+  protected function getEditableConfigNames(): array {
+    return [
+      'qa_shot.settings',
+    ];
   }
 
 }

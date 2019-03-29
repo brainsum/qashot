@@ -31,20 +31,20 @@ class EntityBundleLabel extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  protected function defineOptions(): array {
-    $options = parent::defineOptions();
-
-    $options['hide_alter_empty'] = ['default' => FALSE];
-    return $options;
+  public function render(ResultRow $values) {
+    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
+    $entity = $values->_entity;
+    return $entity->type->entity->label();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function render(ResultRow $values) {
-    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $entity */
-    $entity = $values->_entity;
-    return $entity->type->entity->label();
+  protected function defineOptions(): array {
+    $options = parent::defineOptions();
+
+    $options['hide_alter_empty'] = ['default' => FALSE];
+    return $options;
   }
 
 }

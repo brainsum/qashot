@@ -2,19 +2,33 @@
 
 namespace Drupal\backstopjs\Plugin\TestWorker;
 
+use function array_filter;
 use Drupal\backstopjs\Backstopjs\BackstopjsWorkerBase;
 use Drupal\backstopjs\Exception\BackstopAlreadyRunningException;
 use Drupal\backstopjs\Exception\FileCloseException;
 use Drupal\Component\Utility\Html;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use function escapeshellcmd;
+use function exec;
+use function fclose;
+use function file_get_contents;
+use function fopen;
+use function fwrite;
+use function is_numeric;
+use function json_decode;
+use function json_encode;
+use function preg_match;
+use function strpos;
 use Symfony\Component\Process\Process;
+use function time;
 
 /**
  * Class LocalBackstopJS.
  *
  * Implements running BackstopJS from a local binary.
  *
- * @todo: Move 'Local' related functions here from web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
+ * @todo: Move 'Local' related functions here from
+ *   web/modules/custom/backstopjs/src/Form/BackstopjsSettingsForm.php
  * @todo: Refactor exec-s and etc to use the new functions
  *
  * @package Drupal\backstopjs\Plugin\BackstopjsWorker
@@ -32,6 +46,7 @@ use Symfony\Component\Process\Process;
 class LocalBackstopjsWorker extends BackstopjsWorkerBase {
 
   public const COMMAND_CHECK_STATUS = 'pgrep -f backstop -c';
+
   public const COMMAND_GET_STATUS = 'pgrep -l -a -f backstop';
 
   /**
@@ -40,25 +55,25 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
   public function status() {
     $checkerCommand = escapeshellcmd(self::COMMAND_GET_STATUS);
     // @todo: Refactor and use \Symfony\Component\Process\Process.
-    \exec($checkerCommand, $execOutput, $status);
+    exec($checkerCommand, $execOutput, $status);
 
-    $result = \array_filter($execOutput, function ($row) use ($checkerCommand) {
-      return \strpos($row, $checkerCommand) === FALSE;
+    $result = array_filter($execOutput, function ($row) use ($checkerCommand) {
+      return strpos($row, $checkerCommand) === FALSE;
     });
 
-    return \json_encode(['output' => $result, 'status' => $status]);
+    return json_encode(['output' => $result, 'status' => $status]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function checkRunStatus() {
-    $checkerCommand = \escapeshellcmd(self::COMMAND_CHECK_STATUS);
+    $checkerCommand = escapeshellcmd(self::COMMAND_CHECK_STATUS);
     // @todo: Refactor and use \Symfony\Component\Process\Process.
-    $res = \exec($checkerCommand);
+    $res = exec($checkerCommand);
 
     // > 1 is used since the pgrep command gets included as well.
-    if (\is_numeric($res) && (int) $res > 1) {
+    if (is_numeric($res) && (int) $res > 1) {
       $this->logger->warning('BackstopJS is already running.');
       throw new BackstopAlreadyRunningException('BackstopJS is already running.');
     }
@@ -73,7 +88,7 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
   public function run(string $browser, string $command, QAShotTestInterface $entity): array {
     $testId = $entity->id();
     $configPath = $entity->getConfigurationPath();
-    $configArray = \json_decode(\file_get_contents($configPath), TRUE);
+    $configArray = json_decode(file_get_contents($configPath), TRUE);
 
     // @todo: Detect, if the process failed.
     // Backstop tends to return 0/1 exit code, might be enough to check that.
@@ -89,7 +104,7 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
     $path = $this->config->get('suite.binary_path');
     $executable = $path ? $path . 'backstop' : 'backstop';
 
-    $backstopCommand = \escapeshellcmd("{$executable} {$command} --configPath={$configPath}");
+    $backstopCommand = escapeshellcmd("{$executable} {$command} --configPath={$configPath}");
     $this->messenger()->addStatus("Starting '$command' for '$testId'..");
 
     /*
@@ -98,8 +113,8 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
      */
     $debugPath = $this->backstopFileSystem->getPrivateFiles() . "/$testId/debug";
     $this->backstopFileSystem->createFolder($debugPath);
-    $debugFileName = \time() . ".$command.$testId.debug.txt";
-    $debugFile = \fopen($debugPath . '/' . $debugFileName, 'wb');
+    $debugFileName = time() . ".$command.$testId.debug.txt";
+    $debugFile = fopen($debugPath . '/' . $debugFileName, 'wb');
     // @todo: if ($debugFile === FALSE) { exception? message? }
     // @todo: \fwrite() === FALSE cases.
     $process = new Process($backstopCommand);
@@ -110,14 +125,14 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
 
     $process->run(function ($type, $data) use (&$results, $debugFile) {
       // Log output to the debug file.
-      \fwrite($debugFile, Html::escape($data));
+      fwrite($debugFile, Html::escape($data));
 
       // Search for bitmap generation string.
       if (
-        \strpos($data, 'Bitmap file generation completed.') !== FALSE
-        || \strpos($data, 'Command "reference" successfully executed') !== FALSE
+        strpos($data, 'Bitmap file generation completed.') !== FALSE
+        || strpos($data, 'Command "reference" successfully executed') !== FALSE
         // If reports are executing, we can be certain, that bitmapgen was OK.
-        || \strpos($data, 'Executing core for "report"') !== FALSE
+        || strpos($data, 'Executing core for "report"') !== FALSE
       ) {
         $results['bitmapGenerationSuccess'] = TRUE;
       }
@@ -125,13 +140,13 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
       // @todo: Command `{$command}` ended with an error after [{$float}s]
       // @todo: Command "test" ended with an error after [30.174s]
       // Search for the reports.
-      if (\strpos($data, 'report |') !== FALSE) {
+      if (strpos($data, 'report |') !== FALSE) {
         // Search for the number of passed tests.
         $passedMatches = [];
         if (
           $results['passedTestCount'] === NULL
-          && \strpos($data, 'Passed') !== FALSE
-          && \preg_match('/report \| (\d+) Passed/', $data, $passedMatches) === 1
+          && strpos($data, 'Passed') !== FALSE
+          && preg_match('/report \| (\d+) Passed/', $data, $passedMatches) === 1
         ) {
           // Due to the (\d+) capture group, 1 has the count.
           // FFR, 0 is the exact match, e.g "report | 4 Passed".
@@ -143,8 +158,8 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
         $failedMatches = [];
         if (
           $results['failedTestCount'] === NULL
-          && \strpos($data, 'Failed') !== FALSE
-          && \preg_match('/report \| (\d+) Failed/', $data, $failedMatches) === 1
+          && strpos($data, 'Failed') !== FALSE
+          && preg_match('/report \| (\d+) Failed/', $data, $failedMatches) === 1
         ) {
           $results['failedTestCount'] = (int) $failedMatches[1];
         }
@@ -159,8 +174,8 @@ class LocalBackstopjsWorker extends BackstopjsWorkerBase {
     // @todo: Add "local"/"remote" to debug file name.
     // @todo: Add additional info to debug file.
     // @todo: Merge debugging solution with remote worker.
-    $stringResults = \json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    $configJson = \json_encode($configArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $stringResults = json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $configJson = json_encode($configArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
     $isRunning = $process->isRunning() ? 'Yes' : 'No';
     $isTerminated = $process->isTerminated() ? 'Yes' : 'No';
@@ -187,9 +202,9 @@ BackstopJS configuration:
 {$configJson}
 EOD;
 
-    \fwrite($debugFile, $summaryMessage);
+    fwrite($debugFile, $summaryMessage);
 
-    if (\fclose($debugFile) === FALSE) {
+    if (fclose($debugFile) === FALSE) {
       $message = "Closing the debug file failed for test '$testId', path: $debugPath/$debugFileName.";
       $this->logger->debug($message);
       throw new FileCloseException($message);

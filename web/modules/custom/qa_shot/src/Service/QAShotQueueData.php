@@ -10,6 +10,7 @@ use Drupal\Core\Database\Connection;
  * @package Drupal\qa_shot\Service
  */
 class QAShotQueueData {
+
   /**
    * The database table name.
    */

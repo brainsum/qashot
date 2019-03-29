@@ -10,4 +10,5 @@ use Drupal\qa_shot\Exception\QAShotBaseException;
  * @package Drupal\backstopjs\Exception
  */
 class BackstopAlreadyRunningException extends QAShotBaseException {
+
 }

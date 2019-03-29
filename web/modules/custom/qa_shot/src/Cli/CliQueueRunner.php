@@ -2,6 +2,8 @@
 
 namespace Drupal\qa_shot\Cli;
 
+use DateTime;
+use Drupal;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
@@ -19,13 +21,13 @@ class CliQueueRunner {
    * @throws \Exception
    */
   public function execute() {
-    $date = (new \DateTime())->setTimestamp(time());
+    $date = (new DateTime())->setTimestamp(time());
     drupal_set_message($this->t('Runner script initiated at @datetime', [
       '@datetime' => $date->format('Y-m-d H:i:s'),
     ]));
 
     /** @var \Drupal\qa_shot\Queue\QAShotQueueRunner $runner */
-    $runner = \Drupal::service('qa_shot.test_queue_runner');
+    $runner = Drupal::service('qa_shot.test_queue_runner');
 
     $count = 0;
     /** @var [] $queue */

@@ -2,7 +2,6 @@
 
 namespace Drupal\qa_shot\Controller;
 
-use function array_values;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -12,23 +11,17 @@ use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Service\DataFormatter;
 use Drupal\qa_shot\Service\QueueManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use function array_values;
 use function end;
 use function file_create_url;
 use function file_get_contents;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class QAShotController.
  */
 class QAShotController extends ControllerBase {
-
-  /**
-   * The entity.
-   *
-   * @var \Drupal\qa_shot\Entity\QAShotTest
-   */
-  private $entity;
 
   /**
    * Data formatter.
@@ -45,17 +38,11 @@ class QAShotController extends ControllerBase {
   protected $queueManager;
 
   /**
-   * {@inheritdoc}
+   * The entity.
    *
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+   * @var \Drupal\qa_shot\Entity\QAShotTest
    */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('qa_shot.data_formatter'),
-      $container->get('qa_shot.queue_manager')
-    );
-  }
+  private $entity;
 
   /**
    * QAShotController constructor.
@@ -74,25 +61,16 @@ class QAShotController extends ControllerBase {
   }
 
   /**
-   * Load entity to controller functions.
+   * {@inheritdoc}
    *
-   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
-   *   Route match object.
-   *
-   * @return bool
-   *   If there's error it will return true otherwise false.
-   *
-   * @throws \InvalidArgumentException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
    */
-  private function loadEntity(RouteMatchInterface $routeMatch): bool {
-    $entityId = $routeMatch->getParameters()->get('qa_shot_test');
-
-    // @todo: if we come here via the edit form "Run Test" button,
-    // automatically start the test
-    // if just opening, show list of previous results:
-    // Time, Who started it, pass/fail, html report link
-    $this->entity = QAShotTest::load($entityId);
-    return (!$this->entity || !$this->entity instanceof QAShotTestInterface);
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('qa_shot.data_formatter'),
+      $container->get('qa_shot.queue_manager')
+    );
   }
 
   /**
@@ -133,10 +111,33 @@ class QAShotController extends ControllerBase {
       }
     }
     else {
-      $this->messenger()->addMessage($this->t('Running this type of test is not yet supported.'), 'error');
+      $this->messenger()
+        ->addMessage($this->t('Running this type of test is not yet supported.'), 'error');
     }
 
     return $this->redirect('entity.qa_shot_test.run', ['qa_shot_test' => $this->entity->id()]);
+  }
+
+  /**
+   * Load entity to controller functions.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
+   *   Route match object.
+   *
+   * @return bool
+   *   If there's error it will return true otherwise false.
+   *
+   * @throws \InvalidArgumentException
+   */
+  private function loadEntity(RouteMatchInterface $routeMatch): bool {
+    $entityId = $routeMatch->getParameters()->get('qa_shot_test');
+
+    // @todo: if we come here via the edit form "Run Test" button,
+    // automatically start the test
+    // if just opening, show list of previous results:
+    // Time, Who started it, pass/fail, html report link
+    $this->entity = QAShotTest::load($entityId);
+    return (!$this->entity || !$this->entity instanceof QAShotTestInterface);
   }
 
   /**
@@ -170,9 +171,10 @@ class QAShotController extends ControllerBase {
 
     // If the report time is not NULL, format it to an '.. ago' string.
     if (NULL !== $reportTime) {
-      $reportDateTime = new DrupalDateTime($reportTime, $this->currentUser()->getTimeZone(), [
-        'langcode' => $this->currentUser()->getPreferredLangcode(),
-      ]);
+      $reportDateTime = new DrupalDateTime($reportTime, $this->currentUser()
+        ->getTimeZone(), [
+          'langcode' => $this->currentUser()->getPreferredLangcode(),
+        ]);
       $reportTime = $this->dataFormatter->dateAsAgo($reportDateTime);
     }
 

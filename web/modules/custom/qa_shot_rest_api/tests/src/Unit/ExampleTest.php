@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\qa_shot_rest_api\Unit;
 
+use PHPUnit_Framework_TestCase;
+
 /**
  * Class ExampleTest.
  *
@@ -9,7 +11,7 @@ namespace Drupal\Tests\qa_shot_rest_api\Unit;
  *
  * @group Example
  */
-class ExampleTest extends \PHPUnit_Framework_TestCase {
+class ExampleTest extends PHPUnit_Framework_TestCase {
 
   /**
    * Data provider.

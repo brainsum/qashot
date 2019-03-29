@@ -44,11 +44,11 @@ class Backstop {
    * @param string $stage
    *   The run stage.
    *
-   * @throws InvalidRunnerModeException
-   * @throws InvalidRunnerStageException
-   *
    * @return bool
    *   Whether the settings are valid.
+   *
+   * @throws InvalidRunnerStageException
+   * @throws InvalidRunnerModeException
    */
   public static function areRunnerSettingsValid($mode, $stage): bool {
     // When not a valid mode, return FALSE.

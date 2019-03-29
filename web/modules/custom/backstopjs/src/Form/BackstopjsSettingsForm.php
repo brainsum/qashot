@@ -2,6 +2,7 @@
 
 namespace Drupal\backstopjs\Form;
 
+use function array_filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
@@ -23,6 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BackstopjsSettingsForm extends ConfigFormBase {
 
   const LOCAL_SUITE = 'backstopjs.local';
+
   const REMOTE_SUITE = 'backstopjs.remote';
 
   /**
@@ -45,21 +47,6 @@ class BackstopjsSettingsForm extends ConfigFormBase {
    * @var \Drupal\backstopjs\Backstopjs\BackstopjsWorkerManager
    */
   protected $workerManager;
-
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('logger.factory'),
-      $container->get('app.root'),
-      $container->get('plugin.manager.test_worker')
-    );
-  }
 
   /**
    * BackstopjsSettingsForm constructor.
@@ -87,18 +74,24 @@ class BackstopjsSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
    */
-  public function getFormId(): string {
-    return 'backstopjs_admin_settings';
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('logger.factory'),
+      $container->get('app.root'),
+      $container->get('plugin.manager.test_worker')
+    );
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames(): array {
-    return [
-      'backstopjs.settings',
-    ];
+  public function getFormId(): string {
+    return 'backstopjs_admin_settings';
   }
 
   /**
@@ -121,7 +114,7 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     ];
 
     $options = [];
-    $definitions = \array_filter($this->workerManager->getDefinitions(), function ($definition) {
+    $definitions = array_filter($this->workerManager->getDefinitions(), function ($definition) {
       return $definition['provider'] === 'backstopjs';
     });
 
@@ -279,52 +272,6 @@ class BackstopjsSettingsForm extends ConfigFormBase {
   }
 
   /**
-   * Handles submission of the altered parts.
-   *
-   * @param array $form
-   *   The form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   *
-   * @throws \Drupal\Core\Config\ConfigValueException
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    /** @var \Drupal\Core\Config\Config $config */
-    $config = $this->configFactory()->getEditable('backstopjs.settings');
-    $config->set('backstopjs.async_compare_limit', $form_state->getValue(['backstopjs', 'async_compare_limit']));
-    $config->set('backstopjs.browser', $form_state->getValue(['backstopjs', 'browser']));
-    $config->set('backstopjs.debug_mode', $form_state->getValue(['backstopjs', 'debug_mode']));
-    $config->set('backstopjs.mismatch_threshold', $form_state->getValue(['backstopjs', 'mismatch_threshold']));
-
-    $resembleOptions = [
-      'error_type',
-      'transparency',
-      'large_image_threshold',
-      'use_cross_origin',
-      'fallback_color',
-    ];
-    foreach ($resembleOptions as $option) {
-      $configKey = "backstopjs.resemble_output_options.$option";
-      $formStateKey = ['backstopjs', 'resemble_output_options', $option];
-      $config->set($configKey, $form_state->getValue($formStateKey));
-    }
-
-    $suiteOptions = [
-      'location',
-      'binary_path',
-      'remote_locations',
-    ];
-
-    foreach ($suiteOptions as $option) {
-      $configKey = "suite.$option";
-      $formStateKey = ['suite', $option];
-      $config->set($configKey, $form_state->getValue($formStateKey));
-    }
-
-    $config->save();
-  }
-
-  /**
    * Verifies file path of the executable binary by checking its version.
    *
    * @param string $path
@@ -350,11 +297,17 @@ class BackstopjsSettingsForm extends ConfigFormBase {
     if (!empty($path)) {
       // Check whether the given file exists.
       if (!is_file($executable)) {
-        $status['errors'][] = $this->t('The @suite executable %file does not exist.', ['@suite' => 'BackstopJS', '%file' => $executable]);
+        $status['errors'][] = $this->t('The @suite executable %file does not exist.', [
+          '@suite' => 'BackstopJS',
+          '%file' => $executable,
+        ]);
       }
       // If it exists, check whether we can execute it.
       if (!is_executable($executable)) {
-        $status['errors'][] = $this->t('The @suite file %file is not executable.', ['@suite' => 'BackstopJS', '%file' => $executable]);
+        $status['errors'][] = $this->t('The @suite file %file is not executable.', [
+          '@suite' => 'BackstopJS',
+          '%file' => $executable,
+        ]);
       }
     }
 
@@ -487,6 +440,73 @@ class BackstopjsSettingsForm extends ConfigFormBase {
       drupal_set_message($this->t($message, $context), 'status', TRUE);
       // @codingStandardsIgnoreEnd
     }
+  }
+
+  /**
+   * Handles submission of the altered parts.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @throws \Drupal\Core\Config\ConfigValueException
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    /** @var \Drupal\Core\Config\Config $config */
+    $config = $this->configFactory()->getEditable('backstopjs.settings');
+    $config->set('backstopjs.async_compare_limit', $form_state->getValue([
+      'backstopjs',
+      'async_compare_limit',
+    ]));
+    $config->set('backstopjs.browser', $form_state->getValue([
+      'backstopjs',
+      'browser',
+    ]));
+    $config->set('backstopjs.debug_mode', $form_state->getValue([
+      'backstopjs',
+      'debug_mode',
+    ]));
+    $config->set('backstopjs.mismatch_threshold', $form_state->getValue([
+      'backstopjs',
+      'mismatch_threshold',
+    ]));
+
+    $resembleOptions = [
+      'error_type',
+      'transparency',
+      'large_image_threshold',
+      'use_cross_origin',
+      'fallback_color',
+    ];
+    foreach ($resembleOptions as $option) {
+      $configKey = "backstopjs.resemble_output_options.$option";
+      $formStateKey = ['backstopjs', 'resemble_output_options', $option];
+      $config->set($configKey, $form_state->getValue($formStateKey));
+    }
+
+    $suiteOptions = [
+      'location',
+      'binary_path',
+      'remote_locations',
+    ];
+
+    foreach ($suiteOptions as $option) {
+      $configKey = "suite.$option";
+      $formStateKey = ['suite', $option];
+      $config->set($configKey, $form_state->getValue($formStateKey));
+    }
+
+    $config->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames(): array {
+    return [
+      'backstopjs.settings',
+    ];
   }
 
 }

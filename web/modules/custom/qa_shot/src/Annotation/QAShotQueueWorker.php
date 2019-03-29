@@ -12,4 +12,5 @@ use Drupal\Core\Annotation\QueueWorker;
  * @Annotation
  */
 class QAShotQueueWorker extends QueueWorker {
+
 }

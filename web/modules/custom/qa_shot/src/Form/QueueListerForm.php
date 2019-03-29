@@ -10,6 +10,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\qa_shot\Queue\QAShotQueueFactory;
 use Drupal\qa_shot\Service\DataFormatter;
 use Drupal\qa_shot\TestBackendInterface;
+use function json_decode;
+use function json_encode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -57,22 +59,6 @@ class QueueListerForm extends FormBase {
   protected $backstop;
 
   /**
-   * {@inheritdoc}
-   *
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('qa_shot.test_queue_factory'),
-      $container->get('database'),
-      $container->get('datetime.time'),
-      $container->get('qa_shot.data_formatter'),
-      $container->get('backstopjs.backstop')
-    );
-  }
-
-  /**
    * QAShotSettingsForm constructor.
    *
    * @param \Drupal\qa_shot\Queue\QAShotQueueFactory $queueFactory
@@ -98,6 +84,22 @@ class QueueListerForm extends FormBase {
     $this->time = $time;
     $this->dataFormatter = $dataFormatter;
     $this->backstop = $backstop;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('qa_shot.test_queue_factory'),
+      $container->get('database'),
+      $container->get('datetime.time'),
+      $container->get('qa_shot.data_formatter'),
+      $container->get('backstopjs.backstop')
+    );
   }
 
   /**
@@ -144,7 +146,7 @@ class QueueListerForm extends FormBase {
       '#submit' => ['::submitQueueClearAll'],
     ];
 
-    $prettyPrintStatus = \json_encode(\json_decode($this->backstop->getStatus(), TRUE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $prettyPrintStatus = json_encode(json_decode($this->backstop->getStatus(), TRUE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $form['backstopjs_status'] = [
       '#type' => 'markup',
       '#markup' => "Results for using pgrep to search for BackstopJS: <pre>{$prettyPrintStatus}</pre>",
@@ -155,10 +157,20 @@ class QueueListerForm extends FormBase {
   }
 
   /**
-   * Clear the queues.
+   * Helper function to convert timestamps to formatted date strings.
+   *
+   * @param int $timestamp
+   *   Timestamp.
+   * @param string $format
+   *   The format.
+   *
+   * @return string
+   *   The formatted date.
+   *
+   * @throws \InvalidArgumentException
    */
-  public function submitQueueClearAll() {
-    $this->queue->clearQueue();
+  private function formatTimestamp($timestamp, $format = 'Y-m-d H:i:s'): string {
+    return DrupalDateTime::createFromTimestamp($timestamp)->format($format);
   }
 
   /**
@@ -197,25 +209,16 @@ class QueueListerForm extends FormBase {
   }
 
   /**
-   * Helper function to convert timestamps to formatted date strings.
-   *
-   * @param int $timestamp
-   *   Timestamp.
-   * @param string $format
-   *   The format.
-   *
-   * @throws \InvalidArgumentException
-   *
-   * @return string
-   *   The formatted date.
+   * Clear the queues.
    */
-  private function formatTimestamp($timestamp, $format = 'Y-m-d H:i:s'): string {
-    return DrupalDateTime::createFromTimestamp($timestamp)->format($format);
+  public function submitQueueClearAll() {
+    $this->queue->clearQueue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {}
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+  }
 
 }

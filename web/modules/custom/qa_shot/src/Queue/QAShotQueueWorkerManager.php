@@ -7,6 +7,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
 use Drupal\qa_shot\Annotation\QAShotQueueWorker;
+use Traversable;
 
 /**
  * Defines the queue worker manager for QAShot.
@@ -32,7 +33,7 @@ class QAShotQueueWorkerManager extends DefaultPluginManager implements QueueWork
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
    *   The module handler.
    */
-  public function __construct(\Traversable $namespaces, CacheBackendInterface $cacheBackend, ModuleHandlerInterface $moduleHandler) {
+  public function __construct(Traversable $namespaces, CacheBackendInterface $cacheBackend, ModuleHandlerInterface $moduleHandler) {
     parent::__construct(
       'Plugin/QueueWorker',
       $namespaces,

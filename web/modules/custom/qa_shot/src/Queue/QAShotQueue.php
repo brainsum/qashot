@@ -2,8 +2,11 @@
 
 namespace Drupal\qa_shot\Queue;
 
+use Drupal;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Exception;
+use stdClass;
 
 /**
  * Default queue implementation.
@@ -25,9 +28,13 @@ class QAShotQueue implements QAShotQueueInterface {
   const TABLE_NAME = 'qa_shot_queue';
 
   const QUEUE_STATUS_IDLE = 'idle';
+
   const QUEUE_STATUS_WAITING = 'waiting';
+
   const QUEUE_STATUS_REMOTE = 'remote';
+
   const QUEUE_STATUS_RUNNING = 'running';
+
   const QUEUE_STATUS_ERROR = 'error';
 
   /**
@@ -64,7 +71,7 @@ class QAShotQueue implements QAShotQueueInterface {
    * @throws \Exception
    * @throws \InvalidArgumentException
    */
-  public function createItem(\stdClass $item) {
+  public function createItem(stdClass $item) {
     try {
       $query = $this->connection->insert(self::TABLE_NAME)
         ->fields([
@@ -80,13 +87,13 @@ class QAShotQueue implements QAShotQueueInterface {
       // Return the new serial ID, or FALSE on failure.
       $itemId = $query->execute();
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo: log
       return FALSE;
     }
 
     // @todo: dep.inj.
-    \Drupal::logger('qa_shot_queue')->info(
+    Drupal::logger('qa_shot_queue')->info(
       t('Test with ID #@testID status changed to @status.', [
         '@testID' => $item->tid,
         '@status' => self::QUEUE_STATUS_WAITING,
@@ -102,13 +109,13 @@ class QAShotQueue implements QAShotQueueInterface {
    * @throws \Exception
    * @throws \InvalidArgumentException
    */
-  public function deleteItem(\stdClass $item) {
+  public function deleteItem(stdClass $item) {
     try {
       $this->connection->delete(static::TABLE_NAME)
         ->condition('tid', $item->tid)
         ->execute();
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo log
       throw $e;
     }
@@ -120,7 +127,7 @@ class QAShotQueue implements QAShotQueueInterface {
    * @throws \Exception
    * @throws \InvalidArgumentException
    */
-  public function releaseItem(\stdClass $item): bool {
+  public function releaseItem(stdClass $item): bool {
     try {
       $update = $this->connection->update(static::TABLE_NAME)
         ->fields([
@@ -130,35 +137,7 @@ class QAShotQueue implements QAShotQueueInterface {
         ->condition('tid', $item->tid);
       return $update->execute();
     }
-    catch (\Exception $e) {
-      // @todo log
-      throw $e;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Exception
-   */
-  public function numberOfItems($status = NULL): int {
-    try {
-      $query = $this->connection->select(static::TABLE_NAME);
-      $query->condition('queue_name', $this->name);
-      if (NULL !== $status) {
-        $query->condition('status', $status);
-      }
-      $result = $query->countQuery()->execute();
-
-      $count = $result->fetchField();
-
-      if (FALSE === $count) {
-        throw new \Exception('Could not count items in queue.');
-      }
-
-      return (int) $count;
-    }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo log
       throw $e;
     }
@@ -190,7 +169,7 @@ class QAShotQueue implements QAShotQueueInterface {
         $result = $query->execute();
         $item = $result->fetchObject();
       }
-      catch (\Exception $e) {
+      catch (Exception $e) {
         // @todo log
         throw $e;
         // If the table does not exist there are no items currently available to
@@ -213,7 +192,7 @@ class QAShotQueue implements QAShotQueueInterface {
         // If there are affected rows, this update succeeded.
         if ($update->execute()) {
           $item->expire = $expire;
-          $item->data = unserialize($item->data, [\stdClass::class]);
+          $item->data = unserialize($item->data, [stdClass::class]);
           return $item;
         }
       }
@@ -245,7 +224,7 @@ class QAShotQueue implements QAShotQueueInterface {
         ->condition('queue_name', $this->name)
         ->execute();
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo log
       throw $e;
     }
@@ -257,7 +236,7 @@ class QAShotQueue implements QAShotQueueInterface {
    * @throws \Exception
    */
   public function garbageCollection() {
-    $requestTime = \Drupal::time()->getRequestTime();
+    $requestTime = Drupal::time()->getRequestTime();
     try {
       $timeLimit = 864000;
       // Clean up the queue for failed batches.
@@ -276,7 +255,7 @@ class QAShotQueue implements QAShotQueueInterface {
         ->condition('expire', $requestTime, '<')
         ->execute();
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo: Log
       throw $e;
     }
@@ -287,6 +266,34 @@ class QAShotQueue implements QAShotQueueInterface {
    */
   public function numberOfRunningItems(): int {
     return $this->numberOfItems(static::QUEUE_STATUS_RUNNING);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Exception
+   */
+  public function numberOfItems($status = NULL): int {
+    try {
+      $query = $this->connection->select(static::TABLE_NAME);
+      $query->condition('queue_name', $this->name);
+      if (NULL !== $status) {
+        $query->condition('status', $status);
+      }
+      $result = $query->countQuery()->execute();
+
+      $count = $result->fetchField();
+
+      if (FALSE === $count) {
+        throw new Exception('Could not count items in queue.');
+      }
+
+      return (int) $count;
+    }
+    catch (Exception $e) {
+      // @todo log
+      throw $e;
+    }
   }
 
   /**
@@ -327,7 +334,7 @@ class QAShotQueue implements QAShotQueueInterface {
   /**
    * {@inheritdoc}
    */
-  public function updateItemStatus(\stdClass $item) {
+  public function updateItemStatus(stdClass $item) {
     $query = $this->connection->update(static::TABLE_NAME);
     $query->fields(['status' => $item->status]);
     $query->condition('tid', $item->tid);

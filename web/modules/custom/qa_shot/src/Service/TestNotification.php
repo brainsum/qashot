@@ -7,6 +7,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\qa_shot\Entity\QAShotTestInterface;
+use Exception;
 
 /**
  * Class TestNotification.
@@ -123,7 +124,7 @@ class TestNotification {
           ->getGeneratedUrl();
       }
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $this->logger->error(
         'Notification could not be sent. Error message: @msg',
         ['@msg' => $exception->getMessage()]

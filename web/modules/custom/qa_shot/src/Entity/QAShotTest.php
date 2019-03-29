@@ -2,11 +2,12 @@
 
 namespace Drupal\qa_shot\Entity;
 
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Plugin\DataType\ComputedLastRunMetadata;
@@ -71,7 +72,7 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   public static function preCreate(EntityStorageInterface $entityStorage, array &$values) {
     parent::preCreate($entityStorage, $values);
     $values += [
-      'user_id' => \Drupal::currentUser()->id(),
+      'user_id' => Drupal::currentUser()->id(),
     ];
   }
 
@@ -81,414 +82,6 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
   public static function preDelete(EntityStorageInterface $storage, array $entities) {
     // @todo: don't allow if it's running.
     // TODO: Implement preDelete() method.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function delete() {
-    // @todo: Remove from the queue.
-    // @todo: Generalize.
-    /** @var \Drupal\qa_shot\TestBackendInterface $testBackend */
-    $testBackend = \Drupal::service('backstopjs.backstop');
-    $testBackend->clearFiles($this);
-
-    parent::delete();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getType(): string {
-    return $this->bundle();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getName(): string {
-    return $this->get('name')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setName($name): QAShotTestInterface {
-    $this->set('name', $name);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCreatedTime(): int {
-    return $this->get('created')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setCreatedTime($timestamp): QAShotTestInterface {
-    $this->set('created', $timestamp);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOwner(): UserInterface {
-    return $this->get('user_id')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOwnerId() {
-    return $this->get('user_id')->target_id;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwnerId($uid) {
-    $this->set('user_id', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwner(UserInterface $account): QAShotTestInterface {
-    $this->set('user_id', $account->id());
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getInitiator(): UserInterface {
-    return $this->get('initiator_id')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setInitiator(UserInterface $account): QAShotTestInterface {
-    $this->set('initiator_id', $account->id());
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getInitiatorId() {
-    return $this->get('initiator_id')->target_id;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setInitiatorId($uid): QAShotTestInterface {
-    $this->set('initiator_id', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getInitiatedTime(): int {
-    return $this->get('initiated')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setInitiatedTime($timestamp): QAShotTestInterface {
-    $this->set('initiated', $timestamp);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isPublished(): bool {
-    return (bool) $this->getEntityKey('status');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setPublished($published): QAShotTestInterface {
-    $this->set('status', $published ? TRUE : FALSE);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFieldViewport(): EntityReferenceRevisionsFieldItemList {
-    return $this->get('field_viewport');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getViewportCount(): int {
-    return $this->getFieldViewport()->count();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFieldScenario(): EntityReferenceRevisionsFieldItemList {
-    return $this->get('field_scenario');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getScenarioCount(): int {
-    return $this->getFieldScenario()->count();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getConfigurationPath() {
-    return $this->get('field_configuration_path')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setConfigurationPath($configurationPath): QAShotTestInterface {
-    return $this->set('field_configuration_path', $configurationPath);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getHtmlReportPath() {
-    return $this->get('field_html_report_path')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setHtmlReportPath($htmlReportPath): QAShotTestInterface {
-    return $this->set('field_html_report_path', $htmlReportPath);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRemoteHtmlReportPath() {
-    return $this->get('field_remote_html_report_path')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRemoteHtmlReportPath($htmlReportPath): QAShotTestInterface {
-    return $this->set('field_remote_html_report_path', $htmlReportPath);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function addMetadata(array $metadata): QAShotTestInterface {
-    $this->get('metadata_lifetime')->appendItem($metadata);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getLastRunMetadataValue(): array {
-    return $this->get('metadata_last_run')->getValue();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getLifetimeMetadataValue(): array {
-    return $this->get('metadata_lifetime')->getValue();
-  }
-
-  /**
-   * This function will return the last run times.
-   *
-   * @return array
-   *   It contains the last runtimes in this order:
-   *   last_run_time, last_reference_run_time, last_test_run_time.
-   *
-   * @throws \Drupal\qa_shot\Exception\QAShotBaseException
-   */
-  public function getLastRunTimes(): array {
-    $last_run_time = $last_reference_run_time = $last_test_run_time = NULL;
-    $type = $this->getType();
-
-    if ($type == "before_after") {
-      $metadatas = $this->get('metadata_lifetime')->getValue();
-      foreach ($metadatas as $metadata) {
-        if ($metadata['stage'] == "before") {
-          $last_reference_run_time = $metadata['datetime'];
-        }
-        elseif ($metadata['stage'] == "after") {
-          $last_test_run_time = $metadata['datetime'];
-        }
-      }
-    }
-    elseif ($type == "a_b") {
-      $last_run_time = $this->getLastRunMetadataValue()[0]['datetime'] ?? NULL;
-    }
-    else {
-      throw new QAShotBaseException(t("This function doesn't support this type: @type", ["@type" => $type]));
-    }
-
-    return [
-      "last_run_time" => $last_run_time,
-      "last_reference_run_time" => $last_reference_run_time,
-      "last_test_run_time" => $last_test_run_time,
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getResultValue(): array {
-    return $this->get('result')->getValue();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSelectorsToHide(): array {
-    /** @var \Drupal\Core\Field\FieldItemList $field */
-    $field = $this->get('selectors_to_hide')->getValue();
-
-    $fieldValue = [];
-
-    /** @var array $item */
-    foreach ($field as $item) {
-      $fieldValue[] = $item['value'];
-    }
-
-    return $fieldValue;
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setSelectorsToHide(array $selectors): QAShotTestInterface {
-    return $this->set('selectors_to_hide', $selectors);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSelectorsToRemove(): array {
-    /** @var \Drupal\Core\Field\FieldItemList $field */
-    $field = $this->get('selectors_to_remove')->getValue();
-
-    $fieldValue = [];
-
-    /** @var array $item */
-    foreach ($field as $item) {
-      $fieldValue[] = $item['value'];
-    }
-
-    return $fieldValue;
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setSelectorsToRemove(array $selectors): QAShotTestInterface {
-    return $this->set('selectors_to_remove', $selectors);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setResult(array $result): QAShotTestInterface {
-    $this->get('result')->setValue($result);
-
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFrontendUrl() {
-    return $this->get('frontend_url')->getValue();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setFrontendUrl($url): QAShotTestInterface {
-    $this->set('frontend_url', $url);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getQueueStatus(): array {
-    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueDataService */
-    $queueDataService = \Drupal::service('qa_shot.queue_data');
-    $queueData = $queueDataService->getDataFromQueue($this->id());
-
-    if (empty($queueData)) {
-      return [QAShotQueue::QUEUE_STATUS_IDLE];
-    }
-
-    return [$queueData->status];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getHumanReadableQueueStatus(): string {
-    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueDataService */
-    $queueDataService = \Drupal::service('qa_shot.queue_data');
-    $queueData = $queueDataService->getDataFromQueue($this->id());
-
-    if (empty($queueData)) {
-      return t('Idle');
-    }
-
-    switch ($queueData->status) {
-      case QAShotQueue::QUEUE_STATUS_WAITING:
-        if (!empty($queueData->stage)) {
-          $runStateType = $queueData->stage === 'before' ? 'for reference pictures' : 'for test pictures';
-          return t('Queued to run (@type)', ['@type' => $runStateType]);
-        }
-
-        return t('Queued to run');
-
-      case QAShotQueue::QUEUE_STATUS_RUNNING:
-        return t('Running, please be patient...');
-
-      case QAShotQueue::QUEUE_STATUS_REMOTE:
-        return t('Test is running remotely, please be patient...');
-
-      case QAShotQueue::QUEUE_STATUS_ERROR:
-        return t('There was an error!');
-
-      default:
-        throw new QAShotBaseException(t('Unknown queue state!'));
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getBrowser(): string {
-    return $this->get('field_browser')->value;
   }
 
   /**
@@ -623,6 +216,414 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
       ->setCardinality(1);
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete() {
+    // @todo: Remove from the queue.
+    // @todo: Generalize.
+    /** @var \Drupal\qa_shot\TestBackendInterface $testBackend */
+    $testBackend = Drupal::service('backstopjs.backstop');
+    $testBackend->clearFiles($this);
+
+    parent::delete();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getName(): string {
+    return $this->get('name')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setName($name): QAShotTestInterface {
+    $this->set('name', $name);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCreatedTime(): int {
+    return $this->get('created')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCreatedTime($timestamp): QAShotTestInterface {
+    $this->set('created', $timestamp);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOwner(): UserInterface {
+    return $this->get('user_id')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOwnerId() {
+    return $this->get('user_id')->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOwnerId($uid) {
+    $this->set('user_id', $uid);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOwner(UserInterface $account): QAShotTestInterface {
+    $this->set('user_id', $account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInitiator(): UserInterface {
+    return $this->get('initiator_id')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInitiator(UserInterface $account): QAShotTestInterface {
+    $this->set('initiator_id', $account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInitiatorId() {
+    return $this->get('initiator_id')->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInitiatorId($uid): QAShotTestInterface {
+    $this->set('initiator_id', $uid);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInitiatedTime(): int {
+    return $this->get('initiated')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInitiatedTime($timestamp): QAShotTestInterface {
+    $this->set('initiated', $timestamp);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isPublished(): bool {
+    return (bool) $this->getEntityKey('status');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setPublished($published): QAShotTestInterface {
+    $this->set('status', $published ? TRUE : FALSE);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getViewportCount(): int {
+    return $this->getFieldViewport()->count();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldViewport(): EntityReferenceRevisionsFieldItemList {
+    return $this->get('field_viewport');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getScenarioCount(): int {
+    return $this->getFieldScenario()->count();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldScenario(): EntityReferenceRevisionsFieldItemList {
+    return $this->get('field_scenario');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigurationPath() {
+    return $this->get('field_configuration_path')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setConfigurationPath($configurationPath): QAShotTestInterface {
+    return $this->set('field_configuration_path', $configurationPath);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHtmlReportPath() {
+    return $this->get('field_html_report_path')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHtmlReportPath($htmlReportPath): QAShotTestInterface {
+    return $this->set('field_html_report_path', $htmlReportPath);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRemoteHtmlReportPath() {
+    return $this->get('field_remote_html_report_path')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setRemoteHtmlReportPath($htmlReportPath): QAShotTestInterface {
+    return $this->set('field_remote_html_report_path', $htmlReportPath);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addMetadata(array $metadata): QAShotTestInterface {
+    $this->get('metadata_lifetime')->appendItem($metadata);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLifetimeMetadataValue(): array {
+    return $this->get('metadata_lifetime')->getValue();
+  }
+
+  /**
+   * This function will return the last run times.
+   *
+   * @return array
+   *   It contains the last runtimes in this order:
+   *   last_run_time, last_reference_run_time, last_test_run_time.
+   *
+   * @throws \Drupal\qa_shot\Exception\QAShotBaseException
+   */
+  public function getLastRunTimes(): array {
+    $lastRunTime = $lastReferenceRunTime = $lastTestRunTime = NULL;
+    $type = $this->getType();
+
+    if ($type === 'before_after') {
+      $metadatas = $this->get('metadata_lifetime')->getValue();
+      foreach ($metadatas as $metadata) {
+        if ($metadata['stage'] === 'before') {
+          $lastReferenceRunTime = $metadata['datetime'];
+        }
+        elseif ($metadata['stage'] === 'after') {
+          $lastTestRunTime = $metadata['datetime'];
+        }
+      }
+    }
+    elseif ($type === 'a_b') {
+      $lastRunTime = $this->getLastRunMetadataValue()[0]['datetime'] ?? NULL;
+    }
+    else {
+      throw new QAShotBaseException($this->t("This function doesn't support this type: @type", ['@type' => $type]));
+    }
+
+    return [
+      'last_run_time' => $lastRunTime,
+      'last_reference_run_time' => $lastReferenceRunTime,
+      'last_test_run_time' => $lastTestRunTime,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getType(): string {
+    return $this->bundle();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLastRunMetadataValue(): array {
+    return $this->get('metadata_last_run')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getResultValue(): array {
+    return $this->get('result')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSelectorsToHide(): array {
+    /** @var \Drupal\Core\Field\FieldItemList $field */
+    $field = $this->get('selectors_to_hide')->getValue();
+
+    $fieldValue = [];
+
+    /** @var array $item */
+    foreach ($field as $item) {
+      $fieldValue[] = $item['value'];
+    }
+
+    return $fieldValue;
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setSelectorsToHide(array $selectors): QAShotTestInterface {
+    return $this->set('selectors_to_hide', $selectors);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSelectorsToRemove(): array {
+    /** @var \Drupal\Core\Field\FieldItemList $field */
+    $field = $this->get('selectors_to_remove')->getValue();
+
+    $fieldValue = [];
+
+    /** @var array $item */
+    foreach ($field as $item) {
+      $fieldValue[] = $item['value'];
+    }
+
+    return $fieldValue;
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setSelectorsToRemove(array $selectors): QAShotTestInterface {
+    return $this->set('selectors_to_remove', $selectors);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setResult(array $result): QAShotTestInterface {
+    $this->get('result')->setValue($result);
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFrontendUrl() {
+    return $this->get('frontend_url')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setFrontendUrl($url): QAShotTestInterface {
+    $this->set('frontend_url', $url);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQueueStatus(): array {
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueDataService */
+    $queueDataService = Drupal::service('qa_shot.queue_data');
+    $queueData = $queueDataService->getDataFromQueue($this->id());
+
+    if (empty($queueData)) {
+      return [QAShotQueue::QUEUE_STATUS_IDLE];
+    }
+
+    return [$queueData->status];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHumanReadableQueueStatus(): string {
+    /** @var \Drupal\qa_shot\Service\QAShotQueueData $queueDataService */
+    $queueDataService = Drupal::service('qa_shot.queue_data');
+    $queueData = $queueDataService->getDataFromQueue($this->id());
+
+    if (empty($queueData)) {
+      return t('Idle');
+    }
+
+    switch ($queueData->status) {
+      case QAShotQueue::QUEUE_STATUS_WAITING:
+        if (!empty($queueData->stage)) {
+          $runStateType = $queueData->stage === 'before' ? 'for reference pictures' : 'for test pictures';
+          return t('Queued to run (@type)', ['@type' => $runStateType]);
+        }
+
+        return t('Queued to run');
+
+      case QAShotQueue::QUEUE_STATUS_RUNNING:
+        return t('Running, please be patient...');
+
+      case QAShotQueue::QUEUE_STATUS_REMOTE:
+        return t('Test is running remotely, please be patient...');
+
+      case QAShotQueue::QUEUE_STATUS_ERROR:
+        return t('There was an error!');
+
+      default:
+        throw new QAShotBaseException(t('Unknown queue state!'));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBrowser(): string {
+    return $this->get('field_browser')->value;
   }
 
 }

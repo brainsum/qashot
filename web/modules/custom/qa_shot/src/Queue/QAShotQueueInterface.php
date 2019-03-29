@@ -3,6 +3,7 @@
 namespace Drupal\qa_shot\Queue;
 
 use Drupal\Core\Queue\QueueGarbageCollectionInterface;
+use stdClass;
 
 /**
  * Interface QAShotQueueInterface.
@@ -25,7 +26,7 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
    *   committed to disk etc, but as far as we know, the item is now in the
    *   queue.
    */
-  public function createItem(\stdClass $data);
+  public function createItem(stdClass $data);
 
   /**
    * Retrieves the number of items in the queue.
@@ -75,7 +76,7 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
    * @param \stdClass $item
    *   The item returned by \Drupal\Core\Queue\QueueInterface::claimItem().
    */
-  public function deleteItem(\stdClass $item);
+  public function deleteItem(stdClass $item);
 
   /**
    * Releases an item that the worker could not process.
@@ -88,7 +89,7 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
    * @return bool
    *   TRUE if the item has been released, FALSE otherwise.
    */
-  public function releaseItem(\stdClass $item): bool;
+  public function releaseItem(stdClass $item): bool;
 
   /**
    * Creates a queue.
@@ -172,6 +173,6 @@ interface QAShotQueueInterface extends QueueGarbageCollectionInterface {
    * @param \stdClass $item
    *   The item.
    */
-  public function updateItemStatus(\stdClass $item);
+  public function updateItemStatus(stdClass $item);
 
 }

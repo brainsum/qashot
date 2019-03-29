@@ -32,24 +32,6 @@ abstract class QAShotQueueWorkerBase extends PluginBase implements QAShotQueueWo
   protected $notification;
 
   /**
-   * {@inheritdoc}
-   */
-  public static function create(
-    ContainerInterface $container,
-    array $configuration,
-    $plugin_id,
-    $plugin_definition
-  ) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('backstopjs.backstop'),
-      $container->get('qa_shot.test_notification')
-    );
-  }
-
-  /**
    * TestRunBase constructor.
    *
    * @param array $configuration
@@ -73,6 +55,24 @@ abstract class QAShotQueueWorkerBase extends PluginBase implements QAShotQueueWo
     parent::__construct($configuration, $pluginId, $pluginDefinition);
     $this->testBackend = $testBackend;
     $this->notification = $notification;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('backstopjs.backstop'),
+      $container->get('qa_shot.test_notification')
+    );
   }
 
   /**

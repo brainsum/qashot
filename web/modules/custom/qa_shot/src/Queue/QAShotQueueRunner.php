@@ -5,11 +5,13 @@ namespace Drupal\qa_shot\Queue;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\qa_shot\Entity\QAShotTestInterface;
 use Drupal\qa_shot\Exception\QAShotBaseException;
+use Exception;
+use stdClass;
 
 /**
  * Class QAShotQueueRunner.
@@ -21,6 +23,13 @@ use Drupal\qa_shot\Exception\QAShotBaseException;
 class QAShotQueueRunner {
 
   use StringTranslationTrait;
+
+  /**
+   * Keep track of queue definitions.
+   *
+   * @var array
+   */
+  protected static $queues;
 
   /**
    * The manager.
@@ -49,13 +58,6 @@ class QAShotQueueRunner {
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   protected $logger;
-
-  /**
-   * Keep track of queue definitions.
-   *
-   * @var array
-   */
-  protected static $queues;
 
   /**
    * QAShotQueueRunner constructor.
@@ -96,19 +98,6 @@ class QAShotQueueRunner {
 
   /**
    * {@inheritdoc}
-   *
-   * @throws \Exception
-   */
-  public function getInfo($name) {
-    $queues = $this->getQueues();
-    if (!isset($queues[$name])) {
-      throw new \Exception($this->t('Could not find the !name queue.', ['!name' => $name]));
-    }
-    return $queues[$name];
-  }
-
-  /**
-   * {@inheritdoc}
    */
   public function getQueues(): array {
     if (NULL === static::$queues) {
@@ -128,6 +117,19 @@ class QAShotQueueRunner {
    */
   public function getQueue($name): QAShotQueueInterface {
     return $this->queueFactory->get($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Exception
+   */
+  public function getInfo($name) {
+    $queues = $this->getQueues();
+    if (!isset($queues[$name])) {
+      throw new Exception($this->t('Could not find the !name queue.', ['!name' => $name]));
+    }
+    return $queues[$name];
   }
 
   /**
@@ -193,7 +195,10 @@ class QAShotQueueRunner {
       $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_RUNNING, $entity, $queue, $item);
 
       try {
-        drupal_set_message($this->t('Processing test with ID @id from @name queue.', ['@name' => $name, '@id' => $item->tid]));
+        drupal_set_message($this->t('Processing test with ID @id from @name queue.', [
+          '@name' => $name,
+          '@id' => $item->tid,
+        ]));
         $worker->processItem($item, $entity);
         $queue->deleteItem($item);
         $count++;
@@ -227,7 +232,7 @@ class QAShotQueueRunner {
         $this->updateEntityStatus(QAShotQueue::QUEUE_STATUS_ERROR, $entity);
         continue;
       }
-      catch (\Exception $e) {
+      catch (Exception $e) {
         $this->logger->error($e->getMessage());
         // In case of any other kind of exception, log it and leave the item
         // in the queue to be processed again later.
@@ -256,7 +261,7 @@ class QAShotQueueRunner {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, \stdClass $item = NULL) {
+  private function updateEntityStatus($status, QAShotTestInterface $entity, QAShotQueueInterface $queue = NULL, stdClass $item = NULL) {
     // Set entity status to running.
     try {
       if (NULL !== $item && NULL !== $queue) {

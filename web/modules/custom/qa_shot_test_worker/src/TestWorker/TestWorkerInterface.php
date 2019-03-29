@@ -21,11 +21,12 @@ interface TestWorkerInterface {
    * E.g: Remote -> API call to the remote.
    * E.g: Local -> check if the process is running.
    *
-   * @todo: Add an enum instead of the string.
-   * @todo: Maybe return a more complex status, e.g with current test id, etc.
-   *
    * @return mixed
    *   The status.
+   *
+   * @todo: Maybe return a more complex status, e.g with current test id, etc.
+   *
+   * @todo: Add an enum instead of the string.
    */
   public function status();
 

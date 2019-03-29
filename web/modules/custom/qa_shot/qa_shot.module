@@ -5,8 +5,8 @@
  * Contains qa_shot.module.
  */
 
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Implements hook_help().
@@ -134,31 +134,33 @@ function qa_shot_form_alter(
   $form_id
 ) {
   // Display the run button on QAShot edit form only.
-  if ($form_id == "qa_shot_test_a_b_edit_form") {
+  if ($form_id === "qa_shot_test_a_b_edit_form") {
     $form['actions']['run'] = [
-      '#type'   => 'submit',
-      '#value'  => t('Add test to queue'),
+      '#type' => 'submit',
+      '#value' => t('Add test to queue'),
       '#weight' => $form['actions']['submit']['#weight'] + 1,
       // '#ajax' => ['callback' => [$this, 'ajaxCallback']], //.
       '#submit' => ["qa_shot_qa_shot_test_run_handler"],
     ];
   }
   // Display the run before/after buttons on QAShot edit form only.
-  elseif ($form_id == "qa_shot_test_before_after_edit_form") {
+  elseif ($form_id === "qa_shot_test_before_after_edit_form") {
     $form['actions']['run_reference'] = [
-      '#type'   => 'submit',
-      '#value'  => t('Queue taking "Before" shots'),
+      '#type' => 'submit',
+      '#value' => t('Queue taking "Before" shots'),
       '#weight' => $form['actions']['submit']['#weight'] + 1,
       '#submit' => ["qa_shot_qa_shot_test_run_handler"],
     ];
 
     // Show this option only in that case, if there's at least one run.
     // NOTE: Currently any ways the first run is the "before" run.
-    $test_metadata = $form_state->getFormObject()->getEntity()->getLifetimeMetadataValue();
+    $test_metadata = $form_state->getFormObject()
+      ->getEntity()
+      ->getLifetimeMetadataValue();
     if (count($test_metadata) > 0) {
       $form['actions']['run_after'] = [
-        '#type'   => 'submit',
-        '#value'  => t('Queue taking "After" shots'),
+        '#type' => 'submit',
+        '#value' => t('Queue taking "After" shots'),
         '#weight' => $form['actions']['submit']['#weight'] + 1,
         '#submit' => ["qa_shot_qa_shot_test_run_handler"],
       ];
@@ -177,7 +179,7 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
 
   $triggering_element_id = $form_state->getTriggeringElement()['#id'];
 
-  if ($triggering_element_id == "edit-run") {
+  if ($triggering_element_id === "edit-run") {
     $form_state->setRedirect(
       'entity.qa_shot_test.add_to_queue',
       [
@@ -185,7 +187,7 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
       ]
     );
   }
-  elseif ($triggering_element_id == "edit-run-reference") {
+  elseif ($triggering_element_id === "edit-run-reference") {
     $form_state->setRedirect(
       'entity.qa_shot_test.add_to_queue_reference',
       [
@@ -193,7 +195,7 @@ function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state
       ]
     );
   }
-  elseif ($triggering_element_id == "edit-run-after") {
+  elseif ($triggering_element_id === "edit-run-after") {
     $form_state->setRedirect(
       'entity.qa_shot_test.add_to_queue_test',
       [

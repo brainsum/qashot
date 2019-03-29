@@ -43,23 +43,6 @@ abstract class BackstopjsWorkerBase extends TestWorkerBase implements Backstopjs
   protected $config;
 
   /**
-   * {@inheritdoc}
-   *
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-   */
-  public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
-    return new static(
-      $configuration,
-      $pluginId,
-      $pluginDefinition,
-      $container->get('backstopjs.file_system'),
-      $container->get('logger.factory'),
-      $container->get('config.factory')
-    );
-  }
-
-  /**
    * LocalBackstopJS constructor.
    *
    * @param array $configuration
@@ -88,6 +71,23 @@ abstract class BackstopjsWorkerBase extends TestWorkerBase implements Backstopjs
     $this->backstopFileSystem = $backstopFileSystem;
     $this->logger = $loggerChannelFactory->get('backstopjs');
     $this->config = $configFactory->get('backstopjs.settings');
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+   * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+   */
+  public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
+    return new static(
+      $configuration,
+      $pluginId,
+      $pluginDefinition,
+      $container->get('backstopjs.file_system'),
+      $container->get('logger.factory'),
+      $container->get('config.factory')
+    );
   }
 
   /**
