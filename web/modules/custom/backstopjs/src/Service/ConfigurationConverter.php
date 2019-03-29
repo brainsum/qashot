@@ -126,8 +126,7 @@ class ConfigurationConverter {
       'scenarios' => $this->scenarioToArray(
         $entity->getFieldScenario(),
         $entity->getSelectorsToHide(),
-        $entity->getSelectorsToRemove(),
-        $engine['name']
+        $entity->getSelectorsToRemove()
       ),
       'paths' => [
         'engine_scripts' => $this->parsePath($engine['scripts'], $engine['useAbsolutePaths']),
@@ -294,8 +293,6 @@ class ConfigurationConverter {
    * @param string[] $selectorsToRemove
    *   An array of selectors that should be removed from te DOM.
    *   The values are merged with the default ones.
-   * @param string $engine
-   *   The engine.
    *
    * @return array
    *   Array representation of the scenario field.
@@ -305,14 +302,13 @@ class ConfigurationConverter {
   public function scenarioToArray(
     EntityReferenceRevisionsFieldItemList $scenarioField,
     array $selectorsToHide,
-    array $selectorsToRemove,
-    $engine
+    array $selectorsToRemove
   ): array {
     $scenarioData = [];
 
     // Flatten the field values from target_id + revision_target_id
     // to target_id only.
-    $ids = array_map(function ($item) {
+    $ids = array_map(static function ($item) {
       return $item['target_id'];
     }, $scenarioField->getValue());
 
@@ -324,8 +320,11 @@ class ConfigurationConverter {
       $currentScenario['label'] = (string) $scenario->get('field_label')
         ->getValue()[0]['value'];
 
-      if ($referenceUrl = $scenario->get('field_reference_url')
-        ->getValue()[0]['uri']) {
+      if (
+        ($referenceField = $scenario->get('field_reference_url'))
+        && !$referenceField->isEmpty()
+        && $referenceUrl = $referenceField->getValue()[0]['uri']
+      ) {
         $currentScenario['referenceUrl'] = (string) $referenceUrl;
       }
 
