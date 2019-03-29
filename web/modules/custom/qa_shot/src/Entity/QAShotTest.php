@@ -558,7 +558,11 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    * {@inheritdoc}
    */
   public function getFrontendUrl(): ?string {
-    return $this->get('frontend_url')->getValue();
+    if ($this->get('frontend_url')->isEmpty()) {
+      return NULL;
+    }
+
+    return $this->get('frontend_url')->value;
   }
 
   /**
