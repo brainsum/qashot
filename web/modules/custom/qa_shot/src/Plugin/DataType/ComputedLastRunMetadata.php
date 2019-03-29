@@ -70,6 +70,8 @@ class ComputedLastRunMetadata extends TypedData {
    *
    * @return array
    *   The last run metadata.
+   *
+   * @todo: Refactor.
    */
   private function getLastItems(array $data): array {
     $result = [];
@@ -83,9 +85,23 @@ class ComputedLastRunMetadata extends TypedData {
     // This should ensure the following:
     // * Every stage exists only once.
     // * Inconsistencies can't happen (if 'run' is properly implemented).
+    // @todo: D8.7.x -> refactor to getEntity().
+    /** @var \Drupal\qa_shot\Entity\QAShotTestInterface $test */
+    $test = $this->getParent()->getValue();
+    $type = $test->bundle();
+
+    if ($type === 'before_after' && $latestMetadata['stage'] === 'before') {
+      return $result;
+    }
+    if ($type === 'a_b' && empty($latestMetadata['stage'])) {
+      return $result;
+    }
+
     $stages = [$latestMetadata['stage']];
+
     while (FALSE !== prev($data)) {
       $item = current($data);
+
       // If a stage is already added, we reached the termination point.
       if (in_array($item['stage'], $stages, FALSE)) {
         // There shouldn't be another item with this stage value, so break.

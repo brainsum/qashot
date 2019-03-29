@@ -55,19 +55,38 @@ function template_preprocess_qa_shot_test(array &$variables) {
     '#markup' => '<div class="field--item">' . $qaShotTest->getHumanReadableQueueStatus() . '</div>',
   ];
 
-  if ($reportPath = $qaShotTest->getHtmlReportPath()) {
-    $lastRun = $qaShotTest->getLastRunMetadataValue();
-    $reportTime = empty($lastRun) ? '' : \end($lastRun)['datetime'];
-    $variables['report_path'] = (new ReportPathMarkup($reportPath, $reportTime))->getLink();
+  $entityType = $qaShotTest->getType();
+
+  $lastRun = $qaShotTest->getLastRunMetadataValue();
+
+  $containsResults = FALSE;
+
+  if ($entityType === 'a_b') {
+    $containsResults = TRUE;
+  }
+  elseif ($entityType === 'before_after') {
+    foreach ($lastRun as $item) {
+      if ($item['stage'] === 'after') {
+        $containsResults = TRUE;
+        break;
+      }
+    }
   }
 
-  if ($remoteReportPath = $qaShotTest->getRemoteHtmlReportPath()) {
-    $lastRun = $qaShotTest->getLastRunMetadataValue();
-    $reportTime = empty($lastRun) ? '' : \end($lastRun)['datetime'];
-    $variables['remote_report_path'] = (new RemoteReportPathMarkup($remoteReportPath, $reportTime))->getLink();
+  if ($containsResults === TRUE) {
+    if ($reportPath = $qaShotTest->getHtmlReportPath()) {
+      $reportTime = empty($lastRun) ? '' : \end($lastRun)['datetime'];
+      $variables['report_path'] = (new ReportPathMarkup($reportPath, $reportTime))->getLink();
+    }
+
+    if ($remoteReportPath = $qaShotTest->getRemoteHtmlReportPath()) {
+      $reportTime = empty($lastRun) ? '' : \end($lastRun)['datetime'];
+      $variables['remote_report_path'] = (new RemoteReportPathMarkup($remoteReportPath, $reportTime))->getLink();
+    }
   }
 
   list($lastRunTime, $lastReferenceRunTime, $lastTestRunTime) = \array_values($qaShotTest->getLastRunTimes());
+
   if ($lastRunTime) {
     $variables['last_run_time'] = [
       '#type' => 'item',
@@ -82,7 +101,8 @@ function template_preprocess_qa_shot_test(array &$variables) {
       '#markup' => '<div class="field--item">' . $lastReferenceRunTime . '</div>',
     ];
   }
-  if ($lastTestRunTime) {
+
+  if ($containsResults && $lastTestRunTime) {
     $variables['last_test_run_time'] = [
       '#type' => 'item',
       '#title' => \t('Last test was run at'),
@@ -90,7 +110,6 @@ function template_preprocess_qa_shot_test(array &$variables) {
     ];
   }
 
-  $entityType = $qaShotTest->getType();
   if ($entityType === 'a_b') {
     $variables['run_path'] = [
       '#title' => 'Add test to queue',
