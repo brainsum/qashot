@@ -400,7 +400,7 @@ class FileSystem {
    * @return bool
    *   Whether the removal was a success or not.
    */
-  private function removePublicData(QAShotTestInterface $entity): bool {
+  public function removePublicData(QAShotTestInterface $entity): bool {
     $dir = $this->publicFiles . '/' . $entity->id();
     return $this->removeDirectory($dir);
   }

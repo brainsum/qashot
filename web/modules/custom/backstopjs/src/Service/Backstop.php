@@ -238,6 +238,8 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\TestCommandFailedException
    */
   protected function runAbTest(QAShotTestInterface $entity): array {
+    $this->backstopFileSystem->removePublicData($entity);
+
     $command = 'reference';
     try {
       $referenceResult = $this->runReferenceCommand($entity);
@@ -362,6 +364,10 @@ class Backstop extends TestBackendBase {
    * @throws \Drupal\backstopjs\Exception\InvalidCommandException
    */
   protected function runBeforeAfterTest(QAShotTestInterface $entity, $stage): array {
+    if ($stage === 'before') {
+      $this->backstopFileSystem->removePublicData($entity);
+    }
+
     return ('before' === $stage) ? $this->runReferenceCommand($entity) : $this->runTestCommand($entity);
   }
 
