@@ -5,5 +5,4 @@ dependencies: {  }
 name: Tag
 vid: tag
 description: ''
-hierarchy: 0
 weight: 0
