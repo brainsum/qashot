@@ -1,4 +1,4 @@
-FROM brainsum/drupal-php:0.2.0
+FROM brainsum/drupal-php:0.3.0
 
 LABEL maintainer="mhavelant"
 LABEL description="Custom docker image for QAShot."
@@ -26,7 +26,7 @@ RUN \
 # Override base image envs.
 ENV \
     APP_NAME="qashot" \
-    NODE_VERSION=8.15.0 \
+    NODE_VERSION=8.16.0 \
     NODE_ENV=production \
     FIREFOX_VERSION=59.0b9 \
     # XVFB/Xdummy
@@ -41,9 +41,9 @@ RUN \
         # Browser common
         libasound2=1.1.3-5 \
         libatk1.0-0=2.22.0-1 \
-        libc6=2.24-11+deb9u3 \
+        libc6=2.24-11+deb9u4 \
         libcairo2=1.14.8-1 \
-        libdbus-1-3=1.10.26-0+deb9u1 \
+        libdbus-1-3=1.10.28-0+deb9u1 \
         libfontconfig1=2.11.0-6.7+b1 \
         libfreetype6=2.6.3-3.2 \
         libgcc1=1:6.3.0-18+deb9u1 \
@@ -68,7 +68,7 @@ RUN \
         libjsoncpp1=1.7.4-3 \
         libstartup-notification0=0.12-4+b2 \
         libxt6=1:1.1.5-1 \
-        dbus=1.10.26-0+deb9u1 \
+        dbus=1.10.28-0+deb9u1 \
         ## Already there, but let's define them anyways.
         libcairo-gobject2=1.14.8-1 \
         libdbus-glib-1-2=0.108-2 \
@@ -78,14 +78,14 @@ RUN \
         # Chromium.
         libatomic1=6.3.0-18+deb9u1 \
         libatspi2.0-0=2.22.0-6+deb9u1 \
-        libavcodec57=7:3.2.12-1~deb9u1 \
-        libavformat57=7:3.2.12-1~deb9u1 \
-        libavutil55=7:3.2.12-1~deb9u1 \
-        libc6=2.24-11+deb9u3 \
+        libswresample2=7:3.2.14-1~deb9u1 \
+        libavcodec57=7:3.2.14-1~deb9u1 \
+        libavformat57=7:3.2.14-1~deb9u1 \
+        libavutil55=7:3.2.14-1~deb9u1 \
         libcups2=2.2.1-8+deb9u2 \
         libdrm2=2.4.74-1 \
         libevent-2.0-5=2.0.21-stable-3 \
-        libexpat1=2.2.0-2+deb9u1 \
+        libexpat1=2.2.0-2+deb9u2 \
         libflac8=1.3.2-1 \
         libgtk2.0-0=2.24.31-2 \
         libicu57=57.1-6+deb9u2 \
@@ -93,12 +93,12 @@ RUN \
         libminizip1=1.1-8+b1 \
         libnspr4=2:4.12-6 \
         libnss3=2:3.26.2-1.1+deb9u1 \
-        libopenjp2-7=2.1.2-1.1+deb9u2 \
+        libopenjp2-7=2.1.2-1.1+deb9u3 \
         libopus0=1.2~alpha2-1 \
         libpangocairo-1.0-0=1.40.5-1 \
         libpangoft2-1.0-0=1.40.5-1 \
         libpci3=1:3.5.2-1 \
-        libpng16-16=1.6.28-1 \
+        libpng16-16=1.6.28-1+deb9u1 \
         libpulse0=10.0-1+deb9u1 \
         libre2-3=20170101+dfsg-1 \
         libsnappy1v5=1.1.3-3 \
@@ -136,8 +136,12 @@ RUN \
         && apt-get -y autoremove
 
 # Build node.
-## Based on: https://github.com/nodejs/docker-node/blob/master/6/stretch/Dockerfile
-RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+## Based on: https://github.com/nodejs/docker-node/blob/master/8/stretch/Dockerfile
+# @note: disable-ipv6 is needed to solve this issue:
+## gpg: keyserver receive failed: Cannot assign requested address
+RUN gosu root mkdir -m 600 ~/.gnupg \
+  && gosu root echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
+  && ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && case "${dpkgArch##*-}" in \
     amd64) ARCH='x64';; \
     ppc64el) ARCH='ppc64le';; \

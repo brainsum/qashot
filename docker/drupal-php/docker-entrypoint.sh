@@ -41,7 +41,6 @@ init_sshd() {
         BEGIN { FS = "=" }; { \
             if ($1 != "HOME" \
                 && $1 != "PWD" \
-                && $1 != "PATH" \
                 && $1 != "SHLVL") { \
                 \
                 print ""$1"="$2"" \
@@ -78,10 +77,7 @@ process_templates() {
     _gotpl "docker-php-ext-igbinary.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-igbinary.ini"
     _gotpl "docker-php-ext-opcache-${php_ver_minor}.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini"
     _gotpl "docker-php-ext-tideways_xhprof.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-tideways_xhprof.ini"
-
-    if [[ "${php_ver_minor}" != "7.3" ]]; then
-        _gotpl "docker-php-ext-xdebug.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini"
-    fi
+    _gotpl "docker-php-ext-xdebug.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini"
 
     _gotpl "zz-www.conf.tmpl" "/usr/local/etc/php-fpm.d/zz-www.conf"
     _gotpl "wodby.settings.php.tmpl" "${CONF_DIR}/wodby.settings.php"
@@ -115,7 +111,7 @@ disable_modules
 
 if [[ "${@:1:2}" == "sudo /usr/sbin/sshd" ]]; then
     init_sshd
-elif [[ "${@:1:3}" == "sudo -E crond" ]]; then
+elif [[ "${@:1:3}" == "sudo -E crond" || "${@:1:4}" == "sudo -E LD_PRELOAD=/usr/lib/preloadable_libiconv.so crond" ]]; then
     init_crond
 fi
 

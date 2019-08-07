@@ -1,4 +1,5 @@
 # @todo: Install sendmail to /usr/sbin/sendmail.
+# @todo: Colored terminal output.
 
 # Base: debian:stretch-slim
 FROM php:7.3.8-fpm-stretch
@@ -9,7 +10,7 @@ LABEL description="Custom docker image for Drupal."
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 COPY ["templates", "/etc/gotpl/"]
-COPY ["docker-php-entrypoint.sh", "/"]
+COPY ["docker-entrypoint.sh", "/"]
 COPY ["bin", "/usr/local/bin/"]
 COPY ["init", "/docker-entrypoint-init.d/"]
 
@@ -42,7 +43,7 @@ VOLUME ${APP_ROOT}
 USER ${USER_NAME}
 EXPOSE 9000
 
-ENTRYPOINT ["/docker-php-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["sudo", "-E", "LD_PRELOAD=/usr/lib/preloadable_libiconv.so", "php-fpm"]
 
 USER root
