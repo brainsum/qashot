@@ -1,7 +1,7 @@
 # @todo: Install sendmail to /usr/sbin/sendmail.
 
 # Base: debian:stretch-slim
-FROM php:7.2.14-fpm-stretch
+FROM php:7.3.8-fpm-stretch
 
 LABEL maintainer="mhavelant"
 LABEL description="Custom docker image for Drupal."
@@ -52,12 +52,12 @@ ENV \
     # Gotpl
     GOTPL_VERSION=0.1.5 \
     # PHP
-    PHP_VERSION=7.2 \
+    PHP_VERSION=7.3 \
     # GNU Iconv
     GNU_ICONV_VERSION=1.14 \
     # Drupal
     DRUSH_LAUNCHER_VER="0.6.0" \
-    DRUPAL_CONSOLE_LAUNCHER_VER="1.8.0" \
+    DRUPAL_CONSOLE_LAUNCHER_VER="1.9.0" \
     DRUSH_LAUNCHER_FALLBACK="/home/${USER_NAME}/.composer/vendor/bin/drush" \
     \
     PHP_REALPATH_CACHE_TTL="3600" \
@@ -216,16 +216,16 @@ RUN \
         \
     && pecl config-set php_ini "${PHP_INI_DIR}/php.ini" \
     && pecl install \
-        apcu-5.1.16 \
-        ast-1.0.0 \
-        ds-1.2.6 \
-        event-2.4.3 \
-        grpc-1.17.0 \
-        igbinary-2.0.8 \
-        imagick-3.4.3 \
+        apcu-5.1.17 \
+        ast-1.0.3 \
+        ds-1.2.9 \
+        event-2.5.3 \
+        grpc-1.22.0 \
+        igbinary-3.0.1 \
+        imagick-3.4.4 \
         memcached-3.1.3 \
         uuid-1.0.4 \
-        xdebug-2.6.1 \
+        xdebug-2.7.2 \
         yaml-2.0.4 \
         mcrypt-1.0.2 \
 #        oauth-2.0.3 \
