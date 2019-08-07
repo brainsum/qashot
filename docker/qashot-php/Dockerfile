@@ -33,9 +33,11 @@ ENV \
     DISPLAY=:0.0
 
 # Backstop and sys deps.
+## @todo: Move sendmail to drupal-php.
 RUN \
     apt-get -y update \
 	&& apt-get -y --no-install-recommends install \
+        sendmail=8.15.2-8 \
         pkg-config=0.29-4+b1 \
         # apt-utils=??? \
         # Browser common
