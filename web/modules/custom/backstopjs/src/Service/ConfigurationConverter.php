@@ -333,7 +333,7 @@ class ConfigurationConverter {
         'url' => (string) $scenario->get('field_test_url')
           ->getValue()[0]['uri'],
         'readyEvent' => NULL,
-        'delay' => 15000,
+        'delay' => 30000,
         'misMatchThreshold' => (float) $misMatch,
         'selectors' => [
           'document',
