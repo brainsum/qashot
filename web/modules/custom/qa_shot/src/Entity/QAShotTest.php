@@ -8,11 +8,13 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 use Drupal\qa_shot\Exception\QAShotBaseException;
 use Drupal\qa_shot\Plugin\DataType\ComputedLastRunMetadata;
 use Drupal\qa_shot\Queue\QAShotQueue;
 use Drupal\user\UserInterface;
+use function array_map;
 
 /**
  * Defines the QAShot Test entity.
@@ -65,6 +67,7 @@ use Drupal\user\UserInterface;
 class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
 
   use EntityChangedTrait;
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -500,17 +503,15 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    */
   public function getSelectorsToHide(): array {
     /** @var \Drupal\Core\Field\FieldItemList $field */
-    $field = $this->get('selectors_to_hide')->getValue();
+    $field = $this->get('selectors_to_hide');
 
-    $fieldValue = [];
-
-    /** @var array $item */
-    foreach ($field as $item) {
-      $fieldValue[] = $item['value'];
+    if ($field->isEmpty()) {
+      return [];
     }
 
-    return $fieldValue;
-
+    return array_map(static function ($item) {
+      return $item['value'];
+    }, $field->getValue());
   }
 
   /**
@@ -525,17 +526,15 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
    */
   public function getSelectorsToRemove(): array {
     /** @var \Drupal\Core\Field\FieldItemList $field */
-    $field = $this->get('selectors_to_remove')->getValue();
+    $field = $this->get('selectors_to_remove');
 
-    $fieldValue = [];
-
-    /** @var array $item */
-    foreach ($field as $item) {
-      $fieldValue[] = $item['value'];
+    if ($field->isEmpty()) {
+      return [];
     }
 
-    return $fieldValue;
-
+    return array_map(static function ($item) {
+      return $item['value'];
+    }, $field->getValue());
   }
 
   /**
@@ -597,29 +596,29 @@ class QAShotTest extends ContentEntityBase implements QAShotTestInterface {
     $queueData = $queueDataService->getDataFromQueue($this->id());
 
     if (empty($queueData)) {
-      return t('Idle');
+      return $this->t('Idle');
     }
 
     switch ($queueData->status) {
       case QAShotQueue::QUEUE_STATUS_WAITING:
         if (!empty($queueData->stage)) {
           $runStateType = $queueData->stage === 'before' ? 'for reference pictures' : 'for test pictures';
-          return t('Queued to run (@type)', ['@type' => $runStateType]);
+          return $this->t('Queued to run (@type)', ['@type' => $runStateType]);
         }
 
-        return t('Queued to run');
+        return $this->t('Queued to run');
 
       case QAShotQueue::QUEUE_STATUS_RUNNING:
-        return t('Running, please be patient...');
+        return $this->t('Running, please be patient...');
 
       case QAShotQueue::QUEUE_STATUS_REMOTE:
-        return t('Test is running remotely, please be patient...');
+        return $this->t('Test is running remotely, please be patient...');
 
       case QAShotQueue::QUEUE_STATUS_ERROR:
-        return t('There was an error!');
+        return $this->t('There was an error!');
 
       default:
-        throw new QAShotBaseException(t('Unknown queue state!'));
+        throw new QAShotBaseException($this->t('Unknown queue state!'));
     }
   }
 
