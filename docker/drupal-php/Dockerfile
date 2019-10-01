@@ -2,7 +2,7 @@
 # @todo: Colored terminal output.
 
 # Base: debian:stretch-slim
-FROM php:7.3.8-fpm-stretch
+FROM php:7.3.10-fpm-stretch
 
 LABEL maintainer="mhavelant"
 LABEL description="Custom docker image for Drupal."
@@ -76,6 +76,7 @@ RUN \
         gosu=1.10-1+b2 \
         # @todo: Might no longer be needed.
         sudo \
+        sendmail=8.15.2-8 \
 	    software-properties-common \
         ca-certificates \
         dirmngr \
