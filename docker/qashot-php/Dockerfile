@@ -1,4 +1,4 @@
-FROM brainsum/drupal-php:0.3.0
+FROM brainsum/drupal-php:0.4.0
 
 LABEL maintainer="mhavelant"
 LABEL description="Custom docker image for QAShot."
@@ -33,11 +33,9 @@ ENV \
     DISPLAY=:0.0
 
 # Backstop and sys deps.
-## @todo: Move sendmail to drupal-php.
 RUN \
     apt-get -y update \
 	&& apt-get -y --no-install-recommends install \
-        sendmail=8.15.2-8 \
         pkg-config=0.29-4+b1 \
         # apt-utils=??? \
         # Browser common
@@ -50,7 +48,7 @@ RUN \
         libfreetype6=2.6.3-3.2 \
         libgcc1=1:6.3.0-18+deb9u1 \
         libgdk-pixbuf2.0-0=2.36.5-2+deb9u2 \
-        libglib2.0-0=2.50.3-2 \
+        libglib2.0-0=2.50.3-2+deb9u1 \
         libpango-1.0-0=1.40.5-1 \
         libstdc++6=6.3.0-18+deb9u1 \
         libvpx4=1.6.1-3+deb9u1 \
@@ -87,10 +85,10 @@ RUN \
         libcups2=2.2.1-8+deb9u2 \
         libdrm2=2.4.74-1 \
         libevent-2.0-5=2.0.21-stable-3 \
-        libexpat1=2.2.0-2+deb9u2 \
+        libexpat1=2.2.0-2+deb9u3 \
         libflac8=1.3.2-1 \
         libgtk2.0-0=2.24.31-2 \
-        libicu57=57.1-6+deb9u2 \
+        libicu57=57.1-6+deb9u3 \
         libjpeg62-turbo=1:1.5.1-2 \
         libminizip1=1.1-8+b1 \
         libnspr4=2:4.12-6 \
@@ -111,7 +109,7 @@ RUN \
         libxi6=2:1.7.9-1 \
         libxml2=2.9.4+dfsg1-2.2+deb9u2 \
         libxrandr2=2:1.5.1-1 \
-        libxslt1.1=1.1.29-2.1 \
+        libxslt1.1=1.1.29-2.1+deb9u1 \
         libxss1=1:1.2.2-1 \
         libxtst6=2:1.2.3-1 \
         x11-utils=7.7+3+b1 \
