@@ -1,0 +1,12 @@
+version: "3.7"
+
+services:
+  drupal-php:
+    image: brainsum/drupal-php:0.4.0
+    build:
+      context: docker/drupal-php
+
+  qashot-php:
+    image: brainsum/qashot-php:0.4.0
+    build:
+      context: docker/qashot-php
