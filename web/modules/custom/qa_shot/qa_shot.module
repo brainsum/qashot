@@ -5,8 +5,10 @@
  * Contains qa_shot.module.
  */
 
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\qa_shot\Exception\QAShotBaseException;
 
 /**
  * Implements hook_help().
@@ -173,34 +175,50 @@ function qa_shot_form_alter(
  *
  * {@inheritdoc}
  */
-function qa_shot_qa_shot_test_run_handler(&$form, FormStateInterface $form_state) {
+function qa_shot_qa_shot_test_run_handler(array &$form, FormStateInterface $form_state) {
   /** @var \Drupal\qa_shot\Entity\QAShotTest $entity */
   $entity = $form_state->getFormObject()->getEntity();
 
   $triggering_element_id = $form_state->getTriggeringElement()['#id'];
 
-  if ($triggering_element_id === 'edit-run') {
-    $form_state->setRedirect(
-      'entity.qa_shot_test.add_to_queue',
-      [
-        'qa_shot_test' => $entity->id(),
-      ]
-    );
+  $stage = -1;
+
+  switch ($triggering_element_id) {
+    case 'edit-run':
+      $stage = NULL;
+      break;
+
+    case 'edit-run-reference':
+      $stage = 'before';
+      break;
+
+    case 'edit-run-after':
+      $stage = 'after';
+      break;
   }
-  elseif ($triggering_element_id === 'edit-run-reference') {
-    $form_state->setRedirect(
-      'entity.qa_shot_test.add_to_queue_reference',
-      [
-        'qa_shot_test' => $entity->id(),
-      ]
-    );
+
+  /** @var \Drupal\Core\Messenger\MessengerInterface $messenger */
+  $messenger = \Drupal::messenger();
+
+  if ($stage !== -1) {
+    /** @var \Drupal\qa_shot\Service\QueueManager $queueManager */
+    $queueManager = \Drupal::service('qa_shot.queue_manager');
+
+    try {
+      $queueManager->addTest($entity, $stage);
+    }
+    catch (QAShotBaseException | EntityStorageException $exception) {
+      $messenger->addMessage($exception->getMessage(), 'error');
+    }
   }
-  elseif ($triggering_element_id === 'edit-run-after') {
-    $form_state->setRedirect(
-      'entity.qa_shot_test.add_to_queue_test',
-      [
-        'qa_shot_test' => $entity->id(),
-      ]
-    );
+  else {
+    $messenger->addMessage(t('Invalid stage detected, cannot add test to the queue.'), 'warning');
   }
+
+  $form_state->setRedirect(
+    'entity.qa_shot_test.run',
+    [
+      'qa_shot_test' => $entity->id(),
+    ]
+  );
 }
